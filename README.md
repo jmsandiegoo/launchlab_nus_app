@@ -1,7 +1,6 @@
-<<<<<<< HEAD
-# launchlab_nus_app
+# prototype
 
-A new Flutter project.
+Orbital LaunchLab
 
 ## Getting Started
 
@@ -15,6 +14,3 @@ A few resources to get you started if this is your first Flutter project:
 For help getting started with Flutter development, view the
 [online documentation](https://docs.flutter.dev/), which offers tutorials,
 samples, guidance on mobile development, and a full API reference.
-=======
-# launchlab-nus
->>>>>>> bf79f40dcf3ae5a445d26524da9fa0a1586e3a57
