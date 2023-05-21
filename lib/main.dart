@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:prototype/chat_page.dart';
-import 'package:prototype/profile_page.dart';
-import 'package:prototype/rocket_page.dart';
-import 'package:prototype/sign_up_page.dart';
-import 'package:prototype/res/colors.dart';
-import 'home_page.dart';
+import 'package:prototype/src/shared/colors.dart';
+import 'package:prototype/src/features/chat/presentation/chat_page.dart';
+import 'package:prototype/src/features/profile/presentation/profile_page.dart';
+import 'package:prototype/src/features/team/presentation/discover_page.dart';
+import 'package:prototype/src/features/authentication/presentation/sign_up_page.dart';
+import 'src/features/team/presentation/home_page.dart';
 
 void main() {
   runApp(const MyApp());
@@ -29,20 +29,14 @@ class MyApp extends StatelessWidget {
     },
   );
 
-
   @override
   Widget build(BuildContext context) {
-    return  MaterialApp(
-      theme: ThemeData(
-          primarySwatch: primaryBlack
-      ),
-
-      home:const SignUpPage(),
+    return MaterialApp(
+      theme: ThemeData(primarySwatch: primaryBlack),
+      home: const SignUpPage(),
     );
   }
 }
-
-
 
 //Use stateful when user press sth and need to refresh
 class RootPage extends StatefulWidget {
@@ -62,7 +56,6 @@ class _RootPageState extends State<RootPage> {
     ProfilePage()
   ];
 
-
   void _onItemTapped(int index) {
     setState(() {
       currentPage = index;
@@ -73,7 +66,6 @@ class _RootPageState extends State<RootPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: pages[currentPage],
-
       bottomNavigationBar: BottomNavigationBar(
         backgroundColor: black,
         type: BottomNavigationBarType.fixed,
@@ -81,7 +73,6 @@ class _RootPageState extends State<RootPage> {
           BottomNavigationBarItem(
             icon: Icon(Icons.home_outlined),
             label: 'Home',
-
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.chat),
@@ -103,8 +94,6 @@ class _RootPageState extends State<RootPage> {
         selectedLabelStyle: const TextStyle(fontSize: 0),
         unselectedLabelStyle: const TextStyle(fontSize: 0),
       ),
-
     );
   }
 }
-

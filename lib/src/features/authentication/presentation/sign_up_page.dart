@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:prototype/home_page.dart';
-import 'package:prototype/login_page.dart';
+// import 'package:prototype/src/features/team/presentation/home_page.dart';
+import 'package:prototype/src/features/authentication/presentation/login_page.dart';
 import 'package:prototype/main.dart';
 
 class SignUpPage extends StatefulWidget {
@@ -46,7 +46,6 @@ class _SignUpPage extends State<SignUpPage> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-
                   //Sign up title is here
                   Column(
                     children: [
@@ -66,7 +65,6 @@ class _SignUpPage extends State<SignUpPage> {
                         ],
                       ),
 
-
                       //Text Field are here
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 40),
@@ -82,35 +80,34 @@ class _SignUpPage extends State<SignUpPage> {
                             Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                              const Text("Degree Type:",
-                                  style: TextStyle(
-                                      fontSize: 15, fontWeight: FontWeight.bold, color: Colors.black87
-                                  )
-                              ),
-                              DropdownButton(
-                                isExpanded: true,
-                                value: degreeTypeVal,
-                                icon: const Icon(Icons.keyboard_arrow_down),
-                                items: degreeType.map((String items) {
-                                  return DropdownMenuItem(
-                                    value: items,
-                                    child: Text(items),
-                                  );
-                                }).toList(),
-                                onChanged: (String? newValue) {
-                                  setState(() {
-                                    degreeTypeVal = newValue!;
-                                  });
-                                },
-                              ),
-                            ])
+                                  const Text("Degree Type:",
+                                      style: TextStyle(
+                                          fontSize: 15,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.black87)),
+                                  DropdownButton(
+                                    isExpanded: true,
+                                    value: degreeTypeVal,
+                                    icon: const Icon(Icons.keyboard_arrow_down),
+                                    items: degreeType.map((String items) {
+                                      return DropdownMenuItem(
+                                        value: items,
+                                        child: Text(items),
+                                      );
+                                    }).toList(),
+                                    onChanged: (String? newValue) {
+                                      setState(() {
+                                        degreeTypeVal = newValue!;
+                                      });
+                                    },
+                                  ),
+                                ])
                           ],
                         ),
                       ),
                       const SizedBox(
                         height: 20,
                       ),
-
 
                       //Sign up Button goes here
                       Padding(

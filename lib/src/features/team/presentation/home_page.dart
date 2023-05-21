@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:prototype/res/colors.dart';
+import 'package:prototype/src/shared/colors.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -40,7 +40,6 @@ class _HomePageState extends State<HomePage> {
             ],
           ),
           //Input the 2 buttons
-
         ]),
       ),
     );

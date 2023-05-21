@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:prototype/sign_up_page.dart';
-import 'package:prototype/res/colors.dart';
+import 'package:prototype/src/shared/colors.dart';
+import 'package:prototype/src/features/authentication/presentation/sign_up_page.dart';
 
 class LoginPage extends StatelessWidget {
   const LoginPage({Key? key}) : super(key: key);
@@ -13,10 +13,7 @@ class LoginPage extends StatelessWidget {
           const SizedBox(
             height: 150,
           ),
-          Center(
-              child: Image.asset("images/launchlab_logo.png")
-          ),
-
+          Center(child: Image.asset("images/launchlab_logo.png")),
           ElevatedButton(
               child: const Text(
                 'Navigate to the sign up page',
@@ -25,13 +22,11 @@ class LoginPage extends StatelessWidget {
               onPressed: () {
                 _navigateToSignUpPage(context);
               }),
-
           const SizedBox(
             height: 100,
           ),
           const Text("Need to do Auth here")
-        ])
-    );
+        ]));
   }
 
   void _navigateToSignUpPage(BuildContext context) {
