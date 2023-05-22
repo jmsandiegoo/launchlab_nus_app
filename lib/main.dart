@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:prototype/src/shared/colors.dart';
+import 'package:prototype/src/config/app_theme.dart';
 import 'package:prototype/src/features/chat/presentation/chat_page.dart';
-import 'package:prototype/src/features/profile/presentation/profile_page.dart';
+import 'package:prototype/src/features/profile/presentation/page/profile_page.dart';
 import 'package:prototype/src/features/team/presentation/discover_page.dart';
-import 'package:prototype/src/features/authentication/presentation/sign_up_page.dart';
+import 'package:prototype/src/features/authentication/presentation/page/sign_up_page.dart';
 import 'src/features/team/presentation/home_page.dart';
 
 void main() {
@@ -13,26 +13,10 @@ void main() {
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
 
-  static const MaterialColor primaryBlack = MaterialColor(
-    codeBlack,
-    <int, Color>{
-      50: Color(0xFF000000),
-      100: Color(0xFF000000),
-      200: Color(0xFF000000),
-      300: Color(0xFF000000),
-      400: Color(0xFF000000),
-      500: Color(codeBlack),
-      600: Color(0xFF000000),
-      700: Color(0xFF000000),
-      800: Color(0xFF000000),
-      900: Color(0xFF000000),
-    },
-  );
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      theme: ThemeData(primarySwatch: primaryBlack),
+      theme: appThemeData,
       home: const SignUpPage(),
     );
   }
@@ -67,7 +51,7 @@ class _RootPageState extends State<RootPage> {
     return Scaffold(
       body: pages[currentPage],
       bottomNavigationBar: BottomNavigationBar(
-        backgroundColor: black,
+        // backgroundColor: black,
         type: BottomNavigationBarType.fixed,
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
