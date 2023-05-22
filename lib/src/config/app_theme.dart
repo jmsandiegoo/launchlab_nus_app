@@ -1,3 +1,5 @@
+/// A file to configure app theme
+
 import 'package:flutter/material.dart';
 
 const blackColor = Color(0xFF202020);
@@ -9,7 +11,8 @@ final ThemeData appThemeData = ThemeData(
   colorScheme:
       const ColorScheme.light(primary: yellowColor, secondary: blackColor),
   scaffoldBackgroundColor: greyColor,
-  navigationDrawerTheme:
-      const NavigationDrawerThemeData(backgroundColor: blackColor),
+  bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+      backgroundColor: blackColor, unselectedItemColor: whiteColor),
   fontFamily: "Roboto",
+  iconTheme: const IconThemeData(weight: 200.0),
 );

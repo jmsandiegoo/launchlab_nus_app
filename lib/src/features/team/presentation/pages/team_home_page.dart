@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:prototype/src/shared/colors.dart';
 
-class HomePage extends StatefulWidget {
-  const HomePage({Key? key}) : super(key: key);
+class TeamHomePage extends StatefulWidget {
+  const TeamHomePage({Key? key}) : super(key: key);
 
   @override
-  State<HomePage> createState() => _HomePageState();
+  State<TeamHomePage> createState() => _TeamHomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _TeamHomePageState extends State<TeamHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -19,16 +18,15 @@ class _HomePageState extends State<HomePage> {
               Image.asset("images/yellow_curve_shape.png"),
               AppBar(
                 elevation: 0,
-                backgroundColor: yellowTheme,
-                leading: IconButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                    icon: const Icon(
-                      Icons.arrow_back_ios,
-                      size: 20,
-                      color: Colors.black,
-                    )),
+                // leading: IconButton(
+                //     // onPressed: () {
+                //     //   Navigator.pop(context);
+                //     // },
+                //     icon: const Icon(
+                //       Icons.arrow_back_ios,
+                //       size: 20,
+                //       color: Colors.black,
+                //     )),
               ),
               const Positioned(
                 top: 175,

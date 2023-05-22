@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 // import 'package:prototype/src/features/team/presentation/home_page.dart';
-import 'package:prototype/src/features/authentication/presentation/login_page.dart';
+import 'package:prototype/src/features/authentication/presentation/pages/login_page.dart';
 import 'package:prototype/main.dart';
 
 class SignUpPage extends StatefulWidget {
@@ -166,8 +166,8 @@ class _SignUpPage extends State<SignUpPage> {
   }
 
   void _navigateToHomePage(BuildContext context) {
-    Navigator.of(context)
-        .push(MaterialPageRoute(builder: (context) => const RootPage()));
+    // Navigator.of(context)
+    //     .push(MaterialPageRoute(builder: (context) => const RootPage()));
   }
 
   void _navigateToLoginPage(BuildContext context) {
