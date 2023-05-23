@@ -1,8 +1,8 @@
 // This is a generated file; do not edit or check into version control.
 FLUTTER_ROOT=/Users/ysk/flutter
-FLUTTER_APPLICATION_PATH=/Users/ysk/Desktop/NUS/Year 1 Sem 2/Orbital/Prototype
+FLUTTER_APPLICATION_PATH=/Users/ysk/Desktop/NUS/Year 1 Sem 2/Orbital/All Versions/launchlab_nus_app-main
 COCOAPODS_PARALLEL_CODE_SIGN=true
-FLUTTER_TARGET=/Users/ysk/Desktop/NUS/Year 1 Sem 2/Orbital/Prototype/lib/main.dart
+FLUTTER_TARGET=/Users/ysk/Desktop/NUS/Year 1 Sem 2/Orbital/All Versions/launchlab_nus_app-main/lib/main.dart
 FLUTTER_BUILD_DIR=build
 FLUTTER_BUILD_NAME=1.0.0
 FLUTTER_BUILD_NUMBER=1
@@ -10,4 +10,4 @@ DART_DEFINES=Zmx1dHRlci5pbnNwZWN0b3Iuc3RydWN0dXJlZEVycm9ycz10cnVl,RkxVVFRFUl9XRU
 DART_OBFUSCATION=false
 TRACK_WIDGET_CREATION=true
 TREE_SHAKE_ICONS=false
-PACKAGE_CONFIG=/Users/ysk/Desktop/NUS/Year 1 Sem 2/Orbital/Prototype/.dart_tool/package_config.json
+PACKAGE_CONFIG=/Users/ysk/Desktop/NUS/Year 1 Sem 2/Orbital/All Versions/launchlab_nus_app-main/.dart_tool/package_config.json

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:prototype/src/features/authentication/presentation/pages/login_page.dart';
-import 'package:prototype/src/features/chat/presentation/chat_page.dart';
-import 'package:prototype/src/features/team/presentation/pages/discover_page.dart';
-import 'package:prototype/src/features/team/presentation/pages/team_home_page.dart';
-import 'package:prototype/src/features/user/presentation/page/profile_page.dart';
+import 'package:launchlab/src/features/authentication/presentation/pages/login_page.dart';
+import 'package:launchlab/src/features/chat/presentation/chat_page.dart';
+import 'package:launchlab/src/features/team/presentation/pages/discover_page.dart';
+import 'package:launchlab/src/features/team/presentation/pages/team_home_page.dart';
+import 'package:launchlab/src/features/user/presentation/page/profile_page.dart';
 import '../features/authentication/presentation/pages/sign_up_page.dart';
 import '../shared/widgets/scaffold_with_bottom_nav.dart';
 
@@ -15,11 +15,11 @@ final _rootNavigatorKey = GlobalKey<NavigatorState>();
 final _shellNavigatorKey = GlobalKey<NavigatorState>();
 
 final GoRouter appRouter = GoRouter(
-  initialLocation: "/",
+  initialLocation: "/login",
   navigatorKey: _rootNavigatorKey,
   routes: [
     GoRoute(
-      path: "/",
+      path: "/login",
       builder: (context, state) => const LoginPage(),
     ),
     GoRoute(
@@ -45,7 +45,7 @@ final GoRouter appRouter = GoRouter(
         GoRoute(
           path: "/discover",
           pageBuilder: (context, state) =>
-              const NoTransitionPage(child: RocketPage()),
+              const NoTransitionPage(child: DiscoverPage()),
         ),
         GoRoute(
           path: "/profile",

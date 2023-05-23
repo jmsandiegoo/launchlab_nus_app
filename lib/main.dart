@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:prototype/src/config/app_router.dart';
-import 'package:prototype/src/config/app_theme.dart';
+import 'package:launchlab/src/config/app_router.dart';
+import 'package:launchlab/src/config/app_theme.dart';
 
 void main() {
   runApp(const MyApp());
@@ -23,7 +23,7 @@ class MyApp extends StatelessWidget {
 //   const RootPage({Key? key}) : super(key: key);
 
 //   @override
-//   State<RootPage> createState() => _RootPageState();
+//   State<RootPage> createState() => _ScaffoldWithBottomNavState();
 // }
 
 // class _RootPageState extends State<RootPage> {
