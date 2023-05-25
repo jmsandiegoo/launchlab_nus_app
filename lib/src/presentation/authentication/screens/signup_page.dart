@@ -1,7 +1,4 @@
 import 'package:flutter/material.dart';
-// import 'package:prototype/src/features/team/presentation/home_page.dart';
-import 'package:prototype/src/features/authentication/presentation/pages/login_page.dart';
-import 'package:prototype/main.dart';
 
 class SignUpPage extends StatefulWidget {
   const SignUpPage({Key? key}) : super(key: key);
@@ -171,8 +168,8 @@ class _SignUpPage extends State<SignUpPage> {
   }
 
   void _navigateToLoginPage(BuildContext context) {
-    Navigator.of(context)
-        .push(MaterialPageRoute(builder: (context) => const LoginPage()));
+    // Navigator.of(context)
+    //     .push(MaterialPageRoute(builder: (context) => const LoginPage()));
   }
 
   Widget makeInput({label, obsureText = false}) {

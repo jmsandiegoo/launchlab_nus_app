@@ -1,3 +1,0 @@
-class SignupDTO {}
-
-class LoginDTO {}

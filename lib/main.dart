@@ -1,74 +1,48 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:prototype/src/config/app_config.dart';
 import 'package:prototype/src/config/app_router.dart';
 import 'package:prototype/src/config/app_theme.dart';
+import 'package:prototype/src/data/authentication/repository/auth_repository.dart';
+import 'package:prototype/src/presentation/common/cubits/app_root_cubit.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
-void main() {
-  runApp(const MyApp());
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  await Supabase.initialize(
+    url: supabaseUrl,
+    anonKey: supabaseToken,
+  );
+
+  runApp(const RootApp());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+class RootApp extends StatelessWidget {
+  const RootApp({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (_) => AppRootCubit(AuthRepository(Supabase.instance)),
+      child: const RootAppContent(),
+    );
+  }
+}
+
+class RootAppContent extends StatelessWidget {
+  const RootAppContent({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final appRootCubit = BlocProvider.of<AppRootCubit>(context);
+
+    // Susbcribe to Auth
+    appRootCubit.handleAuthListener();
+
     return MaterialApp.router(
       theme: appThemeData,
       routerConfig: appRouter,
     );
   }
 }
-
-//Use stateful when user press sth and need to refresh
-// class RootPage extends StatefulWidget {
-//   const RootPage({Key? key}) : super(key: key);
-
-//   @override
-//   State<RootPage> createState() => _RootPageState();
-// }
-
-// class _RootPageState extends State<RootPage> {
-//   int currentPage = 0;
-
-//   // List<Widget> pages = const [ChatPage(), RocketPage(), ProfilePage()];
-
-//   void _onItemTapped(int index) {
-//     setState(() {
-//       currentPage = index;
-//     });
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       body: pages[currentPage],
-//       bottomNavigationBar: BottomNavigationBar(
-//         // backgroundColor: black,
-//         type: BottomNavigationBarType.fixed,
-//         items: const <BottomNavigationBarItem>[
-//           BottomNavigationBarItem(
-//             icon: Icon(Icons.home_outlined),
-//             label: 'Home',
-//           ),
-//           BottomNavigationBarItem(
-//             icon: Icon(Icons.forum_outlined),
-//             label: 'Chat',
-//           ),
-//           BottomNavigationBarItem(
-//             icon: Icon(Icons.rocket_launch_outlined),
-//             label: 'Rocket',
-//           ),
-//           BottomNavigationBarItem(
-//             icon: Icon(Icons.person_outline),
-//             label: 'Profile',
-//           ),
-//         ],
-//         currentIndex: currentPage,
-//         selectedItemColor: Theme.of(context).colorScheme.primary,
-//         unselectedItemColor: Colors.white,
-//         onTap: _onItemTapped,
-//         selectedLabelStyle: const TextStyle(fontSize: 0),
-//         unselectedLabelStyle: const TextStyle(fontSize: 0),
-//       ),
-//     );
-//   }
-// }

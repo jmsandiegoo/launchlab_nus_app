@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:prototype/src/config/app_theme.dart';
 
 /// A custom scaffold widget to work with Shell routes.
 class ScaffoldWithBottomNav extends StatefulWidget {
