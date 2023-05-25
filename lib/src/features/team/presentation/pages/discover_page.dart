@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:launchlab/src/config/app_theme.dart';
+import 'package:launchlab/src/shared/widgets/useful.dart';
 
 class DiscoverPage extends StatefulWidget {
   const DiscoverPage({Key? key}) : super(key: key);
@@ -14,51 +15,31 @@ class _DiscoverPageState extends State<DiscoverPage> {
     return Scaffold(
       body: Column(children: [
         Stack(children: [
-          Image.asset("assets/images/yellow_rectangle.png"),
+          Image.asset("assets/images/yellow_curve_shape_3.png"),
           Column(
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const SizedBox(
-                  height: 70,
+                  height: 80,
                 ),
-                Row(children: const [
-                  SizedBox(
-                    width: 20,
-                  ),
-                  Text(
-                    "Find Teams / Users",
-                    style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
-                  ),
+                Row(children: [
+                  const SizedBox(width: 20),
+                  headerText("Find Teams / Users"),
                 ]),
                 const SizedBox(
                   height: 20,
                 ),
                 Center(
                   child: Container(
-                    height: 40,
+                    height: 45,
                     margin: const EdgeInsets.only(left: 20, right: 20),
                     child: Row(
                       children: [
-                        Flexible(
-                          flex: 1,
-                          child: TextField(
-                            cursorColor: Colors.grey,
-                            decoration: InputDecoration(
-                              fillColor: Colors.white,
-                              filled: true,
-                              border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                  borderSide: BorderSide.none),
-                              hintText: 'Search',
-                              hintStyle: const TextStyle(
-                                  color: Colors.grey, fontSize: 13),
-                            ),
-                          ),
-                        ),
+                        searchBar(),
                         InkWell(
                           onTap: () {
-                            print("Click event on Container");
+                            //Go to advance page search here
                           },
                           child: Container(
                             margin: const EdgeInsets.only(left: 10),
@@ -68,7 +49,7 @@ class _DiscoverPageState extends State<DiscoverPage> {
                                 borderRadius: BorderRadius.circular(10)),
                             width: 50,
                             child: const Icon(
-                              Icons.filter_alt,
+                              Icons.filter_alt_outlined,
                               color: Colors.yellow,
                             ),
                           ),
