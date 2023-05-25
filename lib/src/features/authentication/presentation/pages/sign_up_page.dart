@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
-// import 'package:prototype/src/features/team/presentation/home_page.dart';
-import 'package:prototype/src/features/authentication/presentation/pages/login_page.dart';
-import 'package:prototype/main.dart';
+import 'package:launchlab/src/config/app_theme.dart';
+import 'package:launchlab/src/shared/widgets/useful.dart';
 
 class SignUpPage extends StatefulWidget {
   const SignUpPage({Key? key}) : super(key: key);
 
   @override
-  _SignUpPage createState() => _SignUpPage();
+  State<SignUpPage> createState() => _SignUpPage();
 }
 
 class _SignUpPage extends State<SignUpPage> {
@@ -22,26 +21,19 @@ class _SignUpPage extends State<SignUpPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
       resizeToAvoidBottomInset: false,
-      backgroundColor: Colors.white,
+      backgroundColor: whiteColor,
       appBar: AppBar(
         elevation: 0,
-        backgroundColor: Colors.white,
+        backgroundColor: whiteColor,
         leading: IconButton(
             onPressed: () {
-              _navigateToLoginPage(context);
+              navigatePush(context, "/login");
             },
-            icon: const Icon(
-              Icons.arrow_back_ios,
-              size: 20,
-              color: Colors.black,
-            )),
+            icon: backButton()),
       ),
       body: SafeArea(
-        child: SingleChildScrollView(
-          child: SizedBox(
-            height: MediaQuery.of(context).size.height,
-            width: double.infinity,
             child: SingleChildScrollView(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -51,17 +43,9 @@ class _SignUpPage extends State<SignUpPage> {
                     children: [
                       Column(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: const [
-                          Text(
-                            "Sign up",
-                            style: TextStyle(
-                              fontSize: 30,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          SizedBox(
-                            height: 30,
-                          ),
+                        children: [
+                          headerText("Sign up", size: 30.0),
+                          const SizedBox(height: 30),
                         ],
                       ),
 
@@ -70,13 +54,11 @@ class _SignUpPage extends State<SignUpPage> {
                         padding: const EdgeInsets.symmetric(horizontal: 40),
                         child: Column(
                           children: [
-                            makeInput(
-                              label: "First Name",
-                            ),
-                            makeInput(label: "Last Name"),
-                            makeInput(label: "Current Institution"),
-                            makeInput(label: "Major"),
-                            makeInput(label: "Enrollment Year"),
+                            userInput(label: "First Name"),
+                            userInput(label: "Last Name"),
+                            userInput(label: "Current Institution"),
+                            userInput(label: "Major"),
+                            //userInput(label: "Enrollment Year"),
                             Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
@@ -84,7 +66,7 @@ class _SignUpPage extends State<SignUpPage> {
                                       style: TextStyle(
                                           fontSize: 15,
                                           fontWeight: FontWeight.bold,
-                                          color: Colors.black87)),
+                                          color: blackColor)),
                                   DropdownButton(
                                     isExpanded: true,
                                     value: degreeTypeVal,
@@ -105,9 +87,7 @@ class _SignUpPage extends State<SignUpPage> {
                           ],
                         ),
                       ),
-                      const SizedBox(
-                        height: 20,
-                      ),
+                      const SizedBox(height: 20),
 
                       //Sign up Button goes here
                       Padding(
@@ -120,12 +100,12 @@ class _SignUpPage extends State<SignUpPage> {
                             minWidth: double.infinity,
                             height: 60,
                             onPressed: () {
-                              _navigateToHomePage(context);
+                              navigateGo(context, "/team-home");
                             },
-                            //To be edited
                             color: const Color(0xFFFFD84E),
                             shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(40)),
+                              borderRadius: BorderRadius.circular(40),
+                            ),
                             child: const Text(
                               "Sign Up",
                               style: TextStyle(
@@ -136,74 +116,24 @@ class _SignUpPage extends State<SignUpPage> {
                           ),
                         ),
                       ),
-                      const SizedBox(
-                        height: 20,
-                      ),
-                      /*
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: const [
-                          Text("Already have an account? "),
-                          Text(
-                            "Login here",
-                            style: TextStyle(
-                                fontWeight: FontWeight.w600, fontSize: 18),
-                          ),
-                        ],
-                      ) */
+                      const SizedBox(height: 20),
                     ],
                   ),
-                  const SizedBox(
-                    height: 20,
-                  ),
+                  const SizedBox(height: 30),
                 ],
               ),
             ),
           ),
-        ),
-      ),
-    );
+        );
   }
 
+/*
   void _navigateToHomePage(BuildContext context) {
-    // Navigator.of(context)
-    //     .push(MaterialPageRoute(builder: (context) => const RootPage()));
+    context.go("/team-home");
   }
 
   void _navigateToLoginPage(BuildContext context) {
-    Navigator.of(context)
-        .push(MaterialPageRoute(builder: (context) => const LoginPage()));
+    context.push("/");
   }
-
-  Widget makeInput({label, obsureText = false}) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: const TextStyle(
-              fontSize: 15, fontWeight: FontWeight.bold, color: Colors.black87),
-        ),
-        const SizedBox(
-          height: 5,
-        ),
-        TextField(
-          obscureText: obsureText,
-          decoration: const InputDecoration(
-            contentPadding: EdgeInsets.symmetric(vertical: 0, horizontal: 10),
-            enabledBorder: OutlineInputBorder(
-              borderSide: BorderSide(
-                color: Colors.grey,
-              ),
-            ),
-            border:
-                OutlineInputBorder(borderSide: BorderSide(color: Colors.grey)),
-          ),
-        ),
-        const SizedBox(
-          height: 30,
-        )
-      ],
-    );
-  }
+   */
 }
