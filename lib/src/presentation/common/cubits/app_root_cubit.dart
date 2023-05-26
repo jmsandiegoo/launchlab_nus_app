@@ -12,7 +12,7 @@ class AppRootState extends Equatable {
   const AppRootState(this.isSignedIn);
 
   @override
-  List<Object?> get props => [];
+  List<Object?> get props => [isSignedIn];
 }
 
 class AppRootCubit extends Cubit<AppRootState> {

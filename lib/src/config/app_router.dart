@@ -20,10 +20,6 @@ final GoRouter appRouter = GoRouter(
   initialLocation: "/signin",
   navigatorKey: _rootNavigatorKey,
   routes: [
-    GoRoute(
-      path: "/signin",
-      builder: (context, state) => const SigninPage(),
-    ),
     ShellRoute(
       navigatorKey: _unprotectedShellNavigatorKey,
       builder: (context, state, child) {
@@ -40,7 +36,11 @@ final GoRouter appRouter = GoRouter(
     ShellRoute(
       navigatorKey: _protectedShellNavigatorKey,
       builder: (context, state, child) {
-        return ProtectedScreenPage(child: child);
+        return ProtectedScreenPage(
+          child: ScaffoldWithBottomNav(
+            child: child,
+          ),
+        );
       },
       routes: [
         GoRoute(
