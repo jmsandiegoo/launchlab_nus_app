@@ -24,8 +24,7 @@ class AuthRepository implements AuthRepositoryImpl {
   Future<Either<Failure, void>> signinWithGoogle() async {
     var res = await _supabase.client.auth.signInWithOAuth(
       Provider.google,
-      redirectTo:
-          kIsWeb ? null : 'io.supabase.flutterquickstart://login-callback/',
+      redirectTo: kIsWeb ? null : 'io.supabase.launchlabnus://login-callback/',
     );
 
     if (!res) {
