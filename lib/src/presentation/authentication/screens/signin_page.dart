@@ -30,7 +30,6 @@ class SigninPage extends StatelessWidget {
             const SizedBox(
               height: 100,
             ),
-            const Text("Need to do Auth here")
           ]));
         },
       ),

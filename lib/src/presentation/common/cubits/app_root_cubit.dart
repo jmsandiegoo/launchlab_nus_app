@@ -42,4 +42,12 @@ class AppRootCubit extends Cubit<AppRootState> {
   void handleStopAuthListener() {
     _authRepository.stopListenToAuth();
   }
+
+  void handleSessionChange(Session? session) {
+    if (session == null) {
+      emit(AppRootState(false, session: session));
+    } else {
+      emit(AppRootState(true, session: session));
+    }
+  }
 }

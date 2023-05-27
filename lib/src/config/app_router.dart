@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prototype/src/presentation/chat/screens/chat_page.dart';
 import 'package:prototype/src/presentation/common/screens/protected_screen_page.dart';
+import 'package:prototype/src/presentation/common/screens/splash_screen_page.dart';
 import 'package:prototype/src/presentation/user/screens/profile_page.dart';
 import '../presentation/authentication/screens/signin_page.dart';
 import '../presentation/common/screens/unprotected_screen_page.dart';
@@ -17,9 +18,13 @@ final _protectedShellNavigatorKey = GlobalKey<NavigatorState>();
 final _unprotectedShellNavigatorKey = GlobalKey<NavigatorState>();
 
 final GoRouter appRouter = GoRouter(
-  initialLocation: "/signin",
+  initialLocation: "/",
   navigatorKey: _rootNavigatorKey,
   routes: [
+    GoRoute(
+      path: "/",
+      builder: (context, state) => const SplashScreenPage(),
+    ),
     ShellRoute(
       navigatorKey: _unprotectedShellNavigatorKey,
       builder: (context, state, child) {
