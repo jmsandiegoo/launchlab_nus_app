@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:dartz/dartz.dart';
+import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../domain/authentication/repositories/auth_repository_impl.dart';
 import '../../../utils/failure.dart';
@@ -23,6 +24,8 @@ class AuthRepository implements AuthRepositoryImpl {
   Future<Either<Failure, void>> signinWithGoogle() async {
     var res = await _supabase.client.auth.signInWithOAuth(
       Provider.google,
+      redirectTo:
+          kIsWeb ? null : 'io.supabase.flutterquickstart://login-callback/',
     );
 
     if (!res) {
