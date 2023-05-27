@@ -8,8 +8,9 @@ import '../../../data/authentication/repository/auth_repository.dart';
 @immutable
 class AppRootState extends Equatable {
   final bool isSignedIn;
+  final Session? session;
 
-  const AppRootState(this.isSignedIn);
+  const AppRootState(this.isSignedIn, {this.session});
 
   @override
   List<Object?> get props => [isSignedIn];
@@ -25,14 +26,20 @@ class AppRootCubit extends Cubit<AppRootState> {
       (data) {
         if (data.event == AuthChangeEvent.signedIn) {
           print("Singedin");
-          emit(const AppRootState(true));
+          emit(AppRootState(true,
+              session: _authRepository.getCurrentAuthSession()));
         }
 
         if (data.event == AuthChangeEvent.signedOut) {
           print("Signedout");
-          emit(const AppRootState(false));
+          emit(AppRootState(false,
+              session: _authRepository.getCurrentAuthSession()));
         }
       },
     );
+  }
+
+  void handleStopAuthListener() {
+    _authRepository.stopListenToAuth();
   }
 }

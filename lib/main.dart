@@ -30,16 +30,31 @@ class RootApp extends StatelessWidget {
   }
 }
 
-class RootAppContent extends StatelessWidget {
+class RootAppContent extends StatefulWidget {
   const RootAppContent({super.key});
 
   @override
+  State<RootAppContent> createState() => _RootAppContentState();
+}
+
+class _RootAppContentState extends State<RootAppContent> {
+  late AppRootCubit _appRootCubit;
+
+  @override
+  void initState() {
+    super.initState();
+    _appRootCubit = BlocProvider.of<AppRootCubit>(context);
+    _appRootCubit.handleAuthListener();
+  }
+
+  @override
+  void dispose() {
+    _appRootCubit.handleStopAuthListener();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final appRootCubit = BlocProvider.of<AppRootCubit>(context);
-
-    // Susbcribe to Auth
-    appRootCubit.handleAuthListener();
-
     return MaterialApp.router(
       theme: appThemeData,
       routerConfig: appRouter,
