@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:prototype/src/config/app_config.dart';
-import 'package:prototype/src/config/app_router.dart';
-import 'package:prototype/src/config/app_theme.dart';
-import 'package:prototype/src/data/authentication/repository/auth_repository.dart';
-import 'package:prototype/src/presentation/common/cubits/app_root_cubit.dart';
+import 'package:launchlab/src/config/app_config.dart';
+import 'package:launchlab/src/config/app_router.dart';
+import 'package:launchlab/src/config/app_theme.dart';
+import 'package:launchlab/src/data/authentication/repository/auth_repository.dart';
+import 'package:launchlab/src/presentation/common/cubits/app_root_cubit.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 Future<void> main() async {

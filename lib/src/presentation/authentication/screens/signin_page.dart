@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:prototype/src/data/authentication/repository/auth_repository.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../../../data/authentication/repository/auth_repository.dart';
 import '../cubits/signin_cubit.dart';
 
 class SigninPage extends StatelessWidget {

@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:prototype/src/presentation/chat/screens/chat_page.dart';
-import 'package:prototype/src/presentation/common/screens/protected_screen_page.dart';
-import 'package:prototype/src/presentation/common/screens/splash_screen_page.dart';
-import 'package:prototype/src/presentation/user/screens/profile_page.dart';
 import '../presentation/authentication/screens/signin_page.dart';
+import '../presentation/chat/screens/chat_page.dart';
+import '../presentation/common/screens/protected_screen_page.dart';
+import '../presentation/common/screens/splash_screen_page.dart';
 import '../presentation/common/screens/unprotected_screen_page.dart';
 import '../presentation/common/widgets/scaffold_with_bottom_nav.dart';
 import '../presentation/team/screens/discover_page.dart';
 import '../presentation/team/screens/team_home_page.dart';
+import '../presentation/user/screens/profile_page.dart';
 
 /// A file to configure the routing of the application
 
@@ -61,7 +61,7 @@ final GoRouter appRouter = GoRouter(
         GoRoute(
           path: "/discover",
           pageBuilder: (context, state) =>
-              const NoTransitionPage(child: RocketPage()),
+              const NoTransitionPage(child: DiscoverPage()),
         ),
         GoRoute(
           path: "/profile",

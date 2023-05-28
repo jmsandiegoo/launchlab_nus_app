@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:prototype/src/presentation/common/cubits/splash_screen_cubit.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:launchlab/src/data/authentication/repository/auth_repository.dart';
+import 'package:launchlab/src/presentation/common/cubits/app_root_cubit.dart';
+import 'package:launchlab/src/presentation/common/cubits/splash_screen_cubit.dart';
 
-import '../../../data/authentication/repository/auth_repository.dart';
-import '../cubits/app_root_cubit.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class SplashScreenPage extends StatelessWidget {
   const SplashScreenPage({super.key});
