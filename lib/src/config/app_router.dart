@@ -1,35 +1,51 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:launchlab/src/features/authentication/presentation/pages/login_page.dart';
-import 'package:launchlab/src/features/chat/presentation/chat_page.dart';
-import 'package:launchlab/src/features/team/presentation/pages/discover_page.dart';
-import 'package:launchlab/src/features/team/presentation/pages/team_home_page.dart';
-import 'package:launchlab/src/features/user/presentation/page/profile_page.dart';
-import '../features/authentication/presentation/pages/sign_up_page.dart';
-import '../shared/widgets/scaffold_with_bottom_nav.dart';
+import '../presentation/authentication/screens/signin_page.dart';
+import '../presentation/chat/screens/chat_page.dart';
+import '../presentation/common/screens/protected_screen_page.dart';
+import '../presentation/common/screens/splash_screen_page.dart';
+import '../presentation/common/screens/unprotected_screen_page.dart';
+import '../presentation/common/widgets/scaffold_with_bottom_nav.dart';
+import '../presentation/team/screens/discover_page.dart';
+import '../presentation/team/screens/team_home_page.dart';
+import '../presentation/user/screens/profile_page.dart';
 
 /// A file to configure the routing of the application
 
 // private navigator keys
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
-final _shellNavigatorKey = GlobalKey<NavigatorState>();
+final _protectedShellNavigatorKey = GlobalKey<NavigatorState>();
+final _unprotectedShellNavigatorKey = GlobalKey<NavigatorState>();
 
 final GoRouter appRouter = GoRouter(
-  initialLocation: "/login",
+  initialLocation: "/",
   navigatorKey: _rootNavigatorKey,
   routes: [
     GoRoute(
-      path: "/login",
-      builder: (context, state) => const LoginPage(),
-    ),
-    GoRoute(
-      path: "/signup",
-      builder: (context, state) => const SignUpPage(),
+      path: "/",
+      builder: (context, state) => const SplashScreenPage(),
     ),
     ShellRoute(
-      navigatorKey: _shellNavigatorKey,
+      navigatorKey: _unprotectedShellNavigatorKey,
       builder: (context, state, child) {
-        return ScaffoldWithBottomNav(child: child);
+        return UnprotectedScreenPage(child: child);
+      },
+      routes: [
+        GoRoute(
+          path: "/signin",
+          pageBuilder: (context, state) =>
+              const NoTransitionPage(child: SigninPage()),
+        ),
+      ],
+    ),
+    ShellRoute(
+      navigatorKey: _protectedShellNavigatorKey,
+      builder: (context, state, child) {
+        return ProtectedScreenPage(
+          child: ScaffoldWithBottomNav(
+            child: child,
+          ),
+        );
       },
       routes: [
         GoRoute(
