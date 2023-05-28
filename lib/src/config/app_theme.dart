@@ -13,6 +13,7 @@ final ThemeData appThemeData = ThemeData(
   colorScheme:
       const ColorScheme.light(primary: yellowColor, secondary: blackColor),
   scaffoldBackgroundColor: lightGreyColor,
+  appBarTheme: const AppBarTheme(elevation: 0),
   bottomNavigationBarTheme: const BottomNavigationBarThemeData(
       backgroundColor: blackColor, unselectedItemColor: whiteColor),
   fontFamily: "Roboto",

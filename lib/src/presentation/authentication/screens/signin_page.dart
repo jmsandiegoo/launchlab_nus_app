@@ -20,9 +20,11 @@ class SigninPage extends StatelessWidget {
             ),
             Center(child: Image.asset("images/launchlab_logo.png")),
             ElevatedButton(
-                child: const Text(
-                  'Sign in with Google',
-                ),
+                child: state is SigninLoading
+                    ? const CircularProgressIndicator()
+                    : const Text(
+                        'Sign in with Google',
+                      ),
                 onPressed: () {
                   BlocProvider.of<SigninCubit>(context)
                       .handleSigninWithGoogle();
