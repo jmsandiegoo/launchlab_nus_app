@@ -27,7 +27,7 @@
 		<string>Editor</string>
 		<key>CFBundleURLSchemes</key>
 		<array>
-			<string>io.supabase.flutterquickstart</string>
+			<string>io.supabase.launchlabnus</string>
 		</array>
 		</dict>
 	</array>
