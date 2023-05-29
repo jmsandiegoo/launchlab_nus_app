@@ -54,7 +54,7 @@ class _SplashScreenContentState extends State<SplashScreenContent> {
     return Center(
       child: Column(
         children: [
-          Image.asset("images/launchlab_logo.png"),
+          Image.asset("assets/images/launchlab_logo.png"),
           const CircularProgressIndicator(),
         ],
       ),

@@ -51,7 +51,7 @@ class TeamHomePage extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          headerText("Hi XXX", size: 30.0),
+                          headerText("Hi John!", size: 30.0),
                           const Text(
                             "Check out your awesome \nteams!",
                             style: TextStyle(fontSize: 15),
