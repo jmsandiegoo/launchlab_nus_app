@@ -14,6 +14,24 @@ final ThemeData appThemeData = ThemeData(
       const ColorScheme.light(primary: yellowColor, secondary: blackColor),
   scaffoldBackgroundColor: lightGreyColor,
   appBarTheme: const AppBarTheme(elevation: 0),
+  elevatedButtonTheme: const ElevatedButtonThemeData(
+    style: ButtonStyle(
+      textStyle:
+          MaterialStatePropertyAll(TextStyle(fontWeight: FontWeight.w400)),
+      padding: MaterialStatePropertyAll(
+        EdgeInsets.symmetric(vertical: 20.0),
+      ),
+    ),
+  ),
+  textButtonTheme: const TextButtonThemeData(
+    style: ButtonStyle(
+      textStyle: MaterialStatePropertyAll(
+        TextStyle(
+          decoration: TextDecoration.underline,
+        ),
+      ),
+    ),
+  ),
   bottomNavigationBarTheme: const BottomNavigationBarThemeData(
       backgroundColor: blackColor, unselectedItemColor: whiteColor),
   fontFamily: "Roboto",

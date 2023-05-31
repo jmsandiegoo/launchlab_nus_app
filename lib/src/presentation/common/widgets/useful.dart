@@ -81,10 +81,19 @@ Widget subHeaderText(String label, {size = 20.0, alignment = TextAlign.left}) {
   );
 }
 
-Widget bodyText(String label, {size = 15.0, color = blackColor}) {
+Widget bodyText(String label,
+    {size = 15.0,
+    color = blackColor,
+    weight = FontWeight.w400,
+    alignment = TextAlign.left}) {
   return Text(
     label,
-    style: TextStyle(fontSize: size, color: color),
+    textAlign: alignment,
+    style: TextStyle(
+      fontSize: size,
+      color: color,
+      fontWeight: weight,
+    ),
   );
 }
 
