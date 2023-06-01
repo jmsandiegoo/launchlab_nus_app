@@ -28,23 +28,24 @@ environment:
 # the latest version available on pub.dev. To see which dependencies have newer
 # versions available, run `flutter pub outdated`.
 dependencies:
-  flutter_svg: ^1.1.6
+  flutter_svg: ^2.0.6
   flutter:
     sdk: flutter
-
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
   provider: ^6.0.5
-  go_router: ^7.0.2
+  go_router: ^7.1.1
   flutter_bloc: ^8.1.3
   supabase_flutter: ^1.10.0
   equatable: ^2.0.5
   json_annotation: ^4.8.1
   dartz: ^0.10.1
+  auto_route: ^7.3.2
 
 dev_dependencies:
+  auto_route_generator: ^7.1.1
   build_runner: ^2.4.4
   json_serializable: ^6.7.0
   flutter_test:

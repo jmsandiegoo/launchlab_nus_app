@@ -10,10 +10,16 @@ const darkGreyColor = Color(0xFF515151);
 const yellowColor = Color(0xFFFFD84E);
 
 final ThemeData appThemeData = ThemeData(
-  colorScheme:
-      const ColorScheme.light(primary: yellowColor, secondary: blackColor),
+  colorScheme: const ColorScheme.light(
+      primary: yellowColor,
+      secondary: blackColor,
+      onPrimary: blackColor,
+      onSecondary: whiteColor),
   scaffoldBackgroundColor: lightGreyColor,
-  appBarTheme: const AppBarTheme(elevation: 0),
+  appBarTheme: const AppBarTheme(
+      elevation: 0,
+      color: blackColor,
+      iconTheme: IconThemeData(color: blackColor)),
   elevatedButtonTheme: const ElevatedButtonThemeData(
     style: ButtonStyle(
       textStyle:

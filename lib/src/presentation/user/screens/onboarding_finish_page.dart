@@ -6,16 +6,18 @@ class OnboardingFinishPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(10.0),
-      child: Row(children: [
-        Image.asset("assets/images/onboard_finish.png"),
-        headerText("Congrats your are now ready to use the application!"),
-        ElevatedButton(
-          onPressed: () => print("pressed"),
-          child: const Text("Okay"),
-        ),
-      ]),
+    return Scaffold(
+      body: Container(
+        padding: const EdgeInsets.all(10.0),
+        child: Column(children: [
+          Image.asset("assets/images/onboard_finish.png"),
+          headerText("Congrats your are now ready to use the application!"),
+          ElevatedButton(
+            onPressed: () => print("pressed"),
+            child: const Text("Okay"),
+          ),
+        ]),
+      ),
     );
   }
 }

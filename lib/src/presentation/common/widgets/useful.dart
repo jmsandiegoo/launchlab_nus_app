@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:launchlab/src/config/app_theme.dart';
 
@@ -97,8 +98,49 @@ Widget bodyText(String label,
   );
 }
 
+Widget primaryButton(
+  BuildContext context,
+  Function() onPressedHandler,
+  String label, {
+  horizontalPadding = 30.0,
+  verticalPadding = 20.0,
+}) {
+  return ElevatedButton(
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        textStyle: TextStyle(color: Theme.of(context).colorScheme.onPrimary),
+        padding: EdgeInsets.symmetric(
+          vertical: verticalPadding,
+          horizontal: horizontalPadding,
+        ),
+      ),
+      onPressed: () => onPressedHandler(),
+      child: Text(label));
+}
+
+Widget secondaryButton(
+  BuildContext context,
+  Function() onPressedHandler,
+  String label, {
+  horizontalPadding = 30.0,
+  verticalPadding = 20.0,
+}) {
+  return ElevatedButton(
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Theme.of(context).colorScheme.secondary,
+        textStyle: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
+        padding: EdgeInsets.symmetric(
+          vertical: verticalPadding,
+          horizontal: horizontalPadding,
+        ),
+      ),
+      onPressed: () => onPressedHandler(),
+      child: Text(label));
+}
+
 Widget backButton() {
-  return const Icon(Icons.arrow_back, size: 30, color: blackColor);
+  return const Icon(Icons.keyboard_backspace_outlined,
+      size: 30, color: blackColor);
 }
 
 void navigateGo(BuildContext context, String dir) {
@@ -107,4 +149,8 @@ void navigateGo(BuildContext context, String dir) {
 
 void navigatePush(BuildContext context, String dir) {
   context.push(dir);
+}
+
+void navigatePop(BuildContext context) {
+  context.pop();
 }

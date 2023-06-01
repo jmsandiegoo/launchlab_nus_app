@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:launchlab/src/config/app_theme.dart';
 import 'package:launchlab/src/presentation/common/widgets/useful.dart';
 
@@ -39,13 +38,17 @@ class OnboardingWelcomePage extends StatelessWidget {
               child: Container(
                 constraints: const BoxConstraints(maxWidth: 170.0),
                 width: double.infinity,
-                child: ElevatedButton(
-                  style: ButtonStyle(
-                      backgroundColor: MaterialStateProperty.all<Color>(
-                          Theme.of(context).colorScheme.secondary)),
-                  onPressed: () => navigatePush(context, "/onboard/step-1"),
-                  child: const Text("Get Started"),
-                ),
+                child: secondaryButton(
+                    context,
+                    () => navigateGo(context, "/onboard/step-1"),
+                    "Get Started"),
+                // child: ElevatedButton(
+                //   style: ButtonStyle(
+                //       backgroundColor: MaterialStateProperty.all<Color>(
+                //           Theme.of(context).colorScheme.secondary)),
+                //   onPressed: () => navigateGo(context, "/onboard/step-1"),
+                //   child: const Text("Get Started"),
+                // ),
               ),
             ),
             const SizedBox(

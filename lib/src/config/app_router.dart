@@ -15,6 +15,7 @@ import 'package:launchlab/src/presentation/user/screens/onboarding_step3_page.da
 import 'package:launchlab/src/presentation/user/screens/onboarding_welcome_page.dart';
 import 'package:launchlab/src/presentation/user/screens/profile_page.dart';
 import 'package:launchlab/src/presentation/user/widgets/onboarding_container.dart';
+import 'package:launchlab/src/presentation/user/widgets/onboarding_steps_layout.dart';
 
 /// A file to configure the routing of the application
 
@@ -59,46 +60,46 @@ final GoRouter appRouter = GoRouter(
           builder: (context, state, child) => OnboardingContainer(child: child),
           routes: [
             GoRoute(
+              // parentNavigatorKey: _onboardingShellKey,
               path: "/onboard",
               pageBuilder: (context, state) {
                 return const NoTransitionPage(
                   child: OnboardingWelcomePage(),
                 );
               },
+            ),
+            ShellRoute(
+              builder: (context, state, child) =>
+                  OnboardingStepsLayout(child: child),
               routes: [
-                ShellRoute(
-                  navigatorKey: _nestedOnboardingShellKey,
-                  builder: (context, state, child) => child,
-                  routes: [
-                    GoRoute(
-                      path: "step-1",
-                      builder: (context, state) {
-                        return const OnboardingStep1Page();
-                      },
-                    ),
-                    GoRoute(
-                      path: "step-2",
-                      builder: (context, state) {
-                        return const OnboardingStep2Page();
-                      },
-                    ),
-                    GoRoute(
-                      path: "step-3",
-                      builder: (context, state) {
-                        return const OnboardingStep3Page();
-                      },
-                    ),
-                    GoRoute(
-                      path: "step-4",
-                      builder: (context, state) {
-                        return const OnboardingStep1Page();
-                      },
-                    )
-                  ],
+                GoRoute(
+                  path: "/onboard/step-1",
+                  builder: (context, state) {
+                    return const OnboardingStep1Page();
+                  },
                 ),
+                GoRoute(
+                  path: "/onboard/step-2",
+                  builder: (context, state) {
+                    return const OnboardingStep2Page();
+                  },
+                ),
+                GoRoute(
+                  path: "/onboard/step-3",
+                  builder: (context, state) {
+                    return const OnboardingStep3Page();
+                  },
+                ),
+                GoRoute(
+                  path: "/onboard/step-4",
+                  builder: (context, state) {
+                    return const OnboardingStep1Page();
+                  },
+                )
               ],
             ),
             GoRoute(
+              parentNavigatorKey: _onboardingShellKey,
               path: "/onboard-success",
               builder: (context, state) => const OnboardingFinishPage(),
             ),
