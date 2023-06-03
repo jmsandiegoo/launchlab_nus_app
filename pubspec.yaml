@@ -43,6 +43,7 @@ dependencies:
   json_annotation: ^4.8.1
   dartz: ^0.10.1
   auto_route: ^7.3.2
+  image_picker: ^0.8.7+5
 
 dev_dependencies:
   auto_route_generator: ^7.1.1
