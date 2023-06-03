@@ -18,7 +18,7 @@ class TeamHomeState extends Equatable {
 class TeamHomeCubit extends Cubit<TeamHomeState> {
   final AuthRepository _authRepository;
 
-  TeamHomeCubit(this._authRepository) : super(const TeamHomeState(true));
+  TeamHomeCubit(this._authRepository) : super(const TeamHomeState(false));
 
   Future<void> handleSignOut() async {
     await _authRepository.signOut();

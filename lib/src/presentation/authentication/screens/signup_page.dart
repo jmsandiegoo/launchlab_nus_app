@@ -29,7 +29,7 @@ class _SignUpPage extends State<SignUpPage> {
         backgroundColor: whiteColor,
         leading: IconButton(
             onPressed: () {
-              print("test");
+              debugPrint("test");
             },
             icon: backButton()),
       ),
@@ -126,48 +126,4 @@ class _SignUpPage extends State<SignUpPage> {
       ),
     );
   }
-
-/*
-  void _navigateToHomePage(BuildContext context) {
-    context.go("/team-home");
-  }
-
-  void _navigateToLoginPage(BuildContext context) {
-    // Navigator.of(context)
-    //     .push(MaterialPageRoute(builder: (context) => const LoginPage()));
-  }
-
-  Widget makeInput({label, obsureText = false}) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: const TextStyle(
-              fontSize: 15, fontWeight: FontWeight.bold, color: Colors.black87),
-        ),
-        const SizedBox(
-          height: 5,
-        ),
-        TextField(
-          obscureText: obsureText,
-          decoration: const InputDecoration(
-            contentPadding: EdgeInsets.symmetric(vertical: 0, horizontal: 10),
-            enabledBorder: OutlineInputBorder(
-              borderSide: BorderSide(
-                color: Colors.grey,
-              ),
-            ),
-            border:
-                OutlineInputBorder(borderSide: BorderSide(color: Colors.grey)),
-          ),
-        ),
-        const SizedBox(
-          height: 30,
-        )
-      ],
-    );
-    context.push("/");
-  }
-   */
 }

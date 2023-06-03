@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:launchlab/src/presentation/team/screens/create_team.dart';
+import 'package:launchlab/src/presentation/team/screens/edit_team.dart';
+import 'package:launchlab/src/presentation/team/screens/team_page.dart';
 import '../presentation/authentication/screens/signin_page.dart';
 import '../presentation/chat/screens/chat_page.dart';
 import '../presentation/common/screens/protected_screen_page.dart';
@@ -49,10 +52,10 @@ final GoRouter appRouter = GoRouter(
       },
       routes: [
         GoRoute(
-          path: "/team-home",
-          pageBuilder: (context, state) =>
-              const NoTransitionPage(child: TeamHomePage()),
-        ),
+            path: "/team-home",
+            pageBuilder: (context, state) {
+              return const NoTransitionPage(child: TeamHomePage());
+            }),
         GoRoute(
           path: "/chats",
           pageBuilder: (context, state) =>
@@ -67,7 +70,22 @@ final GoRouter appRouter = GoRouter(
           path: "/profile",
           pageBuilder: (context, state) =>
               const NoTransitionPage(child: ProfilePage()),
-        )
+        ),
+        GoRoute(
+          path: "/teams",
+          pageBuilder: (context, state) =>
+              const NoTransitionPage(child: TeamPage()),
+        ),
+        GoRoute(
+          path: "/create_teams",
+          pageBuilder: (context, state) =>
+              const NoTransitionPage(child: CreateTeamPage()),
+        ),
+        GoRoute(
+          path: "/edit_teams",
+          pageBuilder: (context, state) =>
+              const NoTransitionPage(child: EditTeamPage()),
+        ),
       ],
     )
   ],
