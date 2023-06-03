@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:launchlab/src/config/app_config.dart';
 import 'package:launchlab/src/config/app_router.dart';
@@ -14,6 +15,11 @@ Future<void> main() async {
     url: supabaseUrl,
     anonKey: supabaseToken,
   );
+  SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+    statusBarColor: Colors.transparent,
+    statusBarIconBrightness: Brightness.dark,
+    systemNavigationBarColor: Colors.transparent,
+  ));
 
   runApp(const RootApp());
 }

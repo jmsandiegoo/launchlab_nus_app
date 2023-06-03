@@ -19,43 +19,48 @@ class TeamHomePage extends StatelessWidget {
           final teamHomeCubit = BlocProvider.of<TeamHomeCubit>(context);
           return Scaffold(
             backgroundColor: lightGreyColor,
-            appBar: AppBar(
-              leading:
-                  profilePicture(45, "assets/images/circle_profile_pic.png"),
-              actions: [
-                IconButton(
-                    onPressed: () => teamHomeCubit.handleSignOut(),
-                    icon: const Icon(Icons.logout_outlined))
-              ],
-            ),
             body: SingleChildScrollView(
               child: Column(children: [
                 Stack(
                   children: <Widget>[
-                    Image.asset("assets/images/yellow_curve_shape_3.png"),
-                    const Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          SizedBox(height: 60),
-                        ]),
-                    Positioned.fill(
-                      child: Align(
-                        alignment: Alignment.centerRight,
-                        child: SvgPicture.asset(
-                            'assets/images/skateboard_homepage.svg'),
-                      ),
-                    ),
+                    Image.asset("assets/images/yellow_curve_shape.png"),
                     Positioned(
-                      top: 130,
+                      top: 150,
                       left: 20,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          headerText("Hi John!", size: 30.0),
+                          headerText("Hey, John!", size: 25.0),
                           const Text(
                             "Check out your awesome \nteams!",
                             style: TextStyle(fontSize: 15),
                           )
+                        ],
+                      ),
+                    ),
+                    Positioned.fill(
+                      child: Align(
+                        alignment: Alignment.bottomRight,
+                        child: Container(
+                            padding: const EdgeInsets.only(bottom: 30.0),
+                            child: SizedBox(
+                              height: 100,
+                              child: SvgPicture.asset(
+                                  'assets/images/skateboard_homepage.svg'),
+                            )),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                      child: AppBar(
+                        leading: profilePicture(45, "circle_profile_pic.png"),
+                        actions: [
+                          IconButton(
+                              onPressed: () => teamHomeCubit.handleSignOut(),
+                              icon: const Icon(
+                                Icons.logout_outlined,
+                                color: blackColor,
+                              ))
                         ],
                       ),
                     ),
@@ -108,7 +113,8 @@ class TeamHomePage extends StatelessWidget {
                           style: OutlinedButton.styleFrom(
                               backgroundColor: yellowColor),
                           onPressed: () {
-                            //To navigate to create team page.
+                            navigatePush(context, "/create_teams");
+                            debugPrint("Create Teams");
                           },
                           child: const Text(
                             "Create Team",
@@ -132,7 +138,7 @@ class TeamHomePage extends StatelessWidget {
                       ])
                     : GestureDetector(
                         onTap: () {
-                          debugPrint("Go to Teams Page");
+                          navigatePush(context, "/teams");
                         },
                         child: Padding(
                           padding: const EdgeInsets.symmetric(
@@ -149,8 +155,7 @@ class TeamHomePage extends StatelessWidget {
                                         CrossAxisAlignment.start,
                                     children: [
                                       Row(children: [
-                                        profilePicture(
-                                            35, "assets/images/test.jpeg"),
+                                        profilePicture(35, "test.jpeg"),
                                         const SizedBox(width: 10),
                                         Column(
                                             crossAxisAlignment:
