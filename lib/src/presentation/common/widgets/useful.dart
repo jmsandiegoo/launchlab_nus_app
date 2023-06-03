@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import 'package:go_router/go_router.dart';
 import 'package:launchlab/src/config/app_theme.dart';
 
 Widget userInput({label, obsureText = false}) {
@@ -38,14 +36,16 @@ Widget userInput({label, obsureText = false}) {
 
 Widget profilePicture(double diameter, String address) {
   return Container(
-      width: diameter,
-      height: diameter,
-      decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          image: DecorationImage(
-            image: ExactAssetImage(address),
-            fit: BoxFit.fitHeight,
-          )));
+    width: diameter,
+    height: diameter,
+    decoration: BoxDecoration(
+      shape: BoxShape.circle,
+      image: DecorationImage(
+        image: ExactAssetImage(address),
+        fit: BoxFit.fitHeight,
+      ),
+    ),
+  );
 }
 
 Widget searchBar() {
@@ -143,14 +143,8 @@ Widget backButton() {
       size: 30, color: blackColor);
 }
 
-void navigateGo(BuildContext context, String dir) {
-  context.go(dir);
-}
-
-void navigatePush(BuildContext context, String dir) {
-  context.push(dir);
-}
-
-void navigatePop(BuildContext context) {
-  context.pop();
+Future<T?> showModalBottomSheetHandler<T>(
+    BuildContext context, Widget Function(BuildContext) builder) {
+  return showModalBottomSheet<T>(
+      context: context, builder: builder, useRootNavigator: true);
 }

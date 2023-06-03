@@ -11,10 +11,11 @@ const yellowColor = Color(0xFFFFD84E);
 
 final ThemeData appThemeData = ThemeData(
   colorScheme: const ColorScheme.light(
-      primary: yellowColor,
-      secondary: blackColor,
-      onPrimary: blackColor,
-      onSecondary: whiteColor),
+    primary: yellowColor,
+    secondary: blackColor,
+    onPrimary: blackColor,
+    onSecondary: whiteColor,
+  ),
   scaffoldBackgroundColor: lightGreyColor,
   appBarTheme: const AppBarTheme(
       elevation: 0,
