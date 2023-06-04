@@ -1,27 +1,46 @@
 import 'package:flutter/material.dart';
 import 'package:launchlab/src/config/app_theme.dart';
 
-Widget userInput({focusNode, onChangedHandler, label, obscureText = false}) {
+Widget userInput(
+    {focusNode,
+    onChangedHandler,
+    label,
+    obscureText = false,
+    size = 1,
+    hint = ""}) {
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
-      Text(
-        label,
-        style: const TextStyle(
-            fontSize: 15, fontWeight: FontWeight.bold, color: Colors.black87),
-      ),
-      const SizedBox(
-        height: 5,
-      ),
+      ...() {
+        if (label == "") {
+          return [];
+        }
+        return [
+          Text(
+            label,
+            style: const TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.bold,
+                color: Colors.black87),
+          ),
+          const SizedBox(
+            height: 5,
+          )
+        ];
+      }(),
       TextField(
         focusNode: focusNode,
         onChanged: onChangedHandler,
+        keyboardType: size > 1 ? TextInputType.multiline : null,
+        minLines: size,
+        maxLines: size,
         obscureText: obscureText,
         decoration: InputDecoration(
+          hintText: hint,
           fillColor: whiteColor,
           filled: true,
           contentPadding:
-              const EdgeInsets.symmetric(vertical: 0, horizontal: 10),
+              const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
           enabledBorder: OutlineInputBorder(
               borderSide: BorderSide(color: Colors.grey.shade400, width: 0.25),
               borderRadius: const BorderRadius.all(Radius.circular(10.0))),

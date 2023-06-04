@@ -20,19 +20,28 @@ enum TextFieldError {
 }
 
 class TextFieldWidget extends StatelessWidget {
-  const TextFieldWidget(
-      {super.key,
-      required this.focusNode,
-      required this.onChangedHandler,
-      required this.label});
+  const TextFieldWidget({
+    super.key,
+    required this.focusNode,
+    required this.onChangedHandler,
+    required this.label,
+    required this.hint,
+    this.size = 1,
+  });
 
   final FocusNode focusNode;
   final void Function(String) onChangedHandler;
   final String label;
+  final String hint;
+  final int size;
 
   @override
   Widget build(BuildContext context) {
     return userInput(
-        focusNode: focusNode, onChangedHandler: onChangedHandler, label: label);
+        focusNode: focusNode,
+        onChangedHandler: onChangedHandler,
+        label: label,
+        hint: hint,
+        size: size);
   }
 }

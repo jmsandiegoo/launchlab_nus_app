@@ -28,6 +28,7 @@ class _OnboardingStep1ContentState extends State<OnboardingStep1Content> {
   final _firstNameFocusNode = FocusNode();
   final _lastNameFocusNode = FocusNode();
   final _titleFocusNode = FocusNode();
+  final _aboutFocusNode = FocusNode();
 
   @override
   void initState() {
@@ -90,19 +91,36 @@ class _OnboardingStep1ContentState extends State<OnboardingStep1Content> {
               onChangedHandler: (val) =>
                   onboardingStep1PageCubit.onFirstNameChanged(val),
               label: "First Name",
+              hint: "Ex: John",
             ),
             TextFieldWidget(
               focusNode: _lastNameFocusNode,
               onChangedHandler: (val) =>
                   onboardingStep1PageCubit.onLastNameChanged(val),
               label: "Last Name",
+              hint: "Ex: Doe",
             ),
             TextFieldWidget(
               focusNode: _titleFocusNode,
               onChangedHandler: (val) =>
                   onboardingStep1PageCubit.onTitleChanged(val),
               label: "Title",
+              hint: "Ex: Software Developer",
             ),
+            headerText("Make an about me"),
+            const SizedBox(
+              height: 10.0,
+            ),
+            bodyText(
+                "Feel free to share your years of professional experience, industry knowledge, and skills. Additionally, you have the opportunity to share something interesting about yourself!"),
+            const SizedBox(height: 10.0),
+            TextFieldWidget(
+              focusNode: _aboutFocusNode,
+              onChangedHandler: (val) => {},
+              label: "",
+              hint: "",
+              size: 10,
+            )
           ],
         );
       },
