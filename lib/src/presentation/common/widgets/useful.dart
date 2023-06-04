@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:launchlab/src/config/app_theme.dart';
 
-Widget userInput({label, obsureText = false}) {
+Widget userInput({focusNode, onChangedHandler, label, obscureText = false}) {
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
@@ -14,21 +14,23 @@ Widget userInput({label, obsureText = false}) {
         height: 5,
       ),
       TextField(
-        obscureText: obsureText,
-        decoration: const InputDecoration(
-          fillColor: Colors.white,
-          contentPadding: EdgeInsets.symmetric(vertical: 0, horizontal: 10),
+        focusNode: focusNode,
+        onChanged: onChangedHandler,
+        obscureText: obscureText,
+        decoration: InputDecoration(
+          fillColor: whiteColor,
+          filled: true,
+          contentPadding:
+              const EdgeInsets.symmetric(vertical: 0, horizontal: 10),
           enabledBorder: OutlineInputBorder(
-            borderSide: BorderSide(
-              color: Colors.grey,
-            ),
-          ),
-          border:
-              OutlineInputBorder(borderSide: BorderSide(color: Colors.grey)),
+              borderSide: BorderSide(color: Colors.grey.shade400, width: 0.25),
+              borderRadius: const BorderRadius.all(Radius.circular(10.0))),
+          // border:
+          //     OutlineInputBorder(borderSide: BorderSide(color: Colors.grey)),
         ),
       ),
       const SizedBox(
-        height: 30,
+        height: 20,
       )
     ],
   );
@@ -103,7 +105,7 @@ Widget primaryButton(
   Function() onPressedHandler,
   String label, {
   horizontalPadding = 30.0,
-  verticalPadding = 20.0,
+  verticalPadding = 10.0,
 }) {
   return ElevatedButton(
       style: ElevatedButton.styleFrom(
@@ -123,7 +125,7 @@ Widget secondaryButton(
   Function() onPressedHandler,
   String label, {
   horizontalPadding = 30.0,
-  verticalPadding = 20.0,
+  verticalPadding = 10.0,
 }) {
   return ElevatedButton(
       style: ElevatedButton.styleFrom(

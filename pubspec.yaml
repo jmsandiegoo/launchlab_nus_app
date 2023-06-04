@@ -45,6 +45,7 @@ dependencies:
   auto_route: ^7.3.2
   image_picker: ^0.8.7+5
   cross_file: ^0.3.3+4
+  formz: ^0.6.0
 
 dev_dependencies:
   auto_route_generator: ^7.1.1

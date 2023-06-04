@@ -1,7 +1,7 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:launchlab/src/presentation/common/widgets/form/picture_upload_picker.dart';
+import 'package:launchlab/src/presentation/common/widgets/form_fields/picture_upload_picker.dart';
+import 'package:launchlab/src/presentation/common/widgets/form_fields/text_field.dart';
 import 'package:launchlab/src/presentation/common/widgets/useful.dart';
 import 'package:launchlab/src/presentation/user/cubits/onboarding_step1_page_cubit.dart';
 
@@ -12,22 +12,100 @@ class OnboardingStep1Page extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (_) => OnboardingStep1PageCubit(),
-      child: BlocBuilder<OnboardingStep1PageCubit, OnboardingStep1PageState>(
-        builder: (context, state) {
-          final onboardingStep1PageCubit =
-              BlocProvider.of<OnboardingStep1PageCubit>(context);
-          return ListView(
-            children: [
-              headerText("Tell us about yourself"),
-              PictureUploadPicker(
-                imageHandler: (image) =>
-                    onboardingStep1PageCubit.handleImagePick(image),
-                image: state.image,
-              ),
-            ],
-          );
-        },
-      ),
+      child: const OnboardingStep1Content(),
+    );
+  }
+}
+
+class OnboardingStep1Content extends StatefulWidget {
+  const OnboardingStep1Content({super.key});
+
+  @override
+  State<OnboardingStep1Content> createState() => _OnboardingStep1ContentState();
+}
+
+class _OnboardingStep1ContentState extends State<OnboardingStep1Content> {
+  final _firstNameFocusNode = FocusNode();
+  final _lastNameFocusNode = FocusNode();
+  final _titleFocusNode = FocusNode();
+
+  @override
+  void initState() {
+    super.initState();
+
+    final onboardingStep1PageCubit =
+        BlocProvider.of<OnboardingStep1PageCubit>(context);
+
+    _firstNameFocusNode.addListener(() {
+      if (!_firstNameFocusNode.hasFocus) {
+        onboardingStep1PageCubit.onFirstNameUnfocused();
+      }
+    });
+
+    _lastNameFocusNode.addListener(() {
+      if (!_lastNameFocusNode.hasFocus) {
+        onboardingStep1PageCubit.onLastNameUnfocused();
+      }
+    });
+
+    _titleFocusNode.addListener(() {
+      if (!_titleFocusNode.hasFocus) {
+        onboardingStep1PageCubit.onTitleUnfocused();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _firstNameFocusNode.dispose();
+    _lastNameFocusNode.dispose();
+    _titleFocusNode.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<OnboardingStep1PageCubit, OnboardingStep1PageState>(
+      builder: (context, state) {
+        final onboardingStep1PageCubit =
+            BlocProvider.of<OnboardingStep1PageCubit>(context);
+        return ListView(
+          children: [
+            headerText("Tell us about yourself"),
+            // Profile Photo Picker
+            const SizedBox(
+              height: 30,
+            ),
+            PictureUploadPickerWidget(
+              onPictureUploadChangedHandler: (image) =>
+                  onboardingStep1PageCubit.onPictureUploadChanged(image),
+              image: state.pictureUploadPickerInput.value,
+            ),
+            const SizedBox(
+              height: 30,
+            ),
+            // First Name Field
+            TextFieldWidget(
+              focusNode: _firstNameFocusNode,
+              onChangedHandler: (val) =>
+                  onboardingStep1PageCubit.onFirstNameChanged(val),
+              label: "First Name",
+            ),
+            TextFieldWidget(
+              focusNode: _lastNameFocusNode,
+              onChangedHandler: (val) =>
+                  onboardingStep1PageCubit.onLastNameChanged(val),
+              label: "Last Name",
+            ),
+            TextFieldWidget(
+              focusNode: _titleFocusNode,
+              onChangedHandler: (val) =>
+                  onboardingStep1PageCubit.onTitleChanged(val),
+              label: "Title",
+            ),
+          ],
+        );
+      },
     );
   }
 }

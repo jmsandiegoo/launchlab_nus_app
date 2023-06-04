@@ -1,23 +1,35 @@
 import 'dart:io';
-
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:formz/formz.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:launchlab/src/presentation/common/widgets/modal_bottom_buttons_widget.dart';
 import 'package:launchlab/src/presentation/common/widgets/useful.dart';
 import 'package:launchlab/src/utils/helper.dart';
 
-class PictureUploadPicker extends StatelessWidget {
-  const PictureUploadPicker(
-      {super.key, required this.imageHandler, this.image});
+class PictureUploadPickerInput
+    extends FormzInput<File?, PictureUploadPickerError> {
+  const PictureUploadPickerInput.unvalidated([File? value]) : super.pure(value);
+  const PictureUploadPickerInput.validated([File? value]) : super.dirty(value);
 
-  final void Function(File?) imageHandler;
+  @override
+  PictureUploadPickerError? validator(File? value) {
+    return null;
+  }
+}
+
+enum PictureUploadPickerError { invalid }
+
+class PictureUploadPickerWidget extends StatelessWidget {
+  const PictureUploadPickerWidget(
+      {super.key, required this.onPictureUploadChangedHandler, this.image});
+
+  final void Function(File?) onPictureUploadChangedHandler;
   final File? image;
 
   Future pickImage(ImagePicker picker, ImageSource source) async {
     XFile? pickedImageXFile = await picker.pickImage(source: source);
     File? pickedImageFile = convertToFile(pickedImageXFile);
-    imageHandler(pickedImageFile);
+    onPictureUploadChangedHandler(pickedImageFile);
   }
 
   @override
@@ -34,7 +46,7 @@ class PictureUploadPicker extends StatelessWidget {
                 label: "Camera",
                 onPressHandler: () {
                   pickImage(picker, ImageSource.camera);
-                  navigatePop(context);
+                  Navigator.of(context, rootNavigator: true).pop();
                 },
               ),
               ModalBottomButton(
@@ -43,6 +55,7 @@ class PictureUploadPicker extends StatelessWidget {
                 onPressHandler: () {
                   pickImage(picker, ImageSource.gallery);
                   navigatePop(context);
+                  Navigator.of(context, rootNavigator: true).pop();
                 },
               ),
             ],

@@ -26,7 +26,7 @@ final ThemeData appThemeData = ThemeData(
       textStyle:
           MaterialStatePropertyAll(TextStyle(fontWeight: FontWeight.w400)),
       padding: MaterialStatePropertyAll(
-        EdgeInsets.symmetric(vertical: 20.0),
+        EdgeInsets.symmetric(vertical: 10.0),
       ),
     ),
   ),

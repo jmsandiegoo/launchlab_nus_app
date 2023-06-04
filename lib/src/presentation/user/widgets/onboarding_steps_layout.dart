@@ -20,6 +20,7 @@ class OnboardingStepsLayout extends StatelessWidget {
           OnboardingStepsLayoutCubit onboardingStepsLayoutCubit =
               BlocProvider.of<OnboardingStepsLayoutCubit>(context);
           return Scaffold(
+            backgroundColor: lightGreyColor,
             appBar: AppBar(
               backgroundColor: lightGreyColor,
               leading: GestureDetector(
@@ -32,9 +33,13 @@ class OnboardingStepsLayout extends StatelessWidget {
                 child: const Icon(Icons.keyboard_backspace_outlined),
               ),
             ),
-            body: child,
+            body: Container(
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 30.0, vertical: 20.0),
+                child: child),
             bottomNavigationBar: BottomAppBar(
-              padding: const EdgeInsets.symmetric(vertical: 30.0),
+              padding:
+                  const EdgeInsets.symmetric(vertical: 30.0, horizontal: 30.0),
               color: lightGreyColor,
               elevation: 0,
               child: Row(
@@ -47,7 +52,7 @@ class OnboardingStepsLayout extends StatelessWidget {
                         context, "/onboard/step-${state.currStep + 1}");
                     onboardingStepsLayoutCubit.handleNextStep();
                   }, state.currStep == state.steps ? "Finish" : "Next",
-                      horizontalPadding: 50.0),
+                      horizontalPadding: 40.0),
                 ],
               ),
             ),
