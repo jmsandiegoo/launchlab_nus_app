@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:formz/formz.dart';
 import 'package:launchlab/src/presentation/common/widgets/useful.dart';
 
+/// Define FormzInput
 class TextFieldInput extends FormzInput<String, TextFieldError> {
   const TextFieldInput.unvalidated([String value = '']) : super.pure(value);
   const TextFieldInput.validated([String value = '']) : super.dirty(value);
@@ -19,6 +20,7 @@ enum TextFieldError {
   empty,
 }
 
+/// Widget
 class TextFieldWidget extends StatelessWidget {
   const TextFieldWidget({
     super.key,

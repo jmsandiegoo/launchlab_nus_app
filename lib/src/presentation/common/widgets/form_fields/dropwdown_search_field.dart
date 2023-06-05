@@ -51,6 +51,7 @@ class DropdownSearchFieldWidget<T> extends StatelessWidget {
               searchFieldProps: TextFieldProps(
                 decoration: InputDecoration(
                   filled: true,
+                  hintText: "Search",
                   fillColor: Colors.grey.shade800,
                 ),
                 style: const TextStyle(color: whiteColor),

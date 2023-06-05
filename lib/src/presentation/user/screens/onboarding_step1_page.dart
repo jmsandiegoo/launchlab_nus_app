@@ -113,7 +113,7 @@ class _OnboardingStep1ContentState extends State<OnboardingStep1Content> {
                 label: "Major",
                 getItems: (String filter) async =>
                     ["Accounting", "Computer Science", "Information Systems"],
-                selectedItem: "",
+                selectedItem: "Accounting",
                 onChangedHandler: (val) => print("onchange dropdown")),
             headerText("Make an about me"),
             const SizedBox(
