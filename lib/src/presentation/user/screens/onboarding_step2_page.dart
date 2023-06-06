@@ -56,6 +56,21 @@ class _OnboardingStep2ContentState extends State<OnboardingStep2Content> {
         ),
         bodyText(
             "Specify the kind of category you are interested to work in. You could select more than one."),
+        const SizedBox(
+          height: 20.0,
+        ),
+        MultiButtonMultiSelectWidget(
+          values: const ["Startup", "Hackathons"],
+          options: const [
+            "Startup",
+            "School Project",
+            "Personal",
+            "Hackathons",
+            "Volunteer Work"
+          ],
+          colNo: 2,
+          onPressHandler: (List<String> values) {},
+        ),
       ],
     );
   }

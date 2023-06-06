@@ -15,8 +15,7 @@ class MultiButtonSingleSelectWidget<T> extends StatelessWidget {
   final int colNo;
   final void Function(T) onPressHandler;
 
-  @override
-  Widget build(BuildContext context) {
+  List<SelectButton> renderButtons() {
     List<SelectButton> buttons = [];
     for (int i = 0; i < options.length; i++) {
       buttons.add(SelectButton<T>(
@@ -26,10 +25,71 @@ class MultiButtonSingleSelectWidget<T> extends StatelessWidget {
           onPressedHandler: onPressHandler));
     }
 
+    return buttons;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    List<SelectButton> buttons = renderButtons();
+
     return Expanded(
       child: GridView.count(
         crossAxisSpacing: 20.0,
         childAspectRatio: (1 / .4),
+        shrinkWrap: true,
+        crossAxisCount: colNo,
+        children: [...buttons],
+      ),
+    );
+  }
+}
+
+class MultiButtonMultiSelectWidget<T> extends StatelessWidget {
+  const MultiButtonMultiSelectWidget(
+      {super.key,
+      required this.values,
+      required this.options,
+      required this.colNo,
+      required this.onPressHandler});
+
+  final List<T> values;
+  final List<T> options;
+  final int colNo;
+  final void Function(List<T>) onPressHandler;
+
+  List<SelectButton> renderButtons() {
+    List<SelectButton> buttons = [];
+    for (int i = 0; i < options.length; i++) {
+      bool isSelected = values.contains(options[i]);
+      buttons.add(
+        SelectButton<T>(
+          isSelected: isSelected,
+          label: options[i].toString(),
+          value: options[i],
+          onPressedHandler: (value) {
+            List<T> newValues = values;
+            if (isSelected) {
+              values.remove(options[i]);
+            } else {
+              values.add(options[i]);
+            }
+            onPressHandler(newValues);
+          },
+        ),
+      );
+    }
+    return buttons;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    List<SelectButton> buttons = renderButtons();
+
+    return Expanded(
+      child: GridView.count(
+        crossAxisSpacing: 20.0,
+        mainAxisSpacing: 20.0,
+        childAspectRatio: (1 / .25),
         shrinkWrap: true,
         crossAxisCount: colNo,
         children: [...buttons],
