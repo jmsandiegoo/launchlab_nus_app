@@ -44,21 +44,6 @@ class _OnboardingStep2ContentState extends State<OnboardingStep2Content> {
             testValues = values;
           }),
         ),
-        headerText("Level of commitment"),
-        const SizedBox(
-          height: 10.0,
-        ),
-        bodyText(
-            "Here you could specify the level of commitment you could commit for the projects. You could select more than one."),
-        const SizedBox(
-          height: 20.0,
-        ),
-        MultiButtonSingleSelectWidget(
-          value: "Low",
-          options: const ["Low", "Medium", "High"],
-          colNo: 3,
-          onPressHandler: (String val) => print(val),
-        ),
         const SizedBox(
           height: 20.0,
         ),

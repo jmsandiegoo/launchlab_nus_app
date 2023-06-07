@@ -114,8 +114,6 @@ class DropdownSearchFieldMultiWidget<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    List<T> values = [];
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -177,7 +175,7 @@ class DropdownSearchFieldMultiWidget<T> extends StatelessWidget {
             ),
           ),
           dropdownBuilder: (context, selectedItems) {
-            if (isChipsOutside || selectedItems.length == 0) {
+            if (isChipsOutside || selectedItems.isEmpty) {
               return const ListTile(
                   dense: true,
                   minVerticalPadding: 0,
