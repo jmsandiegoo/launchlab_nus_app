@@ -32,14 +32,18 @@ class MultiButtonSingleSelectWidget<T> extends StatelessWidget {
   Widget build(BuildContext context) {
     List<SelectButton> buttons = renderButtons();
 
-    return Expanded(
-      child: GridView.count(
-        crossAxisSpacing: 20.0,
-        childAspectRatio: (1 / .4),
-        shrinkWrap: true,
-        crossAxisCount: colNo,
-        children: [...buttons],
-      ),
+    return Row(
+      children: [
+        Expanded(
+          child: GridView.count(
+            crossAxisSpacing: 20.0,
+            childAspectRatio: (1 / .4),
+            shrinkWrap: true,
+            crossAxisCount: colNo,
+            children: [...buttons],
+          ),
+        ),
+      ],
     );
   }
 }
@@ -67,11 +71,11 @@ class MultiButtonMultiSelectWidget<T> extends StatelessWidget {
           label: options[i].toString(),
           value: options[i],
           onPressedHandler: (value) {
-            List<T> newValues = values;
+            List<T> newValues = [...values];
             if (isSelected) {
-              values.remove(options[i]);
+              newValues.remove(options[i]);
             } else {
-              values.add(options[i]);
+              newValues.add(options[i]);
             }
             onPressHandler(newValues);
           },
@@ -84,16 +88,19 @@ class MultiButtonMultiSelectWidget<T> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     List<SelectButton> buttons = renderButtons();
-
-    return Expanded(
-      child: GridView.count(
-        crossAxisSpacing: 20.0,
-        mainAxisSpacing: 20.0,
-        childAspectRatio: (1 / .25),
-        shrinkWrap: true,
-        crossAxisCount: colNo,
-        children: [...buttons],
-      ),
+    return Row(
+      children: [
+        Expanded(
+          child: GridView.count(
+            crossAxisSpacing: 20.0,
+            mainAxisSpacing: 20.0,
+            childAspectRatio: (1 / .25),
+            shrinkWrap: true,
+            crossAxisCount: colNo,
+            children: [...buttons],
+          ),
+        ),
+      ],
     );
   }
 }

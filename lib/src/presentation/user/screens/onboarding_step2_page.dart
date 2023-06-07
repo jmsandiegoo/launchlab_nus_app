@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:launchlab/src/presentation/common/widgets/form_fields/dropwdown_search_field.dart';
 import 'package:launchlab/src/presentation/common/widgets/form_fields/multi_button_select.dart';
 import 'package:launchlab/src/presentation/common/widgets/useful.dart';
 
@@ -19,6 +20,7 @@ class OnboardingStep2Content extends StatefulWidget {
 }
 
 class _OnboardingStep2ContentState extends State<OnboardingStep2Content> {
+  List<String> testValues = []; // change to cubit
   @override
   Widget build(BuildContext context) {
     return ListView(
@@ -31,6 +33,16 @@ class _OnboardingStep2ContentState extends State<OnboardingStep2Content> {
             "You can showcase your skills that you have learnt and also your interests."),
         const SizedBox(
           height: 20.0,
+        ),
+        DropdownSearchFieldMultiWidget(
+          focusNode: FocusNode(),
+          label: "",
+          getItems: (String filter) async => ["Java", "Android", "Web Dev"],
+          selectedItems: testValues,
+          isChipsOutside: true,
+          onChangedHandler: (values) => setState(() {
+            testValues = values;
+          }),
         ),
         headerText("Level of commitment"),
         const SizedBox(

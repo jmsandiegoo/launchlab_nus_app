@@ -1,6 +1,7 @@
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:launchlab/src/config/app_theme.dart';
+import 'package:launchlab/src/presentation/common/widgets/useful.dart';
 
 class DropdownSearchFieldWidget<T> extends StatelessWidget {
   const DropdownSearchFieldWidget({
@@ -88,6 +89,137 @@ class DropdownSearchFieldWidget<T> extends StatelessWidget {
         const SizedBox(
           height: 20,
         )
+      ],
+    );
+  }
+}
+
+class DropdownSearchFieldMultiWidget<T> extends StatelessWidget {
+  DropdownSearchFieldMultiWidget({
+    super.key,
+    required this.focusNode,
+    required this.label,
+    required this.getItems,
+    required this.isChipsOutside,
+    required this.selectedItems,
+    required this.onChangedHandler,
+  });
+  final _dropdownKey = GlobalKey<DropdownSearchState<T>>();
+  final FocusNode focusNode;
+  final String label;
+  final Future<List<T>> Function(String) getItems;
+  final bool isChipsOutside;
+  final List<T> selectedItems;
+  final void Function(List<T>) onChangedHandler;
+
+  @override
+  Widget build(BuildContext context) {
+    List<T> values = [];
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        ...() {
+          if (label == "") {
+            return [];
+          }
+          return [
+            Text(
+              label,
+              style: const TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87),
+            ),
+            const SizedBox(
+              height: 5,
+            )
+          ];
+        }(),
+        DropdownSearch<T>.multiSelection(
+          key: _dropdownKey,
+          popupProps: PopupPropsMultiSelection.menu(
+            // isFilterOnline: true, // for repeated api calls
+            showSearchBox: true,
+            showSelectedItems: false,
+            searchFieldProps: TextFieldProps(
+              decoration: InputDecoration(
+                filled: true,
+                hintText: "Search",
+                fillColor: Colors.grey.shade800,
+              ),
+              style: const TextStyle(color: whiteColor),
+            ),
+            menuProps: const MenuProps(
+              backgroundColor: blackColor,
+            ),
+            itemBuilder: (context, item, isSelected) {
+              return ListTile(
+                  title: Text(item.toString(),
+                      style: TextStyle(
+                          color: isSelected ? yellowColor : whiteColor)));
+            },
+          ),
+          itemAsString: (item) => item.toString(),
+          asyncItems: getItems,
+          onChanged: onChangedHandler,
+          selectedItems: selectedItems,
+          dropdownDecoratorProps: DropDownDecoratorProps(
+            dropdownSearchDecoration: InputDecoration(
+              fillColor: whiteColor,
+              filled: true,
+              contentPadding:
+                  const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+              enabledBorder: OutlineInputBorder(
+                  borderSide:
+                      BorderSide(color: Colors.grey.shade400, width: 0.25),
+                  borderRadius: const BorderRadius.all(Radius.circular(10.0))),
+            ),
+          ),
+          dropdownBuilder: (context, selectedItems) {
+            if (isChipsOutside || selectedItems.length == 0) {
+              return const ListTile(
+                  dense: true,
+                  minVerticalPadding: 0,
+                  visualDensity: VisualDensity.compact,
+                  contentPadding: EdgeInsets.zero,
+                  title: Text(
+                    "Search an interest / skill name",
+                    style: TextStyle(
+                      color: Colors.grey,
+                      height: 1.0,
+                    ),
+                  ));
+            } else {
+              return chipsWrap(selectedItems, onDeleteHandler: (value) {
+                List<T>? newSelectedItems =
+                    _dropdownKey.currentState?.getSelectedItems;
+
+                newSelectedItems?.remove(value);
+
+                _dropdownKey.currentState
+                    ?.changeSelectedItems(newSelectedItems ?? []);
+              });
+            }
+          },
+        ),
+        ...() {
+          if (isChipsOutside) {
+            return [
+              chipsWrap<T>(selectedItems, onDeleteHandler: (value) {
+                List<T>? newSelectedItems =
+                    _dropdownKey.currentState?.getSelectedItems;
+
+                newSelectedItems?.remove(value);
+
+                _dropdownKey.currentState
+                    ?.changeSelectedItems(newSelectedItems ?? []);
+              })
+            ];
+          } else {
+            return [];
+          }
+        }(),
       ],
     );
   }

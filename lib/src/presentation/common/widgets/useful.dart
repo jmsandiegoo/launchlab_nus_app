@@ -169,3 +169,31 @@ Future<T?> showModalBottomSheetHandler<T>(
   return showModalBottomSheet<T>(
       context: context, builder: builder, useRootNavigator: true);
 }
+
+Widget chip<T>(label, T value, {void Function(T value)? onDeleteHandler}) {
+  return Chip(
+      labelPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 5.0),
+      label: bodyText(label),
+      backgroundColor: Colors.transparent,
+      deleteIcon: const Icon(
+        Icons.close_outlined,
+        size: 20.0,
+        weight: 300,
+      ),
+      deleteIconColor: blackColor,
+      onDeleted: onDeleteHandler == null ? null : () => onDeleteHandler(value),
+      shape: RoundedRectangleBorder(
+          side: const BorderSide(width: 0.5),
+          borderRadius: BorderRadius.circular(10.0)));
+}
+
+Widget chipsWrap<T>(List<T> items, {void Function(T value)? onDeleteHandler}) {
+  return Wrap(
+    runSpacing: 5.0,
+    spacing: 5.0,
+    children: items
+        .map((item) =>
+            chip(item.toString(), item, onDeleteHandler: onDeleteHandler))
+        .toList(),
+  );
+}
