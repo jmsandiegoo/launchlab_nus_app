@@ -8,6 +8,7 @@ import 'package:launchlab/src/presentation/common/screens/unprotected_screen_pag
 import 'package:launchlab/src/presentation/common/widgets/scaffold_with_bottom_nav.dart';
 import 'package:launchlab/src/presentation/team/screens/discover_page.dart';
 import 'package:launchlab/src/presentation/team/screens/team_home_page.dart';
+import 'package:launchlab/src/presentation/user/screens/add_experience_page.dart';
 import 'package:launchlab/src/presentation/user/screens/onboarding_finish_page.dart';
 import 'package:launchlab/src/presentation/user/screens/onboarding_step1_page.dart';
 import 'package:launchlab/src/presentation/user/screens/onboarding_step2_page.dart';
@@ -55,6 +56,11 @@ final GoRouter appRouter = GoRouter(
         return ProtectedScreenPage(child: child);
       },
       routes: [
+        GoRoute(
+          parentNavigatorKey: _protectedShellNavigatorKey,
+          path: "/add-experience",
+          builder: (context, state) => const AddExperiencePage(),
+        ),
         ShellRoute(
           navigatorKey: _onboardingShellKey,
           builder: (context, state, child) => OnboardingContainer(child: child),
@@ -69,6 +75,7 @@ final GoRouter appRouter = GoRouter(
               },
             ),
             ShellRoute(
+              navigatorKey: _nestedOnboardingShellKey,
               builder: (context, state, child) =>
                   OnboardingStepsLayout(child: child),
               routes: [
@@ -85,6 +92,7 @@ final GoRouter appRouter = GoRouter(
                   },
                 ),
                 GoRoute(
+                  parentNavigatorKey: _nestedOnboardingShellKey,
                   path: "/onboard/step-3",
                   builder: (context, state) {
                     return const OnboardingStep3Page();
@@ -95,7 +103,7 @@ final GoRouter appRouter = GoRouter(
                   builder: (context, state) {
                     return const OnboardingStep1Page();
                   },
-                )
+                ),
               ],
             ),
             GoRoute(

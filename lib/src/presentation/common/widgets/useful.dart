@@ -1,13 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:launchlab/src/config/app_theme.dart';
 
-Widget userInput(
-    {focusNode,
-    onChangedHandler,
-    label,
-    obscureText = false,
-    size = 1,
-    hint = ""}) {
+Widget userInput({
+  required FocusNode focusNode,
+  required void Function(String) onChangedHandler,
+  required String label,
+  bool obscureText = false,
+  int size = 1,
+  String hint = "",
+  bool isReadOnly = false,
+  void Function()? onTapHandler,
+  Widget? suffixWidget,
+  TextEditingController? controller,
+}) {
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
@@ -29,13 +34,17 @@ Widget userInput(
         ];
       }(),
       TextField(
+        readOnly: isReadOnly,
         focusNode: focusNode,
+        controller: controller,
         onChanged: onChangedHandler,
+        onTap: onTapHandler,
         keyboardType: size > 1 ? TextInputType.multiline : null,
         minLines: size,
         maxLines: size,
         obscureText: obscureText,
         decoration: InputDecoration(
+          suffixIcon: suffixWidget,
           hintText: hint,
           fillColor: whiteColor,
           filled: true,

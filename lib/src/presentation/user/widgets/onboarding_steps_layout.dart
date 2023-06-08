@@ -32,6 +32,20 @@ class OnboardingStepsLayout extends StatelessWidget {
                 },
                 child: const Icon(Icons.keyboard_backspace_outlined),
               ),
+              actions: onboardingStepsLayoutCubit.state.currStep >= 3
+                  ? [
+                      TextButton(
+                          onPressed: () {
+                            navigatePush(
+                                context, "/onboard/step-${state.currStep + 1}");
+                            onboardingStepsLayoutCubit.handleNextStep();
+                          },
+                          child: const Text(
+                            "Skip",
+                            style: TextStyle(color: blackColor),
+                          )),
+                    ]
+                  : [],
             ),
             body: Container(
                 padding: const EdgeInsets.symmetric(
