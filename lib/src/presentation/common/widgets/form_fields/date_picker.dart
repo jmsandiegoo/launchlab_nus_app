@@ -12,7 +12,8 @@ class DatePickerWidget extends StatelessWidget {
       required this.hint,
       this.firstDate,
       this.lastDate,
-      this.initialDate});
+      this.initialDate,
+      required this.onChangedHandler});
 
   final TextEditingController controller;
   final FocusNode focusNode;
@@ -21,6 +22,7 @@ class DatePickerWidget extends StatelessWidget {
   final DateTime? firstDate;
   final DateTime? lastDate;
   final DateTime? initialDate;
+  final void Function(DateTime) onChangedHandler;
 
   @override
   Widget build(BuildContext context) {
@@ -58,8 +60,8 @@ class DatePickerWidget extends StatelessWidget {
         if (pickedDate == null) {
           return;
         }
-        controller.text = dateStringFormatter("MM-dd-yyyy", pickedDate);
-        // call onChanged handler here.
+        controller.text = dateStringFormatter("dd-MM-yyyy", pickedDate);
+        onChangedHandler(pickedDate);
       }),
       suffixWidget: const Icon(Icons.calendar_today_outlined),
     );

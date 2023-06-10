@@ -66,7 +66,7 @@ class OnboardingStepsLayout extends StatelessWidget {
                         context, "/onboard/step-${state.currStep + 1}");
                     onboardingStepsLayoutCubit.handleNextStep();
                   }, state.currStep == state.steps ? "Finish" : "Next",
-                      horizontalPadding: 40.0),
+                      horizontalPadding: 40.0, elevation: 0),
                 ],
               ),
             ),

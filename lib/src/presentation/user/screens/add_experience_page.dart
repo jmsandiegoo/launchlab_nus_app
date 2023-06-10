@@ -18,7 +18,9 @@ class AddExperiencePage extends StatelessWidget {
       ),
       body: Container(
           padding: const EdgeInsets.symmetric(horizontal: 30.0, vertical: 20.0),
-          child: const ExperienceForm()),
+          child: const ExperienceForm(
+            isEditMode: false,
+          )),
     );
   }
 }

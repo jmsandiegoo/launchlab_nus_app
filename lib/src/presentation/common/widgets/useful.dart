@@ -128,15 +128,33 @@ Widget bodyText(String label,
   );
 }
 
+Widget smallText(String label,
+    {size = 13.0,
+    color = blackColor,
+    weight = FontWeight.w400,
+    alignment = TextAlign.left}) {
+  return Text(
+    label,
+    textAlign: alignment,
+    style: TextStyle(
+      fontSize: size,
+      color: color,
+      fontWeight: weight,
+    ),
+  );
+}
+
 Widget primaryButton(
   BuildContext context,
   Function() onPressedHandler,
   String label, {
   horizontalPadding = 30.0,
   verticalPadding = 10.0,
+  double? elevation,
 }) {
   return ElevatedButton(
       style: ElevatedButton.styleFrom(
+        elevation: elevation,
         backgroundColor: Theme.of(context).colorScheme.primary,
         textStyle: TextStyle(color: Theme.of(context).colorScheme.onPrimary),
         padding: EdgeInsets.symmetric(
@@ -154,9 +172,11 @@ Widget secondaryButton(
   String label, {
   horizontalPadding = 30.0,
   verticalPadding = 10.0,
+  double? elevation,
 }) {
   return ElevatedButton(
       style: ElevatedButton.styleFrom(
+        elevation: elevation,
         backgroundColor: Theme.of(context).colorScheme.secondary,
         textStyle: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
         padding: EdgeInsets.symmetric(

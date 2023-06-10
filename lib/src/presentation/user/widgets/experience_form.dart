@@ -1,10 +1,15 @@
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:launchlab/src/presentation/common/widgets/form_fields/date_picker.dart';
 import 'package:launchlab/src/presentation/common/widgets/form_fields/text_field.dart';
 import 'package:launchlab/src/presentation/common/widgets/useful.dart';
 
 class ExperienceForm extends StatefulWidget {
-  const ExperienceForm({super.key});
+  const ExperienceForm({
+    super.key,
+    required this.isEditMode,
+  });
+
+  final bool isEditMode;
 
   @override
   State<ExperienceForm> createState() => _ExperienceFormState();
@@ -39,9 +44,11 @@ class _ExperienceFormState extends State<ExperienceForm> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  headerText("Add Experience"),
-                  bodyText(
-                      "Specify your work experience below so to display it on your profile.")
+                  headerText(
+                      "${widget.isEditMode ? "Edit" : "Add"} Experience"),
+                  bodyText(widget.isEditMode
+                      ? "Modify your work experience below."
+                      : "Specify your work experience below so to display it on your profile."),
                 ],
               ),
             ),
@@ -74,6 +81,7 @@ class _ExperienceFormState extends State<ExperienceForm> {
                 focusNode: FocusNode(),
                 label: "Start Date",
                 hint: '',
+                onChangedHandler: (DateTime) {},
               ),
             ),
             Container(
@@ -86,8 +94,29 @@ class _ExperienceFormState extends State<ExperienceForm> {
                 focusNode: FocusNode(),
                 label: "End Date",
                 hint: '',
+                onChangedHandler: (DateTime) {},
               ),
             ),
+          ],
+        ),
+        TextFieldWidget(
+          focusNode: FocusNode(),
+          onChangedHandler: (p0) {},
+          label: "Description",
+          hint: "Ex: Write something about the team etc.",
+          size: 9,
+        ),
+        Column(
+          children: [
+            primaryButton(context, () => null, "Create", elevation: 0),
+            ...() {
+              return widget.isEditMode
+                  ? [
+                      OutlinedButton(
+                          onPressed: () {}, child: const Text("Delete"))
+                    ]
+                  : [];
+            }()
           ],
         )
       ],
