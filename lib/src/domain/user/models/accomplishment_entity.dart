@@ -1,27 +1,26 @@
 import 'package:equatable/equatable.dart';
 import 'package:launchlab/src/domain/user/models/user_entity.dart';
 
-class ExperienceEntity extends Equatable {
-  const ExperienceEntity(
-    this.id,
-    this.title,
-    this.companyName,
-    this.isCurrent,
-    this.startDate,
-    this.endDate,
-    this.description,
-    this.createdAt,
-    this.updatedAt,
-    this.user,
-  );
+class AccomplishmentEntity extends Equatable {
+  const AccomplishmentEntity(
+      this.id,
+      this.title,
+      this.issuer,
+      this.isActive,
+      this.startDate,
+      this.endDate,
+      this.description,
+      this.createdAt,
+      this.updatedAt,
+      this.user);
 
   final String? id;
   final String title;
-  final String companyName;
-  final bool isCurrent;
+  final String issuer;
+  final bool isActive;
   final DateTime startDate;
   final DateTime? endDate;
-  final String description;
+  final String? description;
   final DateTime createdAt;
   final DateTime updatedAt;
   final UserEntity user;
@@ -30,11 +29,12 @@ class ExperienceEntity extends Equatable {
   List<Object?> get props => [
         id,
         title,
-        companyName,
-        isCurrent,
+        issuer,
+        isActive,
         startDate,
         endDate,
         description,
-        user
+        createdAt,
+        updatedAt
       ];
 }

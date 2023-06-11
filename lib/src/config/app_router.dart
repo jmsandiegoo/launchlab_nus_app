@@ -8,12 +8,15 @@ import 'package:launchlab/src/presentation/common/screens/unprotected_screen_pag
 import 'package:launchlab/src/presentation/common/widgets/scaffold_with_bottom_nav.dart';
 import 'package:launchlab/src/presentation/team/screens/discover_page.dart';
 import 'package:launchlab/src/presentation/team/screens/team_home_page.dart';
+import 'package:launchlab/src/presentation/user/screens/add_accomplishment_page.dart';
 import 'package:launchlab/src/presentation/user/screens/add_experience_page.dart';
+import 'package:launchlab/src/presentation/user/screens/edit_accomplishment_page.dart';
 import 'package:launchlab/src/presentation/user/screens/edit_experience_page.dart';
 import 'package:launchlab/src/presentation/user/screens/onboarding_finish_page.dart';
 import 'package:launchlab/src/presentation/user/screens/onboarding_step1_page.dart';
 import 'package:launchlab/src/presentation/user/screens/onboarding_step2_page.dart';
 import 'package:launchlab/src/presentation/user/screens/onboarding_step3_page.dart';
+import 'package:launchlab/src/presentation/user/screens/onboarding_step4_page.dart';
 import 'package:launchlab/src/presentation/user/screens/onboarding_welcome_page.dart';
 import 'package:launchlab/src/presentation/user/screens/profile_page.dart';
 import 'package:launchlab/src/presentation/user/widgets/onboarding_container.dart';
@@ -67,6 +70,16 @@ final GoRouter appRouter = GoRouter(
           path: "/edit-experience",
           builder: (context, state) => const EditExperiencePage(),
         ),
+        GoRoute(
+          parentNavigatorKey: _protectedShellNavigatorKey,
+          path: "/add-accomplishment",
+          builder: (context, state) => const AddAccomplishmentPage(),
+        ),
+        GoRoute(
+          parentNavigatorKey: _protectedShellNavigatorKey,
+          path: "/edit-accomplishment",
+          builder: (context, state) => const EditAccomplishmentPage(),
+        ),
         ShellRoute(
           navigatorKey: _onboardingShellKey,
           builder: (context, state, child) => OnboardingContainer(child: child),
@@ -107,7 +120,7 @@ final GoRouter appRouter = GoRouter(
                 GoRoute(
                   path: "/onboard/step-4",
                   builder: (context, state) {
-                    return const OnboardingStep1Page();
+                    return const OnboardingStep4Page();
                   },
                 ),
               ],

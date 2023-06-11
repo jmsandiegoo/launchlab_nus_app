@@ -46,7 +46,7 @@ class _OnboardingStep3ContentState extends State<OnboardingStep3Content> {
         ),
         headerText("Share your experience"),
         bodyText(
-            "you can choose to share some work experiences you have for other users to see."),
+            "You can choose to share some work experiences you have for other users to see."),
         const SizedBox(
           height: 20.0,
         ),
@@ -60,10 +60,10 @@ class _OnboardingStep3ContentState extends State<OnboardingStep3Content> {
               DateTime.now(),
               DateTime.now(),
               "My own description",
+              DateTime.now(),
+              DateTime.now(),
               const UserEntity("1", false, "Jm", "San Diego", "Developer",
                   "avatar", "Resume", MajorEntity("1")),
-              DateTime.now(),
-              DateTime.now(),
             )
           ],
         ),

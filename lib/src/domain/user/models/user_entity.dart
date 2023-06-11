@@ -14,7 +14,7 @@ class UserEntity extends Equatable {
     this.major,
   );
 
-  final String id;
+  final String? id;
   final bool isOnboarded;
   final String firstName;
   final String lastName;
