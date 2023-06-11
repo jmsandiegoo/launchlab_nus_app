@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:launchlab/src/config/app_theme.dart';
 import 'package:launchlab/src/presentation/common/widgets/form_fields/date_picker.dart';
 import 'package:launchlab/src/presentation/common/widgets/form_fields/text_field.dart';
 import 'package:launchlab/src/presentation/common/widgets/useful.dart';
@@ -111,13 +112,18 @@ class _ExperienceFormState extends State<ExperienceForm> {
           size: 9,
         ),
         Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             primaryButton(context, () => null, "Create", elevation: 0),
             ...() {
               return widget.isEditMode
                   ? [
                       OutlinedButton(
-                          onPressed: () {}, child: const Text("Delete"))
+                        onPressed: () {},
+                        style: OutlinedButton.styleFrom(
+                            side: const BorderSide(color: errorColor)),
+                        child: bodyText("Delete", color: errorColor),
+                      ),
                     ]
                   : [];
             }()

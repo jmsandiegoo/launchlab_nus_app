@@ -64,7 +64,9 @@ class ExperienceCard extends StatelessWidget {
                   ],
                 ),
                 GestureDetector(
-                  onTap: () {},
+                  onTap: () {
+                    navigatePush(context, "/edit-experience");
+                  },
                   child: const Icon(
                     Icons.edit_outlined,
                   ),

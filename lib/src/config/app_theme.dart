@@ -8,6 +8,7 @@ const lightGreyColor = Color(0xFFF4F4F2);
 const greyColor = Colors.grey;
 const darkGreyColor = Color(0xFF515151);
 const yellowColor = Color(0xFFFFD84E);
+const errorColor = Colors.red;
 
 final ThemeData appThemeData = ThemeData(
   colorScheme: const ColorScheme.light(
