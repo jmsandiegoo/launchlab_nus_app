@@ -73,6 +73,10 @@ class _ExperienceFormState extends State<ExperienceForm> {
             onChangedHandler: (value) {},
             label: "Company Name",
             hint: "Ex: Google"),
+        checkBox("I currently work here", false, (p0) {}),
+        const SizedBox(
+          height: 10.0,
+        ),
         Row(
           children: [
             Expanded(

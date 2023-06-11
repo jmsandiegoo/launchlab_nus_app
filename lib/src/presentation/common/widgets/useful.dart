@@ -64,6 +64,21 @@ Widget userInput({
   );
 }
 
+Widget checkBox(
+    String label, bool value, void Function(bool?) onChangedHandler) {
+  return Row(mainAxisAlignment: MainAxisAlignment.start, children: [
+    Checkbox(
+      value: value,
+      onChanged: onChangedHandler,
+      checkColor: blackColor,
+      fillColor: const MaterialStatePropertyAll(yellowColor),
+      side: const BorderSide(width: 0.5),
+      activeColor: whiteColor,
+    ),
+    bodyText(label),
+  ]);
+}
+
 Widget profilePicture(double diameter, String address) {
   return Container(
     width: diameter,
