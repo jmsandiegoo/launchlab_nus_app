@@ -8,10 +8,12 @@ Widget userInput({
   bool obscureText = false,
   int size = 1,
   String hint = "",
+  bool isEnabled = true,
   bool isReadOnly = false,
   void Function()? onTapHandler,
   Widget? suffixWidget,
   TextEditingController? controller,
+  String? errorText,
 }) {
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
@@ -34,6 +36,7 @@ Widget userInput({
         ];
       }(),
       TextField(
+        enabled: isEnabled,
         readOnly: isReadOnly,
         focusNode: focusNode,
         controller: controller,
@@ -44,9 +47,10 @@ Widget userInput({
         maxLines: size,
         obscureText: obscureText,
         decoration: InputDecoration(
+          errorText: errorText,
           suffixIcon: suffixWidget,
           hintText: hint,
-          fillColor: whiteColor,
+          fillColor: isEnabled ? whiteColor : greyColor.shade300,
           filled: true,
           contentPadding:
               const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
@@ -64,10 +68,11 @@ Widget userInput({
   );
 }
 
-Widget checkBox(
-    String label, bool value, void Function(bool?) onChangedHandler) {
+Widget checkBox(String label, bool? value, bool tristate,
+    void Function(bool?) onChangedHandler) {
   return Row(mainAxisAlignment: MainAxisAlignment.start, children: [
     Checkbox(
+      tristate: tristate,
       value: value,
       onChanged: onChangedHandler,
       checkColor: blackColor,

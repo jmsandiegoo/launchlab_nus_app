@@ -1,135 +1,202 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:launchlab/src/config/app_theme.dart';
 import 'package:launchlab/src/presentation/common/widgets/form_fields/date_picker.dart';
 import 'package:launchlab/src/presentation/common/widgets/form_fields/text_field.dart';
 import 'package:launchlab/src/presentation/common/widgets/useful.dart';
+import 'package:launchlab/src/presentation/user/cubits/experience_form_cubit.dart';
+import 'package:launchlab/src/presentation/user/widgets/form_fields/end_date_field.dart';
+import 'package:launchlab/src/presentation/user/widgets/form_fields/start_date_field.dart';
 
-class ExperienceForm extends StatefulWidget {
+class ExperienceForm<T extends Cubit> extends StatefulWidget {
   const ExperienceForm({
     super.key,
     required this.isEditMode,
+    required this.onSubmitHandler,
+    this.onDeleteHandler,
   });
 
   final bool isEditMode;
+  final void Function(ExperienceFormState) onSubmitHandler;
+  final void Function(ExperienceFormState)? onDeleteHandler;
 
   @override
   State<ExperienceForm> createState() => _ExperienceFormState();
 }
 
 class _ExperienceFormState extends State<ExperienceForm> {
-  final TextEditingController _startDateController = TextEditingController();
-  final TextEditingController _endDateController = TextEditingController();
+  late ExperienceFormCubit _experienceFormCubit;
+
+  final _titleNameFocusNode = FocusNode();
+  final _companyNameFocusNode = FocusNode();
+  final _startDateFocusNode = FocusNode();
+  final _endDateFocusNode = FocusNode();
+  final _descriptionFocusNode = FocusNode();
+
+  final _titleNameController = TextEditingController();
+  final _companyNameController = TextEditingController();
+  final _startDateController = TextEditingController();
+  final _endDateController = TextEditingController();
+  final _descriptionController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
+    _experienceFormCubit = BlocProvider.of<ExperienceFormCubit>(context);
   }
 
   @override
   void dispose() {
+    _titleNameFocusNode.dispose();
+    _companyNameFocusNode.dispose();
+    _startDateFocusNode.dispose();
+    _endDateFocusNode.dispose();
+    _descriptionFocusNode.dispose();
+
+    _titleNameController.dispose();
+    _companyNameController.dispose();
     _startDateController.dispose();
     _endDateController.dispose();
+    _descriptionController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return ListView(
-      children: [
-        Row(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            Expanded(
-              flex: 3,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  headerText(
-                      "${widget.isEditMode ? "Edit" : "Add"} Experience"),
-                  bodyText(widget.isEditMode
-                      ? "Modify your work experience below."
-                      : "Specify your work experience below so to display it on your profile."),
-                ],
+    return BlocBuilder<ExperienceFormCubit, ExperienceFormState>(
+        builder: (context, state) {
+      return ListView(
+        children: [
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Expanded(
+                flex: 3,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    headerText(
+                        "${widget.isEditMode ? "Edit" : "Add"} Experience"),
+                    bodyText(widget.isEditMode
+                        ? "Modify your work experience below."
+                        : "Specify your work experience below so to display it on your profile."),
+                  ],
+                ),
               ),
-            ),
-            const SizedBox(width: 10.0),
-            Expanded(
-              flex: 2,
-              child: Image.asset(
-                "assets/images/experience_form.png",
-                fit: BoxFit.contain,
+              const SizedBox(width: 10.0),
+              Expanded(
+                flex: 2,
+                child: Image.asset(
+                  "assets/images/experience_form.png",
+                  fit: BoxFit.contain,
+                ),
               ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 20.0),
-        TextFieldWidget(
-            focusNode: FocusNode(),
-            onChangedHandler: (value) {},
+            ],
+          ),
+          const SizedBox(height: 20.0),
+          TextFieldWidget(
+            focusNode: _titleNameFocusNode,
+            controller: _titleNameController,
+            onChangedHandler: (value) =>
+                _experienceFormCubit.onTitleNameChanged(value),
             label: "Title Name",
-            hint: "Ex: Frontend Developer"),
-        TextFieldWidget(
-            focusNode: FocusNode(),
-            onChangedHandler: (value) {},
+            value: state.titleNameFieldInput.value,
+            hint: "Ex: Frontend Developer",
+            errorText: state.titleNameFieldInput.displayError?.text(),
+          ),
+          TextFieldWidget(
+            focusNode: _companyNameFocusNode,
+            controller: _companyNameController,
+            onChangedHandler: (value) =>
+                _experienceFormCubit.onCompanyNameChanged(value),
             label: "Company Name",
-            hint: "Ex: Google"),
-        checkBox("I currently work here", false, (p0) {}),
-        const SizedBox(
-          height: 10.0,
-        ),
-        Row(
-          children: [
-            Expanded(
-              child: DatePickerWidget(
-                controller: _startDateController,
-                focusNode: FocusNode(),
-                label: "Start Date",
-                hint: '',
-                onChangedHandler: (DateTime) {},
+            value: state.companyNameFieldInput.value,
+            hint: "Ex: Google",
+            errorText: state.companyNameFieldInput.displayError?.text(),
+          ),
+          checkBox(
+              "I currently work here",
+              state.isCurrentFieldInput.value,
+              false,
+              (value) => _experienceFormCubit.onIsCurrentChanged(value!)),
+          const SizedBox(
+            height: 10.0,
+          ),
+          Row(
+            children: [
+              Expanded(
+                child: DatePickerWidget(
+                  controller: _startDateController,
+                  focusNode: _startDateFocusNode,
+                  label: "Start Date",
+                  hint: '',
+                  errorText: state.startDateFieldInput.displayError?.text(),
+                  onChangedHandler: (value) =>
+                      _experienceFormCubit.onStartDateChanged(value),
+                  initialDate: state.startDateFieldInput.value,
+                ),
               ),
-            ),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 5.0),
-              child: const Text("—"),
-            ),
-            Expanded(
-              child: DatePickerWidget(
-                controller: _endDateController,
-                focusNode: FocusNode(),
-                label: "End Date",
-                hint: '',
-                onChangedHandler: (DateTime) {},
+              Container(
+                height: 30,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 5.0,
+                ),
+                child: const Text("—"),
               ),
-            ),
-          ],
-        ),
-        TextFieldWidget(
-          focusNode: FocusNode(),
-          onChangedHandler: (p0) {},
-          label: "Description",
-          hint: "Ex: Write something about the team etc.",
-          size: 9,
-        ),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            primaryButton(context, () => null, "Create", elevation: 0),
-            ...() {
-              return widget.isEditMode
-                  ? [
-                      OutlinedButton(
-                        onPressed: () {},
-                        style: OutlinedButton.styleFrom(
-                            side: const BorderSide(color: errorColor)),
-                        child: bodyText("Delete", color: errorColor),
+              Expanded(
+                child: state.isCurrentFieldInput.value
+                    ? SizedBox(
+                        height: 30,
+                        child: bodyText(" Present", weight: FontWeight.w600),
+                      )
+                    : DatePickerWidget(
+                        isEnabled: state.startDateFieldInput.value != null,
+                        controller: _endDateController,
+                        focusNode: _endDateFocusNode,
+                        label: "End Date",
+                        hint: '',
+                        errorText: state.endDateFieldInput.displayError?.text(),
+                        onChangedHandler: (value) =>
+                            _experienceFormCubit.onEndDateChanged(value),
+                        initialDate: state.endDateFieldInput.value,
                       ),
-                    ]
-                  : [];
-            }()
-          ],
-        )
-      ],
-    );
+              ),
+            ],
+          ),
+          TextFieldWidget(
+            focusNode: _descriptionFocusNode,
+            controller: _descriptionController,
+            onChangedHandler: (value) =>
+                _experienceFormCubit.onDescriptionChanged(value),
+            label: "Description",
+            value: state.descriptionFieldInput.value,
+            hint: "Ex: Write something about the team etc.",
+            errorText: state.descriptionFieldInput.displayError?.text(),
+            size: 9,
+          ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              primaryButton(context, () => widget.onSubmitHandler(state),
+                  widget.isEditMode ? "Edit" : "Create",
+                  elevation: 0),
+              ...() {
+                return widget.isEditMode
+                    ? [
+                        OutlinedButton(
+                          onPressed: () => widget.onDeleteHandler!(state),
+                          style: OutlinedButton.styleFrom(
+                              side: const BorderSide(color: errorColor)),
+                          child: bodyText("Delete", color: errorColor),
+                        ),
+                      ]
+                    : [];
+              }()
+            ],
+          )
+        ],
+      );
+    });
   }
 }

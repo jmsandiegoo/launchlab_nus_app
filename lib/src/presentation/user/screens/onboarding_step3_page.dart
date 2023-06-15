@@ -1,11 +1,8 @@
-import 'dart:io';
-
 import 'package:flutter/cupertino.dart';
-import 'package:launchlab/src/domain/user/models/experience_entity.dart';
-import 'package:launchlab/src/domain/user/models/major_entity.dart';
-import 'package:launchlab/src/domain/user/models/user_entity.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:launchlab/src/presentation/common/widgets/form_fields/file_upload.dart';
 import 'package:launchlab/src/presentation/common/widgets/useful.dart';
+import 'package:launchlab/src/presentation/user/cubits/onboarding_cubit.dart';
 import 'package:launchlab/src/presentation/user/widgets/experience_list.dart';
 
 class OnboardingStep3Page extends StatelessWidget {
@@ -13,7 +10,11 @@ class OnboardingStep3Page extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const OnboardingStep3Content();
+    print('rebuild parent');
+    return BlocBuilder<OnboardingCubit, OnboardingState>(
+      // ignore: prefer_const_constructors
+      builder: (context, state) => OnboardingStep3Content(),
+    );
   }
 }
 
@@ -25,10 +26,17 @@ class OnboardingStep3Content extends StatefulWidget {
 }
 
 class _OnboardingStep3ContentState extends State<OnboardingStep3Content> {
-  File? selectedFile = null;
+  late OnboardingCubit _onboardingCubit;
+
+  @override
+  void initState() {
+    super.initState();
+    _onboardingCubit = BlocProvider.of<OnboardingCubit>(context);
+  }
 
   @override
   Widget build(BuildContext context) {
+    print('rebuild');
     return ListView(
       children: [
         headerText("Upload Resume"),
@@ -36,10 +44,9 @@ class _OnboardingStep3ContentState extends State<OnboardingStep3Content> {
           height: 20.0,
         ),
         FileUploadWidget(
-          selectedFile: selectedFile,
-          onFileUploadChangedHandler: (value) => setState(() {
-            selectedFile = value;
-          }),
+          selectedFile: _onboardingCubit.state.userResumeInput.value,
+          onFileUploadChangedHandler: (value) =>
+              _onboardingCubit.onUserResumeChanged(value),
         ),
         const SizedBox(
           height: 20.0,
@@ -50,23 +57,13 @@ class _OnboardingStep3ContentState extends State<OnboardingStep3Content> {
         const SizedBox(
           height: 20.0,
         ),
-        ExperienceList(
-          experiences: [
-            ExperienceEntity(
-              "1",
-              "Developer",
-              "Koios Pte. Ltd.",
-              false,
-              DateTime.now(),
-              DateTime.now(),
-              "My own description",
-              DateTime.now(),
-              DateTime.now(),
-              const UserEntity("1", false, "Jm", "San Diego", "Developer",
-                  "avatar", "Resume", MajorEntity("1")),
-            )
-          ],
-        ),
+        BlocBuilder<OnboardingCubit, OnboardingState>(
+          builder: (context, state) => ExperienceList(
+            experiences: _onboardingCubit.state.experienceListInput.value,
+            onChangedHandler: (values) =>
+                _onboardingCubit.onExperienceListChanged(values),
+          ),
+        )
       ],
     );
   }

@@ -66,15 +66,19 @@ class _AccomplishmentFormState extends State<AccomplishmentForm> {
         const SizedBox(height: 20.0),
         TextFieldWidget(
             focusNode: FocusNode(),
+            controller: TextEditingController(),
             onChangedHandler: (value) {},
             label: "Title Name",
+            value: "",
             hint: "Ex: Best in CS1231S award"),
         TextFieldWidget(
             focusNode: FocusNode(),
+            controller: TextEditingController(),
             onChangedHandler: (value) {},
             label: "Issuer",
+            value: "",
             hint: "Ex: National University of Singapore"),
-        checkBox("Still Active", false, (p0) {}),
+        checkBox("Still Active", false, false, (p0) {}),
         const SizedBox(
           height: 10.0,
         ),
@@ -106,8 +110,10 @@ class _AccomplishmentFormState extends State<AccomplishmentForm> {
         ),
         TextFieldWidget(
           focusNode: FocusNode(),
+          controller: TextEditingController(),
           onChangedHandler: (p0) {},
           label: "Description",
+          value: "",
           hint: "Ex: Write something about the accomplishment etc.",
           size: 9,
         ),

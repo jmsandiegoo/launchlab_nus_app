@@ -54,7 +54,6 @@ class PictureUploadPickerWidget extends StatelessWidget {
                 label: "Photo",
                 onPressHandler: () {
                   pickImage(picker, ImageSource.gallery);
-                  navigatePop(context);
                   Navigator.of(context, rootNavigator: true).pop();
                 },
               ),

@@ -1,6 +1,5 @@
 import 'package:equatable/equatable.dart';
-
-import 'major_entity.dart';
+import 'package:launchlab/src/domain/user/models/degree_programme_entity.dart';
 
 class UserEntity extends Equatable {
   const UserEntity(
@@ -11,7 +10,7 @@ class UserEntity extends Equatable {
     this.title,
     this.avatar,
     this.resume,
-    this.major,
+    this.degreeProgramme,
   );
 
   final String? id;
@@ -22,7 +21,7 @@ class UserEntity extends Equatable {
   final String avatar;
   final String resume;
 
-  final MajorEntity? major;
+  final DegreeProgrammeEntity? degreeProgramme;
 
   @override
   List<Object?> get props => [

@@ -20,30 +20,58 @@ enum TextFieldError {
   empty,
 }
 
+extension TextFieldErrorExt on TextFieldError {
+  String text() {
+    switch (this) {
+      case TextFieldError.empty:
+        return "Field is required";
+    }
+  }
+}
+
 /// Widget
-class TextFieldWidget extends StatelessWidget {
-  const TextFieldWidget({
-    super.key,
-    required this.focusNode,
-    required this.onChangedHandler,
-    required this.label,
-    required this.hint,
-    this.size = 1,
-  });
+
+class TextFieldWidget extends StatefulWidget {
+  const TextFieldWidget(
+      {super.key,
+      required this.focusNode,
+      required this.onChangedHandler,
+      required this.label,
+      required this.value,
+      required this.hint,
+      this.errorText,
+      this.size = 1,
+      required this.controller});
 
   final FocusNode focusNode;
   final void Function(String) onChangedHandler;
   final String label;
+  final String value;
   final String hint;
+  final String? errorText;
   final int size;
+  final TextEditingController controller;
+
+  @override
+  State<TextFieldWidget> createState() => _TextFieldWidgetState();
+}
+
+class _TextFieldWidgetState extends State<TextFieldWidget> {
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    widget.controller.text = widget.value;
+  }
 
   @override
   Widget build(BuildContext context) {
     return userInput(
-        focusNode: focusNode,
-        onChangedHandler: onChangedHandler,
-        label: label,
-        hint: hint,
-        size: size);
+        focusNode: widget.focusNode,
+        controller: widget.controller,
+        onChangedHandler: widget.onChangedHandler,
+        label: widget.label,
+        hint: widget.hint,
+        errorText: widget.errorText,
+        size: widget.size);
   }
 }

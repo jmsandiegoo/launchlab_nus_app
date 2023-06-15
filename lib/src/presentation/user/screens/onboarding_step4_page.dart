@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:launchlab/src/domain/user/models/accomplishment_entity.dart';
-import 'package:launchlab/src/domain/user/models/major_entity.dart';
+import 'package:launchlab/src/domain/user/models/degree_programme_entity.dart';
 import 'package:launchlab/src/domain/user/models/user_entity.dart';
 import 'package:launchlab/src/presentation/common/widgets/useful.dart';
 import 'package:launchlab/src/presentation/user/screens/accomplishment_list.dart';
@@ -43,8 +43,15 @@ class _OnboardingStep4ContentState extends State<OnboardingStep4Content> {
             null,
             DateTime.now(),
             DateTime.now(),
-            const UserEntity("1", false, "Jm", "San Diego", "Developer",
-                "avatar", "Resume", MajorEntity("1")),
+            const UserEntity(
+                "1",
+                false,
+                "Jm",
+                "San Diego",
+                "Developer",
+                "avatar",
+                "Resume",
+                DegreeProgrammeEntity("1", "Single", "test")),
           ),
         ])
       ],

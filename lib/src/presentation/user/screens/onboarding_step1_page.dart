@@ -1,19 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:launchlab/src/domain/user/models/degree_programme_entity.dart';
 import 'package:launchlab/src/presentation/common/widgets/form_fields/dropwdown_search_field.dart';
 import 'package:launchlab/src/presentation/common/widgets/form_fields/picture_upload_picker.dart';
 import 'package:launchlab/src/presentation/common/widgets/form_fields/text_field.dart';
 import 'package:launchlab/src/presentation/common/widgets/useful.dart';
-import 'package:launchlab/src/presentation/user/cubits/onboarding_step1_page_cubit.dart';
+import 'package:launchlab/src/presentation/user/cubits/onboarding_cubit.dart';
 
 class OnboardingStep1Page extends StatelessWidget {
   const OnboardingStep1Page({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => OnboardingStep1PageCubit(),
-      child: const OnboardingStep1Content(),
+    return BlocBuilder<OnboardingCubit, OnboardingState>(
+      // ignore: prefer_const_constructors
+      builder: (context, state) => OnboardingStep1Content(),
     );
   }
 }
@@ -26,34 +27,44 @@ class OnboardingStep1Content extends StatefulWidget {
 }
 
 class _OnboardingStep1ContentState extends State<OnboardingStep1Content> {
+  late OnboardingCubit _onboardingCubit;
   final _firstNameFocusNode = FocusNode();
   final _lastNameFocusNode = FocusNode();
   final _titleFocusNode = FocusNode();
-  final _majorFocusNode = FocusNode();
+  final _degreeProgrammeFocusNode = FocusNode();
   final _aboutFocusNode = FocusNode();
+
+  final _firstNameController = TextEditingController();
+  final _lastNameController = TextEditingController();
+  final _titleController = TextEditingController();
+  final _aboutController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-
-    final onboardingStep1PageCubit =
-        BlocProvider.of<OnboardingStep1PageCubit>(context);
+    _onboardingCubit = BlocProvider.of<OnboardingCubit>(context);
 
     _firstNameFocusNode.addListener(() {
       if (!_firstNameFocusNode.hasFocus) {
-        onboardingStep1PageCubit.onFirstNameUnfocused();
+        _onboardingCubit.onFirstNameUnfocused();
       }
     });
 
     _lastNameFocusNode.addListener(() {
       if (!_lastNameFocusNode.hasFocus) {
-        onboardingStep1PageCubit.onLastNameUnfocused();
+        _onboardingCubit.onLastNameUnfocused();
       }
     });
 
     _titleFocusNode.addListener(() {
       if (!_titleFocusNode.hasFocus) {
-        onboardingStep1PageCubit.onTitleUnfocused();
+        _onboardingCubit.onTitleUnfocused();
+      }
+    });
+
+    _aboutFocusNode.addListener(() {
+      if (!_aboutFocusNode.hasFocus) {
+        _onboardingCubit.onAboutUnfocused();
       }
     });
   }
@@ -63,75 +74,96 @@ class _OnboardingStep1ContentState extends State<OnboardingStep1Content> {
     _firstNameFocusNode.dispose();
     _lastNameFocusNode.dispose();
     _titleFocusNode.dispose();
+    _degreeProgrammeFocusNode.dispose();
+    _aboutFocusNode.dispose();
+
+    _firstNameController.dispose();
+    _lastNameController.dispose();
+    _titleController.dispose();
+    _aboutController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<OnboardingStep1PageCubit, OnboardingStep1PageState>(
-      builder: (context, state) {
-        final onboardingStep1PageCubit =
-            BlocProvider.of<OnboardingStep1PageCubit>(context);
-        return ListView(
-          children: [
-            headerText("Tell us about yourself"),
-            // Profile Photo Picker
-            const SizedBox(
-              height: 30,
-            ),
-            PictureUploadPickerWidget(
-              onPictureUploadChangedHandler: (image) =>
-                  onboardingStep1PageCubit.onPictureUploadChanged(image),
-              image: state.pictureUploadPickerInput.value,
-            ),
-            const SizedBox(
-              height: 30,
-            ),
-            TextFieldWidget(
-              focusNode: _firstNameFocusNode,
-              onChangedHandler: (val) =>
-                  onboardingStep1PageCubit.onFirstNameChanged(val),
-              label: "First Name",
-              hint: "Ex: John",
-            ),
-            TextFieldWidget(
-              focusNode: _lastNameFocusNode,
-              onChangedHandler: (val) =>
-                  onboardingStep1PageCubit.onLastNameChanged(val),
-              label: "Last Name",
-              hint: "Ex: Doe",
-            ),
-            TextFieldWidget(
-              focusNode: _titleFocusNode,
-              onChangedHandler: (val) =>
-                  onboardingStep1PageCubit.onTitleChanged(val),
-              label: "Title",
-              hint: "Ex: Software Developer",
-            ),
-            DropdownSearchFieldWidget(
-                focusNode: _majorFocusNode,
-                label: "Major",
-                getItems: (String filter) async =>
-                    ["Accounting", "Computer Science", "Information Systems"],
-                selectedItem: "Accounting",
-                onChangedHandler: (val) => print("onchange dropdown")),
-            headerText("Make an about me"),
-            const SizedBox(
-              height: 10.0,
-            ),
-            bodyText(
-                "Feel free to share your years of professional experience, industry knowledge, and skills. Additionally, you have the opportunity to share something interesting about yourself!"),
-            const SizedBox(height: 10.0),
-            TextFieldWidget(
-              focusNode: _aboutFocusNode,
-              onChangedHandler: (val) => {},
-              label: "",
-              hint: "",
-              size: 10,
-            )
+    return ListView(
+      children: [
+        headerText("Tell us about yourself"),
+        // Profile Photo Picker
+        const SizedBox(
+          height: 30,
+        ),
+        PictureUploadPickerWidget(
+          onPictureUploadChangedHandler: (image) =>
+              _onboardingCubit.onPictureUploadChanged(image),
+          image: _onboardingCubit.state.pictureUploadPickerInput.value,
+        ),
+        const SizedBox(
+          height: 30,
+        ),
+        TextFieldWidget(
+          focusNode: _firstNameFocusNode,
+          controller: _firstNameController,
+          onChangedHandler: (val) {
+            _onboardingCubit.onFirstNameChanged(val);
+          },
+          label: "First Name",
+          value: _onboardingCubit.state.firstNameInput.value,
+          hint: "Ex: John",
+          errorText: _onboardingCubit.state.firstNameInput.displayError?.text(),
+        ),
+        TextFieldWidget(
+          focusNode: _lastNameFocusNode,
+          controller: _lastNameController,
+          onChangedHandler: (val) => _onboardingCubit.onLastNameChanged(val),
+          label: "Last Name",
+          value: _onboardingCubit.state.lastNameInput.value,
+          hint: "Ex: Doe",
+          errorText: _onboardingCubit.state.lastNameInput.displayError?.text(),
+        ),
+        TextFieldWidget(
+          focusNode: _titleFocusNode,
+          controller: _titleController,
+          onChangedHandler: (val) => _onboardingCubit.onTitleChanged(val),
+          label: "Title",
+          value: _onboardingCubit.state.titleInput.value,
+          hint: "Ex: Software Developer",
+          errorText: _onboardingCubit.state.titleInput.displayError?.text(),
+        ),
+        DropdownSearchFieldWidget<DegreeProgrammeEntity>(
+          focusNode: _degreeProgrammeFocusNode,
+          label: "Degree Programme",
+          hint: "Select",
+          getItems: (String filter) async => [
+            const DegreeProgrammeEntity("1", "single", "Accountancy"),
+            const DegreeProgrammeEntity(
+                "2", "double_major", "Computer Science"),
+            const DegreeProgrammeEntity("3", "double_degree",
+                "DDP in Computer Science and Business Management")
           ],
-        );
-      },
+          selectedItem: _onboardingCubit.state.degreeProgrammeInput.value,
+          onChangedHandler: (val) =>
+              _onboardingCubit.onDegreeProgrammeChanged(val),
+          compareFnHandler: (item1, item2) => item1.id == item2.id,
+        ),
+
+        headerText("Make an about me"),
+        const SizedBox(
+          height: 10.0,
+        ),
+        bodyText(
+            "Feel free to share your years of professional experience, industry knowledge, and skills. Additionally, you have the opportunity to share something interesting about yourself!"),
+        const SizedBox(height: 10.0),
+        TextFieldWidget(
+          focusNode: _aboutFocusNode,
+          controller: _aboutController,
+          onChangedHandler: (val) => _onboardingCubit.onAboutChanged(val),
+          label: "",
+          value: _onboardingCubit.state.aboutInput.value,
+          hint: "",
+          size: 10,
+        )
+      ],
     );
   }
 }

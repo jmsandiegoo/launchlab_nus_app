@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:launchlab/src/domain/user/models/experience_entity.dart';
 import 'package:launchlab/src/presentation/authentication/screens/signin_page.dart';
 import 'package:launchlab/src/presentation/chat/screens/chat_page.dart';
 import 'package:launchlab/src/presentation/common/screens/protected_screen_page.dart';
@@ -9,9 +10,9 @@ import 'package:launchlab/src/presentation/common/widgets/scaffold_with_bottom_n
 import 'package:launchlab/src/presentation/team/screens/discover_page.dart';
 import 'package:launchlab/src/presentation/team/screens/team_home_page.dart';
 import 'package:launchlab/src/presentation/user/screens/add_accomplishment_page.dart';
-import 'package:launchlab/src/presentation/user/screens/add_experience_page.dart';
+import 'package:launchlab/src/presentation/user/screens/onboarding_add_experience_page.dart';
 import 'package:launchlab/src/presentation/user/screens/edit_accomplishment_page.dart';
-import 'package:launchlab/src/presentation/user/screens/edit_experience_page.dart';
+import 'package:launchlab/src/presentation/user/screens/onboarding_edit_experience_page.dart';
 import 'package:launchlab/src/presentation/user/screens/onboarding_finish_page.dart';
 import 'package:launchlab/src/presentation/user/screens/onboarding_step1_page.dart';
 import 'package:launchlab/src/presentation/user/screens/onboarding_step2_page.dart';
@@ -60,16 +61,6 @@ final GoRouter appRouter = GoRouter(
         return ProtectedScreenPage(child: child);
       },
       routes: [
-        GoRoute(
-          parentNavigatorKey: _protectedShellNavigatorKey,
-          path: "/add-experience",
-          builder: (context, state) => const AddExperiencePage(),
-        ),
-        GoRoute(
-          parentNavigatorKey: _protectedShellNavigatorKey,
-          path: "/edit-experience",
-          builder: (context, state) => const EditExperiencePage(),
-        ),
         GoRoute(
           parentNavigatorKey: _protectedShellNavigatorKey,
           path: "/add-accomplishment",
@@ -129,6 +120,18 @@ final GoRouter appRouter = GoRouter(
               parentNavigatorKey: _onboardingShellKey,
               path: "/onboard-success",
               builder: (context, state) => const OnboardingFinishPage(),
+            ),
+            GoRoute(
+              parentNavigatorKey: _onboardingShellKey,
+              path: "/onboard-add-experience",
+              builder: (context, state) => const OnboardingAddExperiencePage(),
+            ),
+            GoRoute(
+              parentNavigatorKey: _onboardingShellKey,
+              path: "/onboard-edit-experience",
+              builder: (context, state) => OnboardingEditExperiencePage(
+                experience: state.extra as ExperienceEntity,
+              ),
             ),
           ],
         ),

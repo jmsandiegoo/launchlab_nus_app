@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:launchlab/src/config/app_theme.dart';
 import 'package:launchlab/src/presentation/common/widgets/useful.dart';
-import 'package:launchlab/src/presentation/user/cubits/onboarding_steps_layout_cubit.dart';
+import 'package:launchlab/src/presentation/user/cubits/onboarding_cubit.dart';
 import 'package:launchlab/src/utils/helper.dart';
 
 class OnboardingStepsLayout extends StatelessWidget {
@@ -13,12 +13,22 @@ class OnboardingStepsLayout extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => OnboardingStepsLayoutCubit(),
-      child:
-          BlocBuilder<OnboardingStepsLayoutCubit, OnboardingStepsLayoutState>(
+      create: (_) => OnboardingCubit(),
+      child: BlocConsumer<OnboardingCubit, OnboardingState>(
+        listener: (context, state) {
+          if (state.onboardingStatus == OnboardingStatus.nextPage) {
+            navigatePush(context, "/onboard/step-${state.currStep}");
+          }
+
+          if (state.onboardingStatus == OnboardingStatus.prevPage) {
+            state.currStep == 0
+                ? navigateGo(context, "/onboard")
+                : navigatePop(context);
+          }
+        },
         builder: (context, state) {
-          OnboardingStepsLayoutCubit onboardingStepsLayoutCubit =
-              BlocProvider.of<OnboardingStepsLayoutCubit>(context);
+          OnboardingCubit onboardingStepsLayoutCubit =
+              BlocProvider.of<OnboardingCubit>(context);
           return Scaffold(
             backgroundColor: lightGreyColor,
             appBar: AppBar(
@@ -26,9 +36,6 @@ class OnboardingStepsLayout extends StatelessWidget {
               leading: GestureDetector(
                 onTap: () {
                   onboardingStepsLayoutCubit.handlePrevStep();
-                  state.currStep == 1
-                      ? navigateGo(context, "/onboard")
-                      : navigatePop(context);
                 },
                 child: const Icon(Icons.keyboard_backspace_outlined),
               ),
@@ -36,8 +43,6 @@ class OnboardingStepsLayout extends StatelessWidget {
                   ? [
                       TextButton(
                           onPressed: () {
-                            navigatePush(
-                                context, "/onboard/step-${state.currStep + 1}");
                             onboardingStepsLayoutCubit.handleNextStep();
                           },
                           child: const Text(
@@ -62,8 +67,7 @@ class OnboardingStepsLayout extends StatelessWidget {
                   ProgressIndicator(
                       steps: state.steps, currStep: state.currStep),
                   primaryButton(context, () {
-                    navigatePush(
-                        context, "/onboard/step-${state.currStep + 1}");
+                    print('pressed');
                     onboardingStepsLayoutCubit.handleNextStep();
                   }, state.currStep == state.steps ? "Finish" : "Next",
                       horizontalPadding: 40.0, elevation: 0),

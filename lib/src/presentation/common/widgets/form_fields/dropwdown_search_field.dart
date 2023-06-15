@@ -10,6 +10,7 @@ class DropdownSearchFieldWidget<T> extends StatelessWidget {
     required this.label,
     required this.getItems,
     required this.onChangedHandler,
+    required this.compareFnHandler,
     this.selectedItem,
     this.hint,
   });
@@ -20,6 +21,7 @@ class DropdownSearchFieldWidget<T> extends StatelessWidget {
   final Future<List<T>> Function(String) getItems;
   final T? selectedItem;
   final void Function(T?) onChangedHandler;
+  final bool Function(T, T) compareFnHandler;
 
   @override
   Widget build(BuildContext context) {
@@ -70,6 +72,7 @@ class DropdownSearchFieldWidget<T> extends StatelessWidget {
             itemAsString: (item) => item.toString(),
             asyncItems: getItems,
             onChanged: onChangedHandler,
+            compareFn: compareFnHandler,
             selectedItem: selectedItem,
             dropdownDecoratorProps: DropDownDecoratorProps(
               dropdownSearchDecoration: InputDecoration(

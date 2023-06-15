@@ -1,14 +1,20 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:launchlab/src/domain/common/models/category_entity.dart';
 import 'package:launchlab/src/presentation/common/widgets/form_fields/dropwdown_search_field.dart';
 import 'package:launchlab/src/presentation/common/widgets/form_fields/multi_button_select.dart';
 import 'package:launchlab/src/presentation/common/widgets/useful.dart';
+import 'package:launchlab/src/presentation/user/cubits/onboarding_cubit.dart';
 
 class OnboardingStep2Page extends StatelessWidget {
   const OnboardingStep2Page({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return const OnboardingStep2Content();
+    return BlocBuilder<OnboardingCubit, OnboardingState>(
+      // ignore: prefer_const_constructors
+      builder: (context, state) => OnboardingStep2Content(),
+    );
   }
 }
 
@@ -20,7 +26,14 @@ class OnboardingStep2Content extends StatefulWidget {
 }
 
 class _OnboardingStep2ContentState extends State<OnboardingStep2Content> {
-  List<String> testValues = []; // change to cubit
+  late OnboardingCubit _onboardingCubit;
+
+  @override
+  void initState() {
+    super.initState();
+    _onboardingCubit = BlocProvider.of<OnboardingCubit>(context);
+  }
+
   @override
   Widget build(BuildContext context) {
     return ListView(
@@ -37,12 +50,12 @@ class _OnboardingStep2ContentState extends State<OnboardingStep2Content> {
         DropdownSearchFieldMultiWidget(
           focusNode: FocusNode(),
           label: "",
-          getItems: (String filter) async => ["Java", "Android", "Web Dev"],
-          selectedItems: testValues,
+          getItems: (String filter) async =>
+              ["Java", "Android", "Web Dev"], // TODO
+          selectedItems: _onboardingCubit.state.userSkillsInterestsInput.value,
           isChipsOutside: true,
-          onChangedHandler: (values) => setState(() {
-            testValues = values;
-          }),
+          onChangedHandler: (values) =>
+              _onboardingCubit.onUserSkillsInterestsChanged(values),
         ),
         const SizedBox(
           height: 20.0,
@@ -57,16 +70,17 @@ class _OnboardingStep2ContentState extends State<OnboardingStep2Content> {
           height: 20.0,
         ),
         MultiButtonMultiSelectWidget(
-          values: const ["Startup", "Hackathons"],
+          values: _onboardingCubit.state.userPreferredCategoryInput.value,
           options: const [
-            "Startup",
-            "School Project",
-            "Personal",
-            "Hackathons",
-            "Volunteer Work"
+            CategoryEntity(id: "1", name: "Startup"),
+            CategoryEntity(id: "2", name: "School Project"),
+            CategoryEntity(id: "3", name: "Personal"),
+            CategoryEntity(id: "4", name: "Hackathons"),
+            CategoryEntity(id: "5", name: "Volunteer Work"),
           ],
           colNo: 2,
-          onPressHandler: (List<String> values) {},
+          onPressHandler: (List<CategoryEntity> values) =>
+              _onboardingCubit.onUserPreferredCategoryChanged(values),
         ),
       ],
     );
