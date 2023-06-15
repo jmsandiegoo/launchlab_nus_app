@@ -6,10 +6,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:formz/formz.dart';
 import 'package:launchlab/src/domain/common/models/category_entity.dart';
+import 'package:launchlab/src/domain/user/models/accomplishment_entity.dart';
 import 'package:launchlab/src/domain/user/models/degree_programme_entity.dart';
 import 'package:launchlab/src/domain/user/models/experience_entity.dart';
 import 'package:launchlab/src/presentation/common/widgets/form_fields/picture_upload_picker.dart';
 import 'package:launchlab/src/presentation/common/widgets/form_fields/text_field.dart';
+import 'package:launchlab/src/presentation/user/widgets/form_fields/accomplishments_list_field.dart';
 import 'package:launchlab/src/presentation/user/widgets/form_fields/degree_programme_field.dart';
 import 'package:launchlab/src/presentation/user/widgets/form_fields/experience_list_field.dart';
 import 'package:launchlab/src/presentation/user/widgets/form_fields/user_preferred_category_field.dart';
@@ -35,6 +37,8 @@ class OnboardingState extends Equatable {
         const UserPreferredCategoryFieldInput.unvalidated(),
     this.userResumeInput = const UserResumeFieldInput.unvalidated(),
     this.experienceListInput = const ExperienceListFieldInput.unvalidated(),
+    this.accomplishmentListInput =
+        const AccomplishmentListFieldInput.unvalidated(),
   });
 
   // ====================================================================
@@ -71,6 +75,12 @@ class OnboardingState extends Equatable {
   final ExperienceListFieldInput experienceListInput;
 
   // ====================================================================
+  // STEP 4 Input states
+  // ====================================================================
+
+  final AccomplishmentListFieldInput accomplishmentListInput;
+
+  // ====================================================================
   // others
   // ====================================================================
 
@@ -88,6 +98,7 @@ class OnboardingState extends Equatable {
     UserPreferredCategoryFieldInput? userPreferredCategoryInput,
     UserResumeFieldInput? userResumeInput,
     ExperienceListFieldInput? experienceListInput,
+    AccomplishmentListFieldInput? accomplishmentListInput,
   }) {
     return OnboardingState(
       steps: steps ?? this.steps,
@@ -106,6 +117,8 @@ class OnboardingState extends Equatable {
           userPreferredCategoryInput ?? this.userPreferredCategoryInput,
       userResumeInput: userResumeInput ?? this.userResumeInput,
       experienceListInput: experienceListInput ?? this.experienceListInput,
+      accomplishmentListInput:
+          accomplishmentListInput ?? this.accomplishmentListInput,
     );
   }
 
@@ -124,6 +137,7 @@ class OnboardingState extends Equatable {
         userPreferredCategoryInput,
         userResumeInput,
         experienceListInput,
+        accomplishmentListInput,
       ];
 }
 
@@ -356,10 +370,24 @@ class OnboardingCubit extends Cubit<OnboardingState> {
   void onExperienceListChanged(List<ExperienceEntity> val) {
     final newExperienceListInputState = ExperienceListFieldInput.validated(val);
 
-    print('onchanged called with val ${newExperienceListInputState}');
-
     final newState = state.copyWith(
       experienceListInput: newExperienceListInputState,
+      onboardingStatus: null,
+    );
+
+    emit(newState);
+  }
+
+  // ====================================================================
+  // STEP 4 Input handlers
+  // ====================================================================
+
+  void onAccomplishmentListChanged(List<AccomplishmentEntity> val) {
+    final newAccomplishmentListInputState =
+        AccomplishmentListFieldInput.validated(val);
+
+    final newState = state.copyWith(
+      accomplishmentListInput: newAccomplishmentListInputState,
       onboardingStatus: null,
     );
 
@@ -422,15 +450,41 @@ class OnboardingCubit extends Cubit<OnboardingState> {
             onboardingStatus: OnboardingStatus.nextPage,
             currStep: state.currStep + 1));
       } else {
-        print('Form invalid');
+        emit(state.copyWith(
+          userSkillsInterestsInput: userSkillsInterestsInput,
+          userPreferredCategoryInput: userPreferredCategoryInput,
+        ));
       }
     } else if (state.currStep == 3) {
+      final userResumeInput =
+          UserResumeFieldInput.validated(state.userResumeInput.value);
+      final experienceListInput =
+          ExperienceListFieldInput.validated(state.experienceListInput.value);
+
+      final isFormValid = Formz.validate([
+        userResumeInput,
+        experienceListInput,
+      ]);
+
+      if (isFormValid) {
+        emit(
+          state.copyWith(
+              onboardingStatus: OnboardingStatus.nextPage,
+              currStep: state.currStep + 1),
+        );
+      } else {
+        emit(state.copyWith(
+          userResumeInput: userResumeInput,
+          experienceListInput: experienceListInput,
+        ));
+      }
     } else {}
   }
 
   void handlePrevStep() {
     emit(state.copyWith(
-        currStep: state.currStep - 1,
-        onboardingStatus: OnboardingStatus.prevPage));
+      onboardingStatus: OnboardingStatus.prevPage,
+      currStep: state.currStep - 1,
+    ));
   }
 }

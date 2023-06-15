@@ -2,43 +2,42 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:formz/formz.dart';
-import 'package:launchlab/src/domain/user/models/experience_entity.dart';
+import 'package:launchlab/src/domain/user/models/accomplishment_entity.dart';
 import 'package:launchlab/src/presentation/common/widgets/form_fields/checkbox_field.dart';
 import 'package:launchlab/src/presentation/common/widgets/form_fields/text_field.dart';
 import 'package:launchlab/src/presentation/user/widgets/form_fields/end_date_field.dart';
 import 'package:launchlab/src/presentation/user/widgets/form_fields/start_date_field.dart';
 
 @immutable
-class ExperienceFormState extends Equatable {
-  const ExperienceFormState({
+class AccomplishmentFormState extends Equatable {
+  const AccomplishmentFormState({
     this.titleNameFieldInput = const TextFieldInput.unvalidated(),
-    this.companyNameFieldInput = const TextFieldInput.unvalidated(),
-    this.isCurrentFieldInput = const CheckboxFieldInput.unvalidated(),
+    this.issuerFieldInput = const TextFieldInput.unvalidated(),
+    this.isActiveFieldInput = const CheckboxFieldInput.unvalidated(),
     this.startDateFieldInput = const StartDateFieldInput.unvalidated(),
     this.endDateFieldInput = const EndDateFieldInput.unvalidated(),
     this.descriptionFieldInput = const TextFieldInput.unvalidated(),
   });
 
   final TextFieldInput titleNameFieldInput;
-  final TextFieldInput companyNameFieldInput;
-  final CheckboxFieldInput isCurrentFieldInput;
+  final TextFieldInput issuerFieldInput;
+  final CheckboxFieldInput isActiveFieldInput;
   final StartDateFieldInput startDateFieldInput;
   final EndDateFieldInput endDateFieldInput;
   final TextFieldInput descriptionFieldInput;
 
-  ExperienceFormState copyWith({
+  AccomplishmentFormState copyWith({
     TextFieldInput? titleNameFieldInput,
-    TextFieldInput? companyNameFieldInput,
-    CheckboxFieldInput? isCurrentFieldInput,
+    TextFieldInput? issuerFieldInput,
+    CheckboxFieldInput? isActiveFieldInput,
     StartDateFieldInput? startDateFieldInput,
     EndDateFieldInput? endDateFieldInput,
     TextFieldInput? descriptionFieldInput,
   }) {
-    return ExperienceFormState(
+    return AccomplishmentFormState(
       titleNameFieldInput: titleNameFieldInput ?? this.titleNameFieldInput,
-      companyNameFieldInput:
-          companyNameFieldInput ?? this.companyNameFieldInput,
-      isCurrentFieldInput: isCurrentFieldInput ?? this.isCurrentFieldInput,
+      issuerFieldInput: issuerFieldInput ?? this.issuerFieldInput,
+      isActiveFieldInput: isActiveFieldInput ?? this.isActiveFieldInput,
       startDateFieldInput: startDateFieldInput ?? this.startDateFieldInput,
       endDateFieldInput: endDateFieldInput ?? this.endDateFieldInput,
       descriptionFieldInput:
@@ -49,31 +48,32 @@ class ExperienceFormState extends Equatable {
   @override
   List<Object?> get props => [
         titleNameFieldInput,
-        companyNameFieldInput,
-        isCurrentFieldInput,
+        issuerFieldInput,
+        isActiveFieldInput,
         startDateFieldInput,
         endDateFieldInput,
         descriptionFieldInput,
       ];
 }
 
-class ExperienceFormCubit extends Cubit<ExperienceFormState> {
-  ExperienceFormCubit() : super(const ExperienceFormState());
-  ExperienceFormCubit.withDefaultValues({required ExperienceEntity experience})
+class AccomplishmentFormCubit extends Cubit<AccomplishmentFormState> {
+  AccomplishmentFormCubit() : super(const AccomplishmentFormState());
+  AccomplishmentFormCubit.withDefaultValue(
+      {required AccomplishmentEntity accomplishment})
       : super(
-          ExperienceFormState(
-            titleNameFieldInput: TextFieldInput.unvalidated(experience.title),
-            companyNameFieldInput:
-                TextFieldInput.unvalidated(experience.companyName),
-            isCurrentFieldInput:
-                CheckboxFieldInput.unvalidated(experience.isCurrent),
+          AccomplishmentFormState(
+            titleNameFieldInput:
+                TextFieldInput.unvalidated(accomplishment.title),
+            issuerFieldInput: TextFieldInput.unvalidated(accomplishment.issuer),
+            isActiveFieldInput:
+                CheckboxFieldInput.unvalidated(accomplishment.isActive),
             startDateFieldInput:
-                StartDateFieldInput.unvalidated(experience.startDate),
-            endDateFieldInput: EndDateFieldInput.unvalidated(
-              value: experience.endDate,
-            ),
-            descriptionFieldInput:
-                TextFieldInput.unvalidated(experience.description),
+                StartDateFieldInput.unvalidated(accomplishment.startDate),
+            endDateFieldInput:
+                EndDateFieldInput.unvalidated(value: accomplishment.endDate),
+            descriptionFieldInput: accomplishment.description != null
+                ? TextFieldInput.unvalidated(accomplishment.description!)
+                : const TextFieldInput.unvalidated(),
           ),
         );
 
@@ -109,42 +109,42 @@ class ExperienceFormCubit extends Cubit<ExperienceFormState> {
     emit(newState);
   }
 
-  void onCompanyNameChanged(String val) {
+  void onIssuerChanged(String val) {
     final prevState = state;
-    final prevCompanyNameFieldInputState = prevState.companyNameFieldInput;
+    final prevIssuerFieldInputState = prevState.issuerFieldInput;
 
-    final shouldValidate = prevCompanyNameFieldInputState.isNotValid;
+    final shouldValidate = prevIssuerFieldInputState.isNotValid;
 
-    final newCompanyNameFieldInputState = shouldValidate
+    final newIssuerFieldInputState = shouldValidate
         ? TextFieldInput.validated(val)
         : TextFieldInput.unvalidated(val);
 
     final newState = state.copyWith(
-      companyNameFieldInput: newCompanyNameFieldInputState,
+      issuerFieldInput: newIssuerFieldInputState,
     );
 
     emit(newState);
   }
 
-  void onCompanyNameUnfocused() {
+  void onIssuerUnfocused() {
     final prevState = state;
-    final prevCompanyNameFieldInputState = prevState.companyNameFieldInput;
-    final prevCompanyNameFieldInputVal = prevCompanyNameFieldInputState.value;
+    final prevIssuerFieldInputState = prevState.issuerFieldInput;
+    final prevIssuerFieldInputVal = prevIssuerFieldInputState.value;
 
-    final newCompanyNameFieldInputState =
-        TextFieldInput.validated(prevCompanyNameFieldInputVal);
+    final newIssuerFieldInputState =
+        TextFieldInput.validated(prevIssuerFieldInputVal);
 
     final newState = prevState.copyWith(
-      companyNameFieldInput: newCompanyNameFieldInputState,
+      issuerFieldInput: newIssuerFieldInputState,
     );
 
     emit(newState);
   }
 
-  void onIsCurrentChanged(bool val) {
+  void onIsActiveChanged(bool val) {
     final prevState = state;
 
-    final newIsCurrentFieldInputState = CheckboxFieldInput.validated(val);
+    final newIsActiveFieldInputState = CheckboxFieldInput.validated(val);
 
     final prevEndDateFieldInputState = prevState.endDateFieldInput;
 
@@ -152,7 +152,7 @@ class ExperienceFormCubit extends Cubit<ExperienceFormState> {
         isPresent: val, value: val ? null : prevEndDateFieldInputState.value);
 
     final newState = state.copyWith(
-      isCurrentFieldInput: newIsCurrentFieldInputState,
+      isActiveFieldInput: newIsActiveFieldInputState,
       endDateFieldInput: newEndDateFieldInputState,
     );
 
@@ -165,7 +165,7 @@ class ExperienceFormCubit extends Cubit<ExperienceFormState> {
     final newStartDateFieldInputState = StartDateFieldInput.validated(val);
 
     final newEndDateFieldInputState = EndDateFieldInput.validated(
-      isPresent: prevState.isCurrentFieldInput.value,
+      isPresent: prevState.isActiveFieldInput.value,
       startDateFieldVal: val,
       value: prevState.endDateFieldInput.value,
     );
@@ -180,7 +180,7 @@ class ExperienceFormCubit extends Cubit<ExperienceFormState> {
 
   void onEndDateChanged(DateTime? val) {
     final newEndDateFieldInputState = EndDateFieldInput.validated(
-        isPresent: state.isCurrentFieldInput.value,
+        isPresent: state.isActiveFieldInput.value,
         startDateFieldVal: state.startDateFieldInput.value,
         value: val);
 
@@ -226,14 +226,14 @@ class ExperienceFormCubit extends Cubit<ExperienceFormState> {
   bool validateForm() {
     final titleNameFieldInput =
         TextFieldInput.validated(state.titleNameFieldInput.value);
-    final companyNameFieldInput =
-        TextFieldInput.validated(state.companyNameFieldInput.value);
-    final CheckboxFieldInput isCurrentFieldInput =
-        CheckboxFieldInput.validated(state.isCurrentFieldInput.value);
+    final issuerFieldInput =
+        TextFieldInput.validated(state.issuerFieldInput.value);
+    final CheckboxFieldInput isActiveFieldInput =
+        CheckboxFieldInput.validated(state.isActiveFieldInput.value);
     final StartDateFieldInput startDateFieldInput =
         StartDateFieldInput.validated(state.startDateFieldInput.value);
     final EndDateFieldInput endDateFieldInput = EndDateFieldInput.validated(
-      isPresent: state.isCurrentFieldInput.value,
+      isPresent: state.isActiveFieldInput.value,
       startDateFieldVal: state.startDateFieldInput.value,
       value: state.endDateFieldInput.value,
     );
@@ -242,8 +242,8 @@ class ExperienceFormCubit extends Cubit<ExperienceFormState> {
 
     final isFormValid = Formz.validate([
       titleNameFieldInput,
-      companyNameFieldInput,
-      isCurrentFieldInput,
+      issuerFieldInput,
+      isActiveFieldInput,
       startDateFieldInput,
       endDateFieldInput,
       descriptionFieldInput,
@@ -251,8 +251,8 @@ class ExperienceFormCubit extends Cubit<ExperienceFormState> {
 
     emit(state.copyWith(
       titleNameFieldInput: titleNameFieldInput,
-      companyNameFieldInput: companyNameFieldInput,
-      isCurrentFieldInput: isCurrentFieldInput,
+      issuerFieldInput: issuerFieldInput,
+      isActiveFieldInput: isActiveFieldInput,
       endDateFieldInput: endDateFieldInput,
       descriptionFieldInput: descriptionFieldInput,
     ));

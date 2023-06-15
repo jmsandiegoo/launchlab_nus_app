@@ -29,7 +29,14 @@ class OnboardingEditExperiencePage extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 30.0, vertical: 20.0),
           child: ExperienceForm(
             isEditMode: true,
-            onSubmitHandler: (state) {
+            onSubmitHandler: (context, state) {
+              final isFormValid =
+                  BlocProvider.of<ExperienceFormCubit>(context).validateForm();
+
+              if (!isFormValid) {
+                return;
+              }
+
               navigatePopWithData(
                 context,
                 ExperienceEntity(
@@ -43,7 +50,7 @@ class OnboardingEditExperiencePage extends StatelessWidget {
                 ActionTypes.update,
               );
             },
-            onDeleteHandler: (state) {
+            onDeleteHandler: (context, state) {
               navigatePopWithData<ExperienceEntity>(
                   context, null, ActionTypes.delete);
             },

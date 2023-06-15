@@ -1,8 +1,7 @@
 import 'package:flutter/cupertino.dart';
-import 'package:launchlab/src/domain/user/models/accomplishment_entity.dart';
-import 'package:launchlab/src/domain/user/models/degree_programme_entity.dart';
-import 'package:launchlab/src/domain/user/models/user_entity.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:launchlab/src/presentation/common/widgets/useful.dart';
+import 'package:launchlab/src/presentation/user/cubits/onboarding_cubit.dart';
 import 'package:launchlab/src/presentation/user/screens/accomplishment_list.dart';
 
 class OnboardingStep4Page extends StatelessWidget {
@@ -10,7 +9,10 @@ class OnboardingStep4Page extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const OnboardingStep4Content();
+    return BlocBuilder<OnboardingCubit, OnboardingState>(
+      // ignore: prefer_const_constructors
+      builder: (context, state) => OnboardingStep4Content(),
+    );
   }
 }
 
@@ -22,6 +24,14 @@ class OnboardingStep4Content extends StatefulWidget {
 }
 
 class _OnboardingStep4ContentState extends State<OnboardingStep4Content> {
+  late OnboardingCubit _onboardingCubit;
+
+  @override
+  void initState() {
+    super.initState();
+    _onboardingCubit = BlocProvider.of<OnboardingCubit>(context);
+  }
+
   @override
   Widget build(BuildContext context) {
     return ListView(
@@ -32,28 +42,11 @@ class _OnboardingStep4ContentState extends State<OnboardingStep4Content> {
         const SizedBox(
           height: 20.0,
         ),
-        AccomplishmentList(accomplishments: [
-          AccomplishmentEntity(
-            "1",
-            "Diploma with Merit",
-            "Ngee Ann Polytechnic",
-            false,
-            DateTime.now(),
-            DateTime.now(),
-            null,
-            DateTime.now(),
-            DateTime.now(),
-            const UserEntity(
-                "1",
-                false,
-                "Jm",
-                "San Diego",
-                "Developer",
-                "avatar",
-                "Resume",
-                DegreeProgrammeEntity("1", "Single", "test")),
-          ),
-        ])
+        AccomplishmentList(
+          accomplishments: _onboardingCubit.state.accomplishmentListInput.value,
+          onChangedHandler: (values) =>
+              _onboardingCubit.onAccomplishmentListChanged(values),
+        )
       ],
     );
   }

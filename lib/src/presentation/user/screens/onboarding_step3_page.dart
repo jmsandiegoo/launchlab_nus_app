@@ -57,13 +57,11 @@ class _OnboardingStep3ContentState extends State<OnboardingStep3Content> {
         const SizedBox(
           height: 20.0,
         ),
-        BlocBuilder<OnboardingCubit, OnboardingState>(
-          builder: (context, state) => ExperienceList(
-            experiences: _onboardingCubit.state.experienceListInput.value,
-            onChangedHandler: (values) =>
-                _onboardingCubit.onExperienceListChanged(values),
-          ),
-        )
+        ExperienceList(
+          experiences: _onboardingCubit.state.experienceListInput.value,
+          onChangedHandler: (values) =>
+              _onboardingCubit.onExperienceListChanged(values),
+        ),
       ],
     );
   }

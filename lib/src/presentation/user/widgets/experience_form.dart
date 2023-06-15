@@ -17,8 +17,10 @@ class ExperienceForm<T extends Cubit> extends StatefulWidget {
   });
 
   final bool isEditMode;
-  final void Function(ExperienceFormState) onSubmitHandler;
-  final void Function(ExperienceFormState)? onDeleteHandler;
+  final void Function(BuildContext context, ExperienceFormState)
+      onSubmitHandler;
+  final void Function(BuildContext context, ExperienceFormState)?
+      onDeleteHandler;
 
   @override
   State<ExperienceForm> createState() => _ExperienceFormState();
@@ -43,6 +45,24 @@ class _ExperienceFormState extends State<ExperienceForm> {
   void initState() {
     super.initState();
     _experienceFormCubit = BlocProvider.of<ExperienceFormCubit>(context);
+
+    _titleNameFocusNode.addListener(() {
+      if (!_titleNameFocusNode.hasFocus) {
+        _experienceFormCubit.onTitleNameUnfocused();
+      }
+    });
+
+    _companyNameFocusNode.addListener(() {
+      if (!_companyNameFocusNode.hasFocus) {
+        _experienceFormCubit.onCompanyNameUnfocused();
+      }
+    });
+
+    _descriptionFocusNode.addListener(() {
+      if (_descriptionFocusNode.hasFocus) {
+        _experienceFormCubit.onDescriptionUnfocused();
+      }
+    });
   }
 
   @override
@@ -178,14 +198,17 @@ class _ExperienceFormState extends State<ExperienceForm> {
           Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              primaryButton(context, () => widget.onSubmitHandler(state),
+              primaryButton(
+                  context,
+                  () => widget.onSubmitHandler(context, state),
                   widget.isEditMode ? "Edit" : "Create",
                   elevation: 0),
               ...() {
                 return widget.isEditMode
                     ? [
                         OutlinedButton(
-                          onPressed: () => widget.onDeleteHandler!(state),
+                          onPressed: () =>
+                              widget.onDeleteHandler!(context, state),
                           style: OutlinedButton.styleFrom(
                               side: const BorderSide(color: errorColor)),
                           child: bodyText("Delete", color: errorColor),

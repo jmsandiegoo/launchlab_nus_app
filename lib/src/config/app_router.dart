@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:launchlab/src/domain/user/models/accomplishment_entity.dart';
 import 'package:launchlab/src/domain/user/models/experience_entity.dart';
 import 'package:launchlab/src/presentation/authentication/screens/signin_page.dart';
 import 'package:launchlab/src/presentation/chat/screens/chat_page.dart';
@@ -9,9 +10,9 @@ import 'package:launchlab/src/presentation/common/screens/unprotected_screen_pag
 import 'package:launchlab/src/presentation/common/widgets/scaffold_with_bottom_nav.dart';
 import 'package:launchlab/src/presentation/team/screens/discover_page.dart';
 import 'package:launchlab/src/presentation/team/screens/team_home_page.dart';
-import 'package:launchlab/src/presentation/user/screens/add_accomplishment_page.dart';
+import 'package:launchlab/src/presentation/user/screens/onboarding_add_accomplishment_page.dart';
 import 'package:launchlab/src/presentation/user/screens/onboarding_add_experience_page.dart';
-import 'package:launchlab/src/presentation/user/screens/edit_accomplishment_page.dart';
+import 'package:launchlab/src/presentation/user/screens/onboarding_edit_accomplishment_page.dart';
 import 'package:launchlab/src/presentation/user/screens/onboarding_edit_experience_page.dart';
 import 'package:launchlab/src/presentation/user/screens/onboarding_finish_page.dart';
 import 'package:launchlab/src/presentation/user/screens/onboarding_step1_page.dart';
@@ -61,16 +62,6 @@ final GoRouter appRouter = GoRouter(
         return ProtectedScreenPage(child: child);
       },
       routes: [
-        GoRoute(
-          parentNavigatorKey: _protectedShellNavigatorKey,
-          path: "/add-accomplishment",
-          builder: (context, state) => const AddAccomplishmentPage(),
-        ),
-        GoRoute(
-          parentNavigatorKey: _protectedShellNavigatorKey,
-          path: "/edit-accomplishment",
-          builder: (context, state) => const EditAccomplishmentPage(),
-        ),
         ShellRoute(
           navigatorKey: _onboardingShellKey,
           builder: (context, state, child) => OnboardingContainer(child: child),
@@ -131,6 +122,19 @@ final GoRouter appRouter = GoRouter(
               path: "/onboard-edit-experience",
               builder: (context, state) => OnboardingEditExperiencePage(
                 experience: state.extra as ExperienceEntity,
+              ),
+            ),
+            GoRoute(
+              parentNavigatorKey: _onboardingShellKey,
+              path: "/onboard-add-accomplishment",
+              builder: (context, state) =>
+                  const OnboardingAddAccomplishmentPage(),
+            ),
+            GoRoute(
+              parentNavigatorKey: _onboardingShellKey,
+              path: "/onboard-edit-accomplishment",
+              builder: (context, state) => OnboardingEditAccomplishmentPage(
+                accomplishment: state.extra as AccomplishmentEntity,
               ),
             ),
           ],

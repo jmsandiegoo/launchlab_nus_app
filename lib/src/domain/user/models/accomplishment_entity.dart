@@ -2,17 +2,18 @@ import 'package:equatable/equatable.dart';
 import 'package:launchlab/src/domain/user/models/user_entity.dart';
 
 class AccomplishmentEntity extends Equatable {
-  const AccomplishmentEntity(
-      this.id,
-      this.title,
-      this.issuer,
-      this.isActive,
-      this.startDate,
-      this.endDate,
-      this.description,
-      this.createdAt,
-      this.updatedAt,
-      this.user);
+  const AccomplishmentEntity({
+    this.id,
+    required this.title,
+    required this.issuer,
+    required this.isActive,
+    required this.startDate,
+    this.endDate,
+    required this.description,
+    this.createdAt,
+    this.updatedAt,
+    this.user,
+  });
 
   final String? id;
   final String title;
@@ -21,9 +22,9 @@ class AccomplishmentEntity extends Equatable {
   final DateTime startDate;
   final DateTime? endDate;
   final String? description;
-  final DateTime createdAt;
-  final DateTime updatedAt;
-  final UserEntity user;
+  final DateTime? createdAt;
+  final DateTime? updatedAt;
+  final UserEntity? user;
 
   @override
   List<Object?> get props => [

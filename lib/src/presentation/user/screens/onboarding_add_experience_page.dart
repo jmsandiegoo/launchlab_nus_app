@@ -27,7 +27,14 @@ class OnboardingAddExperiencePage extends StatelessWidget {
           // ignore: prefer_const_constructors
           child: ExperienceForm(
             isEditMode: false,
-            onSubmitHandler: (state) {
+            onSubmitHandler: (context, state) {
+              final isFormValid =
+                  BlocProvider.of<ExperienceFormCubit>(context).validateForm();
+
+              if (!isFormValid) {
+                return;
+              }
+
               navigatePopWithData<ExperienceEntity>(
                   context,
                   ExperienceEntity(
