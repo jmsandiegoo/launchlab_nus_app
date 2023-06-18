@@ -446,6 +446,10 @@ class OnboardingCubit extends Cubit<OnboardingState> {
   }
 
   void handleNextStep() {
+    if (state.onboardingStatus == OnboardingStatus.initializing) {
+      return;
+    }
+
     if (state.currStep == 1) {
       final pictureUploadPickerInput = PictureUploadPickerInput.validated(
           state.pictureUploadPickerInput.value);
