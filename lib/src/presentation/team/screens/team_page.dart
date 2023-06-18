@@ -1,171 +1,253 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:launchlab/src/config/app_theme.dart';
-import 'package:launchlab/src/data/authentication/repository/auth_repository.dart';
 import 'package:launchlab/src/presentation/common/widgets/useful.dart';
 import 'package:launchlab/src/presentation/team/cubits/team_cubit.dart';
 import 'package:launchlab/src/presentation/team/widgets/manage_member_form.dart';
 import 'package:launchlab/src/presentation/team/widgets/add_task.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:launchlab/src/utils/helper.dart';
 
 class TeamPage extends StatefulWidget {
-  const TeamPage({super.key});
+  final List teamIdIsOwner;
+  const TeamPage(this.teamIdIsOwner, {super.key});
 
   @override
-  State<TeamPage> createState() => _TeamPageState();
+  // ignore: no_logic_in_create_state
+  State<TeamPage> createState() => _TeamPageState(teamIdIsOwner);
 }
 
 class _TeamPageState extends State<TeamPage> {
+  _TeamPageState(this.teamIdIsOwner);
+
+  final List teamIdIsOwner;
+
   @override
   Widget build(BuildContext context) {
+    final String teamId = teamIdIsOwner[0];
+    final bool isOwner = teamIdIsOwner[1];
     return BlocProvider(
-      create: (_) => TeamCubit(AuthRepository(Supabase.instance)),
-      child: BlocBuilder<TeamCubit, TeamState>(
-        builder: (context, state) {
+        create: (_) => TeamCubit(),
+        child: BlocBuilder<TeamCubit, TeamState>(builder: (context, state) {
           final teamCubit = BlocProvider.of<TeamCubit>(context);
-          return Scaffold(
-            appBar: AppBar(
-                backgroundColor: Colors.transparent,
-                iconTheme: const IconThemeData(color: blackColor),
-                actions: [
-                  IconButton(
-                      onPressed: () => debugPrint("Add"),
-                      icon: const Icon(Icons.person_add_alt_1)),
-                  IconButton(
-                      onPressed: () {
-                        debugPrint("Chat");
-                      },
-                      icon: const Icon(Icons.chat_bubble_outline)),
-                  PopupMenuButton<String>(
-                    onSelected: handleClick,
-                    itemBuilder: (BuildContext context) {
-                      return {'Unlist', 'Edit', 'Disband'}.map((String choice) {
-                        return PopupMenuItem<String>(
-                            value: choice, child: Text(choice));
-                      }).toList();
-                    },
-                  ),
-                ]),
-            body: SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 30),
-                child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(children: [
-                        profilePicture(70, "test.jpeg"),
-                        const SizedBox(width: 15),
-                        Column(
+          return FutureBuilder(
+              future: teamCubit.getData(teamId),
+              builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+
+                if (snapshot.hasData) {
+                  final List memberData = snapshot.data[0];
+                  final List completedMilestone = snapshot.data[1];
+                  final List incompleteMilestone = snapshot.data[2];
+                  final Map teamData = snapshot.data[3][0];
+                  return Scaffold(
+                    appBar: AppBar(
+                        backgroundColor: Colors.transparent,
+                        iconTheme: const IconThemeData(color: blackColor),
+                        actions: [
+                          IconButton(
+                              onPressed: () {
+                                debugPrint("Add");
+                              },
+                              icon: const Icon(Icons.person_add_alt_1)),
+                          IconButton(
+                              onPressed: () {
+                                debugPrint("Chat");
+                              },
+                              icon: const Icon(Icons.chat_bubble_outline)),
+                          isOwner
+                              ? PopupMenuButton<String>(
+                                  onSelected: handleClick,
+                                  itemBuilder: (BuildContext context) {
+                                    return {
+                                      teamData['is_listed'] ? 'Unlist' : 'List',
+                                      'Edit',
+                                      'Disband'
+                                    }.map((String choice) {
+                                      choice == 'List'
+                                          ? debugPrint("list")
+                                          : choice == 'Unlist'
+                                              ? debugPrint('Unlist')
+                                              : choice == 'Disband'
+                                                  ? debugPrint('Disband')
+                                                  : debugPrint(
+                                                      "Nothing Happened");
+                                      return PopupMenuItem<String>(
+                                          value: choice, child: Text(choice));
+                                    }).toList();
+                                  },
+                                )
+                              : SizedBox()
+                        ]),
+                    body: SingleChildScrollView(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 30),
+                        child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              subHeaderText("Project Rama"),
-                              boldFirstText("Deadline: ", "31 May 2023"),
-                              boldFirstText("Category: ", "Startup"),
-                              boldFirstText("Commitment: ", "High"),
-                            ]),
-                      ]),
-                      Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const SizedBox(height: 30),
-                            subHeaderText("Description"),
-                            const SizedBox(height: 10),
-                            bodyText(
-                                "Lorem ipsum dolor sit amet, consectetur adipiscing "
-                                "elit, sed do eiusmod tempor incididunt ut labore et "
-                                "dolore magna aliqua. Ut enim ad minim veniam, quis "
-                                "nostrud exercitation ullamco laboris nisi ut aliquip ex "
-                                "ea commodo consequat. Duis aute irure dolor in "
-                                "reprehenderit in voluptate velit esse cillum dolore eu "
-                                "fugiat nulla pariatur. Excepteur sint occaecat cupidatat "
-                                "non proident, sunt in culpa qui officia deserunt mollit "
-                                "anim id est laborum.",
-                                size: 13.0),
-                            const SizedBox(height: 40),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Column(
+                              Row(children: [
+                                profilePicture(70, "test.jpeg"),
+                                const SizedBox(width: 15),
+                                Expanded(
+                                  child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        subHeaderText(teamData['team_name']),
+                                        const SizedBox(height: 2),
+                                        teamData['end_date'] == null
+                                            ? boldFirstText(
+                                                "Deadline: ", 'None')
+                                            : boldFirstText(
+                                                "Deadline: ",
+                                                stringToDateFormatter(
+                                                    teamData['end_date'])),
+                                        boldFirstText("Category: ",
+                                            teamData['project_category']),
+                                        boldFirstText("Commitment: ",
+                                            teamData['commitment']),
+                                      ]),
+                                ),
+                              ]),
+                              Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    subHeaderText("Progress"),
-                                    circleProgressBar(
-                                        state.currentTask, state.totalTask),
-                                  ],
-                                ),
-                                Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      GestureDetector(
+                                    const SizedBox(height: 30),
+                                    subHeaderText("Description"),
+                                    const SizedBox(height: 10),
+                                    bodyText(teamData['description'],
+                                        size: 13.0),
+                                    const SizedBox(height: 40),
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            subHeaderText("Progress"),
+                                            circleProgressBar(
+                                                completedMilestone.length,
+                                                incompleteMilestone.length +
+                                                    completedMilestone.length),
+                                          ],
+                                        ),
+                                        GestureDetector(
                                           onTap: () {
-                                            manageMember();
+                                            manageMember(memberData);
                                           },
-                                          child: Row(children: [
-                                            subHeaderText("Members"),
-                                            const SizedBox(width: 5),
-                                            bodyText("2 / 2", size: 13.0),
-                                            const SizedBox(width: 10),
-                                            const Icon(Icons.person),
-                                          ])),
-                                      memberProfile("circle_profile_pic.png",
-                                          "John Doe", "CEO"),
-                                      memberProfile(
-                                          "test_2.webp", "San Diego", "CTO"),
-                                    ]),
-                              ],
-                            ),
-                            const SizedBox(height: 20),
-                            Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  subHeaderText("Milestones"),
-                                  GestureDetector(
-                                      onTap: () {
-                                        addTask();
-                                      },
-                                      child: subHeaderText("Add Task +",
-                                          size: 13.0))
-                                ]),
-
-                            //Milestones
-                            manageTask("Task1", state, teamCubit),
-                          ]),
-                      const SizedBox(height: 50),
-                    ]),
-              ),
-            ),
-          );
-        },
-      ),
-    );
+                                          child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Row(children: [
+                                                  subHeaderText("Members"),
+                                                  const SizedBox(width: 5),
+                                                  bodyText(
+                                                      "${teamData['current_members']} / ${teamData['max_members']}",
+                                                      size: 13.0),
+                                                  const SizedBox(width: 10),
+                                                  const Icon(Icons
+                                                      .people_outline_outlined),
+                                                ]),
+                                                for (int i = 0;
+                                                    i < memberData.length &&
+                                                        i < 4;
+                                                    i++) ...[
+                                                  memberProfile(
+                                                      "circle_profile_pic.png",
+                                                      "${memberData[i]['users']['first_name']} ${memberData[i]['users']['last_name']}",
+                                                      memberData[i]['position'])
+                                                ],
+                                                if (memberData.length >= 4) ...[
+                                                  const Center(
+                                                      child: Text("..."))
+                                                ]
+                                              ]),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 20),
+                                    Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          subHeaderText("Milestones"),
+                                          GestureDetector(
+                                              onTap: () {
+                                                addTask(teamData, teamCubit);
+                                              },
+                                              child: subHeaderText("Add Task +",
+                                                  size: 13.0))
+                                        ]),
+                                    for (int i = 0;
+                                        i < incompleteMilestone.length;
+                                        i++) ...[
+                                      taskCard(
+                                          incompleteMilestone[i]['title'],
+                                          incompleteMilestone[i]
+                                              ['is_completed'],
+                                          incompleteMilestone[i]['id'],
+                                          isOwner,
+                                          teamCubit),
+                                    ],
+                                    //Milestones
+                                    for (int i = 0;
+                                        i < completedMilestone.length;
+                                        i++) ...[
+                                      taskCard(
+                                          completedMilestone[i]['title'],
+                                          completedMilestone[i]['is_completed'],
+                                          completedMilestone[i]['id'],
+                                          isOwner,
+                                          teamCubit),
+                                    ],
+                                  ]),
+                              const SizedBox(height: 0),
+                            ]),
+                      ),
+                    ),
+                  );
+                } else {
+                  return futureBuilderFail();
+                }
+              });
+        }));
   }
 
-  void manageMember() {
+  void manageMember(memberData) {
     showDialog(
       context: context,
       builder: (context) {
         return ManageMemberBox(
-          onClose: () => Navigator.of(context).pop(),
+          memberData: memberData,
+          onClose: () => navigatePop(context),
         );
       },
     );
   } //manageMember
 
-  final _controller = TextEditingController();
-  void addTask() {
+  void addTask(teamData, teamCubit) {
     showModalBottomSheet(
         shape:
             RoundedRectangleBorder(borderRadius: BorderRadius.circular(15.0)),
         context: context,
         builder: (context) {
-          return AddTaskBox(controller: _controller);
-        }).then((value) {
+          return const AddTaskBox();
+        }).then((output) {
       //Add new Task here -- to database
-      debugPrint(value);
-      _controller.text = "";
+      if (output != null) {
+        teamCubit.addMilestone(
+            title: output[0],
+            startDate: output[1],
+            endDate: output[2],
+            teamData: teamData);
+        setState(() {});
+      }
     });
   }
 
@@ -174,18 +256,31 @@ class _TeamPageState extends State<TeamPage> {
       case 'Unlist':
         debugPrint("Unlist");
         break;
+      case 'List':
+        debugPrint("List");
+        break;
       case 'Edit':
-        navigatePush(context, "/edit_teams");
+        navigatePushData(context, "/edit_teams", teamIdIsOwner[0].toString());
         break;
       case 'Disband':
         debugPrint("Disband");
+
         break;
     }
   }
 
-  Widget manageTask(taskName, state, teamCubit) {
+  Widget taskCard(taskName, isChecked, taskId, isOwner, teamCubit) {
+    void manageTask(String value) {
+      switch (value) {
+        case 'Delete':
+          teamCubit.deleteTask(taskId: taskId);
+          setState(() {});
+          break;
+      }
+    }
+
     return Column(children: [
-      const SizedBox(height: 15),
+      const SizedBox(height: 20),
       Container(
         decoration: BoxDecoration(
             color: whiteColor,
@@ -198,28 +293,43 @@ class _TeamPageState extends State<TeamPage> {
                 offset: const Offset(0, 3),
               )
             ]),
-        child: Row(
-          children: [
+        child:
+            Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+          Row(children: [
             Checkbox(
-              value: state.isChecked,
+              value: isChecked,
               onChanged: (bool? value) {
-                setState(() {
-                  teamCubit.setIsCheckedState(value!);
-                });
+                teamCubit.saveMilestoneCheckData(val: value, taskId: taskId);
+                setState(() {});
               },
               activeColor: yellowColor,
             ),
-            // task name
-            Text(
-              taskName,
-              style: TextStyle(
-                decoration: state.isChecked
-                    ? TextDecoration.lineThrough
-                    : TextDecoration.none,
+            SizedBox(
+              width: 250,
+              child: Text(
+                taskName,
+                overflow: TextOverflow.ellipsis,
+                softWrap: false,
+                style: TextStyle(
+                  decoration: isChecked
+                      ? TextDecoration.lineThrough
+                      : TextDecoration.none,
+                ),
               ),
             ),
-          ],
-        ),
+          ]),
+          isOwner
+              ? PopupMenuButton<String>(
+                  onSelected: manageTask,
+                  itemBuilder: (BuildContext context) {
+                    return {'Delete'}.map((String choice) {
+                      return PopupMenuItem<String>(
+                          value: choice, child: Text(choice));
+                    }).toList();
+                  },
+                )
+              : const SizedBox()
+        ]),
       )
     ]);
   } //addTask

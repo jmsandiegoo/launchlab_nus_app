@@ -3,12 +3,13 @@ import 'package:flutter_svg/svg.dart';
 import 'package:launchlab/src/config/app_theme.dart';
 import 'package:launchlab/src/presentation/common/widgets/useful.dart';
 
-// ignore: must_be_immutable
 class ManageMemberBox extends StatelessWidget {
-  VoidCallback onClose;
+  final VoidCallback onClose;
+  final List memberData;
 
-  ManageMemberBox({
+  const ManageMemberBox({
     super.key,
+    required this.memberData,
     required this.onClose,
   });
 
@@ -38,9 +39,12 @@ class ManageMemberBox extends StatelessWidget {
                                 child: SvgPicture.asset(
                                     'assets/images/add_member.svg'))
                           ]),
-                      manageMemberBar(
-                          "circle_profile_pic.png", "John Doe", "CEO"),
-                      manageMemberBar("circle_profile_pic.png", "hi", "hi"),
+                      for (int i = 0; i < memberData.length; i++) ...[
+                        manageMemberBar(
+                            "circle_profile_pic.png",
+                            "${memberData[i]['users']['first_name']} ${memberData[i]['users']['last_name']}",
+                            memberData[i]['position'])
+                      ]
                     ]),
                   ),
                 ]),

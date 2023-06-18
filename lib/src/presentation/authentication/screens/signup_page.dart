@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:launchlab/src/config/app_theme.dart';
 import 'package:launchlab/src/presentation/common/widgets/useful.dart';
+import 'package:launchlab/src/utils/helper.dart';
 
 class SignUpPage extends StatefulWidget {
   const SignUpPage({Key? key}) : super(key: key);
@@ -54,10 +55,10 @@ class _SignUpPage extends State<SignUpPage> {
                     padding: const EdgeInsets.symmetric(horizontal: 40),
                     child: Column(
                       children: [
-                        userInput(label: "First Name"),
-                        userInput(label: "Last Name"),
-                        userInput(label: "Current Institution"),
-                        userInput(label: "Major"),
+                        userInput_2(label: "First Name"),
+                        userInput_2(label: "Last Name"),
+                        userInput_2(label: "Current Institution"),
+                        userInput_2(label: "Major"),
                         //userInput(label: "Enrollment Year"),
                         Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
