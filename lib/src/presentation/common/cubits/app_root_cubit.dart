@@ -25,13 +25,11 @@ class AppRootCubit extends Cubit<AppRootState> {
     _authRepository.listenToAuth(
       (data) {
         if (data.event == AuthChangeEvent.signedIn) {
-          print("Singedin");
           emit(AppRootState(true,
               session: _authRepository.getCurrentAuthSession()));
         }
 
         if (data.event == AuthChangeEvent.signedOut) {
-          print("Signedout");
           emit(AppRootState(false,
               session: _authRepository.getCurrentAuthSession()));
         }

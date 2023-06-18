@@ -1,8 +1,82 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 import 'package:launchlab/src/config/app_theme.dart';
 
-Widget userInput({label, obsureText = false, controller, size = 1, hint = ""}) {
+Widget userInput({
+  required FocusNode focusNode,
+  required void Function(String) onChangedHandler,
+  required String label,
+  bool obscureText = false,
+  int size = 1,
+  String hint = "",
+  bool isEnabled = true,
+  bool isReadOnly = false,
+  void Function()? onTapHandler,
+  Widget? suffixWidget,
+  TextEditingController? controller,
+  String? errorText,
+  TextInputType keyboard = TextInputType.multiline,
+  bool endSpacing = true,
+}) {
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      ...() {
+        if (label == "") {
+          return [];
+        }
+        return [
+          Text(
+            label,
+            style: const TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.bold,
+                color: Colors.black87),
+          ),
+          const SizedBox(
+            height: 5,
+          )
+        ];
+      }(),
+      TextField(
+        enabled: isEnabled,
+        readOnly: isReadOnly,
+        focusNode: focusNode,
+        controller: controller,
+        onChanged: onChangedHandler,
+        onTap: onTapHandler,
+        keyboardType: size > 1 ? keyboard : null,
+        minLines: size,
+        maxLines: size,
+        obscureText: obscureText,
+        decoration: InputDecoration(
+          errorText: errorText,
+          suffixIcon: suffixWidget,
+          hintText: hint,
+          fillColor: isEnabled ? whiteColor : greyColor.shade300,
+          filled: true,
+          contentPadding:
+              const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+          enabledBorder: OutlineInputBorder(
+              borderSide: BorderSide(color: Colors.grey.shade400, width: 0.25),
+              borderRadius: const BorderRadius.all(Radius.circular(10.0))),
+          // border:
+          //     OutlineInputBorder(borderSide: BorderSide(color: Colors.grey)),
+        ),
+      ),
+      endSpacing ? const SizedBox(height: 20) : const SizedBox()
+    ],
+  );
+}
+
+Widget userInput_2({
+  label,
+  obsureText = false,
+  controller,
+  size = 1,
+  hint = "",
+  keyboard = TextInputType.multiline,
+}) {
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
@@ -11,11 +85,9 @@ Widget userInput({label, obsureText = false, controller, size = 1, hint = ""}) {
         style: const TextStyle(
             fontSize: 15, fontWeight: FontWeight.bold, color: blackColor),
       ),
-      const SizedBox(
-        height: 5,
-      ),
+      const SizedBox(height: 5),
       TextField(
-        keyboardType: TextInputType.multiline,
+        keyboardType: keyboard,
         minLines: size, //Normal textInputField will be displayed
         maxLines: size,
         obscureText: obsureText,
@@ -23,12 +95,13 @@ Widget userInput({label, obsureText = false, controller, size = 1, hint = ""}) {
         decoration: InputDecoration(
           hintText: hint,
           hintStyle: const TextStyle(fontSize: 15.0, color: greyColor),
-          fillColor: Colors.white,
+          filled: true,
+          fillColor: whiteColor,
           contentPadding:
               const EdgeInsets.symmetric(vertical: 0, horizontal: 10),
           enabledBorder: const OutlineInputBorder(
             borderSide: BorderSide(
-              color: Colors.grey,
+              color: lightGreyColor,
             ),
           ),
           border: const OutlineInputBorder(
@@ -73,31 +146,51 @@ Widget searchBar() {
 Widget headerText(String label, {size = 25.0, alignment = TextAlign.left}) {
   return Text(
     label,
+    maxLines: 2,
     textAlign: alignment,
-    style: TextStyle(fontSize: size, fontWeight: FontWeight.bold),
+    style: TextStyle(
+        fontSize: size, fontWeight: FontWeight.bold, color: blackColor),
   );
 }
 
-Widget subHeaderText(String label, {size = 20.0, alignment = TextAlign.left}) {
+Widget subHeaderText(String label,
+    {size = 20.0, alignment = TextAlign.left, color = blackColor}) {
   return Text(
     label,
+    maxLines: 2,
+    overflow: TextOverflow.ellipsis,
     textAlign: alignment,
-    style: TextStyle(fontSize: size, fontWeight: FontWeight.bold),
+    style: TextStyle(fontSize: size, fontWeight: FontWeight.bold, color: color),
   );
 }
 
-Widget bodyText(String label, {size = 15.0, color = blackColor}) {
+Widget bodyText(String label,
+    {size = 15.0,
+    color = blackColor,
+    weight = FontWeight.w400,
+    alignment = TextAlign.left}) {
   return Text(
     label,
+    textAlign: alignment,
+    style: TextStyle(fontSize: size, color: color, fontWeight: weight),
+  );
+}
+
+Widget descriptionText(String label, {size = 15.0, color = blackColor}) {
+  return Text(
+    label,
+    maxLines: 3,
+    overflow: TextOverflow.ellipsis,
     style: TextStyle(fontSize: size, color: color),
   );
 }
 
 Widget backButton() {
-  return const Icon(Icons.arrow_back, size: 30, color: blackColor);
+  return const Icon(Icons.keyboard_backspace_outlined,
+      size: 30, color: blackColor);
 }
 
-Widget boldFirstText(String text1, String text2, {size = 12.0}) {
+Widget boldFirstText(String text1, String text2, {size = 12.5}) {
   return RichText(
     text: TextSpan(
       style: TextStyle(
@@ -129,6 +222,22 @@ Widget boldSecondText(String text1, String text2, {size = 12.0}) {
   );
 }
 
+Widget checkBox(String label, bool? value, bool tristate,
+    void Function(bool?) onChangedHandler) {
+  return Row(mainAxisAlignment: MainAxisAlignment.start, children: [
+    Checkbox(
+      tristate: tristate,
+      value: value,
+      onChanged: onChangedHandler,
+      checkColor: blackColor,
+      fillColor: const MaterialStatePropertyAll(yellowColor),
+      side: const BorderSide(width: 0.5),
+      activeColor: whiteColor,
+    ),
+    bodyText(label),
+  ]);
+}
+
 Widget outerCircleBar(double progress) {
   return CircularProgressIndicator(
     strokeWidth: 3,
@@ -146,7 +255,9 @@ Widget circleProgressBar(current, total) {
       children: [
         Stack(children: [
           SizedBox(
-              width: 100, height: 100, child: outerCircleBar(current / total)),
+              width: 100,
+              height: 100,
+              child: outerCircleBar(total == 0 ? 0 : current / total)),
           SizedBox(
             height: 100,
             width: 100,
@@ -154,7 +265,8 @@ Widget circleProgressBar(current, total) {
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                subHeaderText("${(current / total * 100).round()}%",
+                subHeaderText(
+                    "${total == 0 ? 0 : (current / total * 100).round()}%",
                     size: 20.0),
                 const SizedBox(height: 4),
                 bodyText('$current / $total', color: darkGreyColor, size: 12.0),
@@ -241,10 +353,51 @@ Widget taskBar(taskName, isChecked, checkBox) {
   );
 }
 
-void navigateGo(BuildContext context, String dir) {
-  context.go(dir);
+String stringToDateFormatter(date) {
+  final formatter = DateFormat('dd MMM yyyy');
+  return formatter.format(DateTime.parse(date));
 }
 
-void navigatePush(BuildContext context, String dir) {
-  context.push(dir);
+String dateToDateFormatter(date) {
+  String formattedDate = DateFormat('dd MMM yyyy').format(date);
+  return formattedDate;
+}
+
+Widget futureBuilderFail() {
+  return Center(
+      child: bodyText('Please ensure that you have internet connection'));
+}
+
+Future<T?> showModalBottomSheetHandler<T>(
+    BuildContext context, Widget Function(BuildContext) builder) {
+  return showModalBottomSheet<T>(
+      context: context, builder: builder, useRootNavigator: true);
+}
+
+Widget chip<T>(label, T value, {void Function(T value)? onDeleteHandler}) {
+  return Chip(
+      labelPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 5.0),
+      label: bodyText(label),
+      backgroundColor: Colors.transparent,
+      deleteIcon: const Icon(
+        Icons.close_outlined,
+        size: 20.0,
+        weight: 300,
+      ),
+      deleteIconColor: blackColor,
+      onDeleted: onDeleteHandler == null ? null : () => onDeleteHandler(value),
+      shape: RoundedRectangleBorder(
+          side: const BorderSide(width: 0.5),
+          borderRadius: BorderRadius.circular(10.0)));
+}
+
+Widget chipsWrap<T>(List<T> items, {void Function(T value)? onDeleteHandler}) {
+  return Wrap(
+    runSpacing: 5.0,
+    spacing: 5.0,
+    children: items
+        .map((item) =>
+            chip(item.toString(), item, onDeleteHandler: onDeleteHandler))
+        .toList(),
+  );
 }
