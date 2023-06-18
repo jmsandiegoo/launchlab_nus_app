@@ -8,6 +8,7 @@ import 'package:formz/formz.dart';
 import 'package:launchlab/src/data/common/common_repository.dart';
 import 'package:launchlab/src/data/user/user_repository.dart';
 import 'package:launchlab/src/domain/common/models/category_entity.dart';
+import 'package:launchlab/src/domain/common/models/skill_entity.dart';
 import 'package:launchlab/src/domain/user/models/accomplishment_entity.dart';
 import 'package:launchlab/src/domain/user/models/degree_programme_entity.dart';
 import 'package:launchlab/src/domain/user/models/experience_entity.dart';
@@ -36,6 +37,7 @@ class OnboardingState extends Equatable {
     this.aboutInput = const TextFieldInput.unvalidated(),
     this.userSkillsInterestsInput =
         const UserSkillsInterestsFieldInput.unvalidated(),
+    this.skillInterestOptions = const [],
     this.userPreferredCategoryInput =
         const UserPreferredCategoryFieldInput.unvalidated(),
     this.categoryOptions = const [],
@@ -72,6 +74,7 @@ class OnboardingState extends Equatable {
   final UserSkillsInterestsFieldInput userSkillsInterestsInput;
   final UserPreferredCategoryFieldInput userPreferredCategoryInput;
 
+  final List<SkillEntity> skillInterestOptions;
   final List<CategoryEntity> categoryOptions;
 
   // ====================================================================
@@ -103,6 +106,7 @@ class OnboardingState extends Equatable {
     List<DegreeProgrammeEntity>? degreeProgrammeOptions,
     TextFieldInput? aboutInput,
     UserSkillsInterestsFieldInput? userSkillsInterestsInput,
+    List<SkillEntity>? skillInterestOptions,
     UserPreferredCategoryFieldInput? userPreferredCategoryInput,
     List<CategoryEntity>? categoryOptions,
     UserResumeFieldInput? userResumeInput,
@@ -124,6 +128,7 @@ class OnboardingState extends Equatable {
       aboutInput: aboutInput ?? this.aboutInput,
       userSkillsInterestsInput:
           userSkillsInterestsInput ?? this.userSkillsInterestsInput,
+      skillInterestOptions: skillInterestOptions ?? this.skillInterestOptions,
       userPreferredCategoryInput:
           userPreferredCategoryInput ?? this.userPreferredCategoryInput,
       categoryOptions: categoryOptions ?? this.categoryOptions,
@@ -147,6 +152,7 @@ class OnboardingState extends Equatable {
         degreeProgrammeOptions,
         aboutInput,
         userSkillsInterestsInput,
+        skillInterestOptions,
         userPreferredCategoryInput,
         categoryOptions,
         userResumeInput,
@@ -361,7 +367,18 @@ class OnboardingCubit extends Cubit<OnboardingState> {
   // STEP 2 Input handlers
   // ====================================================================
 
-  void onUserSkillsInterestsChanged(List<String> val) {
+  Future<void> handleGetSkillsInterests(String? filter) async {
+    try {
+      final List<SkillEntity> skillInterestOptions =
+          await _commonRepository.getSkillsInterestsFromEmsi(filter);
+
+      emit(state.copyWith(skillInterestOptions: skillInterestOptions));
+    } on Exception catch (error) {
+      print(error);
+    }
+  }
+
+  void onUserSkillsInterestsChanged(List<SkillEntity> val) {
     final newUserSkillsInterestsInputState =
         UserSkillsInterestsFieldInput.validated(val);
 

@@ -104,6 +104,7 @@ class DropdownSearchFieldMultiWidget<T> extends StatelessWidget {
     required this.label,
     required this.getItems,
     required this.isChipsOutside,
+    this.isFilterOnline = false,
     required this.selectedItems,
     required this.onChangedHandler,
   });
@@ -112,6 +113,7 @@ class DropdownSearchFieldMultiWidget<T> extends StatelessWidget {
   final String label;
   final Future<List<T>> Function(String) getItems;
   final bool isChipsOutside;
+  final bool isFilterOnline;
   final List<T> selectedItems;
   final void Function(List<T>) onChangedHandler;
 
@@ -140,7 +142,11 @@ class DropdownSearchFieldMultiWidget<T> extends StatelessWidget {
         DropdownSearch<T>.multiSelection(
           key: _dropdownKey,
           popupProps: PopupPropsMultiSelection.menu(
-            // isFilterOnline: true, // for repeated api calls
+            loadingBuilder: (context, searchEntry) => Container(
+              color: blackColor,
+              child: const Center(child: CircularProgressIndicator()),
+            ),
+            isFilterOnline: isFilterOnline, // for repeated api calls
             showSearchBox: true,
             showSelectedItems: false,
             searchFieldProps: TextFieldProps(

@@ -1,6 +1,3 @@
-import 'package:dartz/dartz.dart';
-import 'package:launchlab/src/domain/user/models/user_entity.dart';
-import 'package:launchlab/src/utils/failure.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 /// Auth Repository Interface

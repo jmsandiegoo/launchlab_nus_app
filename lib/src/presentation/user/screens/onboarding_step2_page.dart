@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:launchlab/src/domain/common/models/category_entity.dart';
+import 'package:launchlab/src/domain/common/models/skill_entity.dart';
 import 'package:launchlab/src/presentation/common/widgets/form_fields/dropwdown_search_field.dart';
 import 'package:launchlab/src/presentation/common/widgets/form_fields/multi_button_select.dart';
 import 'package:launchlab/src/presentation/common/widgets/useful.dart';
@@ -47,15 +48,16 @@ class _OnboardingStep2ContentState extends State<OnboardingStep2Content> {
         const SizedBox(
           height: 20.0,
         ),
-        DropdownSearchFieldMultiWidget(
+        DropdownSearchFieldMultiWidget<SkillEntity>(
           focusNode: FocusNode(),
           label: "",
           getItems: (String filter) async {
-            // call cubit async? then wait for it to return how with listener?
-            return ["Java", "Android", "Web Dev"];
-          }, // TODO
+            await _onboardingCubit.handleGetSkillsInterests(filter);
+            return _onboardingCubit.state.skillInterestOptions;
+          },
           selectedItems: _onboardingCubit.state.userSkillsInterestsInput.value,
           isChipsOutside: true,
+          isFilterOnline: true,
           onChangedHandler: (values) =>
               _onboardingCubit.onUserSkillsInterestsChanged(values),
         ),
