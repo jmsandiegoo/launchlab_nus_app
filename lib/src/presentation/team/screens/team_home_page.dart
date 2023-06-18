@@ -5,6 +5,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:launchlab/src/data/authentication/repository/auth_repository.dart';
 import 'package:launchlab/src/presentation/common/widgets/useful.dart';
 import 'package:launchlab/src/presentation/team/cubits/team_home_cubit.dart';
+import 'package:launchlab/src/utils/helper.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class TeamHomePage extends StatelessWidget {
@@ -109,6 +110,7 @@ class TeamHomePage extends StatelessWidget {
                               backgroundColor: yellowColor),
                           onPressed: () {
                             //To navigate to create team page.
+                            navigateGo(context, "/");
                           },
                           child: const Text(
                             "Create Team",

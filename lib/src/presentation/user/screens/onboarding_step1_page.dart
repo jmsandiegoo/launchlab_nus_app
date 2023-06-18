@@ -134,13 +134,10 @@ class _OnboardingStep1ContentState extends State<OnboardingStep1Content> {
           focusNode: _degreeProgrammeFocusNode,
           label: "Degree Programme",
           hint: "Select",
-          getItems: (String filter) async => [
-            const DegreeProgrammeEntity("1", "single", "Accountancy"),
-            const DegreeProgrammeEntity(
-                "2", "double_major", "Computer Science"),
-            const DegreeProgrammeEntity("3", "double_degree",
-                "DDP in Computer Science and Business Management")
-          ],
+          getItems: (String filter) async {
+            await _onboardingCubit.handleGetDegreeProgrammes(filter);
+            return _onboardingCubit.state.degreeProgrammeOptions;
+          },
           selectedItem: _onboardingCubit.state.degreeProgrammeInput.value,
           onChangedHandler: (val) =>
               _onboardingCubit.onDegreeProgrammeChanged(val),

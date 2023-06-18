@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
+import 'package:launchlab/src/config/app_theme.dart';
 import 'package:launchlab/src/data/authentication/repository/auth_repository.dart';
 import 'package:launchlab/src/presentation/common/cubits/app_root_cubit.dart';
 import 'package:launchlab/src/presentation/common/cubits/splash_screen_cubit.dart';
+import 'package:launchlab/src/utils/helper.dart';
 
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -37,27 +38,37 @@ class _SplashScreenContentState extends State<SplashScreenContent> {
     _appRootCubit = BlocProvider.of<AppRootCubit>(context);
 
     // Check initial session when app loads
-    Future.wait([Future.delayed(const Duration(milliseconds: 2000))]).then((_) {
-      _splashScreenCubit.handleInitAuthSession();
-      _appRootCubit.handleSessionChange(_splashScreenCubit.state.session);
+    Future.wait([_splashScreenCubit.handleInitAuthSession()]).then((_) {
+      _appRootCubit.handleSessionChange(
+        session: _splashScreenCubit.state.session,
+        authUserProfile: _splashScreenCubit.state.authUserProfile,
+      );
 
       if (_splashScreenCubit.state.session == null) {
-        context.go("/signin");
+        navigateGo(context, "/signin");
       } else {
-        context.go("/team-home");
+        if (_appRootCubit.state.authUserProfile!.isOnboarded) {
+          navigateGo(context, "/team-home");
+        } else {
+          navigateGo(context, "/onboard");
+        }
       }
+    }).catchError((_) {
+      navigateGo(context, "/signin");
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        children: [
-          Image.asset("assets/images/launchlab_logo.png"),
-          const CircularProgressIndicator(),
-        ],
-      ),
-    );
+    return Scaffold(
+        backgroundColor: yellowColor,
+        body: Center(
+          child: Column(
+            children: [
+              Image.asset("assets/images/launchlab_logo.png"),
+              const CircularProgressIndicator(color: yellowColor),
+            ],
+          ),
+        ));
   }
 }

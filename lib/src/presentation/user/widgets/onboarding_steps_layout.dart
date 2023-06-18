@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:launchlab/src/config/app_theme.dart';
+import 'package:launchlab/src/data/common/common_repository.dart';
+import 'package:launchlab/src/data/user/user_repository.dart';
 import 'package:launchlab/src/presentation/common/widgets/useful.dart';
 import 'package:launchlab/src/presentation/user/cubits/onboarding_cubit.dart';
 import 'package:launchlab/src/utils/helper.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class OnboardingStepsLayout extends StatelessWidget {
   const OnboardingStepsLayout({super.key, required this.child});
@@ -13,7 +16,12 @@ class OnboardingStepsLayout extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => OnboardingCubit(),
+      create: (_) => OnboardingCubit(
+          CommonRepository(Supabase.instance),
+          UserRepository(
+            Supabase.instance,
+          ))
+        ..handleInitializeForm(),
       child: BlocConsumer<OnboardingCubit, OnboardingState>(
         listener: (context, state) {
           if (state.onboardingStatus == OnboardingStatus.nextPage) {
@@ -52,10 +60,16 @@ class OnboardingStepsLayout extends StatelessWidget {
                     ]
                   : [],
             ),
-            body: Container(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 30.0, vertical: 20.0),
-                child: child),
+            body: () {
+              if (state.onboardingStatus == OnboardingStatus.initializing) {
+                return const Center(child: CircularProgressIndicator());
+              }
+
+              return Container(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 30.0, vertical: 20.0),
+                  child: child);
+            }(),
             bottomNavigationBar: BottomAppBar(
               padding:
                   const EdgeInsets.symmetric(vertical: 30.0, horizontal: 30.0),

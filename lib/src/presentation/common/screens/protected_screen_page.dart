@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:launchlab/src/presentation/common/cubits/app_root_cubit.dart';
 import 'package:launchlab/src/utils/helper.dart';
 
@@ -12,9 +13,14 @@ class ProtectedScreenPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocConsumer<AppRootCubit, AppRootState>(
       listener: (context, state) {
-        print("listening");
         if (!state.isSignedIn) {
           navigateGo(context, "/signin");
+        }
+
+        if (state.authUserProfile != null &&
+            !state.authUserProfile!.isOnboarded &&
+            GoRouter.of(context).location.startsWith("/onboard")) {
+          navigateGo(context, "/onboard");
         }
       },
       builder: (context, state) {

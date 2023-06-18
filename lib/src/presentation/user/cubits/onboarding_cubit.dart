@@ -5,6 +5,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:formz/formz.dart';
+import 'package:launchlab/src/data/common/common_repository.dart';
+import 'package:launchlab/src/data/user/user_repository.dart';
 import 'package:launchlab/src/domain/common/models/category_entity.dart';
 import 'package:launchlab/src/domain/user/models/accomplishment_entity.dart';
 import 'package:launchlab/src/domain/user/models/degree_programme_entity.dart';
@@ -30,11 +32,13 @@ class OnboardingState extends Equatable {
     this.lastNameInput = const TextFieldInput.unvalidated(),
     this.titleInput = const TextFieldInput.unvalidated(),
     this.degreeProgrammeInput = const DegreeProgrammeFieldInput.unvalidated(),
+    this.degreeProgrammeOptions = const [],
     this.aboutInput = const TextFieldInput.unvalidated(),
     this.userSkillsInterestsInput =
         const UserSkillsInterestsFieldInput.unvalidated(),
     this.userPreferredCategoryInput =
         const UserPreferredCategoryFieldInput.unvalidated(),
+    this.categoryOptions = const [],
     this.userResumeInput = const UserResumeFieldInput.unvalidated(),
     this.experienceListInput = const ExperienceListFieldInput.unvalidated(),
     this.accomplishmentListInput =
@@ -60,12 +64,15 @@ class OnboardingState extends Equatable {
   final DegreeProgrammeFieldInput degreeProgrammeInput;
   final TextFieldInput aboutInput;
 
+  final List<DegreeProgrammeEntity> degreeProgrammeOptions;
   // ====================================================================
   // STEP 2 Input states
   // ====================================================================
 
   final UserSkillsInterestsFieldInput userSkillsInterestsInput;
   final UserPreferredCategoryFieldInput userPreferredCategoryInput;
+
+  final List<CategoryEntity> categoryOptions;
 
   // ====================================================================
   // STEP 3 Input states
@@ -93,9 +100,11 @@ class OnboardingState extends Equatable {
     TextFieldInput? lastNameInput,
     TextFieldInput? titleInput,
     DegreeProgrammeFieldInput? degreeProgrammeInput,
+    List<DegreeProgrammeEntity>? degreeProgrammeOptions,
     TextFieldInput? aboutInput,
     UserSkillsInterestsFieldInput? userSkillsInterestsInput,
     UserPreferredCategoryFieldInput? userPreferredCategoryInput,
+    List<CategoryEntity>? categoryOptions,
     UserResumeFieldInput? userResumeInput,
     ExperienceListFieldInput? experienceListInput,
     AccomplishmentListFieldInput? accomplishmentListInput,
@@ -110,11 +119,14 @@ class OnboardingState extends Equatable {
       lastNameInput: lastNameInput ?? this.lastNameInput,
       titleInput: titleInput ?? this.titleInput,
       degreeProgrammeInput: degreeProgrammeInput ?? this.degreeProgrammeInput,
+      degreeProgrammeOptions:
+          degreeProgrammeOptions ?? this.degreeProgrammeOptions,
       aboutInput: aboutInput ?? this.aboutInput,
       userSkillsInterestsInput:
           userSkillsInterestsInput ?? this.userSkillsInterestsInput,
       userPreferredCategoryInput:
           userPreferredCategoryInput ?? this.userPreferredCategoryInput,
+      categoryOptions: categoryOptions ?? this.categoryOptions,
       userResumeInput: userResumeInput ?? this.userResumeInput,
       experienceListInput: experienceListInput ?? this.experienceListInput,
       accomplishmentListInput:
@@ -132,9 +144,11 @@ class OnboardingState extends Equatable {
         lastNameInput,
         titleInput,
         degreeProgrammeInput,
+        degreeProgrammeOptions,
         aboutInput,
         userSkillsInterestsInput,
         userPreferredCategoryInput,
+        categoryOptions,
         userResumeInput,
         experienceListInput,
         accomplishmentListInput,
@@ -142,6 +156,7 @@ class OnboardingState extends Equatable {
 }
 
 enum OnboardingStatus {
+  initializing,
   prevPage,
   nextPage,
   submissionInProgress,
@@ -150,11 +165,27 @@ enum OnboardingStatus {
 }
 
 class OnboardingCubit extends Cubit<OnboardingState> {
-  OnboardingCubit() : super(const OnboardingState());
+  OnboardingCubit(this._commonRepository, this._userRepository)
+      : super(const OnboardingState());
+
+  final CommonRepository _commonRepository;
+  final UserRepository _userRepository;
 
   // ====================================================================
   // STEP 1 Input handlers
   // ====================================================================
+
+  Future<void> handleGetDegreeProgrammes(String? filter) async {
+    // call api
+    try {
+      final List<DegreeProgrammeEntity> degreeProgrammeOptions =
+          await _userRepository.getDegreeProgrammes(filter);
+
+      emit(state.copyWith(degreeProgrammeOptions: degreeProgrammeOptions));
+    } on Exception catch (error) {
+      print(error);
+    }
+  }
 
   void onPictureUploadChanged(File? image) {
     final prevState = state;
@@ -397,6 +428,22 @@ class OnboardingCubit extends Cubit<OnboardingState> {
   // ====================================================================
   // General handlers
   // ====================================================================
+
+  Future<void> handleInitializeForm() async {
+    try {
+      emit(state.copyWith(onboardingStatus: OnboardingStatus.initializing));
+      // loading state
+      final List<CategoryEntity> categoryOptions =
+          await _commonRepository.getCategories();
+
+      emit(state.copyWith(categoryOptions: categoryOptions));
+      // not loading state
+    } on Exception catch (error) {
+      print("error occured ${error}");
+    } finally {
+      emit(state.copyWith(onboardingStatus: null));
+    }
+  }
 
   void handleNextStep() {
     if (state.currStep == 1) {

@@ -36,7 +36,7 @@ final _onboardingShellKey = GlobalKey<NavigatorState>();
 final _nestedOnboardingShellKey = GlobalKey<NavigatorState>();
 
 final GoRouter appRouter = GoRouter(
-  initialLocation: "/onboard",
+  initialLocation: "/",
   navigatorKey: _rootNavigatorKey,
   routes: [
     GoRoute(

@@ -12,8 +12,16 @@ class UnprotectedScreenPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocListener<AppRootCubit, AppRootState>(
       listener: (context, state) {
-        if (state.isSignedIn) {
+        if (state.isSignedIn &&
+            state.authUserProfile != null &&
+            state.authUserProfile!.isOnboarded) {
           context.go("/team-home");
+        }
+
+        if (state.isSignedIn &&
+            state.authUserProfile != null &&
+            !state.authUserProfile!.isOnboarded) {
+          context.go("/onboard");
         }
       },
       child: child,

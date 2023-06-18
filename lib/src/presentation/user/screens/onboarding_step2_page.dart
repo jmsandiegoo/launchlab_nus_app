@@ -50,8 +50,10 @@ class _OnboardingStep2ContentState extends State<OnboardingStep2Content> {
         DropdownSearchFieldMultiWidget(
           focusNode: FocusNode(),
           label: "",
-          getItems: (String filter) async =>
-              ["Java", "Android", "Web Dev"], // TODO
+          getItems: (String filter) async {
+            // call cubit async? then wait for it to return how with listener?
+            return ["Java", "Android", "Web Dev"];
+          }, // TODO
           selectedItems: _onboardingCubit.state.userSkillsInterestsInput.value,
           isChipsOutside: true,
           onChangedHandler: (values) =>
@@ -71,13 +73,7 @@ class _OnboardingStep2ContentState extends State<OnboardingStep2Content> {
         ),
         MultiButtonMultiSelectWidget(
           values: _onboardingCubit.state.userPreferredCategoryInput.value,
-          options: const [
-            CategoryEntity(id: "1", name: "Startup"),
-            CategoryEntity(id: "2", name: "School Project"),
-            CategoryEntity(id: "3", name: "Personal"),
-            CategoryEntity(id: "4", name: "Hackathons"),
-            CategoryEntity(id: "5", name: "Volunteer Work"),
-          ],
+          options: _onboardingCubit.state.categoryOptions,
           colNo: 2,
           onPressHandler: (List<CategoryEntity> values) =>
               _onboardingCubit.onUserPreferredCategoryChanged(values),
