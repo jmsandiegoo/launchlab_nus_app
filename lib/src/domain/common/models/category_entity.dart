@@ -19,6 +19,15 @@ class CategoryEntity implements Equatable {
         createdAt = DateTime.tryParse(json['created_at']),
         updatedAt = DateTime.tryParse(json['updated_at']);
 
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'name': name,
+      'created_at': createdAt?.toIso8601String(),
+      'updated_at': updatedAt?.toIso8601String(),
+    };
+  }
+
   @override
   String toString() {
     return name;

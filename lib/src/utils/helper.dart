@@ -3,6 +3,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
+import 'package:mime/mime.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'constants.dart';
 
@@ -33,4 +35,22 @@ File? convertToFile(XFile? xFile) => xFile != null ? File(xFile.path) : null;
 
 String dateStringFormatter(String pattern, DateTime date) {
   return DateFormat(pattern).format(date);
+}
+
+/// throws StorageException
+Future<void> uploadFile({
+  required Supabase supabase,
+  required String bucket,
+  required File file,
+  required String fileIdentifier,
+}) async {
+  final fileExt = file.path.split('.').last;
+  final fileName = '$fileIdentifier.$fileExt';
+  final filePath = fileName;
+  await supabase.client.storage.from(bucket).upload(
+        filePath,
+        file,
+        fileOptions:
+            FileOptions(contentType: lookupMimeType(fileExt), upsert: true),
+      );
 }

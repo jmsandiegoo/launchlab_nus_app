@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:launchlab/src/config/app_theme.dart';
+import 'package:launchlab/src/presentation/common/cubits/app_root_cubit.dart';
 import 'package:launchlab/src/presentation/common/widgets/useful.dart';
+import 'package:launchlab/src/presentation/user/cubits/onboarding_cubit.dart';
 import 'package:launchlab/src/utils/helper.dart';
 
 class OnboardingWelcomePage extends StatelessWidget {
@@ -8,6 +11,8 @@ class OnboardingWelcomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    AppRootCubit _appRootCubit = BlocProvider.of<AppRootCubit>(context);
+    OnboardingCubit onboardingCubit = BlocProvider.of<OnboardingCubit>(context);
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.primary,
       body: Container(
@@ -39,17 +44,10 @@ class OnboardingWelcomePage extends StatelessWidget {
               child: Container(
                 constraints: const BoxConstraints(maxWidth: 170.0),
                 width: double.infinity,
-                child: secondaryButton(
-                    context,
-                    () => navigateGo(context, "/onboard/step-1"),
-                    "Get Started"),
-                // child: ElevatedButton(
-                //   style: ButtonStyle(
-                //       backgroundColor: MaterialStateProperty.all<Color>(
-                //           Theme.of(context).colorScheme.secondary)),
-                //   onPressed: () => navigateGo(context, "/onboard/step-1"),
-                //   child: const Text("Get Started"),
-                // ),
+                child: secondaryButton(context, () {
+                  onboardingCubit.handleInitializeForm();
+                  navigateGo(context, "/onboard/step-1");
+                }, "Get Started"),
               ),
             ),
             const SizedBox(
@@ -60,7 +58,7 @@ class OnboardingWelcomePage extends StatelessWidget {
                 constraints: const BoxConstraints(maxWidth: 200.0),
                 width: double.infinity,
                 child: TextButton(
-                    onPressed: () => print("Test"),
+                    onPressed: () => _appRootCubit.handleSignOut(),
                     child: const Text(
                       "Sign Out",
                       style: TextStyle(color: blackColor),

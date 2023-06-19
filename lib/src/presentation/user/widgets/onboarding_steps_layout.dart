@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:launchlab/src/config/app_theme.dart';
-import 'package:launchlab/src/data/common/common_repository.dart';
-import 'package:launchlab/src/data/user/user_repository.dart';
+import 'package:launchlab/src/presentation/common/cubits/app_root_cubit.dart';
 import 'package:launchlab/src/presentation/common/widgets/useful.dart';
 import 'package:launchlab/src/presentation/user/cubits/onboarding_cubit.dart';
 import 'package:launchlab/src/utils/helper.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 class OnboardingStepsLayout extends StatelessWidget {
   const OnboardingStepsLayout({super.key, required this.child});
@@ -15,82 +13,92 @@ class OnboardingStepsLayout extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => OnboardingCubit(
-          CommonRepository(Supabase.instance),
-          UserRepository(
-            Supabase.instance,
-          ))
-        ..handleInitializeForm(),
-      child: BlocConsumer<OnboardingCubit, OnboardingState>(
-        listener: (context, state) {
-          if (state.onboardingStatus == OnboardingStatus.nextPage) {
-            navigatePush(context, "/onboard/step-${state.currStep}");
-          }
+    return BlocConsumer<OnboardingCubit, OnboardingState>(
+      listener: (context, state) {
+        if (state.onboardingStatus == OnboardingStatus.nextPage) {
+          navigatePush(context, "/onboard/step-${state.currStep}");
+        }
 
-          if (state.onboardingStatus == OnboardingStatus.prevPage) {
-            state.currStep == 0
-                ? navigateGo(context, "/onboard")
-                : navigatePop(context);
-          }
-        },
-        builder: (context, state) {
-          OnboardingCubit onboardingStepsLayoutCubit =
-              BlocProvider.of<OnboardingCubit>(context);
-          return Scaffold(
+        if (state.onboardingStatus == OnboardingStatus.prevPage) {
+          state.currStep == 0
+              ? navigateGo(context, "/onboard")
+              : navigatePop(context);
+        }
+      },
+      builder: (context, state) {
+        AppRootCubit appRootCubit = BlocProvider.of<AppRootCubit>(context);
+        OnboardingCubit onboardingStepsLayoutCubit =
+            BlocProvider.of<OnboardingCubit>(context);
+        return Scaffold(
+          backgroundColor: lightGreyColor,
+          appBar: AppBar(
             backgroundColor: lightGreyColor,
-            appBar: AppBar(
-              backgroundColor: lightGreyColor,
-              leading: GestureDetector(
-                onTap: () {
-                  onboardingStepsLayoutCubit.handlePrevStep();
-                },
-                child: const Icon(Icons.keyboard_backspace_outlined),
-              ),
-              actions: onboardingStepsLayoutCubit.state.currStep >= 3
-                  ? [
-                      TextButton(
-                          onPressed: () {
-                            onboardingStepsLayoutCubit.handleNextStep();
-                          },
-                          child: const Text(
-                            "Skip",
-                            style: TextStyle(color: blackColor),
-                          )),
-                    ]
-                  : [],
+            leading: GestureDetector(
+              onTap: () {
+                onboardingStepsLayoutCubit.handlePrevStep();
+              },
+              child: const Icon(Icons.keyboard_backspace_outlined),
             ),
-            body: () {
-              if (state.onboardingStatus == OnboardingStatus.initializing) {
-                return const Center(child: CircularProgressIndicator());
-              }
+            actions: onboardingStepsLayoutCubit.state.currStep >= 3
+                ? [
+                    TextButton(
+                        onPressed: () {
+                          onboardingStepsLayoutCubit.handleNextStep();
+                        },
+                        child: const Text(
+                          "Skip",
+                          style: TextStyle(color: blackColor),
+                        )),
+                  ]
+                : [],
+          ),
+          body: () {
+            if (state.onboardingStatus == OnboardingStatus.initializing) {
+              return const Center(child: CircularProgressIndicator());
+            }
 
-              return Container(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 30.0, vertical: 20.0),
-                  child: child);
-            }(),
-            bottomNavigationBar: BottomAppBar(
-              padding:
-                  const EdgeInsets.symmetric(vertical: 30.0, horizontal: 30.0),
-              color: lightGreyColor,
-              elevation: 0,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  ProgressIndicator(
+            return Container(
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 30.0, vertical: 20.0),
+                child: child);
+          }(),
+          bottomNavigationBar: BottomAppBar(
+            padding:
+                const EdgeInsets.symmetric(vertical: 30.0, horizontal: 30.0),
+            color: lightGreyColor,
+            elevation: 0,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  flex: 3,
+                  child: ProgressIndicator(
                       steps: state.steps, currStep: state.currStep),
-                  primaryButton(context, () {
-                    print('pressed');
-                    onboardingStepsLayoutCubit.handleNextStep();
-                  }, state.currStep == state.steps ? "Finish" : "Next",
-                      horizontalPadding: 40.0, elevation: 0),
-                ],
-              ),
+                ),
+                Expanded(
+                  flex: 2,
+                  child: primaryButton(
+                    context,
+                    () {
+                      if (state.currStep == state.steps) {
+                        onboardingStepsLayoutCubit
+                            .handleSubmit(appRootCubit.state.authUserProfile!);
+                      } else {
+                        onboardingStepsLayoutCubit.handleNextStep();
+                      }
+                    },
+                    state.currStep == state.steps ? "Finish" : "Next",
+                    horizontalPadding: 40.0,
+                    elevation: 0,
+                    isLoading: state.onboardingStatus ==
+                        OnboardingStatus.submissionInProgress,
+                  ),
+                ),
+              ],
             ),
-          );
-        },
-      ),
+          ),
+        );
+      },
     );
   }
 }

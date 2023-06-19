@@ -67,7 +67,7 @@ final GoRouter appRouter = GoRouter(
           builder: (context, state, child) => OnboardingContainer(child: child),
           routes: [
             GoRoute(
-              // parentNavigatorKey: _onboardingShellKey,
+              parentNavigatorKey: _onboardingShellKey,
               path: "/onboard",
               pageBuilder: (context, state) {
                 return const NoTransitionPage(

@@ -75,4 +75,8 @@ class AppRootCubit extends Cubit<AppRootState> {
       ));
     }
   }
+
+  Future<void> handleSignOut() async {
+    await _authRepository.signOut();
+  }
 }

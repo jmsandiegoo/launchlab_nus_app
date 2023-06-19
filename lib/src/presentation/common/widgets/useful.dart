@@ -171,19 +171,34 @@ Widget primaryButton(
   horizontalPadding = 30.0,
   verticalPadding = 10.0,
   double? elevation,
+  bool isLoading = false,
 }) {
   return ElevatedButton(
-      style: ElevatedButton.styleFrom(
-        elevation: elevation,
-        backgroundColor: Theme.of(context).colorScheme.primary,
-        textStyle: TextStyle(color: Theme.of(context).colorScheme.onPrimary),
-        padding: EdgeInsets.symmetric(
-          vertical: verticalPadding,
-          horizontal: horizontalPadding,
-        ),
+    style: ElevatedButton.styleFrom(
+      elevation: elevation,
+      backgroundColor: Theme.of(context).colorScheme.primary,
+      textStyle: TextStyle(color: Theme.of(context).colorScheme.onPrimary),
+      padding: EdgeInsets.symmetric(
+        vertical: verticalPadding,
+        horizontal: horizontalPadding,
       ),
-      onPressed: () => onPressedHandler(),
-      child: Text(label));
+    ),
+    onPressed: () {
+      if (isLoading) {
+        return;
+      }
+
+      onPressedHandler();
+    },
+    child: isLoading
+        ? SizedBox(
+            height: 17,
+            width: 17,
+            child: CircularProgressIndicator(
+                strokeWidth: 1, color: Theme.of(context).colorScheme.onPrimary),
+          )
+        : Text(label),
+  );
 }
 
 Widget secondaryButton(

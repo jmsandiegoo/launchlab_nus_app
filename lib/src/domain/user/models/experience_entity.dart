@@ -12,7 +12,7 @@ class ExperienceEntity extends Equatable {
     required this.description,
     this.createdAt,
     this.updatedAt,
-    this.user,
+    this.userId,
   });
 
   final String? id;
@@ -24,7 +24,23 @@ class ExperienceEntity extends Equatable {
   final String description;
   final DateTime? createdAt;
   final DateTime? updatedAt;
-  final UserEntity? user;
+
+  final String? userId;
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'title': title,
+      'company_name': companyName,
+      'is_current': isCurrent,
+      'start_date': startDate.toIso8601String(),
+      'end_date': endDate?.toIso8601String(),
+      'description': description,
+      'created_at': createdAt?.toIso8601String(),
+      'updated_at': updatedAt?.toIso8601String(),
+      'user_id': userId,
+    };
+  }
 
   @override
   List<Object?> get props => [
@@ -35,6 +51,6 @@ class ExperienceEntity extends Equatable {
         startDate,
         endDate,
         description,
-        user
+        userId,
       ];
 }

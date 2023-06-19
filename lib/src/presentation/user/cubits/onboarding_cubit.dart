@@ -12,6 +12,8 @@ import 'package:launchlab/src/domain/common/models/skill_entity.dart';
 import 'package:launchlab/src/domain/user/models/accomplishment_entity.dart';
 import 'package:launchlab/src/domain/user/models/degree_programme_entity.dart';
 import 'package:launchlab/src/domain/user/models/experience_entity.dart';
+import 'package:launchlab/src/domain/user/models/requests/onboard_user_request.dart';
+import 'package:launchlab/src/domain/user/models/user_entity.dart';
 import 'package:launchlab/src/presentation/common/widgets/form_fields/picture_upload_picker.dart';
 import 'package:launchlab/src/presentation/common/widgets/form_fields/text_field.dart';
 import 'package:launchlab/src/presentation/user/widgets/form_fields/accomplishments_list_field.dart';
@@ -546,7 +548,57 @@ class OnboardingCubit extends Cubit<OnboardingState> {
           experienceListInput: experienceListInput,
         ));
       }
-    } else {}
+    }
+  }
+
+  Future<void> handleSubmit(UserEntity user) async {
+    // validate step4
+    final accomplishmentListInput = AccomplishmentListFieldInput.validated(
+        state.accomplishmentListInput.value);
+
+    final isFormValid = Formz.validate([
+      accomplishmentListInput,
+    ]);
+
+    if (isFormValid) {
+      // make the request
+      emit(state.copyWith(
+        onboardingStatus: OnboardingStatus.submissionInProgress,
+      ));
+      final OnboardUserRequest request = OnboardUserRequest(
+        user: user.copyWith(
+          firstName: state.firstNameInput.value,
+          lastName: state.lastNameInput.value,
+          title: state.titleInput.value,
+          degreeProgrammeId: state.degreeProgrammeInput.value?.id,
+          about: state.aboutInput.value,
+        ),
+        selectedSkills: state.userSkillsInterestsInput.value,
+        selectedCategories: state.userPreferredCategoryInput.value,
+        experiences: state.experienceListInput.value,
+        accomplishments: state.accomplishmentListInput.value,
+      );
+      try {
+        print("request: $request");
+        await _userRepository.onboardUser(request: request);
+        emit(state.copyWith(
+          onboardingStatus: OnboardingStatus.submissionSuccess,
+        ));
+      } on Exception catch (error) {
+        print(error);
+        emit(state.copyWith(
+          onboardingStatus: OnboardingStatus.submissionError,
+        ));
+      }
+    }
+  }
+
+  Future<void> handleSkip() async {
+    if (state.currStep < 3 || state.currStep > 4) {
+      return;
+    }
+
+    // do logic here;
   }
 
   void handlePrevStep() {

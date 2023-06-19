@@ -9,7 +9,8 @@ class UserEntity extends Equatable {
     this.title,
     this.avatar,
     this.resume,
-    this.degreeProgramme,
+    this.about,
+    this.degreeProgrammeId,
     this.createdAt,
     this.updatedAt,
   });
@@ -21,10 +22,39 @@ class UserEntity extends Equatable {
   final String? title;
   final String? avatar;
   final String? resume;
+  final String? about;
   final DateTime? createdAt;
   final DateTime? updatedAt;
 
-  final String? degreeProgramme;
+  final String? degreeProgrammeId;
+
+  UserEntity copyWith({
+    String? id,
+    bool? isOnboarded,
+    String? firstName,
+    String? lastName,
+    String? title,
+    String? avatar,
+    String? resume,
+    String? about,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    String? degreeProgrammeId,
+  }) {
+    return UserEntity(
+      id: id ?? this.id,
+      isOnboarded: isOnboarded ?? this.isOnboarded,
+      firstName: firstName ?? this.firstName,
+      lastName: lastName ?? this.lastName,
+      title: title ?? this.title,
+      avatar: avatar ?? this.avatar,
+      resume: resume ?? this.resume,
+      about: about ?? this.about,
+      degreeProgrammeId: degreeProgrammeId ?? this.degreeProgrammeId,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+    );
+  }
 
   UserEntity.fromJson(Map<String, dynamic> json)
       : id = json['id'],
@@ -34,9 +64,26 @@ class UserEntity extends Equatable {
         title = json['last_name'],
         avatar = json['avatar'],
         resume = json['resume'],
-        degreeProgramme = json['degree_programme'],
+        about = json['about'],
+        degreeProgrammeId = json['degree_programme_id'],
         createdAt = DateTime.tryParse(json['created_at']),
         updatedAt = DateTime.tryParse(json['updated_at']);
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'is_onboarded': isOnboarded,
+      'first_name': firstName,
+      'last_name': lastName,
+      'title': title,
+      'avatar': avatar,
+      'resume': resume,
+      'about': about,
+      'degree_programme_id': degreeProgrammeId,
+      'created_at': createdAt?.toIso8601String(),
+      'updated_at': updatedAt?.toIso8601String(),
+    };
+  }
 
   @override
   List<Object?> get props => [
@@ -47,7 +94,8 @@ class UserEntity extends Equatable {
         title,
         avatar,
         resume,
-        degreeProgramme,
+        about,
+        degreeProgrammeId,
         createdAt,
         updatedAt,
       ];
