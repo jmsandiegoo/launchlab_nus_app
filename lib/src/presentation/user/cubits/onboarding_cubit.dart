@@ -455,7 +455,11 @@ class OnboardingCubit extends Cubit<OnboardingState> {
       final List<CategoryEntity> categoryOptions =
           await _commonRepository.getCategories();
 
-      emit(state.copyWith(categoryOptions: categoryOptions));
+      emit(state.copyWith(
+        categoryOptions: categoryOptions,
+        currStep: 1,
+        onboardingStatus: OnboardingStatus.nextPage,
+      ));
       // not loading state
     } on Exception catch (error) {
       print("error occured ${error}");
@@ -566,6 +570,8 @@ class OnboardingCubit extends Cubit<OnboardingState> {
         onboardingStatus: OnboardingStatus.submissionInProgress,
       ));
       final OnboardUserRequest request = OnboardUserRequest(
+        userAvatar: state.pictureUploadPickerInput.value,
+        userResume: state.userResumeInput.value,
         user: user.copyWith(
           firstName: state.firstNameInput.value,
           lastName: state.lastNameInput.value,
@@ -602,6 +608,9 @@ class OnboardingCubit extends Cubit<OnboardingState> {
   }
 
   void handlePrevStep() {
+    if (state.currStep <= 0) {
+      return;
+    }
     emit(state.copyWith(
       onboardingStatus: OnboardingStatus.prevPage,
       currStep: state.currStep - 1,

@@ -41,22 +41,20 @@ class UserRepository implements UserRepositoryImpl {
       String? userResumeIdentifier;
 
       if (request.userAvatar != null) {
-        userAvatarIdentifier = "${request.user.id}_avatar";
-        await uploadFile(
+        userAvatarIdentifier = await uploadFile(
           supabase: _supabase,
           bucket: 'user_avatar_bucket',
           file: request.userAvatar!,
-          fileIdentifier: userAvatarIdentifier,
+          fileIdentifier: "${request.user.id}_avatar",
         );
       }
 
       if (request.userResume != null) {
-        userResumeIdentifier = "${request.user.id}_resume";
-        await uploadFile(
+        userResumeIdentifier = await uploadFile(
           supabase: _supabase,
-          bucket: 'user_resume_bucker',
+          bucket: 'user_resume_bucket',
           file: request.userResume!,
-          fileIdentifier: userResumeIdentifier,
+          fileIdentifier: "${request.user.id}_resume",
         );
       }
 
@@ -71,10 +69,6 @@ class UserRepository implements UserRepositoryImpl {
         'handle_onboard_user',
         params: {'request_data': newOnboardUserRequest.toJson()},
       );
-
-      // await _supabase.client.rpc(
-      //   'plv8_test_function',
-      // );
 
       print(res);
 

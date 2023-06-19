@@ -86,6 +86,8 @@ class _OnboardingStep1ContentState extends State<OnboardingStep1Content> {
 
   @override
   Widget build(BuildContext context) {
+    print(
+        "currStep & step: ${_onboardingCubit.state.currStep} , ${_onboardingCubit.state.steps}");
     return ListView(
       children: [
         headerText("Tell us about yourself"),

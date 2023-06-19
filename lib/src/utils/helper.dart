@@ -38,7 +38,7 @@ String dateStringFormatter(String pattern, DateTime date) {
 }
 
 /// throws StorageException
-Future<void> uploadFile({
+Future<String> uploadFile({
   required Supabase supabase,
   required String bucket,
   required File file,
@@ -53,4 +53,6 @@ Future<void> uploadFile({
         fileOptions:
             FileOptions(contentType: lookupMimeType(fileExt), upsert: true),
       );
+  print("fileName: $fileName");
+  return fileName;
 }

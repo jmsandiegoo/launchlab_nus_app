@@ -15,38 +15,39 @@ class SigninPage extends StatelessWidget {
       child: BlocBuilder<SigninCubit, SigninState>(
         builder: (context, state) {
           return Scaffold(
-              backgroundColor: Theme.of(context).colorScheme.primary,
-              body: Column(children: [
+            backgroundColor: Theme.of(context).colorScheme.primary,
+            body: Column(
+              children: [
                 const SizedBox(
                   height: 150,
                 ),
                 Center(child: Image.asset("assets/images/launchlab_logo.png")),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 75.0),
-                  child: ElevatedButton(
-                    style: ButtonStyle(
-                        backgroundColor: MaterialStateProperty.all<Color>(
-                            Theme.of(context).colorScheme.secondary)),
-                    child: state is SigninLoading
-                        ? const CircularProgressIndicator()
-                        : Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              profilePicture(
-                                  20.0, "assets/images/google_logo.png"),
-                              const Text("   Sign in with Google"),
-                            ],
+                Container(
+                  constraints: const BoxConstraints(maxWidth: 250),
+                  child: secondaryButton(context, () {
+                    BlocProvider.of<SigninCubit>(context)
+                        .handleSigninWithGoogle();
+                  }, "",
+                      childBuilder: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          profilePicture(20.0, "assets/images/google_logo.png"),
+                          Text(
+                            "   Sign in with Google",
+                            style: TextStyle(
+                                color:
+                                    Theme.of(context).colorScheme.onSecondary),
                           ),
-                    onPressed: () {
-                      BlocProvider.of<SigninCubit>(context)
-                          .handleSigninWithGoogle();
-                    },
-                  ),
+                        ],
+                      ),
+                      isLoading: state is SigninLoading),
                 ),
                 const SizedBox(
                   height: 100,
                 ),
-              ]));
+              ],
+            ),
+          );
         },
       ),
     );
