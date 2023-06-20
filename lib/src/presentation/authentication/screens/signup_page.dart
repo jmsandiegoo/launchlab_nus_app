@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:launchlab/src/config/app_theme.dart';
 import 'package:launchlab/src/presentation/common/widgets/useful.dart';
+import 'package:launchlab/src/utils/helper.dart';
 
 class SignUpPage extends StatefulWidget {
   const SignUpPage({Key? key}) : super(key: key);
@@ -29,7 +30,7 @@ class _SignUpPage extends State<SignUpPage> {
         backgroundColor: whiteColor,
         leading: IconButton(
             onPressed: () {
-              print("test");
+              debugPrint("test");
             },
             icon: backButton()),
       ),
@@ -54,10 +55,10 @@ class _SignUpPage extends State<SignUpPage> {
                     padding: const EdgeInsets.symmetric(horizontal: 40),
                     child: Column(
                       children: [
-                        userInput(label: "First Name"),
-                        userInput(label: "Last Name"),
-                        userInput(label: "Current Institution"),
-                        userInput(label: "Major"),
+                        userInput_2(label: "First Name"),
+                        userInput_2(label: "Last Name"),
+                        userInput_2(label: "Current Institution"),
+                        userInput_2(label: "Major"),
                         //userInput(label: "Enrollment Year"),
                         Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -126,48 +127,4 @@ class _SignUpPage extends State<SignUpPage> {
       ),
     );
   }
-
-/*
-  void _navigateToHomePage(BuildContext context) {
-    context.go("/team-home");
-  }
-
-  void _navigateToLoginPage(BuildContext context) {
-    // Navigator.of(context)
-    //     .push(MaterialPageRoute(builder: (context) => const LoginPage()));
-  }
-
-  Widget makeInput({label, obsureText = false}) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: const TextStyle(
-              fontSize: 15, fontWeight: FontWeight.bold, color: Colors.black87),
-        ),
-        const SizedBox(
-          height: 5,
-        ),
-        TextField(
-          obscureText: obsureText,
-          decoration: const InputDecoration(
-            contentPadding: EdgeInsets.symmetric(vertical: 0, horizontal: 10),
-            enabledBorder: OutlineInputBorder(
-              borderSide: BorderSide(
-                color: Colors.grey,
-              ),
-            ),
-            border:
-                OutlineInputBorder(borderSide: BorderSide(color: Colors.grey)),
-          ),
-        ),
-        const SizedBox(
-          height: 30,
-        )
-      ],
-    );
-    context.push("/");
-  }
-   */
 }
