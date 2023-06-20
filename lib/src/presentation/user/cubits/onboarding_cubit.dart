@@ -468,8 +468,9 @@ class OnboardingCubit extends Cubit<OnboardingState> {
     }
   }
 
-  void handleNextStep() {
-    if (state.onboardingStatus == OnboardingStatus.initializing) {
+  Future<void> handleNextStep(UserEntity user) async {
+    if (state.onboardingStatus == OnboardingStatus.initializing ||
+        state.onboardingStatus == OnboardingStatus.submissionInProgress) {
       return;
     }
 
@@ -552,63 +553,81 @@ class OnboardingCubit extends Cubit<OnboardingState> {
           experienceListInput: experienceListInput,
         ));
       }
+    } else {
+      final accomplishmentListInput = AccomplishmentListFieldInput.validated(
+          state.accomplishmentListInput.value);
+
+      final isFormValid = Formz.validate([
+        accomplishmentListInput,
+      ]);
+
+      if (!isFormValid) {
+        return;
+      }
+
+      await handleSubmit(user);
     }
   }
 
   Future<void> handleSubmit(UserEntity user) async {
-    // validate step4
-    final accomplishmentListInput = AccomplishmentListFieldInput.validated(
-        state.accomplishmentListInput.value);
-
-    final isFormValid = Formz.validate([
-      accomplishmentListInput,
-    ]);
-
-    if (isFormValid) {
-      // make the request
+    emit(state.copyWith(
+      onboardingStatus: OnboardingStatus.submissionInProgress,
+    ));
+    final OnboardUserRequest request = OnboardUserRequest(
+      userAvatar: state.pictureUploadPickerInput.value,
+      userResume: state.userResumeInput.value,
+      user: user.copyWith(
+        firstName: state.firstNameInput.value,
+        lastName: state.lastNameInput.value,
+        title: state.titleInput.value,
+        degreeProgrammeId: state.degreeProgrammeInput.value?.id,
+        about: state.aboutInput.value,
+      ),
+      selectedSkills: state.userSkillsInterestsInput.value,
+      selectedCategories: state.userPreferredCategoryInput.value,
+      experiences: state.experienceListInput.value,
+      accomplishments: state.accomplishmentListInput.value,
+    );
+    try {
+      print("request: $request");
+      await _userRepository.onboardUser(request: request);
       emit(state.copyWith(
-        onboardingStatus: OnboardingStatus.submissionInProgress,
+        onboardingStatus: OnboardingStatus.submissionSuccess,
       ));
-      final OnboardUserRequest request = OnboardUserRequest(
-        userAvatar: state.pictureUploadPickerInput.value,
-        userResume: state.userResumeInput.value,
-        user: user.copyWith(
-          firstName: state.firstNameInput.value,
-          lastName: state.lastNameInput.value,
-          title: state.titleInput.value,
-          degreeProgrammeId: state.degreeProgrammeInput.value?.id,
-          about: state.aboutInput.value,
-        ),
-        selectedSkills: state.userSkillsInterestsInput.value,
-        selectedCategories: state.userPreferredCategoryInput.value,
-        experiences: state.experienceListInput.value,
-        accomplishments: state.accomplishmentListInput.value,
-      );
-      try {
-        print("request: $request");
-        await _userRepository.onboardUser(request: request);
-        emit(state.copyWith(
-          onboardingStatus: OnboardingStatus.submissionSuccess,
-        ));
-      } on Exception catch (error) {
-        print(error);
-        emit(state.copyWith(
-          onboardingStatus: OnboardingStatus.submissionError,
-        ));
-      }
+    } on Exception catch (error) {
+      print(error);
+      emit(state.copyWith(
+        onboardingStatus: OnboardingStatus.submissionError,
+      ));
     }
   }
 
-  Future<void> handleSkip() async {
-    if (state.currStep < 3 || state.currStep > 4) {
+  Future<void> handleSkip(UserEntity user) async {
+    if (state.currStep < 3 ||
+        state.currStep > 4 ||
+        state.onboardingStatus == OnboardingStatus.initializing ||
+        state.onboardingStatus == OnboardingStatus.submissionInProgress) {
       return;
     }
 
-    // do logic here;
+    if (state.currStep == 3) {
+      emit(state.copyWith(
+          userResumeInput: const UserResumeFieldInput.validated(),
+          experienceListInput: const ExperienceListFieldInput.validated(),
+          onboardingStatus: OnboardingStatus.nextPage,
+          currStep: state.currStep + 1));
+    } else {
+      emit(state.copyWith(
+        accomplishmentListInput: const AccomplishmentListFieldInput.validated(),
+      ));
+      await handleSubmit(user);
+    }
   }
 
   void handlePrevStep() {
-    if (state.currStep <= 0) {
+    if (state.currStep <= 0 ||
+        state.onboardingStatus == OnboardingStatus.initializing ||
+        state.onboardingStatus == OnboardingStatus.submissionInProgress) {
       return;
     }
     emit(state.copyWith(

@@ -107,6 +107,7 @@ class DropdownSearchFieldMultiWidget<T> extends StatelessWidget {
     this.isFilterOnline = false,
     required this.selectedItems,
     required this.onChangedHandler,
+    required this.compareFnHandler,
   });
   final _dropdownKey = GlobalKey<DropdownSearchState<T>>();
   final FocusNode focusNode;
@@ -116,6 +117,7 @@ class DropdownSearchFieldMultiWidget<T> extends StatelessWidget {
   final bool isFilterOnline;
   final List<T> selectedItems;
   final void Function(List<T>) onChangedHandler;
+  final bool Function(T, T) compareFnHandler;
 
   @override
   Widget build(BuildContext context) {
@@ -171,6 +173,7 @@ class DropdownSearchFieldMultiWidget<T> extends StatelessWidget {
           asyncItems: getItems,
           onChanged: onChangedHandler,
           selectedItems: selectedItems,
+          compareFn: compareFnHandler,
           dropdownDecoratorProps: DropDownDecoratorProps(
             dropdownSearchDecoration: InputDecoration(
               fillColor: whiteColor,

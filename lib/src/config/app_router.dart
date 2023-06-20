@@ -145,6 +145,7 @@ final GoRouter appRouter = GoRouter(
               ScaffoldWithBottomNav(child: child),
           routes: [
             GoRoute(
+              parentNavigatorKey: _mainShellKey,
               path: "/team-home",
               pageBuilder: (context, state) =>
                   const NoTransitionPage(child: TeamHomePage()),

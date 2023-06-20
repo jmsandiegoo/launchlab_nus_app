@@ -13,6 +13,11 @@ class ProtectedScreenPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocConsumer<AppRootCubit, AppRootState>(
       listener: (context, state) {
+        if (state.appRootStateStatus == AppRootStateStatus.loading ||
+            state.appRootStateStatus == AppRootStateStatus.error) {
+          return;
+        }
+
         if (!state.isSignedIn) {
           navigateGo(context, "/signin");
         }

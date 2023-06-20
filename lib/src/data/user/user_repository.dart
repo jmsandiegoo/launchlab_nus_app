@@ -33,7 +33,7 @@ class UserRepository implements UserRepositoryImpl {
     }
   }
 
-  // @override
+  @override
   Future<void> onboardUser({required OnboardUserRequest request}) async {
     // upload the file and avatar
     try {

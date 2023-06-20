@@ -60,6 +60,7 @@ class _OnboardingStep2ContentState extends State<OnboardingStep2Content> {
           isFilterOnline: true,
           onChangedHandler: (values) =>
               _onboardingCubit.onUserSkillsInterestsChanged(values),
+          compareFnHandler: (p0, p1) => p0.emsiId == p1.emsiId,
         ),
         const SizedBox(
           height: 20.0,

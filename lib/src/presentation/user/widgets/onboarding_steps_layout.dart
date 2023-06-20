@@ -24,6 +24,10 @@ class OnboardingStepsLayout extends StatelessWidget {
               ? navigateGo(context, "/onboard")
               : navigatePop(context);
         }
+
+        if (state.onboardingStatus == OnboardingStatus.submissionSuccess) {
+          navigateGo(context, "/onboard-success");
+        }
       },
       builder: (context, state) {
         AppRootCubit appRootCubit = BlocProvider.of<AppRootCubit>(context);
@@ -43,7 +47,8 @@ class OnboardingStepsLayout extends StatelessWidget {
                 ? [
                     TextButton(
                         onPressed: () {
-                          onboardingStepsLayoutCubit.handleNextStep();
+                          onboardingStepsLayoutCubit
+                              .handleSkip(appRootCubit.state.authUserProfile!);
                         },
                         child: const Text(
                           "Skip",
@@ -80,12 +85,8 @@ class OnboardingStepsLayout extends StatelessWidget {
                   child: primaryButton(
                     context,
                     () {
-                      if (state.currStep == state.steps) {
-                        onboardingStepsLayoutCubit
-                            .handleSubmit(appRootCubit.state.authUserProfile!);
-                      } else {
-                        onboardingStepsLayoutCubit.handleNextStep();
-                      }
+                      onboardingStepsLayoutCubit
+                          .handleNextStep(appRootCubit.state.authUserProfile!);
                     },
                     state.currStep == state.steps ? "Finish" : "Next",
                     horizontalPadding: 40.0,
