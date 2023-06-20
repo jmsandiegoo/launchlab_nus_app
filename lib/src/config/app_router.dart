@@ -8,7 +8,7 @@ import 'package:launchlab/src/presentation/common/screens/protected_screen_page.
 import 'package:launchlab/src/presentation/common/screens/splash_screen_page.dart';
 import 'package:launchlab/src/presentation/common/screens/unprotected_screen_page.dart';
 import 'package:launchlab/src/presentation/common/widgets/scaffold_with_bottom_nav.dart';
-import 'package:launchlab/src/presentation/team/screens/discover_page.dart';
+import 'package:launchlab/src/presentation/search/screens/discover_page.dart';
 import 'package:launchlab/src/presentation/team/screens/team_home_page.dart';
 import 'package:launchlab/src/presentation/user/screens/onboarding_add_accomplishment_page.dart';
 import 'package:launchlab/src/presentation/user/screens/onboarding_add_experience_page.dart';
@@ -23,6 +23,10 @@ import 'package:launchlab/src/presentation/user/screens/onboarding_welcome_page.
 import 'package:launchlab/src/presentation/user/screens/profile_page.dart';
 import 'package:launchlab/src/presentation/user/widgets/onboarding_container.dart';
 import 'package:launchlab/src/presentation/user/widgets/onboarding_steps_layout.dart';
+import 'package:launchlab/src/presentation/team/screens/create_team_page.dart';
+import 'package:launchlab/src/presentation/team/screens/edit_team_page.dart';
+import 'package:launchlab/src/presentation/search/screens/external_team_page.dart';
+import 'package:launchlab/src/presentation/team/screens/team_page.dart';
 
 /// A file to configure the routing of the application
 
@@ -145,11 +149,10 @@ final GoRouter appRouter = GoRouter(
               ScaffoldWithBottomNav(child: child),
           routes: [
             GoRoute(
-              parentNavigatorKey: _mainShellKey,
-              path: "/team-home",
-              pageBuilder: (context, state) =>
-                  const NoTransitionPage(child: TeamHomePage()),
-            ),
+                path: "/team-home",
+                pageBuilder: (context, state) {
+                  return const NoTransitionPage(child: TeamHomePage());
+                }),
             GoRoute(
               path: "/chats",
               pageBuilder: (context, state) =>
@@ -164,10 +167,30 @@ final GoRouter appRouter = GoRouter(
               path: "/profile",
               pageBuilder: (context, state) =>
                   const NoTransitionPage(child: ProfilePage()),
-            )
+            ),
+            GoRoute(
+              path: "/teams",
+              builder: (context, state) => TeamPage(state.extra as List),
+            ),
+            GoRoute(
+              path: "/create_teams",
+              pageBuilder: (context, state) => NoTransitionPage(
+                  child: CreateTeamPage(userId: state.extra as String)),
+            ),
+            GoRoute(
+              path: "/edit_teams",
+              pageBuilder: (context, state) => NoTransitionPage(
+                  child: EditTeamPage(teamId: state.extra as String)),
+            ),
+            GoRoute(
+              path: "/external_teams",
+              pageBuilder: (context, state) => NoTransitionPage(
+                  child:
+                      ExternalTeamPage(teamIdUserIdData: state.extra as List)),
+            ),
           ],
-        )
+        ),
       ],
-    )
+    ),
   ],
 );

@@ -32,7 +32,7 @@ class DatePickerWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     controller.text = initialDate != null
-        ? dateStringFormatter("dd-MM-yyyy", initialDate!)
+        ? dateStringFormatter("yyyy-MM-dd", initialDate!)
         : "";
 
     return SizedBox(
@@ -71,7 +71,7 @@ class DatePickerWidget extends StatelessWidget {
           if (pickedDate == null) {
             return;
           }
-          controller.text = dateStringFormatter("dd-MM-yyyy", pickedDate);
+          controller.text = dateStringFormatter("yyyy-MM-dd", pickedDate);
           onChangedHandler(pickedDate);
         }),
         suffixWidget: const Icon(Icons.calendar_today_outlined),

@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:launchlab/src/data/authentication/repository/auth_repository.dart';
 import 'package:launchlab/src/presentation/authentication/cubits/signin_cubit.dart';
 import 'package:launchlab/src/presentation/common/widgets/useful.dart';
+import 'package:launchlab/src/utils/helper.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class SigninPage extends StatelessWidget {
@@ -42,6 +43,11 @@ class SigninPage extends StatelessWidget {
                       ),
                       isLoading: state is SigninLoading),
                 ),
+                ElevatedButton(
+                    onPressed: () {
+                      navigateGo(context, "/team-home");
+                    },
+                    child: const Text("bypass")),
                 const SizedBox(
                   height: 100,
                 ),

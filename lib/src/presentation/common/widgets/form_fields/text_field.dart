@@ -41,7 +41,8 @@ class TextFieldWidget extends StatefulWidget {
       required this.hint,
       this.errorText,
       this.size = 1,
-      required this.controller});
+      required this.controller,
+      this.keyboard = TextInputType.multiline});
 
   final FocusNode focusNode;
   final void Function(String) onChangedHandler;
@@ -51,6 +52,7 @@ class TextFieldWidget extends StatefulWidget {
   final String? errorText;
   final int size;
   final TextEditingController controller;
+  final TextInputType keyboard;
 
   @override
   State<TextFieldWidget> createState() => _TextFieldWidgetState();
@@ -66,12 +68,14 @@ class _TextFieldWidgetState extends State<TextFieldWidget> {
   @override
   Widget build(BuildContext context) {
     return userInput(
-        focusNode: widget.focusNode,
-        controller: widget.controller,
-        onChangedHandler: widget.onChangedHandler,
-        label: widget.label,
-        hint: widget.hint,
-        errorText: widget.errorText,
-        size: widget.size);
+      focusNode: widget.focusNode,
+      controller: widget.controller,
+      onChangedHandler: widget.onChangedHandler,
+      label: widget.label,
+      hint: widget.hint,
+      errorText: widget.errorText,
+      size: widget.size,
+      keyboard: widget.keyboard,
+    );
   }
 }
