@@ -104,16 +104,20 @@ class DropdownSearchFieldMultiWidget<T> extends StatelessWidget {
     required this.label,
     required this.getItems,
     required this.isChipsOutside,
+    this.isFilterOnline = false,
     required this.selectedItems,
     required this.onChangedHandler,
+    required this.compareFnHandler,
   });
   final _dropdownKey = GlobalKey<DropdownSearchState<T>>();
   final FocusNode focusNode;
   final String label;
   final Future<List<T>> Function(String) getItems;
   final bool isChipsOutside;
+  final bool isFilterOnline;
   final List<T> selectedItems;
   final void Function(List<T>) onChangedHandler;
+  final bool Function(T, T) compareFnHandler;
 
   @override
   Widget build(BuildContext context) {
@@ -140,7 +144,11 @@ class DropdownSearchFieldMultiWidget<T> extends StatelessWidget {
         DropdownSearch<T>.multiSelection(
           key: _dropdownKey,
           popupProps: PopupPropsMultiSelection.menu(
-            // isFilterOnline: true, // for repeated api calls
+            loadingBuilder: (context, searchEntry) => Container(
+              color: blackColor,
+              child: const Center(child: CircularProgressIndicator()),
+            ),
+            isFilterOnline: isFilterOnline, // for repeated api calls
             showSearchBox: true,
             showSelectedItems: false,
             searchFieldProps: TextFieldProps(
@@ -165,6 +173,7 @@ class DropdownSearchFieldMultiWidget<T> extends StatelessWidget {
           asyncItems: getItems,
           onChanged: onChangedHandler,
           selectedItems: selectedItems,
+          compareFn: compareFnHandler,
           dropdownDecoratorProps: DropDownDecoratorProps(
             dropdownSearchDecoration: InputDecoration(
               fillColor: whiteColor,

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:launchlab/src/domain/common/models/skill_entity.dart';
 import 'package:launchlab/src/presentation/common/widgets/form_fields/date_picker.dart';
 import 'package:launchlab/src/presentation/common/widgets/form_fields/dropwdown_search_field.dart';
 import 'package:launchlab/src/presentation/common/widgets/form_fields/text_field.dart';
@@ -268,16 +269,16 @@ class _EditTeamPageState extends State<EditTeamPage> {
                               fontWeight: FontWeight.bold,
                               color: blackColor)),
                       const SizedBox(height: 5),
-                      DropdownSearchFieldMultiWidget(
+                      DropdownSearchFieldMultiWidget<SkillEntity>(
                         focusNode: FocusNode(),
                         label: "",
-                        getItems: (String filter) async =>
-                            ["Java", "Android", "Web Dev"],
+                        getItems: (String filter) async => [],
                         selectedItems:
                             editCreateTeamCubit.state.interestInput.value,
                         isChipsOutside: true,
                         onChangedHandler: (values) =>
                             editCreateTeamCubit.onInterestChanged(values),
+                        compareFnHandler: (p0, p1) => p0.emsiId == p1.emsiId,
                       ),
                       const SizedBox(height: 20),
                       Center(

@@ -35,45 +35,47 @@ class DatePickerWidget extends StatelessWidget {
         ? dateStringFormatter("yyyy-MM-dd", initialDate!)
         : "";
 
-    return userInput(
-      isEnabled: isEnabled,
-      focusNode: FocusNode(),
-      controller: controller,
-      onChangedHandler: (p0) {},
-      isReadOnly: true,
-      hint: hint,
-      label: label,
-      errorText: errorText,
-      endSpacing: false,
-      onTapHandler: () => showDatePicker(
-        context: context,
-        initialDate: initialDate ?? DateTime.now(),
-        firstDate: firstDate ?? DateTime(1923),
-        lastDate: lastDate ?? DateTime.now(),
-        builder: (context, child) => Theme(
-          data: Theme.of(context).copyWith(
-              brightness: Brightness.dark,
-              colorScheme: const ColorScheme.dark(
-                primary: yellowColor,
-                onPrimary: blackColor,
-                onSurface: whiteColor,
-              ),
-              dialogBackgroundColor: blackColor,
-              textButtonTheme: TextButtonThemeData(
-                style: TextButton.styleFrom(foregroundColor: yellowColor),
-              ),
-              textTheme:
-                  const TextTheme(titleMedium: TextStyle(color: whiteColor))),
-          child: child!,
-        ),
-      ).then((pickedDate) {
-        if (pickedDate == null) {
-          return;
-        }
-        controller.text = dateStringFormatter("yyyy-MM-dd", pickedDate);
-        onChangedHandler(pickedDate);
-      }),
-      suffixWidget: const Icon(Icons.calendar_today_outlined),
+    return SizedBox(
+      height: 115,
+      child: userInput(
+        isEnabled: isEnabled,
+        focusNode: FocusNode(),
+        controller: controller,
+        onChangedHandler: (p0) {},
+        isReadOnly: true,
+        hint: hint,
+        label: label,
+        errorText: errorText,
+        onTapHandler: () => showDatePicker(
+          context: context,
+          initialDate: initialDate ?? DateTime.now(),
+          firstDate: firstDate ?? DateTime(1923),
+          lastDate: lastDate ?? DateTime.now(),
+          builder: (context, child) => Theme(
+            data: Theme.of(context).copyWith(
+                brightness: Brightness.dark,
+                colorScheme: const ColorScheme.dark(
+                  primary: yellowColor,
+                  onPrimary: blackColor,
+                  onSurface: whiteColor,
+                ),
+                dialogBackgroundColor: blackColor,
+                textButtonTheme: TextButtonThemeData(
+                  style: TextButton.styleFrom(foregroundColor: yellowColor),
+                ),
+                textTheme:
+                    const TextTheme(titleMedium: TextStyle(color: whiteColor))),
+            child: child!,
+          ),
+        ).then((pickedDate) {
+          if (pickedDate == null) {
+            return;
+          }
+          controller.text = dateStringFormatter("yyyy-MM-dd", pickedDate);
+          onChangedHandler(pickedDate);
+        }),
+        suffixWidget: const Icon(Icons.calendar_today_outlined),
+      ),
     );
   }
 }

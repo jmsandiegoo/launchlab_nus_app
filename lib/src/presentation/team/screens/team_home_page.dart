@@ -139,7 +139,7 @@ class _TeamHomePageState extends State<TeamHomePage> {
                                 style: OutlinedButton.styleFrom(
                                     backgroundColor: yellowColor),
                                 onPressed: () {
-                                  navigatePushData(context, "/create_teams",
+                                  navigatePushWithData(context, "/create_teams",
                                           userData[0]['id'] as String)
                                       .then((_) => setState(() {
                                             teamHomeCubit
@@ -175,7 +175,7 @@ class _TeamHomePageState extends State<TeamHomePage> {
                                   const SizedBox(height: 20),
                                   GestureDetector(
                                       onTap: () {
-                                        navigatePushData(context, "/teams",
+                                        navigatePushWithData(context, "/teams",
                                             [ownerTeamData[i]['id'], true]);
                                       },
                                       child: teamCard(ownerTeamData[i]))
@@ -201,7 +201,7 @@ class _TeamHomePageState extends State<TeamHomePage> {
                                   const SizedBox(height: 20),
                                   GestureDetector(
                                       onTap: () {
-                                        navigatePushData(context, "/teams",
+                                        navigatePushWithData(context, "/teams",
                                             [memberTeamData[i]['id'], false]);
                                       },
                                       child: teamCard(memberTeamData[i]))

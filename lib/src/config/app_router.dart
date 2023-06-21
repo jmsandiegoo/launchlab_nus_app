@@ -41,12 +41,16 @@ final _onboardingShellKey = GlobalKey<NavigatorState>();
 final _nestedOnboardingShellKey = GlobalKey<NavigatorState>();
 
 final GoRouter appRouter = GoRouter(
+  debugLogDiagnostics: true,
   initialLocation: "/",
   navigatorKey: _rootNavigatorKey,
   routes: [
     GoRoute(
-      path: "/",
-      builder: (context, state) => const SplashScreenPage(),
+      parentNavigatorKey: _rootNavigatorKey,
+      path: '/',
+      builder: (context, state) {
+        return const SplashScreenPage();
+      },
     ),
     ShellRoute(
       navigatorKey: _unprotectedShellNavigatorKey,
@@ -55,6 +59,7 @@ final GoRouter appRouter = GoRouter(
       },
       routes: [
         GoRoute(
+          parentNavigatorKey: _unprotectedShellNavigatorKey,
           path: "/signin",
           pageBuilder: (context, state) =>
               const NoTransitionPage(child: SigninPage()),

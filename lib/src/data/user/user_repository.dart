@@ -1,5 +1,8 @@
 import 'package:launchlab/src/domain/user/models/degree_programme_entity.dart';
+import 'package:launchlab/src/domain/user/models/experience_entity.dart';
+import 'package:launchlab/src/domain/user/models/requests/get_profile_info_request.dart';
 import 'package:launchlab/src/domain/user/models/requests/onboard_user_request.dart';
+import 'package:launchlab/src/domain/user/models/user_entity.dart';
 import 'package:launchlab/src/domain/user/repositories/user_repository_impl.dart';
 import 'package:launchlab/src/utils/failure.dart';
 import 'package:launchlab/src/utils/helper.dart';
@@ -65,13 +68,14 @@ class UserRepository implements UserRepositoryImpl {
         resume: userResumeIdentifier,
       ));
 
-      final res = await _supabase.client.rpc(
+      await _supabase.client.rpc(
+
         'handle_onboard_user',
         params: {'request_data': newOnboardUserRequest.toJson()},
       );
 
-      print(res);
 
+      print(res);
       // call the rpc function to insert into db
     } on StorageException catch (error) {
       print("onboard storage error: $error");
@@ -79,4 +83,51 @@ class UserRepository implements UserRepositoryImpl {
       print("Unexpected error occured $error");
     }
   }
+  
+  Future<void> getProfileInfo(GetProfileInfoRequest request) async {
+    try {
+      // fetch the user profile
+      final userRes = await _supabase.client
+          .from("users")
+          .select<PostgrestList>("*")
+          .eq('id', request.userId);
+
+      if (userRes.isEmpty) {
+        print("profile not found");
+        return;
+      }
+
+      final UserEntity user = UserEntity.fromJson(userRes[0]);
+
+      // fetch the profile picture
+      String avatarUrl;
+
+      if (user.avatar != null) {
+        avatarUrl = await _supabase.client.storage
+            .from('user_avatar_bucket')
+            .createSignedUrl(user.avatar!, 60);
+      } else {
+        avatarUrl = "avatar_temp.png";
+      }
+      // fetch the experiences
+
+      final expRes = await _supabase.client
+          .from("experiences")
+          .select<PostgrestList>("*")
+          .eq("user_id", request.userId);
+
+      List<ExperienceEntity> experienceList = [];
+
+      for (int i = 0; i < expRes.length; i++) {
+        experienceList.add(ExperienceEntity.fromJson(expRes[i]));
+      }
+
+      // fetch the accomplishments
+
+      // fetch interests & skills
+    } on Exception catch (error) {
+      print("get Profile error occured");
+    }
+  }
+
 }
