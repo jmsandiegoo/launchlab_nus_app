@@ -39,6 +39,7 @@ class _SplashScreenContentState extends State<SplashScreenContent> {
 
     // Check initial session when app loads
     Future.wait([_splashScreenCubit.handleInitAuthSession()]).then((_) {
+      print('executed: ${_splashScreenCubit.state.session}');
       _appRootCubit.handleSessionChange(
         session: _splashScreenCubit.state.session,
         authUserProfile: _splashScreenCubit.state.authUserProfile,
@@ -60,6 +61,7 @@ class _SplashScreenContentState extends State<SplashScreenContent> {
 
   @override
   Widget build(BuildContext context) {
+    print("splashscreen");
     return Scaffold(
         backgroundColor: yellowColor,
         body: Center(

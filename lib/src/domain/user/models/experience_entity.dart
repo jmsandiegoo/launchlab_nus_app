@@ -27,6 +27,18 @@ class ExperienceEntity extends Equatable {
 
   final String? userId;
 
+  ExperienceEntity.fromJson(Map<String, dynamic> json)
+      : id = json['id'],
+        title = json['title'],
+        companyName = json['company_name'],
+        isCurrent = json['is_current'],
+        startDate = DateTime.parse(json['start_date']),
+        endDate = DateTime.tryParse(json['end_date']),
+        description = json['description'],
+        createdAt = DateTime.tryParse(json['created_at']),
+        updatedAt = DateTime.tryParse(json['updated_at']),
+        userId = json['user_id'];
+
   Map<String, dynamic> toJson() {
     return {
       'id': id,
