@@ -2,7 +2,6 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:formz/formz.dart';
-import 'package:launchlab/src/domain/common/models/skill_entity.dart';
 import 'package:launchlab/src/presentation/common/widgets/form_fields/checkbox_field.dart';
 import 'package:launchlab/src/presentation/common/widgets/form_fields/text_field.dart';
 import 'package:launchlab/src/presentation/user/widgets/form_fields/end_date_field.dart';
@@ -176,7 +175,7 @@ class EditCreateTeamCubit extends Cubit<EditCreateTeamState> {
     emit(newState);
   }
 
-  void onInterestChanged(List<SkillEntity> val) {
+  void onInterestChanged(List<String> val) {
     final newInputState = UserSkillsInterestsFieldInput.validated(val);
     final newState = state.copyWith(interestInput: newInputState);
     emit(newState);

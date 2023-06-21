@@ -31,11 +31,10 @@ class SigninCubit extends Cubit<SigninState> {
 
   Future<void> handleSigninWithGoogle() async {
     emit(const SigninLoading());
-    try {
-      await _authRepository.signinWithGoogle();
-      emit(SigninState());
-    } on Failure catch (error) {
-      emit(SigninState(error: error));
-    }
+    final res = await _authRepository.signinWithGoogle();
+    res.fold(
+      (l) => emit(SigninFailure(l)),
+      (r) => emit(const SigninState()),
+    );
   }
 }

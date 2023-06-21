@@ -260,8 +260,7 @@ class _TeamPageState extends State<TeamPage> {
         debugPrint("List");
         break;
       case 'Edit':
-        navigatePushWithData(
-            context, "/edit_teams", teamIdIsOwner[0].toString());
+        navigatePushData(context, "/edit_teams", teamIdIsOwner[0].toString());
         break;
       case 'Disband':
         debugPrint("Disband");

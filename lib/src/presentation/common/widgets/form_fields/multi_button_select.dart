@@ -87,7 +87,6 @@ class MultiButtonMultiSelectWidget<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print(options);
     List<SelectButton> buttons = renderButtons();
     return Row(
       children: [

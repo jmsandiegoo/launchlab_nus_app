@@ -113,33 +113,15 @@ Widget userInput_2({
   );
 }
 
-Widget checkBox(String label, bool? value, bool tristate,
-    void Function(bool?) onChangedHandler) {
-  return Row(mainAxisAlignment: MainAxisAlignment.start, children: [
-    Checkbox(
-      tristate: tristate,
-      value: value,
-      onChanged: onChangedHandler,
-      checkColor: blackColor,
-      fillColor: const MaterialStatePropertyAll(yellowColor),
-      side: const BorderSide(width: 0.5),
-      activeColor: whiteColor,
-    ),
-    bodyText(label),
-  ]);
-}
-
-Widget profilePicture(double diameter, String address, {bool isUrl = false}) {
+Widget profilePicture(double diameter, String address) {
   return Container(
       width: diameter,
       height: diameter,
       decoration: BoxDecoration(
           shape: BoxShape.circle,
           image: DecorationImage(
-            image: isUrl
-                ? Image.network(address).image
-                : ExactAssetImage("assets/images/$address"),
-            fit: BoxFit.cover,
+            image: ExactAssetImage("assets/images/$address"),
+            fit: BoxFit.fitHeight,
           )));
 }
 
@@ -190,107 +172,7 @@ Widget bodyText(String label,
   return Text(
     label,
     textAlign: alignment,
-    style: TextStyle(
-      fontSize: size,
-      color: color,
-      fontWeight: weight,
-    ),
-  );
-}
-
-Widget smallText(String label,
-    {size = 13.0,
-    color = blackColor,
-    weight = FontWeight.w400,
-    alignment = TextAlign.left}) {
-  return Text(
-    label,
-    textAlign: alignment,
-    style: TextStyle(
-      fontSize: size,
-      color: color,
-      fontWeight: weight,
-    ),
-  );
-}
-
-Widget primaryButton(
-  BuildContext context,
-  Function() onPressedHandler,
-  String label, {
-  horizontalPadding = 30.0,
-  verticalPadding = 10.0,
-  double? elevation,
-  bool isLoading = false,
-}) {
-  return ElevatedButton(
-    style: ElevatedButton.styleFrom(
-      elevation: elevation,
-      backgroundColor: Theme.of(context).colorScheme.primary,
-      textStyle: TextStyle(color: Theme.of(context).colorScheme.onPrimary),
-      padding: EdgeInsets.symmetric(
-        vertical: verticalPadding,
-        horizontal: horizontalPadding,
-      ),
-    ),
-    onPressed: () {
-      if (isLoading) {
-        return;
-      }
-
-      onPressedHandler();
-    },
-    child: isLoading
-        ? SizedBox(
-            height: 17,
-            width: 17,
-            child: CircularProgressIndicator(
-                strokeWidth: 1, color: Theme.of(context).colorScheme.onPrimary),
-          )
-        : Text(label),
-  );
-}
-
-Widget secondaryButton(
-  BuildContext context,
-  Function() onPressedHandler,
-  String label, {
-  horizontalPadding = 30.0,
-  verticalPadding = 10.0,
-  double? elevation,
-  bool isLoading = false,
-  Widget? childBuilder,
-}) {
-  return ElevatedButton(
-    style: ElevatedButton.styleFrom(
-      elevation: elevation,
-      backgroundColor: Theme.of(context).colorScheme.secondary,
-      textStyle: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
-      padding: EdgeInsets.symmetric(
-        vertical: verticalPadding,
-        horizontal: horizontalPadding,
-      ),
-    ),
-    onPressed: () {
-      if (isLoading) {
-        return;
-      }
-      onPressedHandler();
-    },
-    child: isLoading
-        ? SizedBox(
-            height: 17,
-            width: 17,
-            child: CircularProgressIndicator(
-                strokeWidth: 1,
-                color: Theme.of(context).colorScheme.onSecondary),
-          )
-        : childBuilder ??
-            Text(
-              label,
-              style:
-                  TextStyle(color: Theme.of(context).colorScheme.onSecondary),
-            ),
+    style: TextStyle(fontSize: size, color: color, fontWeight: weight),
   );
 }
 
@@ -306,12 +188,6 @@ Widget descriptionText(String label, {size = 15.0, color = blackColor}) {
 Widget backButton() {
   return const Icon(Icons.keyboard_backspace_outlined,
       size: 30, color: blackColor);
-}
-
-Future<T?> showModalBottomSheetHandler<T>(
-    BuildContext context, Widget Function(BuildContext) builder) {
-  return showModalBottomSheet<T>(
-      context: context, builder: builder, useRootNavigator: true);
 }
 
 Widget boldFirstText(String text1, String text2, {size = 12.5}) {
@@ -344,6 +220,22 @@ Widget boldSecondText(String text1, String text2, {size = 12.0}) {
       ],
     ),
   );
+}
+
+Widget checkBox(String label, bool? value, bool tristate,
+    void Function(bool?) onChangedHandler) {
+  return Row(mainAxisAlignment: MainAxisAlignment.start, children: [
+    Checkbox(
+      tristate: tristate,
+      value: value,
+      onChanged: onChangedHandler,
+      checkColor: blackColor,
+      fillColor: const MaterialStatePropertyAll(yellowColor),
+      side: const BorderSide(width: 0.5),
+      activeColor: whiteColor,
+    ),
+    bodyText(label),
+  ]);
 }
 
 Widget outerCircleBar(double progress) {
@@ -474,6 +366,12 @@ String dateToDateFormatter(date) {
 Widget futureBuilderFail() {
   return Center(
       child: bodyText('Please ensure that you have internet connection'));
+}
+
+Future<T?> showModalBottomSheetHandler<T>(
+    BuildContext context, Widget Function(BuildContext) builder) {
+  return showModalBottomSheet<T>(
+      context: context, builder: builder, useRootNavigator: true);
 }
 
 Widget chip<T>(label, T value, {void Function(T value)? onDeleteHandler}) {
