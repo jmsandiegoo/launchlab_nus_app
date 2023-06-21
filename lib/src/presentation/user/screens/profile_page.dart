@@ -45,6 +45,7 @@ class ProfilePage extends StatelessWidget {
               ]),
             ),
             AppBar(
+                backgroundColor: yellowColor,
                 centerTitle: false,
                 title: headerText("My Profile"),
                 actions: [

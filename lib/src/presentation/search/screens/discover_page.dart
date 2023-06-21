@@ -14,7 +14,6 @@ class DiscoverPage extends StatefulWidget {
 }
 
 class _DiscoverPageState extends State<DiscoverPage> {
-  final userId = 'ca1956b9-0bc8-4b82-8b08-a59a24c13697';
   final TextEditingController _searchController = TextEditingController();
 
   @override
@@ -24,6 +23,7 @@ class _DiscoverPageState extends State<DiscoverPage> {
         child: BlocBuilder<DiscoverCubit, DiscoverState>(
             builder: (context, state) {
           final discoverCubit = BlocProvider.of<DiscoverCubit>(context);
+
           return FutureBuilder(
             future: discoverCubit.getData(state.searchTerm),
             builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
@@ -111,20 +111,15 @@ class _DiscoverPageState extends State<DiscoverPage> {
                               horizontal: 25, vertical: 20),
                           child: SingleChildScrollView(
                             child: Column(children: [
-                              ElevatedButton(
-                                  onPressed: () {
-                                    print(snapshot.data[1][0]);
-                                  },
-                                  child: bodyText("Test")),
                               for (int i = 0;
                                   i < snapshot.data[0].length;
                                   i++) ...[
                                 GestureDetector(
                                   onTap: () {
-                                    navigatePushData(
+                                    navigatePushWithData(
                                         context, "/external_teams", [
                                       snapshot.data[0][i]['id'],
-                                      'ca1956b9-0bc8-4b82-8b08-a59a24c13697'
+                                      snapshot.data[2]
                                     ]);
                                   },
                                   child: searchTeamCard(
@@ -137,10 +132,10 @@ class _DiscoverPageState extends State<DiscoverPage> {
                                   i++) ...[
                                 GestureDetector(
                                   onTap: () {
-                                    navigatePushData(
+                                    navigatePushWithData(
                                         context, "/external_teams", [
                                       snapshot.data[1][i]['id'],
-                                      'ca1956b9-0bc8-4b82-8b08-a59a24c13697'
+                                      snapshot.data[2]
                                     ]);
                                   },
                                   child: searchTeamCard(

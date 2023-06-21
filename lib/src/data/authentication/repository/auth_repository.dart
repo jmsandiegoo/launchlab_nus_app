@@ -1,9 +1,9 @@
 import 'dart:async';
-import 'package:dartz/dartz.dart';
 import 'package:flutter/foundation.dart';
+import 'package:launchlab/src/domain/authentication/repositories/auth_repository_impl.dart';
+import 'package:launchlab/src/domain/user/models/user_entity.dart';
+import 'package:launchlab/src/utils/failure.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import '../../../domain/authentication/repositories/auth_repository_impl.dart';
-import '../../../utils/failure.dart';
 
 class AuthRepository implements AuthRepositoryImpl {
   StreamSubscription<AuthState>? _subscription;
@@ -21,17 +21,15 @@ class AuthRepository implements AuthRepositoryImpl {
   }
 
   @override
-  Future<Either<Failure, void>> signinWithGoogle() async {
+  Future<void> signinWithGoogle() async {
     var res = await _supabase.client.auth.signInWithOAuth(
       Provider.google,
       redirectTo: kIsWeb ? null : 'io.supabase.launchlabnus://login-callback/',
     );
 
     if (!res) {
-      return left(const Failure.badRequest());
+      throw const Failure.badRequest();
     }
-
-    return right(null);
   }
 
   /// instead of having cubit - cubit dependency which is not recommended abstract
@@ -39,6 +37,30 @@ class AuthRepository implements AuthRepositoryImpl {
   @override
   Session? getCurrentAuthSession() {
     return _supabase.client.auth.currentSession;
+  }
+
+  // only use when there is a current session
+  @override
+  Future<UserEntity?> getAuthUserProfile() async {
+    if (getCurrentAuthSession() == null) {
+      return null;
+    }
+
+    try {
+      final res = await _supabase.client
+          .from("users")
+          .select<PostgrestList>("*")
+          .eq('id', _supabase.client.auth.currentSession!.user.id);
+
+      if (res.isEmpty) {
+        return null;
+      } else {
+        return UserEntity.fromJson(res[0]);
+      }
+    } on Exception catch (error) {
+      print("getAuthUserProfile error: ${error}");
+      throw const Failure.badRequest();
+    }
   }
 
   @override

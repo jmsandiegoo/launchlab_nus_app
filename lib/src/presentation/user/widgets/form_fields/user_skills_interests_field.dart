@@ -1,11 +1,13 @@
 import 'package:formz/formz.dart';
+import 'package:launchlab/src/domain/common/models/skill_entity.dart';
 
 class UserSkillsInterestsFieldInput
-    extends FormzInput<List<String>, UserSkillsInterestsError> {
+    extends FormzInput<List<SkillEntity>, UserSkillsInterestsError> {
   const UserSkillsInterestsFieldInput.unvalidated(
-      [List<String> value = const []])
+      [List<SkillEntity> value = const []])
       : super.pure(value);
-  const UserSkillsInterestsFieldInput.validated([List<String> value = const []])
+  const UserSkillsInterestsFieldInput.validated(
+      [List<SkillEntity> value = const []])
       : super.dirty(value);
 
   @override
