@@ -39,6 +39,7 @@ class ProfilePage extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(horizontal: 20),
                     child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+
                         children: [
                           teamStatusBar(
                               "Completed", "5", Icons.check_circle_sharp),

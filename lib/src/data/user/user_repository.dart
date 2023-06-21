@@ -69,10 +69,13 @@ class UserRepository implements UserRepositoryImpl {
       ));
 
       await _supabase.client.rpc(
+
         'handle_onboard_user',
         params: {'request_data': newOnboardUserRequest.toJson()},
       );
 
+
+      print(res);
       // call the rpc function to insert into db
     } on StorageException catch (error) {
       print("onboard storage error: $error");
@@ -80,7 +83,7 @@ class UserRepository implements UserRepositoryImpl {
       print("Unexpected error occured $error");
     }
   }
-
+  
   Future<void> getProfileInfo(GetProfileInfoRequest request) async {
     try {
       // fetch the user profile
@@ -126,4 +129,5 @@ class UserRepository implements UserRepositoryImpl {
       print("get Profile error occured");
     }
   }
+
 }

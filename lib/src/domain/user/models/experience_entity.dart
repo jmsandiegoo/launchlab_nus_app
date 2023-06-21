@@ -1,6 +1,7 @@
 import 'package:equatable/equatable.dart';
 import 'package:launchlab/src/domain/user/models/user_entity.dart';
 
+
 class ExperienceEntity extends Equatable {
   const ExperienceEntity({
     this.id,
@@ -38,6 +39,7 @@ class ExperienceEntity extends Equatable {
         createdAt = DateTime.tryParse(json['created_at']),
         updatedAt = DateTime.tryParse(json['updated_at']),
         userId = json['user_id'];
+
 
   Map<String, dynamic> toJson() {
     return {

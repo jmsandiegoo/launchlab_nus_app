@@ -3,8 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:launchlab/src/config/app_theme.dart';
 import 'package:launchlab/src/presentation/common/widgets/useful.dart';
 import 'package:launchlab/src/presentation/search/cubits/external_team_cubit.dart';
-import 'package:launchlab/src/presentation/common/widgets/confirmation_box.dart';
-import 'package:launchlab/src/utils/helper.dart';
 
 class ExternalTeamPage extends StatelessWidget {
   final List teamIdUserIdData;
@@ -140,7 +138,7 @@ class ExternalTeamPage extends StatelessWidget {
                                       } else {
                                         externalTeamPageCubit.applyToTeam(
                                             teamId: teamId, userId: userId);
-                                        navigatePop(context);
+                                        Navigator.pop(context);
                                         applicationConfirmationBox(
                                             context,
                                             "Success",
@@ -157,18 +155,5 @@ class ExternalTeamPage extends StatelessWidget {
                 }
               });
         }));
-  }
-
-  void applicationConfirmationBox(context, title, message) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return ConfirmationBox(
-          title: title,
-          message: message,
-          onClose: () => navigatePop(context),
-        );
-      },
-    );
   }
 }
