@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:launchlab/src/config/app_theme.dart';
+import 'package:launchlab/src/data/common/common_repository.dart';
 import 'package:launchlab/src/domain/common/models/skill_entity.dart';
 import 'package:launchlab/src/presentation/common/widgets/form_fields/date_picker.dart';
 import 'package:launchlab/src/presentation/common/widgets/form_fields/dropwdown_search_field.dart';
 import 'package:launchlab/src/presentation/common/widgets/useful.dart';
 import 'package:launchlab/src/presentation/team/cubits/edit_create_team_cubit.dart';
 import 'package:launchlab/src/utils/helper.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../common/widgets/form_fields/text_field.dart';
 
 class CreateTeamPage extends StatefulWidget {
@@ -16,12 +18,11 @@ class CreateTeamPage extends StatefulWidget {
   const CreateTeamPage({super.key, required this.userId});
 
   @override
-  State<CreateTeamPage> createState() => _CreateTeamPageState(userId);
+  State<CreateTeamPage> createState() => _CreateTeamPageState();
 }
 
 class _CreateTeamPageState extends State<CreateTeamPage> {
-  _CreateTeamPageState(this.userId);
-  String userId;
+  _CreateTeamPageState();
   final _teamNameFocusNode = FocusNode();
   final _descriptionFocusNode = FocusNode();
   final _startDateFocusNode = FocusNode();
@@ -45,7 +46,7 @@ class _CreateTeamPageState extends State<CreateTeamPage> {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-        create: (_) => EditCreateTeamCubit(),
+        create: (_) => EditCreateTeamCubit(CommonRepository(Supabase.instance)),
         child: BlocBuilder<EditCreateTeamCubit, EditCreateTeamState>(
             builder: (context, state) {
           final editCreateTeamCubit =
@@ -215,11 +216,11 @@ class _CreateTeamPageState extends State<CreateTeamPage> {
                       Row(
                           mainAxisAlignment: MainAxisAlignment.spaceAround,
                           children: [
-                            commitmentButton(
+                            _commitmentButton(
                                 "    Low    ", 'Low', editCreateTeamCubit),
-                            commitmentButton(
+                            _commitmentButton(
                                 "  Medium  ", 'Medium', editCreateTeamCubit),
-                            commitmentButton(
+                            _commitmentButton(
                                 "    High    ", 'High', editCreateTeamCubit),
                           ]),
                       const SizedBox(height: 20),
@@ -246,10 +247,15 @@ class _CreateTeamPageState extends State<CreateTeamPage> {
                       DropdownSearchFieldMultiWidget<SkillEntity>(
                         focusNode: FocusNode(),
                         label: "",
-                        getItems: (String filter) async => [],
+                        getItems: (String filter) async {
+                          await editCreateTeamCubit
+                              .handleGetSkillsInterests(filter);
+                          return editCreateTeamCubit.state.skillInterestOptions;
+                        },
                         selectedItems:
                             editCreateTeamCubit.state.interestInput.value,
                         isChipsOutside: true,
+                        isFilterOnline: true,
                         onChangedHandler: (values) =>
                             editCreateTeamCubit.onInterestChanged(values),
                         compareFnHandler: (p0, p1) => p0.emsiId == p1.emsiId,
@@ -258,11 +264,18 @@ class _CreateTeamPageState extends State<CreateTeamPage> {
                       Center(
                           child: ElevatedButton(
                               onPressed: () {
-                                print(state.interestInput.value);
+                                List<String> interestName = [];
+                                List<String> interestEmsiId = [];
+                                for (var element in state.interestInput.value) {
+                                  interestName.add(element.toString());
+                                }
+                                for (var element in state.interestInput.value) {
+                                  interestEmsiId.add(element.emsiId);
+                                }
                                 editCreateTeamCubit.finish()
                                     ? editCreateTeamCubit
                                         .createNewTeam(
-                                            userId: userId,
+                                            userId: widget.userId,
                                             teamName: _teamNameController.text,
                                             description:
                                                 _descriptionController.text,
@@ -272,7 +285,9 @@ class _CreateTeamPageState extends State<CreateTeamPage> {
                                             category: state.categoryInput,
                                             commitment: state.commitmentInput,
                                             maxMember:
-                                                _maxMemberController.text)
+                                                _maxMemberController.text,
+                                            interestName: interestName,
+                                            interestEmsiId: interestEmsiId)
                                         .then((val) {
                                         navigatePop(context);
                                       })
@@ -287,7 +302,7 @@ class _CreateTeamPageState extends State<CreateTeamPage> {
         }));
   }
 
-  Widget commitmentButton(text, newLevel, cubit) {
+  Widget _commitmentButton(text, newLevel, cubit) {
     return OutlinedButton(
         style: OutlinedButton.styleFrom(
             backgroundColor: cubit.state.commitmentInput == newLevel

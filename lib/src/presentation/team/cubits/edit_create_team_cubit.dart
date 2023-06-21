@@ -2,6 +2,7 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:formz/formz.dart';
+import 'package:launchlab/src/data/common/common_repository.dart';
 import 'package:launchlab/src/domain/common/models/skill_entity.dart';
 import 'package:launchlab/src/presentation/common/widgets/form_fields/checkbox_field.dart';
 import 'package:launchlab/src/presentation/common/widgets/form_fields/text_field.dart';
@@ -23,6 +24,7 @@ class EditCreateTeamState extends Equatable {
     this.commitmentInput = 'Low',
     this.maxMemberInput = const TextFieldInput.unvalidated(),
     this.interestInput = const UserSkillsInterestsFieldInput.unvalidated(),
+    this.skillInterestOptions = const [],
   });
 
   final TextFieldInput teamNameInput;
@@ -34,17 +36,20 @@ class EditCreateTeamState extends Equatable {
   final String commitmentInput;
   final TextFieldInput maxMemberInput;
   final UserSkillsInterestsFieldInput interestInput;
+  final List<SkillEntity> skillInterestOptions;
 
-  EditCreateTeamState copyWith(
-      {TextFieldInput? teamNameInput,
-      TextFieldInput? descriptionInput,
-      StartDateFieldInput? startDateInput,
-      EndDateFieldInput? endDateInput,
-      CheckboxFieldInput? isChecked,
-      String? categoryInput,
-      String? commitmentInput,
-      TextFieldInput? maxMemberInput,
-      UserSkillsInterestsFieldInput? interestInput}) {
+  EditCreateTeamState copyWith({
+    TextFieldInput? teamNameInput,
+    TextFieldInput? descriptionInput,
+    StartDateFieldInput? startDateInput,
+    EndDateFieldInput? endDateInput,
+    CheckboxFieldInput? isChecked,
+    String? categoryInput,
+    String? commitmentInput,
+    TextFieldInput? maxMemberInput,
+    UserSkillsInterestsFieldInput? interestInput,
+    List<SkillEntity>? skillInterestOptions,
+  }) {
     return EditCreateTeamState(
       teamNameInput: teamNameInput ?? this.teamNameInput,
       descriptionInput: descriptionInput ?? this.descriptionInput,
@@ -55,6 +60,7 @@ class EditCreateTeamState extends Equatable {
       commitmentInput: commitmentInput ?? this.commitmentInput,
       maxMemberInput: maxMemberInput ?? this.maxMemberInput,
       interestInput: interestInput ?? this.interestInput,
+      skillInterestOptions: skillInterestOptions ?? this.skillInterestOptions,
     );
   }
 
@@ -69,11 +75,16 @@ class EditCreateTeamState extends Equatable {
         commitmentInput,
         maxMemberInput,
         interestInput,
+        skillInterestOptions,
       ];
 }
 
 class EditCreateTeamCubit extends Cubit<EditCreateTeamState> {
-  EditCreateTeamCubit() : super(const EditCreateTeamState());
+  EditCreateTeamCubit(this._commonRepository)
+      : super(const EditCreateTeamState());
+
+  final CommonRepository _commonRepository;
+
   // ====================================================================
   // Input handlers
   // ====================================================================
@@ -176,6 +187,16 @@ class EditCreateTeamCubit extends Cubit<EditCreateTeamState> {
     emit(newState);
   }
 
+  Future<void> handleGetSkillsInterests(String? filter) async {
+    try {
+      final List<SkillEntity> skillInterestOptions =
+          await _commonRepository.getSkillsInterestsFromEmsi(filter);
+      emit(state.copyWith(skillInterestOptions: skillInterestOptions));
+    } on Exception catch (error) {
+      print(error);
+    }
+  }
+
   void onInterestChanged(List<SkillEntity> val) {
     final newInputState = UserSkillsInterestsFieldInput.validated(val);
     final newState = state.copyWith(interestInput: newInputState);
@@ -187,7 +208,6 @@ class EditCreateTeamCubit extends Cubit<EditCreateTeamState> {
   // ====================================================================
 
   bool finish() {
-    print(state.teamNameInput.value);
     final teamNameInput = TextFieldInput.validated(state.teamNameInput.value);
     final descriptionInput =
         TextFieldInput.validated(state.descriptionInput.value);
@@ -237,7 +257,6 @@ class EditCreateTeamCubit extends Cubit<EditCreateTeamState> {
     commitment,
     maxMember,
   }) {
-    print(state.maxMemberInput.value);
     final newTeamNameState = TextFieldInput.validated(teamName);
     final newDescriptionState = TextFieldInput.validated(description);
     final newStartDateState =
@@ -274,8 +293,9 @@ class EditCreateTeamCubit extends Cubit<EditCreateTeamState> {
       endDate,
       category,
       commitment,
-      maxMember}) async {
-    print(DateTime.now());
+      maxMember,
+      interestName,
+      interestEmsiId}) async {
     await supabase.from('teams').update({
       'team_name': teamName,
       'description': description,
@@ -284,6 +304,8 @@ class EditCreateTeamCubit extends Cubit<EditCreateTeamState> {
       'project_category': category,
       'commitment': commitment,
       'max_members': maxMember,
+      'interest_name': interestName,
+      'interest_emsi_id': interestEmsiId,
       'updated_at': DateTime.now().toString()
     }).eq('id', teamId);
     debugPrint("Edited Team Data Saved");
@@ -297,7 +319,9 @@ class EditCreateTeamCubit extends Cubit<EditCreateTeamState> {
       endDate,
       category,
       commitment,
-      maxMember}) async {
+      maxMember,
+      interestName,
+      interestEmsiId}) async {
     var teamId = const Uuid().v4();
     await supabase.from('teams').insert({
       'id': teamId,
@@ -309,6 +333,8 @@ class EditCreateTeamCubit extends Cubit<EditCreateTeamState> {
       'commitment': commitment,
       'current_members': 1,
       'max_members': maxMember,
+      'interest_name': interestName,
+      'interest_emsi_id': interestEmsiId,
     });
 
     await supabase.from('team_users').insert({
