@@ -32,7 +32,8 @@ class DiscoverCubit extends Cubit<DiscoverState> {
         .eq('is_listed', false)
         .textSearch('description', searchTerm)
         .limit(5);
-    return [teamNameData, teamDescriptionData];
+    var user = supabase.auth.currentUser;
+    return [teamNameData, teamDescriptionData, user!.id];
   }
 
   void setSearchState(String value) {
