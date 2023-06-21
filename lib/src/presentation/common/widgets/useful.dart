@@ -130,15 +130,17 @@ Widget checkBox(String label, bool? value, bool tristate,
   ]);
 }
 
-Widget profilePicture(double diameter, String address) {
+Widget profilePicture(double diameter, String address, {bool isUrl = false}) {
   return Container(
       width: diameter,
       height: diameter,
       decoration: BoxDecoration(
           shape: BoxShape.circle,
           image: DecorationImage(
-            image: ExactAssetImage("assets/images/$address"),
-            fit: BoxFit.fitHeight,
+            image: isUrl
+                ? Image.network(address).image
+                : ExactAssetImage("assets/images/$address"),
+            fit: BoxFit.cover,
           )));
 }
 
