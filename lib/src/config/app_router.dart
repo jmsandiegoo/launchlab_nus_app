@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:launchlab/src/domain/user/models/accomplishment_entity.dart';
 import 'package:launchlab/src/domain/user/models/experience_entity.dart';
+import 'package:launchlab/src/domain/user/models/user_entity.dart';
 import 'package:launchlab/src/presentation/authentication/screens/signin_page.dart';
 import 'package:launchlab/src/presentation/chat/screens/chat_page.dart';
 import 'package:launchlab/src/presentation/common/screens/protected_screen_page.dart';
@@ -20,7 +21,9 @@ import 'package:launchlab/src/presentation/user/screens/onboarding_step2_page.da
 import 'package:launchlab/src/presentation/user/screens/onboarding_step3_page.dart';
 import 'package:launchlab/src/presentation/user/screens/onboarding_step4_page.dart';
 import 'package:launchlab/src/presentation/user/screens/onboarding_welcome_page.dart';
+import 'package:launchlab/src/presentation/user/screens/profile_edit_intro_page.dart';
 import 'package:launchlab/src/presentation/user/screens/profile_page.dart';
+import 'package:launchlab/src/presentation/user/widgets/intro_form.dart';
 import 'package:launchlab/src/presentation/user/widgets/onboarding_container.dart';
 import 'package:launchlab/src/presentation/user/widgets/onboarding_steps_layout.dart';
 import 'package:launchlab/src/presentation/team/screens/create_team_page.dart';
@@ -169,10 +172,17 @@ final GoRouter appRouter = GoRouter(
                   const NoTransitionPage(child: DiscoverPage()),
             ),
             GoRoute(
-              path: "/profile",
-              pageBuilder: (context, state) =>
-                  const NoTransitionPage(child: ProfilePage()),
-            ),
+                path: "/profile",
+                pageBuilder: (context, state) =>
+                    const NoTransitionPage(child: ProfilePage()),
+                routes: [
+                  GoRoute(
+                    path: "edit-intro",
+                    builder: (context, state) => ProfileEditIntroPage(
+                      props: state.extra as ProfileEditIntroPageProps,
+                    ),
+                  ),
+                ]),
             GoRoute(
               path: "/teams",
               builder: (context, state) => TeamPage(state.extra as List),

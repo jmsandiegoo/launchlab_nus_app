@@ -37,9 +37,9 @@ class ProfilePage extends StatelessWidget {
               ],
             );
           }
-          return SafeArea(
-            child: Scaffold(
-              body: RefreshIndicator(
+          return Scaffold(
+            body: SafeArea(
+              child: RefreshIndicator(
                 onRefresh: () async {},
                 child: SingleChildScrollView(
                   physics: const AlwaysScrollableScrollPhysics(),
@@ -71,8 +71,10 @@ class ProfilePage extends StatelessWidget {
                           ],
                         ),
                         ProfileHeader(
-                            userProfile: state.userProfile!,
-                            userDegreeProgramme: state.userDegreeProgramme!),
+                          userProfile: state.userProfile!,
+                          userDegreeProgramme: state.userDegreeProgramme!,
+                          userAvatarUrl: state.userAvatarUrl,
+                        ),
                         Padding(
                           padding: const EdgeInsets.symmetric(
                               horizontal: 30, vertical: 30),

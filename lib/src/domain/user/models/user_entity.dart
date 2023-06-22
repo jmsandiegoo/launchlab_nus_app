@@ -61,7 +61,7 @@ class UserEntity extends Equatable {
         isOnboarded = json['is_onboarded'],
         firstName = json['first_name'],
         lastName = json['last_name'],
-        title = json['last_name'],
+        title = json['title'],
         avatar = json['avatar'],
         resume = json['resume'],
         about = json['about'],

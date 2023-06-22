@@ -97,6 +97,4 @@ class ProfileCubit extends Cubit<ProfileState> {
       emit(state.copyWith(profileStateStatus: ProfileStateStatus.error));
     }
   }
-
-  // update user details;
 }

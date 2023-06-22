@@ -1,9 +1,14 @@
+import 'dart:typed_data';
+
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:launchlab/src/config/app_theme.dart';
 import 'package:launchlab/src/domain/user/models/degree_programme_entity.dart';
 import 'package:launchlab/src/domain/user/models/user_entity.dart';
 import 'package:launchlab/src/presentation/common/widgets/useful.dart';
+import 'package:launchlab/src/presentation/user/screens/profile_edit_intro_page.dart';
+import 'package:launchlab/src/utils/helper.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ProfileHeader extends StatelessWidget {
   const ProfileHeader(
@@ -36,7 +41,14 @@ class ProfileHeader extends StatelessWidget {
                 child: Container(
                   margin: const EdgeInsets.only(right: 15.0),
                   child: IconButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      navigatePushWithData<UserEntity>(
+                          context,
+                          "/profile/edit-intro",
+                          ProfileEditIntroPageProps(
+                              userProfile: userProfile,
+                              userDegreeProgramme: userDegreeProgramme));
+                    },
                     icon: const Icon(Icons.edit_outlined, color: blackColor),
                   ),
                 ),
@@ -46,12 +58,23 @@ class ProfileHeader extends StatelessWidget {
                       isUrl: userAvatarUrl != null ? true : false)),
             ],
           ),
-          const SizedBox(height: 15),
-          headerText("${userProfile.firstName} ${userProfile.lastName}"),
-          const SizedBox(height: 5),
-          bodyText(userProfile.title!),
-          bodyText(userDegreeProgramme.name, color: darkGreyColor),
-          const SizedBox(height: 35),
+          ConstrainedBox(
+            constraints: const BoxConstraints(
+              maxWidth: 300,
+            ),
+            child: Column(
+              children: [
+                const SizedBox(height: 15),
+                headerText("${userProfile.firstName} ${userProfile.lastName}",
+                    alignment: TextAlign.center),
+                const SizedBox(height: 5),
+                bodyText(userProfile.title!, alignment: TextAlign.center),
+                bodyText(userDegreeProgramme.name,
+                    color: darkGreyColor, alignment: TextAlign.center),
+                const SizedBox(height: 35),
+              ],
+            ),
+          ),
           const TeamStatsBar(
             teamStats: [
               TeamStat(
@@ -69,7 +92,7 @@ class ProfileHeader extends StatelessWidget {
                 icon: Icons.handshake_outlined,
               ),
             ],
-          )
+          ),
         ],
       ),
     );

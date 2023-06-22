@@ -1,7 +1,11 @@
+import 'dart:io';
+
+import 'package:equatable/equatable.dart';
 import 'package:launchlab/src/domain/user/models/accomplishment_entity.dart';
 import 'package:launchlab/src/domain/user/models/degree_programme_entity.dart';
 import 'package:launchlab/src/domain/user/models/experience_entity.dart';
 import 'package:launchlab/src/domain/user/models/preference_entity.dart';
+import 'package:launchlab/src/domain/user/models/requests/download_avatar_image_request.dart';
 import 'package:launchlab/src/domain/user/models/requests/get_profile_info_request.dart';
 import 'package:launchlab/src/domain/user/models/requests/onboard_user_request.dart';
 import 'package:launchlab/src/domain/user/models/responses/get_profile_info_response.dart';
@@ -174,6 +178,18 @@ class UserRepository implements UserRepositoryImpl {
     } on Exception catch (error) {
       print("get Profile error occured $error");
       rethrow;
+    }
+  }
+
+  Future<File> downloadAvatarImage(DownloadAvatarImageRequest request) async {
+    try {
+      return await downloadFile(
+          supabase: _supabase,
+          bucket: 'user_avatar_bucket',
+          fileName: request.fileName);
+    } on Exception catch (error) {
+      print("download avatar error occured: $error");
+      rethrow; // TODO better error handling
     }
   }
 }
