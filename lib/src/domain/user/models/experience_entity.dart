@@ -33,10 +33,10 @@ class ExperienceEntity extends Equatable {
         companyName = json['company_name'],
         isCurrent = json['is_current'],
         startDate = DateTime.parse(json['start_date']),
-        endDate = DateTime.tryParse(json['end_date']),
+        endDate = DateTime.tryParse(json['end_date'].toString()),
         description = json['description'],
-        createdAt = DateTime.tryParse(json['created_at']),
-        updatedAt = DateTime.tryParse(json['updated_at']),
+        createdAt = DateTime.tryParse(json['created_at'].toString()),
+        updatedAt = DateTime.tryParse(json['updated_at'].toString()),
         userId = json['user_id'];
 
   Map<String, dynamic> toJson() {

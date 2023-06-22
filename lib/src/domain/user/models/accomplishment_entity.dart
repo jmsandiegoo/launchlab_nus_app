@@ -26,6 +26,18 @@ class AccomplishmentEntity extends Equatable {
 
   final String? userId;
 
+  AccomplishmentEntity.fromJson(Map<String, dynamic> json)
+      : id = json['id'],
+        title = json['title'],
+        issuer = json["issuer"],
+        isActive = json["is_active"],
+        startDate = DateTime.parse(json["start_date"]),
+        endDate = DateTime.tryParse(json["end_date"].toString()),
+        description = json["description"],
+        createdAt = DateTime.tryParse(json["created_at"].toString()),
+        updatedAt = DateTime.tryParse(json["updated_at"].toString()),
+        userId = json["user_id"];
+
   Map<String, dynamic> toJson() {
     return {
       'id': id,

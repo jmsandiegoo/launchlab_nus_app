@@ -479,7 +479,7 @@ Widget futureBuilderFail() {
 Widget chip<T>(label, T value, {void Function(T value)? onDeleteHandler}) {
   return Chip(
       labelPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 5.0),
-      label: bodyText(label),
+      label: smallText(label),
       backgroundColor: Colors.transparent,
       deleteIcon: const Icon(
         Icons.close_outlined,
@@ -495,7 +495,6 @@ Widget chip<T>(label, T value, {void Function(T value)? onDeleteHandler}) {
 
 Widget chipsWrap<T>(List<T> items, {void Function(T value)? onDeleteHandler}) {
   return Wrap(
-    runSpacing: 5.0,
     spacing: 5.0,
     children: items
         .map((item) =>
