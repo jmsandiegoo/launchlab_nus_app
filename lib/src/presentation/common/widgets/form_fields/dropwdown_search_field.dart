@@ -108,6 +108,7 @@ class DropdownSearchFieldMultiWidget<T> extends StatelessWidget {
     required this.selectedItems,
     required this.onChangedHandler,
     required this.compareFnHandler,
+    this.errorText,
   });
   final _dropdownKey = GlobalKey<DropdownSearchState<T>>();
   final FocusNode focusNode;
@@ -118,6 +119,7 @@ class DropdownSearchFieldMultiWidget<T> extends StatelessWidget {
   final List<T> selectedItems;
   final void Function(List<T>) onChangedHandler;
   final bool Function(T, T) compareFnHandler;
+  final String? errorText;
 
   @override
   Widget build(BuildContext context) {
@@ -214,21 +216,24 @@ class DropdownSearchFieldMultiWidget<T> extends StatelessWidget {
           },
         ),
         ...() {
-          if (isChipsOutside) {
-            return [
-              chipsWrap<T>(selectedItems, onDeleteHandler: (value) {
-                List<T>? newSelectedItems =
-                    _dropdownKey.currentState?.getSelectedItems;
-
-                newSelectedItems?.remove(value);
-
-                _dropdownKey.currentState
-                    ?.changeSelectedItems(newSelectedItems ?? []);
-              })
-            ];
-          } else {
-            return [];
+          List<Widget> widgets = [];
+          if (errorText != null) {
+            widgets.add(smallText(errorText!, color: errorColor));
           }
+
+          if (isChipsOutside) {
+            widgets.add(chipsWrap<T>(selectedItems, onDeleteHandler: (value) {
+              List<T>? newSelectedItems =
+                  _dropdownKey.currentState?.getSelectedItems;
+
+              newSelectedItems?.remove(value);
+
+              _dropdownKey.currentState
+                  ?.changeSelectedItems(newSelectedItems ?? []);
+            }));
+          }
+
+          return widgets;
         }(),
       ],
     );

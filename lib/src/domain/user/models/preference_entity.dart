@@ -22,6 +22,24 @@ class PreferenceEntity extends Equatable {
 
   final String userId;
 
+  PreferenceEntity copyWith({
+    String? id,
+    List<SkillEntity>? skillsInterests,
+    List<CategoryEntity>? categories,
+    DateTime? createdAt,
+    String? userId,
+    DateTime? updatedAt,
+  }) {
+    return PreferenceEntity(
+      id: id ?? this.id,
+      skillsInterests: skillsInterests ?? this.skillsInterests,
+      categories: categories ?? this.categories,
+      userId: userId ?? this.userId,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+    );
+  }
+
   factory PreferenceEntity.fromJson(Map<String, dynamic> json) {
     final List<dynamic> skillsInterestsJson = json['skills_interests'];
     final List<dynamic> categoriesJson = json['categories'];
@@ -42,6 +60,16 @@ class PreferenceEntity extends Equatable {
       updatedAt: DateTime.tryParse(json['updated_at'].toString()),
       userId: json['user_id'],
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'skills_interests': skillsInterests.map((item) => item.toJson()).toList(),
+      'categories': categories.map((item) => item.toJson()).toList(),
+      'created_at': createdAt?.toIso8601String(),
+      'updated_at': updatedAt?.toIso8601String(),
+    };
   }
 
   @override

@@ -8,6 +8,7 @@ import 'package:launchlab/src/domain/user/models/requests/download_avatar_image_
 import 'package:launchlab/src/domain/user/models/requests/get_profile_info_request.dart';
 import 'package:launchlab/src/domain/user/models/requests/onboard_user_request.dart';
 import 'package:launchlab/src/domain/user/models/requests/update_user_request.dart';
+import 'package:launchlab/src/domain/user/models/requests/update_user_skills_request.dart';
 import 'package:launchlab/src/domain/user/models/responses/get_profile_info_response.dart';
 import 'package:launchlab/src/domain/user/models/user_entity.dart';
 import 'package:launchlab/src/domain/user/repositories/user_repository_impl.dart';
@@ -225,6 +226,19 @@ class UserRepository implements UserRepositoryImpl {
           .eq('id', request.userProfile.id);
     } on Exception catch (error) {
       print("update user error: $error");
+    }
+  }
+
+  // update userSkill data
+  Future<void> updateUserSkills(UpdateUserSkillsRequest request) async {
+    try {
+      await _supabase.client.rpc(
+        "handle_user_selected_skills_update",
+        params: {"request_data": request.toJson()},
+      );
+    } on Exception catch (error) {
+      print("update user skills error: $error");
+      throw const Failure.badRequest();
     }
   }
 }

@@ -78,11 +78,15 @@ class _AboutFormState extends State<AboutForm> {
               errorText: state.aboutInput.displayError?.text(),
               size: 9,
             ),
-            primaryButton(context, () {
-              _aboutFormCubit.handleSubmit();
-            }, "Save",
-                isLoading: state.aboutFormStatus == AboutFormStatus.loading,
-                elevation: 0),
+            primaryButton(
+              context,
+              () {
+                _aboutFormCubit.handleSubmit();
+              },
+              "Save",
+              isLoading: state.aboutFormStatus == AboutFormStatus.loading,
+              elevation: 0,
+            ),
           ],
         );
       }),

@@ -23,6 +23,7 @@ import 'package:launchlab/src/presentation/user/screens/onboarding_step4_page.da
 import 'package:launchlab/src/presentation/user/screens/onboarding_welcome_page.dart';
 import 'package:launchlab/src/presentation/user/screens/profile_edit_about_page.dart';
 import 'package:launchlab/src/presentation/user/screens/profile_edit_intro_page.dart';
+import 'package:launchlab/src/presentation/user/screens/profile_edit_skills_page.dart';
 import 'package:launchlab/src/presentation/user/screens/profile_page.dart';
 import 'package:launchlab/src/presentation/user/widgets/intro_form.dart';
 import 'package:launchlab/src/presentation/user/widgets/onboarding_container.dart';
@@ -173,23 +174,30 @@ final GoRouter appRouter = GoRouter(
                   const NoTransitionPage(child: DiscoverPage()),
             ),
             GoRoute(
-                path: "/profile",
-                pageBuilder: (context, state) =>
-                    const NoTransitionPage(child: ProfilePage()),
-                routes: [
-                  GoRoute(
-                    path: "edit-intro",
-                    builder: (context, state) => ProfileEditIntroPage(
-                      props: state.extra as ProfileEditIntroPageProps,
-                    ),
+              path: "/profile",
+              pageBuilder: (context, state) =>
+                  const NoTransitionPage(child: ProfilePage()),
+              routes: [
+                GoRoute(
+                  path: "edit-intro",
+                  builder: (context, state) => ProfileEditIntroPage(
+                    props: state.extra as ProfileEditIntroPageProps,
                   ),
-                  GoRoute(
-                    path: "edit-about",
-                    builder: (context, state) => ProfileEditAboutPage(
-                      props: state.extra as ProfileEditAboutPageProps,
-                    ),
+                ),
+                GoRoute(
+                  path: "edit-about",
+                  builder: (context, state) => ProfileEditAboutPage(
+                    props: state.extra as ProfileEditAboutPageProps,
                   ),
-                ]),
+                ),
+                GoRoute(
+                  path: "edit-skills",
+                  builder: (context, state) => ProfileEditSkillsPage(
+                    props: state.extra as ProfileEditSkillsPageProps,
+                  ),
+                ),
+              ],
+            ),
             GoRoute(
               path: "/teams",
               builder: (context, state) => TeamPage(state.extra as List),

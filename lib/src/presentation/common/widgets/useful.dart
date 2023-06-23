@@ -479,7 +479,7 @@ Widget futureBuilderFail() {
 Widget chip<T>(label, T value, {void Function(T value)? onDeleteHandler}) {
   return Chip(
       labelPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 5.0),
-      label: smallText(label),
+      label: smallText(label, size: 11.5),
       backgroundColor: Colors.transparent,
       deleteIcon: const Icon(
         Icons.close_outlined,
