@@ -83,7 +83,12 @@ class ProfilePage extends StatelessWidget {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              ProfileAbout(userProfile: state.userProfile!),
+                              ProfileAbout(
+                                userProfile: state.userProfile!,
+                                onUpdateHandler: () =>
+                                    profileCubit.handleGetProfileInfo(
+                                        state.userProfile!.id!),
+                              ),
                               const SizedBox(height: 20),
                               ProfileExperienceList(
                                   experiences: state.userExperiences),

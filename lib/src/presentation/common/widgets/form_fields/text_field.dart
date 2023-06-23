@@ -9,9 +9,21 @@ class TextFieldInput extends FormzInput<String, TextFieldError> {
 
   @override
   TextFieldError? validator(String value) {
-    if (value.isEmpty) {
+    if (value.trim().isEmpty) {
       return TextFieldError.empty;
     }
+    return null;
+  }
+}
+
+class NotReqTextFieldInput extends FormzInput<String, TextFieldError> {
+  const NotReqTextFieldInput.unvalidated([String value = ''])
+      : super.pure(value);
+  const NotReqTextFieldInput.validated([String value = ''])
+      : super.dirty(value);
+
+  @override
+  TextFieldError? validator(String value) {
     return null;
   }
 }
