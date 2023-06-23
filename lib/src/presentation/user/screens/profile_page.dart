@@ -74,6 +74,8 @@ class ProfilePage extends StatelessWidget {
                           userProfile: state.userProfile!,
                           userDegreeProgramme: state.userDegreeProgramme!,
                           userAvatarUrl: state.userAvatarUrl,
+                          onUpdateHandler: () => profileCubit
+                              .handleGetProfileInfo(state.userProfile!.id!),
                         ),
                         Padding(
                           padding: const EdgeInsets.symmetric(

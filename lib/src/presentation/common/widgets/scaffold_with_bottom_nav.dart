@@ -23,7 +23,7 @@ class _ScaffoldWithBottomNavState extends State<ScaffoldWithBottomNav> {
 
   // A callback function to navigate to the desired tab
   void _onItemTapped(BuildContext context, int tabIndex) {
-    if (tabIndex != _currentIndex) {
+    if (/*tabIndex != _currentIndex*/ true) {
       context.go(_tabs[tabIndex].initialLocation);
     }
   }

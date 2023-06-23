@@ -3,7 +3,6 @@ import 'package:launchlab/src/presentation/common/widgets/useful.dart';
 import 'package:launchlab/src/presentation/user/screens/add_experience.dart';
 import 'package:launchlab/src/presentation/user/screens/edit_about.dart';
 import 'package:launchlab/src/presentation/user/screens/edit_experience.dart';
-import 'package:launchlab/src/presentation/user/screens/edit_intro.dart';
 
 class EditProfile extends StatefulWidget {
   const EditProfile({super.key});
@@ -38,12 +37,6 @@ class _EditProfileState extends State<EditProfile> {
                     builder: (context) => const EditExperience()));
           },
           child: bodyText("Edit Experience")),
-      ElevatedButton(
-          onPressed: () {
-            Navigator.push(context,
-                MaterialPageRoute(builder: (context) => const EditIntro()));
-          },
-          child: bodyText("Edit Intro")),
       ElevatedButton(
           onPressed: () {
             Navigator.pop(context);

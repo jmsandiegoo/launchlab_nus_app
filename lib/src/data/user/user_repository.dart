@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:equatable/equatable.dart';
 import 'package:launchlab/src/domain/user/models/accomplishment_entity.dart';
 import 'package:launchlab/src/domain/user/models/degree_programme_entity.dart';
 import 'package:launchlab/src/domain/user/models/experience_entity.dart';
@@ -8,6 +7,7 @@ import 'package:launchlab/src/domain/user/models/preference_entity.dart';
 import 'package:launchlab/src/domain/user/models/requests/download_avatar_image_request.dart';
 import 'package:launchlab/src/domain/user/models/requests/get_profile_info_request.dart';
 import 'package:launchlab/src/domain/user/models/requests/onboard_user_request.dart';
+import 'package:launchlab/src/domain/user/models/requests/update_user_request.dart';
 import 'package:launchlab/src/domain/user/models/responses/get_profile_info_response.dart';
 import 'package:launchlab/src/domain/user/models/user_entity.dart';
 import 'package:launchlab/src/domain/user/repositories/user_repository_impl.dart';
@@ -189,7 +189,42 @@ class UserRepository implements UserRepositoryImpl {
           fileName: request.fileName);
     } on Exception catch (error) {
       print("download avatar error occured: $error");
-      rethrow; // TODO better error handling
+      rethrow;
+    }
+  }
+
+  Future<void> updateUser(UpdateUserRequest request) async {
+    // upload new avatar
+    try {
+      String? userAvatarIdentifier;
+      String? userResumeIdentifier;
+
+      if (request.userAvatar != null) {
+        userAvatarIdentifier = await uploadFile(
+          supabase: _supabase,
+          bucket: "user_avatar_bucket",
+          file: request.userAvatar!,
+          fileIdentifier: "${request.userProfile.id}_avatar",
+        );
+      }
+
+      if (request.userResume != null) {
+        userResumeIdentifier = await uploadFile(
+          supabase: _supabase,
+          bucket: "user_resume_bucket",
+          file: request.userResume!,
+          fileIdentifier: "${request.userProfile.id}_resume",
+        );
+      }
+
+      await _supabase.client
+          .from("users")
+          .update(
+            request.userProfile.toJson(),
+          )
+          .eq('id', request.userProfile.id);
+    } on Exception catch (error) {
+      print("update user error: $error");
     }
   }
 }

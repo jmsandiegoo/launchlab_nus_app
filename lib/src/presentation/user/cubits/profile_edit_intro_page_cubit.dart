@@ -48,6 +48,7 @@ enum ProfileEditintroPageStatus {
   loading,
   success,
   error,
+  formLoading,
 }
 
 class ProfileEditIntroPageCubit extends Cubit<ProfileEditIntroPageState> {
@@ -83,5 +84,9 @@ class ProfileEditIntroPageCubit extends Cubit<ProfileEditIntroPageState> {
       emit(state.copyWith(
           profileEditIntroPageStatus: ProfileEditintroPageStatus.error));
     }
+  }
+
+  void handleUpdateStatus(ProfileEditintroPageStatus status) {
+    emit(state.copyWith(profileEditIntroPageStatus: status));
   }
 }

@@ -121,6 +121,15 @@ class _IntroFormState extends State<IntroForm> {
                 _introFormCubit.onDegreeProgrammeChanged(val),
             compareFnHandler: (item1, item2) => item1.id == item2.id,
           ),
+          primaryButton(
+            context,
+            () {
+              _introFormCubit.handleSubmit();
+            },
+            "Save",
+            elevation: 0,
+            isLoading: state.introFormStatus == IntroFormStatus.loading,
+          ),
         ],
       ),
     );

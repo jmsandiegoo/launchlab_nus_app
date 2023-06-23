@@ -1,25 +1,43 @@
-import 'dart:typed_data';
-
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:launchlab/src/config/app_theme.dart';
 import 'package:launchlab/src/domain/user/models/degree_programme_entity.dart';
 import 'package:launchlab/src/domain/user/models/user_entity.dart';
 import 'package:launchlab/src/presentation/common/widgets/useful.dart';
+import 'package:launchlab/src/presentation/user/cubits/profile_cubit.dart';
 import 'package:launchlab/src/presentation/user/screens/profile_edit_intro_page.dart';
+import 'package:launchlab/src/utils/constants.dart';
 import 'package:launchlab/src/utils/helper.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ProfileHeader extends StatelessWidget {
-  const ProfileHeader(
-      {super.key,
-      required this.userProfile,
-      required this.userDegreeProgramme,
-      this.userAvatarUrl});
+  const ProfileHeader({
+    super.key,
+    required this.userProfile,
+    required this.userDegreeProgramme,
+    this.userAvatarUrl,
+    required this.onUpdateHandler,
+  });
 
   final UserEntity userProfile;
   final DegreeProgrammeEntity userDegreeProgramme;
   final String? userAvatarUrl;
+  final void Function() onUpdateHandler;
+
+  Future<void> editProfileIntro(
+      BuildContext context, ProfileEditIntroPageProps props) async {
+    final NavigationData<Object?>? returnData =
+        await navigatePushWithData<Object?>(
+            context, "/profile/edit-intro", props);
+
+    if (returnData == null) {
+      return;
+    }
+
+    if (returnData.actionType == ActionTypes.update) {
+      onUpdateHandler();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -42,9 +60,8 @@ class ProfileHeader extends StatelessWidget {
                   margin: const EdgeInsets.only(right: 15.0),
                   child: IconButton(
                     onPressed: () {
-                      navigatePushWithData<UserEntity>(
+                      editProfileIntro(
                           context,
-                          "/profile/edit-intro",
                           ProfileEditIntroPageProps(
                               userProfile: userProfile,
                               userDegreeProgramme: userDegreeProgramme));

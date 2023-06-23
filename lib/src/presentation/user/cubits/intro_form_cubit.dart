@@ -2,8 +2,10 @@ import 'dart:io';
 
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:formz/formz.dart';
 import 'package:launchlab/src/data/user/user_repository.dart';
 import 'package:launchlab/src/domain/user/models/degree_programme_entity.dart';
+import 'package:launchlab/src/domain/user/models/requests/update_user_request.dart';
 import 'package:launchlab/src/domain/user/models/user_entity.dart';
 import 'package:launchlab/src/presentation/common/widgets/form_fields/picture_upload_picker.dart';
 import 'package:launchlab/src/presentation/common/widgets/form_fields/text_field.dart';
@@ -18,15 +20,21 @@ class IntroFormState extends Equatable {
     this.titleInput = const TextFieldInput.unvalidated(),
     this.degreeProgrammeInput = const DegreeProgrammeFieldInput.unvalidated(),
     this.degreeProgrammeOptions = const [],
+    required this.introFormStatus,
+    required this.userProfile,
   });
 
+  // inputs
   final PictureUploadPickerInput pictureUploadPickerInput;
   final TextFieldInput firstNameInput;
   final TextFieldInput lastNameInput;
   final TextFieldInput titleInput;
   final DegreeProgrammeFieldInput degreeProgrammeInput;
 
+  // others
+  final UserEntity userProfile;
   final List<DegreeProgrammeEntity> degreeProgrammeOptions;
+  final IntroFormStatus introFormStatus;
 
   IntroFormState copyWith({
     PictureUploadPickerInput? pictureUploadPickerInput,
@@ -35,6 +43,8 @@ class IntroFormState extends Equatable {
     TextFieldInput? titleInput,
     DegreeProgrammeFieldInput? degreeProgrammeInput,
     List<DegreeProgrammeEntity>? degreeProgrammeOptions,
+    IntroFormStatus? introFormStatus,
+    UserEntity? userProfile,
   }) {
     return IntroFormState(
       pictureUploadPickerInput:
@@ -45,6 +55,8 @@ class IntroFormState extends Equatable {
       degreeProgrammeInput: degreeProgrammeInput ?? this.degreeProgrammeInput,
       degreeProgrammeOptions:
           degreeProgrammeOptions ?? this.degreeProgrammeOptions,
+      introFormStatus: introFormStatus ?? this.introFormStatus,
+      userProfile: userProfile ?? this.userProfile,
     );
   }
 
@@ -56,7 +68,16 @@ class IntroFormState extends Equatable {
         titleInput,
         degreeProgrammeInput,
         degreeProgrammeOptions,
+        introFormStatus,
+        userProfile,
       ];
+}
+
+enum IntroFormStatus {
+  initial,
+  success,
+  loading,
+  error,
 }
 
 class IntroFormCubit extends Cubit<IntroFormState> {
@@ -73,6 +94,8 @@ class IntroFormCubit extends Cubit<IntroFormState> {
           titleInput: TextFieldInput.unvalidated(userProfile.title!),
           degreeProgrammeInput:
               DegreeProgrammeFieldInput.unvalidated(userDegreeProgramme),
+          introFormStatus: IntroFormStatus.initial,
+          userProfile: userProfile,
         ));
 
   final UserRepository userRepository;
@@ -216,5 +239,54 @@ class IntroFormCubit extends Cubit<IntroFormState> {
     );
 
     emit(newState);
+  }
+
+  Future<void> handleSubmit() async {
+    final pictureUploadPickerInput = PictureUploadPickerInput.validated(
+        state.pictureUploadPickerInput.value);
+    final firstNameInput = TextFieldInput.validated(state.firstNameInput.value);
+    final lastNameInput = TextFieldInput.validated(state.lastNameInput.value);
+    final titleInput = TextFieldInput.validated(state.titleInput.value);
+    final degreeProgrammeInput =
+        DegreeProgrammeFieldInput.validated(state.degreeProgrammeInput.value);
+
+    final isFormValid = Formz.validate([
+      pictureUploadPickerInput,
+      firstNameInput,
+      lastNameInput,
+      titleInput,
+      degreeProgrammeInput,
+    ]);
+
+    if (!isFormValid) {
+      emit(state.copyWith(
+        pictureUploadPickerInput: pictureUploadPickerInput,
+        firstNameInput: firstNameInput,
+        lastNameInput: lastNameInput,
+        titleInput: titleInput,
+        degreeProgrammeInput: degreeProgrammeInput,
+      ));
+      return;
+    }
+
+    try {
+      emit(state.copyWith(introFormStatus: IntroFormStatus.loading));
+
+      await userRepository.updateUser(UpdateUserRequest(
+        userProfile: state.userProfile.copyWith(
+          firstName: state.firstNameInput.value,
+          lastName: state.lastNameInput.value,
+          title: state.titleInput.value,
+          degreeProgrammeId: state.degreeProgrammeInput.value!.id,
+        ),
+        userAvatar: state.pictureUploadPickerInput.value,
+      ));
+
+      emit(state.copyWith(
+        introFormStatus: IntroFormStatus.success,
+      ));
+    } on Exception catch (_) {
+      emit(state.copyWith(introFormStatus: IntroFormStatus.error));
+    }
   }
 }
