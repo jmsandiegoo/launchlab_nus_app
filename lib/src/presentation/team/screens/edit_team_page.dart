@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:launchlab/src/data/common/common_repository.dart';
 import 'package:launchlab/src/domain/common/models/skill_entity.dart';
 import 'package:launchlab/src/presentation/common/widgets/form_fields/date_picker.dart';
 import 'package:launchlab/src/presentation/common/widgets/form_fields/dropwdown_search_field.dart';
+import 'package:launchlab/src/presentation/common/widgets/form_fields/picture_upload_picker.dart';
 import 'package:launchlab/src/presentation/common/widgets/form_fields/text_field.dart';
 import 'package:launchlab/src/presentation/common/widgets/useful.dart';
 import 'package:launchlab/src/presentation/team/cubits/edit_create_team_cubit.dart';
@@ -58,22 +60,22 @@ class _EditTeamPageState extends State<EditTeamPage> {
               _maxMemberController.text == '') {
             editCreateTeamCubit.getData(widget.teamId).then((data) {
               editCreateTeamCubit.initState(
-                teamName: data[0]['team_name'],
-                description: data[0]['description'],
-                startDate: data[0]['start_date'],
-                commitment: data[0]['commitment'],
-                category: data[0]['project_category'],
-                maxMember: data[0]['max_members'],
-              );
+                  teamName: data['team_name'],
+                  description: data['description'],
+                  startDate: data['start_date'],
+                  commitment: data['commitment'],
+                  category: data['project_category'],
+                  maxMember: data['max_members'],
+                  interest: data['interest'],
+                  avatarURL: data['avatar_url']);
 
-              data[0]['end_date'] == null
+              data['end_date'] == null
                   ? editCreateTeamCubit.onIsCheckedChanged(true)
                   : editCreateTeamCubit
                       .onEndDateChanged(DateTime.parse(data[0]['end_date']));
-              _teamNameController.text = data[0]['team_name'];
-              _descriptionController.text = data[0]['description'];
-              _maxMemberController.text = data[0]['max_members'].toString();
-
+              _teamNameController.text = data['team_name'];
+              _descriptionController.text = data['description'];
+              _maxMemberController.text = data['max_members'].toString();
               debugPrint("Data Loaded");
             });
           }
@@ -98,11 +100,26 @@ class _EditTeamPageState extends State<EditTeamPage> {
                               children: [
                                 const SizedBox(height: 20),
                                 headerText("Edit Team"),
-                                bodyText("Need Some Changes?")
+                                bodyText("Need Some Changes?"),
+                                const SizedBox(height: 10),
+                                SizedBox(
+                                  height: 50,
+                                  child: PictureUploadPickerWidget(
+                                    onPictureUploadChangedHandler: (image) =>
+                                        editCreateTeamCubit
+                                            .onPictureUploadChanged(image),
+                                    image: editCreateTeamCubit
+                                        .state.pictureUploadInput.value,
+                                    isTeam: true,
+                                    imageURL: editCreateTeamCubit
+                                        .state.avatarURL
+                                        .toString(),
+                                  ),
+                                )
                               ],
                             ),
                             SizedBox(
-                                height: 150,
+                                height: 100,
                                 child: SvgPicture.asset(
                                     'assets/images/create_team.svg'))
                           ]),
@@ -231,9 +248,7 @@ class _EditTeamPageState extends State<EditTeamPage> {
                                     child: Text(items),
                                   );
                                 }).toList(),
-                                onChanged: (String? newValue) {
-                                  debugPrint(newValue);
-                                },
+                                onChanged: (String? newValue) {},
                               ),
                             ),
                           ]),
@@ -260,6 +275,9 @@ class _EditTeamPageState extends State<EditTeamPage> {
                         hint: 'Input a number',
                         value: editCreateTeamCubit.state.maxMemberInput.value,
                         keyboard: TextInputType.number,
+                        inputFormatter: [
+                          FilteringTextInputFormatter.digitsOnly
+                        ],
                         errorText: editCreateTeamCubit
                             .state.maxMemberInput.displayError
                             ?.text(),
@@ -282,22 +300,15 @@ class _EditTeamPageState extends State<EditTeamPage> {
                             editCreateTeamCubit.state.interestInput.value,
                         isChipsOutside: true,
                         isFilterOnline: true,
-                        onChangedHandler: (values) =>
-                            editCreateTeamCubit.onInterestChanged(values),
+                        onChangedHandler: (values) {
+                          editCreateTeamCubit.onInterestChanged(values);
+                        },
                         compareFnHandler: (p0, p1) => p0.emsiId == p1.emsiId,
                       ),
                       const SizedBox(height: 20),
                       Center(
                           child: ElevatedButton(
                               onPressed: () {
-                                List<String> interestName = [];
-                                List<String> interestEmsiId = [];
-                                for (var element in state.interestInput.value) {
-                                  interestName.add(element.toString());
-                                }
-                                for (var element in state.interestInput.value) {
-                                  interestEmsiId.add(element.emsiId);
-                                }
                                 editCreateTeamCubit.finish()
                                     ? editCreateTeamCubit
                                         .updateTeamData(
@@ -312,8 +323,7 @@ class _EditTeamPageState extends State<EditTeamPage> {
                                             commitment: state.commitmentInput,
                                             maxMember:
                                                 _maxMemberController.text,
-                                            interestName: interestName,
-                                            interestEmsiId: interestEmsiId)
+                                            interest: state.interestInput.value)
                                         .then((val) {
                                         navigatePop(context);
                                       })

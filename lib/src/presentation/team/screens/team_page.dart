@@ -35,12 +35,12 @@ class _TeamPageState extends State<TeamPage> {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator());
                 }
-
                 if (snapshot.hasData) {
                   final List memberData = snapshot.data[0];
                   final List completedMilestone = snapshot.data[1];
                   final List incompleteMilestone = snapshot.data[2];
                   final Map teamData = snapshot.data[3][0];
+
                   return Scaffold(
                     appBar: AppBar(
                         backgroundColor: Colors.transparent,
@@ -71,7 +71,7 @@ class _TeamPageState extends State<TeamPage> {
                                     }).toList();
                                   },
                                 )
-                              : SizedBox()
+                              : const SizedBox()
                         ]),
                     body: SingleChildScrollView(
                       child: Padding(
@@ -80,7 +80,7 @@ class _TeamPageState extends State<TeamPage> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Row(children: [
-                                profilePicture(70, "test.jpeg"),
+                                teamPicture(70, teamData['avatar_url']),
                                 const SizedBox(width: 15),
                                 Expanded(
                                   child: Column(
@@ -100,6 +100,13 @@ class _TeamPageState extends State<TeamPage> {
                                             teamData['project_category']),
                                         boldFirstText("Commitment: ",
                                             teamData['commitment']),
+                                        boldFirstText("Interest Areas: ", ''),
+                                        for (int i = 0;
+                                            i < teamData['interest'].length;
+                                            i++) ...[
+                                          smallText(
+                                              teamData['interest'][i]['name'])
+                                        ]
                                       ]),
                                 ),
                               ]),
@@ -131,7 +138,13 @@ class _TeamPageState extends State<TeamPage> {
                                         ),
                                         GestureDetector(
                                           onTap: () {
-                                            _manageMember(memberData);
+                                            _manageMember(
+                                              isOwner,
+                                              memberData,
+                                              teamId,
+                                              teamData['current_members'],
+                                              teamCubit,
+                                            );
                                           },
                                           child: Column(
                                               crossAxisAlignment:
@@ -152,7 +165,8 @@ class _TeamPageState extends State<TeamPage> {
                                                         i < 4;
                                                     i++) ...[
                                                   memberProfile(
-                                                      "circle_profile_pic.png",
+                                                      memberData[i]['users']
+                                                          ['avatar_url'],
                                                       "${memberData[i]['users']['first_name']} ${memberData[i]['users']['last_name']}",
                                                       memberData[i]['position'])
                                                 ],
@@ -200,28 +214,38 @@ class _TeamPageState extends State<TeamPage> {
                                           teamCubit),
                                     ],
                                   ]),
-                              const SizedBox(height: 0),
                             ]),
                       ),
                     ),
                   );
                 } else {
-                  return futureBuilderFail();
+                  return futureBuilderFail(() => setState(() {}));
                 }
               });
         }));
   }
 
-  void _manageMember(memberData) {
+  void _manageMember(isOwner, memberData, teamId, currentMembers, cubit) {
     showDialog(
-      context: context,
-      builder: (context) {
-        return ManageMemberBox(
-          memberData: memberData,
-          onClose: () => Navigator.pop(context),
-        );
-      },
-    );
+        context: context,
+        builder: (context) {
+          return ManageMemberBox(
+            isOwner: isOwner,
+            memberData: memberData,
+            onClose: () => Navigator.pop(context),
+          );
+        }).then((value) {
+      if (value != null && value[0] == 'Delete') {
+        cubit
+            .deleteMember(
+                memberId: value[1],
+                teamId: teamId,
+                newCurrentMember: currentMembers - 1)
+            .then((_) {
+          setState(() {});
+        });
+      }
+    });
   } //manageMember
 
   void _addTask(teamData, teamCubit) {
@@ -246,17 +270,16 @@ class _TeamPageState extends State<TeamPage> {
 
   void _teamConfirmationBox({title, message, purpose}) {
     showDialog(
-      context: context,
-      builder: (context) {
-        return TeamConfirmationBox(
-          teamId: widget.teamIdIsOwner[0].toString(),
-          title: title,
-          message: message,
-          purpose: purpose,
-          onClose: () => Navigator.pop(context),
-        );
-      },
-    ).then((value) {
+        context: context,
+        builder: (context) {
+          return TeamConfirmationBox(
+            teamId: widget.teamIdIsOwner[0].toString(),
+            title: title,
+            message: message,
+            purpose: purpose,
+            onClose: () => Navigator.of(context, rootNavigator: false).pop(),
+          );
+        }).then((_) {
       setState(() {});
     });
   }
@@ -268,20 +291,16 @@ class _TeamPageState extends State<TeamPage> {
             title: 'Are you sure?',
             message: 'Do you really want to list this team?',
             purpose: 'List');
-        debugPrint("List");
         break;
       case 'Unlist':
         _teamConfirmationBox(
             title: 'Are you sure?',
             message: 'Do you really want to unlist this team?',
             purpose: 'Unlist');
-        debugPrint("Unlist");
         break;
       case 'Manage':
         navigatePushWithData(
             context, "/manage_teams", widget.teamIdIsOwner[0].toString());
-        //Send in teamID, check for roles open
-        //To the manage page
         break;
       case 'Edit':
         navigatePushWithData(

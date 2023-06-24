@@ -29,7 +29,7 @@ class TeamHomeCubit extends Cubit<TeamHomeState> {
 
     var userData = await supabase
         .from('users')
-        .select('id, first_name')
+        .select('id, first_name, avatar')
         .eq('id', user!.id);
     var memberTeamData = await supabase
         .from('teams')
@@ -45,7 +45,31 @@ class TeamHomeCubit extends Cubit<TeamHomeState> {
         .eq('team_users.user_id', user.id)
         .eq('is_current', true);
 
-    return [memberTeamData, ownerTeamData, userData];
+    var userAvatarURL = userData[0]['avatar'] == null
+        ? ''
+        : await supabase.storage
+            .from('user_avatar_bucket')
+            .createSignedUrl('${userData[0]['avatar']}', 30);
+
+    for (int i = 0; i < memberTeamData.length; i++) {
+      var avatarURL = memberTeamData[i]['avatar'] == null
+          ? ''
+          : await supabase.storage
+              .from('team_avatar_bucket')
+              .createSignedUrl('${memberTeamData[i]['avatar']}', 30);
+      memberTeamData[i]['avatar_url'] = avatarURL;
+    }
+
+    for (int i = 0; i < ownerTeamData.length; i++) {
+      var avatarURL = ownerTeamData[i]['avatar'] == null
+          ? ''
+          : await supabase.storage
+              .from('team_avatar_bucket')
+              .createSignedUrl('${ownerTeamData[i]['avatar']}', 30);
+      ownerTeamData[i]['avatar_url'] = avatarURL;
+    }
+
+    return [memberTeamData, ownerTeamData, userData, userAvatarURL];
   }
 
   void setIsLeadingState(bool value) {
