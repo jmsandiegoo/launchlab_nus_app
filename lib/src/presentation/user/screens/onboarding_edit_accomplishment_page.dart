@@ -20,36 +20,48 @@ class OnboardingEditAccomplishmentPage extends StatelessWidget {
     return BlocProvider(
       create: (_) => AccomplishmentFormCubit.withDefaultValue(
           accomplishment: accomplishment),
-      child: Scaffold(
-        appBar: AppBar(
-          backgroundColor: lightGreyColor,
-          leading: GestureDetector(
-            onTap: () => navigatePop(context),
-            child: const Icon(Icons.keyboard_backspace_outlined),
+      child: BlocListener<AccomplishmentFormCubit, AccomplishmentFormState>(
+        listener: (context, state) {
+          if (state.accomplishmentFormStatus ==
+              AccomplishmentFormStatus.updateSuccess) {
+            navigatePopWithData<AccomplishmentEntity>(
+                context, state.accomplishment, ActionTypes.update);
+          }
+
+          if (state.accomplishmentFormStatus ==
+              AccomplishmentFormStatus.deleteSuccess) {
+            navigatePopWithData<AccomplishmentEntity>(
+                context, null, ActionTypes.delete);
+          }
+        },
+        listenWhen: (previous, current) {
+          return previous.accomplishmentFormStatus !=
+              current.accomplishmentFormStatus;
+        },
+        child: Scaffold(
+          appBar: AppBar(
+            backgroundColor: lightGreyColor,
+            leading: GestureDetector(
+              onTap: () => navigatePop(context),
+              child: const Icon(Icons.keyboard_backspace_outlined),
+            ),
           ),
-        ),
-        body: Container(
+          body: Container(
             padding:
                 const EdgeInsets.symmetric(horizontal: 30.0, vertical: 20.0),
             child: AccomplishmentForm(
               isEditMode: true,
               onSubmitHandler: (context, state) {
-                navigatePopWithData<AccomplishmentEntity>(
-                    context,
-                    AccomplishmentEntity(
-                        title: state.titleNameFieldInput.value,
-                        issuer: state.issuerFieldInput.value,
-                        isActive: state.isActiveFieldInput.value,
-                        startDate: state.startDateFieldInput.value!,
-                        endDate: state.endDateFieldInput.value,
-                        description: state.descriptionFieldInput.value),
-                    ActionTypes.update);
+                BlocProvider.of<AccomplishmentFormCubit>(context)
+                    .handleSubmit(isApiCalled: false, isEditMode: true);
               },
               onDeleteHandler: (context, state) {
-                navigatePopWithData<AccomplishmentEntity>(
-                    context, null, ActionTypes.delete);
+                BlocProvider.of<AccomplishmentFormCubit>(context)
+                    .handleDelete(isApiCalled: false);
               },
-            )),
+            ),
+          ),
+        ),
       ),
     );
   }

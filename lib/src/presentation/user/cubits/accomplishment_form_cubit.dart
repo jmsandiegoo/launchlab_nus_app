@@ -17,6 +17,8 @@ class AccomplishmentFormState extends Equatable {
     this.startDateFieldInput = const StartDateFieldInput.unvalidated(),
     this.endDateFieldInput = const EndDateFieldInput.unvalidated(),
     this.descriptionFieldInput = const TextFieldInput.unvalidated(),
+    required this.accomplishmentFormStatus,
+    required this.accomplishment,
   });
 
   final TextFieldInput titleNameFieldInput;
@@ -25,6 +27,9 @@ class AccomplishmentFormState extends Equatable {
   final StartDateFieldInput startDateFieldInput;
   final EndDateFieldInput endDateFieldInput;
   final TextFieldInput descriptionFieldInput;
+  final AccomplishmentFormStatus accomplishmentFormStatus;
+
+  final AccomplishmentEntity accomplishment;
 
   AccomplishmentFormState copyWith({
     TextFieldInput? titleNameFieldInput,
@@ -33,6 +38,8 @@ class AccomplishmentFormState extends Equatable {
     StartDateFieldInput? startDateFieldInput,
     EndDateFieldInput? endDateFieldInput,
     TextFieldInput? descriptionFieldInput,
+    AccomplishmentFormStatus? accomplishmentFormStatus,
+    AccomplishmentEntity? accomplishment,
   }) {
     return AccomplishmentFormState(
       titleNameFieldInput: titleNameFieldInput ?? this.titleNameFieldInput,
@@ -42,6 +49,9 @@ class AccomplishmentFormState extends Equatable {
       endDateFieldInput: endDateFieldInput ?? this.endDateFieldInput,
       descriptionFieldInput:
           descriptionFieldInput ?? this.descriptionFieldInput,
+      accomplishmentFormStatus:
+          accomplishmentFormStatus ?? this.accomplishmentFormStatus,
+      accomplishment: accomplishment ?? this.accomplishment,
     );
   }
 
@@ -53,11 +63,34 @@ class AccomplishmentFormState extends Equatable {
         startDateFieldInput,
         endDateFieldInput,
         descriptionFieldInput,
+        accomplishmentFormStatus,
+        accomplishment,
       ];
 }
 
+enum AccomplishmentFormStatus {
+  initial,
+  loading,
+  createSuccess,
+  updateSuccess,
+  deleteSuccess,
+  error,
+}
+
 class AccomplishmentFormCubit extends Cubit<AccomplishmentFormState> {
-  AccomplishmentFormCubit() : super(const AccomplishmentFormState());
+  AccomplishmentFormCubit()
+      : super(
+          AccomplishmentFormState(
+            accomplishmentFormStatus: AccomplishmentFormStatus.initial,
+            accomplishment: AccomplishmentEntity(
+              title: '',
+              issuer: '',
+              isActive: false,
+              startDate: DateTime.now(),
+              description: '',
+            ),
+          ),
+        );
   AccomplishmentFormCubit.withDefaultValue(
       {required AccomplishmentEntity accomplishment})
       : super(
@@ -74,6 +107,8 @@ class AccomplishmentFormCubit extends Cubit<AccomplishmentFormState> {
             descriptionFieldInput: accomplishment.description != null
                 ? TextFieldInput.unvalidated(accomplishment.description!)
                 : const TextFieldInput.unvalidated(),
+            accomplishmentFormStatus: AccomplishmentFormStatus.initial,
+            accomplishment: accomplishment,
           ),
         );
 
@@ -258,5 +293,89 @@ class AccomplishmentFormCubit extends Cubit<AccomplishmentFormState> {
     ));
 
     return isFormValid;
+  }
+
+  Future<void> handleSubmit(
+      {bool isApiCalled = false, bool isEditMode = false}) async {
+    final titleNameFieldInput =
+        TextFieldInput.validated(state.titleNameFieldInput.value);
+    final issuerFieldInput =
+        TextFieldInput.validated(state.issuerFieldInput.value);
+    final CheckboxFieldInput isActiveFieldInput =
+        CheckboxFieldInput.validated(state.isActiveFieldInput.value);
+    final StartDateFieldInput startDateFieldInput =
+        StartDateFieldInput.validated(state.startDateFieldInput.value);
+    final EndDateFieldInput endDateFieldInput = EndDateFieldInput.validated(
+      isPresent: state.isActiveFieldInput.value,
+      startDateFieldVal: state.startDateFieldInput.value,
+      value: state.endDateFieldInput.value,
+    );
+    final TextFieldInput descriptionFieldInput =
+        TextFieldInput.validated(state.descriptionFieldInput.value);
+
+    final isFormValid = Formz.validate([
+      titleNameFieldInput,
+      issuerFieldInput,
+      isActiveFieldInput,
+      startDateFieldInput,
+      endDateFieldInput,
+      descriptionFieldInput,
+    ]);
+
+    if (!isFormValid) {
+      emit(state.copyWith(
+        titleNameFieldInput: titleNameFieldInput,
+        issuerFieldInput: issuerFieldInput,
+        isActiveFieldInput: isActiveFieldInput,
+        startDateFieldInput: startDateFieldInput,
+        endDateFieldInput: endDateFieldInput,
+        descriptionFieldInput: descriptionFieldInput,
+      ));
+      return;
+    }
+
+    if (!isApiCalled) {
+      emit(
+        state.copyWith(
+          accomplishment: state.accomplishment.copyWith(
+            title: state.titleNameFieldInput.value,
+            issuer: state.issuerFieldInput.value,
+            isActive: state.isActiveFieldInput.value,
+            startDate: state.startDateFieldInput.value,
+            endDate: state.endDateFieldInput.value,
+            description: state.descriptionFieldInput.value,
+          ),
+          accomplishmentFormStatus: isEditMode
+              ? AccomplishmentFormStatus.updateSuccess
+              : AccomplishmentFormStatus.createSuccess,
+        ),
+      );
+      return;
+    } else {
+      try {
+        emit(state.copyWith(
+            accomplishmentFormStatus: AccomplishmentFormStatus.loading));
+
+        // call api update or esit api accordingly
+
+        emit(state.copyWith(
+          accomplishmentFormStatus: isEditMode
+              ? AccomplishmentFormStatus.updateSuccess
+              : AccomplishmentFormStatus.createSuccess,
+        ));
+      } on Exception catch (_) {
+        emit(state.copyWith(
+          accomplishmentFormStatus: AccomplishmentFormStatus.error,
+        ));
+      }
+    }
+  }
+
+  Future<void> handleDelete({bool isApiCalled = false}) async {
+    if (!isApiCalled) {
+      emit(state.copyWith(
+          accomplishmentFormStatus: AccomplishmentFormStatus.deleteSuccess));
+      return;
+    }
   }
 }

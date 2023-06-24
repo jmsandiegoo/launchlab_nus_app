@@ -17,43 +17,48 @@ class OnboardingEditExperiencePage extends StatelessWidget {
     return BlocProvider(
       create: (_) =>
           ExperienceFormCubit.withDefaultValues(experience: experience),
-      child: Scaffold(
-        appBar: AppBar(
-          backgroundColor: lightGreyColor,
-          leading: GestureDetector(
-            onTap: () => navigatePop(context),
-            child: const Icon(Icons.keyboard_backspace_outlined),
+      child: BlocListener<ExperienceFormCubit, ExperienceFormState>(
+        listener: (context, state) {
+          if (state.experienceFormStatus ==
+              ExperienceFormStatus.updateSuccess) {
+            navigatePopWithData(
+              context,
+              state.experience,
+              ActionTypes.update,
+            );
+          }
+
+          if (state.experienceFormStatus ==
+              ExperienceFormStatus.deleteSuccess) {
+            navigatePopWithData<ExperienceEntity>(
+                context, null, ActionTypes.delete);
+          }
+        },
+        listenWhen: (previous, current) {
+          return previous.experienceFormStatus != current.experienceFormStatus;
+        },
+        child: Scaffold(
+          appBar: AppBar(
+            backgroundColor: lightGreyColor,
+            leading: GestureDetector(
+              onTap: () => navigatePop(context),
+              child: const Icon(Icons.keyboard_backspace_outlined),
+            ),
           ),
-        ),
-        body: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 30.0, vertical: 20.0),
-          child: ExperienceForm(
-            isEditMode: true,
-            onSubmitHandler: (context, state) {
-              final isFormValid =
-                  BlocProvider.of<ExperienceFormCubit>(context).validateForm();
-
-              if (!isFormValid) {
-                return;
-              }
-
-              navigatePopWithData(
-                context,
-                ExperienceEntity(
-                  title: state.titleNameFieldInput.value,
-                  companyName: state.companyNameFieldInput.value,
-                  isCurrent: state.isCurrentFieldInput.value,
-                  startDate: state.startDateFieldInput.value!,
-                  endDate: state.endDateFieldInput.value,
-                  description: state.descriptionFieldInput.value,
-                ),
-                ActionTypes.update,
-              );
-            },
-            onDeleteHandler: (context, state) {
-              navigatePopWithData<ExperienceEntity>(
-                  context, null, ActionTypes.delete);
-            },
+          body: Container(
+            padding:
+                const EdgeInsets.symmetric(horizontal: 30.0, vertical: 20.0),
+            child: ExperienceForm(
+              isEditMode: true,
+              onSubmitHandler: (context, state) {
+                BlocProvider.of<ExperienceFormCubit>(context)
+                    .handleSubmit(isApiCalled: false, isEditMode: true);
+              },
+              onDeleteHandler: (context, state) {
+                BlocProvider.of<ExperienceFormCubit>(context)
+                    .handleDelete(isApiCalled: false);
+              },
+            ),
           ),
         ),
       ),

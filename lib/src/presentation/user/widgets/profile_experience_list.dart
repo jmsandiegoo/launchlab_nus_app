@@ -17,7 +17,16 @@ class ProfileExperienceList extends StatelessWidget {
     return Column(
       children: [
         Row(
-          children: [subHeaderText("Experience")],
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            subHeaderText("Experience"),
+            IconButton(
+              onPressed: () {
+                navigatePush(context, "/profile/manage-experience");
+              },
+              icon: const Icon(Icons.edit_outlined, color: blackColor),
+            ),
+          ],
         ),
         const SizedBox(height: 5),
         IntrinsicHeight(

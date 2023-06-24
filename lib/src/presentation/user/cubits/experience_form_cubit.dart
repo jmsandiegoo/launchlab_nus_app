@@ -17,6 +17,8 @@ class ExperienceFormState extends Equatable {
     this.startDateFieldInput = const StartDateFieldInput.unvalidated(),
     this.endDateFieldInput = const EndDateFieldInput.unvalidated(),
     this.descriptionFieldInput = const TextFieldInput.unvalidated(),
+    required this.experienceFormStatus,
+    required this.experience,
   });
 
   final TextFieldInput titleNameFieldInput;
@@ -25,6 +27,9 @@ class ExperienceFormState extends Equatable {
   final StartDateFieldInput startDateFieldInput;
   final EndDateFieldInput endDateFieldInput;
   final TextFieldInput descriptionFieldInput;
+  final ExperienceFormStatus experienceFormStatus;
+
+  final ExperienceEntity experience;
 
   ExperienceFormState copyWith({
     TextFieldInput? titleNameFieldInput,
@@ -33,6 +38,8 @@ class ExperienceFormState extends Equatable {
     StartDateFieldInput? startDateFieldInput,
     EndDateFieldInput? endDateFieldInput,
     TextFieldInput? descriptionFieldInput,
+    ExperienceFormStatus? experienceFormStatus,
+    ExperienceEntity? experience,
   }) {
     return ExperienceFormState(
       titleNameFieldInput: titleNameFieldInput ?? this.titleNameFieldInput,
@@ -43,6 +50,8 @@ class ExperienceFormState extends Equatable {
       endDateFieldInput: endDateFieldInput ?? this.endDateFieldInput,
       descriptionFieldInput:
           descriptionFieldInput ?? this.descriptionFieldInput,
+      experienceFormStatus: experienceFormStatus ?? this.experienceFormStatus,
+      experience: experience ?? this.experience,
     );
   }
 
@@ -54,11 +63,34 @@ class ExperienceFormState extends Equatable {
         startDateFieldInput,
         endDateFieldInput,
         descriptionFieldInput,
+        experienceFormStatus,
+        experience,
       ];
 }
 
+enum ExperienceFormStatus {
+  initial,
+  loading,
+  createSuccess,
+  updateSuccess,
+  deleteSuccess,
+  error,
+}
+
 class ExperienceFormCubit extends Cubit<ExperienceFormState> {
-  ExperienceFormCubit() : super(const ExperienceFormState());
+  ExperienceFormCubit()
+      : super(
+          ExperienceFormState(
+            experienceFormStatus: ExperienceFormStatus.initial,
+            experience: ExperienceEntity(
+              title: '',
+              companyName: '',
+              isCurrent: false,
+              startDate: DateTime.now(),
+              description: '',
+            ),
+          ),
+        );
   ExperienceFormCubit.withDefaultValues({required ExperienceEntity experience})
       : super(
           ExperienceFormState(
@@ -74,6 +106,8 @@ class ExperienceFormCubit extends Cubit<ExperienceFormState> {
             ),
             descriptionFieldInput:
                 TextFieldInput.unvalidated(experience.description),
+            experienceFormStatus: ExperienceFormStatus.initial,
+            experience: experience,
           ),
         );
 
@@ -223,7 +257,8 @@ class ExperienceFormCubit extends Cubit<ExperienceFormState> {
     emit(newState);
   }
 
-  bool validateForm() {
+  Future<void> handleSubmit(
+      {bool isApiCalled = false, bool isEditMode = false}) async {
     final titleNameFieldInput =
         TextFieldInput.validated(state.titleNameFieldInput.value);
     final companyNameFieldInput =
@@ -249,14 +284,60 @@ class ExperienceFormCubit extends Cubit<ExperienceFormState> {
       descriptionFieldInput,
     ]);
 
-    emit(state.copyWith(
-      titleNameFieldInput: titleNameFieldInput,
-      companyNameFieldInput: companyNameFieldInput,
-      isCurrentFieldInput: isCurrentFieldInput,
-      endDateFieldInput: endDateFieldInput,
-      descriptionFieldInput: descriptionFieldInput,
-    ));
+    if (!isFormValid) {
+      emit(state.copyWith(
+        titleNameFieldInput: titleNameFieldInput,
+        companyNameFieldInput: companyNameFieldInput,
+        isCurrentFieldInput: isCurrentFieldInput,
+        startDateFieldInput: startDateFieldInput,
+        endDateFieldInput: endDateFieldInput,
+        descriptionFieldInput: descriptionFieldInput,
+      ));
+      return;
+    }
 
-    return isFormValid;
+    if (!isApiCalled) {
+      emit(
+        state.copyWith(
+          experience: state.experience.copyWith(
+            title: state.titleNameFieldInput.value,
+            companyName: state.companyNameFieldInput.value,
+            isCurrent: state.isCurrentFieldInput.value,
+            startDate: state.startDateFieldInput.value,
+            endDate: state.endDateFieldInput.value,
+            description: state.descriptionFieldInput.value,
+          ),
+          experienceFormStatus: isEditMode
+              ? ExperienceFormStatus.updateSuccess
+              : ExperienceFormStatus.createSuccess,
+        ),
+      );
+      return;
+    } else {
+      try {
+        emit(
+            state.copyWith(experienceFormStatus: ExperienceFormStatus.loading));
+
+        // call api update or esit api accordingly
+
+        emit(state.copyWith(
+          experienceFormStatus: isEditMode
+              ? ExperienceFormStatus.updateSuccess
+              : ExperienceFormStatus.createSuccess,
+        ));
+      } on Exception catch (_) {
+        emit(state.copyWith(
+          experienceFormStatus: ExperienceFormStatus.error,
+        ));
+      }
+    }
+  }
+
+  Future<void> handleDelete({bool isApiCalled = false}) async {
+    if (!isApiCalled) {
+      emit(state.copyWith(
+          experienceFormStatus: ExperienceFormStatus.deleteSuccess));
+      return;
+    }
   }
 }

@@ -26,6 +26,29 @@ class AccomplishmentEntity extends Equatable {
 
   final String? userId;
 
+  AccomplishmentEntity copyWith({
+    String? id,
+    String? title,
+    String? issuer,
+    bool? isActive,
+    DateTime? startDate,
+    DateTime? endDate,
+    String? description,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) {
+    return AccomplishmentEntity(
+      title: title ?? this.title,
+      issuer: issuer ?? this.issuer,
+      isActive: isActive ?? this.isActive,
+      startDate: startDate ?? this.startDate,
+      endDate: endDate ?? this.endDate,
+      description: description ?? this.description,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+    );
+  }
+
   AccomplishmentEntity.fromJson(Map<String, dynamic> json)
       : id = json['id'],
         title = json['title'],

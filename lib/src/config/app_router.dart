@@ -24,6 +24,7 @@ import 'package:launchlab/src/presentation/user/screens/onboarding_welcome_page.
 import 'package:launchlab/src/presentation/user/screens/profile_edit_about_page.dart';
 import 'package:launchlab/src/presentation/user/screens/profile_edit_intro_page.dart';
 import 'package:launchlab/src/presentation/user/screens/profile_edit_skills_page.dart';
+import 'package:launchlab/src/presentation/user/screens/profile_experience_list_page.dart';
 import 'package:launchlab/src/presentation/user/screens/profile_page.dart';
 import 'package:launchlab/src/presentation/user/widgets/intro_form.dart';
 import 'package:launchlab/src/presentation/user/widgets/onboarding_container.dart';
@@ -32,6 +33,7 @@ import 'package:launchlab/src/presentation/team/screens/create_team_page.dart';
 import 'package:launchlab/src/presentation/team/screens/edit_team_page.dart';
 import 'package:launchlab/src/presentation/search/screens/external_team_page.dart';
 import 'package:launchlab/src/presentation/team/screens/team_page.dart';
+import 'package:launchlab/src/presentation/user/widgets/profile_experience_list.dart';
 
 /// A file to configure the routing of the application
 
@@ -190,6 +192,27 @@ final GoRouter appRouter = GoRouter(
                     props: state.extra as ProfileEditAboutPageProps,
                   ),
                 ),
+                GoRoute(
+                    path: "manage-experience",
+                    builder: (context, state) => ProfileExperienceListPage(
+                          props: state.extra as ProfileExperienceListPageProps,
+                        ),
+                    routes: [
+                      GoRoute(
+                        parentNavigatorKey: _onboardingShellKey,
+                        path: "add-experience",
+                        builder: (context, state) =>
+                            const OnboardingAddExperiencePage(),
+                      ),
+                      GoRoute(
+                        parentNavigatorKey: _onboardingShellKey,
+                        path: "edit-experience",
+                        builder: (context, state) =>
+                            OnboardingEditExperiencePage(
+                          experience: state.extra as ExperienceEntity,
+                        ),
+                      ),
+                    ]),
                 GoRoute(
                   path: "edit-skills",
                   builder: (context, state) => ProfileEditSkillsPage(

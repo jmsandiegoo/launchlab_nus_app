@@ -10,13 +10,19 @@ class ExperienceList extends StatelessWidget {
     super.key,
     required this.experiences,
     required this.onChangedHandler,
+    this.isOnboardMode = true,
   });
 
   final List<ExperienceEntity> experiences;
   final void Function(List<ExperienceEntity>) onChangedHandler;
+  final bool isOnboardMode;
 
   Future<void> addExperience(BuildContext context) async {
-    final returnData = await navigatePush(context, "/onboard-add-experience");
+    final returnData = await navigatePush(
+        context,
+        isOnboardMode
+            ? "/onboard-add-experience"
+            : "/profile/manage-experience/add-experience");
 
     if (returnData == null) {
       return;
@@ -33,7 +39,11 @@ class ExperienceList extends StatelessWidget {
       BuildContext context, ExperienceEntity exp) async {
     final NavigationData<ExperienceEntity>? returnData =
         await navigatePushWithData<ExperienceEntity>(
-            context, "/onboard-edit-experience", exp);
+            context,
+            isOnboardMode
+                ? "/onboard-edit-experience"
+                : "/profile/manage-experience/edit-experience",
+            exp);
 
     List<ExperienceEntity> newExperiences = [...experiences];
     final index = newExperiences.indexOf(exp);

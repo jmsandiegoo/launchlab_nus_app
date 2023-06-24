@@ -27,6 +27,31 @@ class ExperienceEntity extends Equatable {
 
   final String? userId;
 
+  ExperienceEntity copyWith({
+    String? id,
+    String? title,
+    String? companyName,
+    bool? isCurrent,
+    DateTime? startDate,
+    DateTime? endDate,
+    String? description,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    final String? userId,
+  }) {
+    return ExperienceEntity(
+      title: title ?? this.title,
+      companyName: companyName ?? this.companyName,
+      isCurrent: isCurrent ?? this.isCurrent,
+      startDate: startDate ?? this.startDate,
+      endDate: endDate ?? this.endDate,
+      description: description ?? this.description,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      userId: userId ?? this.userId,
+    );
+  }
+
   ExperienceEntity.fromJson(Map<String, dynamic> json)
       : id = json['id'],
         title = json['title'],
