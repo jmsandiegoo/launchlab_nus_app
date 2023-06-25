@@ -19,7 +19,7 @@ class _AddTaskBoxState extends State<AddTaskBox> {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      // height: 450,
+
       child: Padding(
         padding: const EdgeInsets.all(20.0),
         child: ListView(children: [
@@ -39,21 +39,13 @@ class _AddTaskBoxState extends State<AddTaskBox> {
             ElevatedButton(
                 child: bodyText("  Add  ", weight: FontWeight.w500),
                 onPressed: () {
-                  context.pop([
-                    _taskTitle.text,
-                    _startDateController.text,
-                    _endDateController.text
-                  ]);
-                }),
-            OutlinedButton(
-              child: bodyText("  Close  ", weight: FontWeight.w500),
-              onPressed: () {
-                navigatePop(context);
-              },
-            ),
+                  navigatePop(context);
+                },
+              ),
+            ]),
           ]),
-        ]),
-      ),
+        ),
+      ]),
     );
   }
 

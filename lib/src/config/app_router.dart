@@ -9,6 +9,7 @@ import 'package:launchlab/src/presentation/common/screens/splash_screen_page.dar
 import 'package:launchlab/src/presentation/common/screens/unprotected_screen_page.dart';
 import 'package:launchlab/src/presentation/common/widgets/scaffold_with_bottom_nav.dart';
 import 'package:launchlab/src/presentation/search/screens/discover_page.dart';
+import 'package:launchlab/src/presentation/team/screens/applicant_page.dart';
 import 'package:launchlab/src/presentation/team/screens/manage_team_page.dart';
 import 'package:launchlab/src/presentation/team/screens/team_home_page.dart';
 import 'package:launchlab/src/presentation/user/screens/onboarding_add_accomplishment_page.dart';
@@ -280,6 +281,11 @@ final GoRouter appRouter = GoRouter(
               path: "/manage_teams",
               pageBuilder: (context, state) => NoTransitionPage(
                   child: ManageTeamPage(teamId: state.extra as String)),
+            ),
+            GoRoute(
+              path: "/applicants",
+              pageBuilder: (context, state) => NoTransitionPage(
+                  child: ApplicantPage(applicationID: state.extra as String)),
             ),
           ],
         ),
