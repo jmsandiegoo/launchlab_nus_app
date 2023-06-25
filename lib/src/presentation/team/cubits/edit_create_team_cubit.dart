@@ -384,12 +384,12 @@ class EditCreateTeamCubit extends Cubit<EditCreateTeamState> {
       'current_members': 1,
       'max_members': maxMember,
       'interest': interest,
-      'avatar': avatar == 'null'
+      'avatar': avatar.toString() == 'null'
           ? null
           : '${teamId}_avatar${avatar.toString().substring(avatar.toString().indexOf('.'))}',
     });
 
-    avatar == 'null'
+    avatar.toString() == 'null'
         ? debugPrint('No Picture Uploaded')
         : await supabase.storage.from('team_avatar_bucket').upload(
             '${teamId}_avatar${avatar.toString().substring(avatar.toString().indexOf('.'))}',
