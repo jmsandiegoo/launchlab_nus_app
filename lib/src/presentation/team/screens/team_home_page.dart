@@ -42,6 +42,7 @@ class _TeamHomePageState extends State<TeamHomePage> {
                       List memberTeamData = snapshot.data[0];
                       List ownerTeamData = snapshot.data[1];
                       List userData = snapshot.data[2];
+                      String userAvatarURL = snapshot.data[3];
                       return Scaffold(
                         backgroundColor: lightGreyColor,
                         body: SingleChildScrollView(
@@ -49,9 +50,9 @@ class _TeamHomePageState extends State<TeamHomePage> {
                             Stack(
                               children: <Widget>[
                                 Image.asset(
-                                    "assets/images/yellow_curve_shape.png"),
+                                    "assets/images/yellow_curve_shape_3.png"),
                                 Positioned(
-                                  top: 150,
+                                  top: 100,
                                   left: 20,
                                   child: Column(
                                     crossAxisAlignment:
@@ -85,9 +86,15 @@ class _TeamHomePageState extends State<TeamHomePage> {
                                       horizontal: 20.0),
                                   child: AppBar(
                                     backgroundColor: yellowColor,
-                                    leading: profilePicture(
-                                        50, "circle_profile_pic.png"),
+                                    leading: profilePicture(50, userAvatarURL,
+                                        isUrl: true),
                                     actions: [
+                                      IconButton(
+                                          onPressed: () => setState(() {}),
+                                          icon: const Icon(
+                                            Icons.refresh,
+                                            color: blackColor,
+                                          )),
                                       IconButton(
                                           onPressed: () =>
                                               teamHomeCubit.handleSignOut(),
@@ -239,7 +246,7 @@ class _TeamHomePageState extends State<TeamHomePage> {
                         ),
                       );
                     } else {
-                      return futureBuilderFail();
+                      return futureBuilderFail(() => setState(() {}));
                     }
                   },
                 );
@@ -255,6 +262,7 @@ class _TeamHomePageState extends State<TeamHomePage> {
     String commitment = data['commitment'];
     String category = data['project_category'];
     String? endDate = data['end_date'];
+    String avatarURL = data['avatar_url'];
     int incompleteTask =
         data['milestones'].where((map) => map['is_completed'] == false).length;
     int completedTask =
@@ -271,7 +279,7 @@ class _TeamHomePageState extends State<TeamHomePage> {
             child:
                 Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Row(children: [
-                profilePicture(40, "test.jpeg"),
+                teamPicture(40, avatarURL),
                 const SizedBox(width: 10),
                 Expanded(
                   child: Column(

@@ -68,7 +68,8 @@ class _DiscoverPageState extends State<DiscoverPage> {
                                             borderRadius:
                                                 BorderRadius.circular(10),
                                             borderSide: BorderSide.none),
-                                        hintText: 'Search',
+                                        hintText:
+                                            'Search (Eg: Project / Orbital / Interest)',
                                         hintStyle: const TextStyle(
                                             color: greyColor, fontSize: 13),
                                       ),
@@ -77,7 +78,7 @@ class _DiscoverPageState extends State<DiscoverPage> {
                                   //
                                   InkWell(
                                     onTap: () {
-                                      searchFilter();
+                                      //searchFilter();
                                       debugPrint("Filter");
                                     },
                                     child: Container(
@@ -156,17 +157,30 @@ class _DiscoverPageState extends State<DiscoverPage> {
   }
 
   Widget searchTeamCard(data, shownTeams) {
-    String teamName = data['team_name'];
-    int currentMember = data['current_members'];
-    int maxMember = data['max_members'];
-    String commitment = data['commitment'];
-    String category = data['project_category'];
-
     if (shownTeams.contains(data['id'])) {
       debugPrint("Duplicates");
       return const SizedBox(height: 0);
     } else {
       shownTeams.add(data['id']);
+    }
+
+    String teamName = data['team_name'];
+    int currentMember = data['current_members'];
+    int maxMember = data['max_members'];
+    String commitment = data['commitment'];
+    String category = data['project_category'];
+    String allInterest = '';
+    String allRoles = '';
+    String avatarURL = data['avatar_url'];
+
+    for (var element in data['interest']) {
+      allInterest += '${element['name']}, ';
+    }
+
+    if (data['roles_open'] != null) {
+      for (var element in data['roles_open']) {
+        allRoles += '${element['title']}, ';
+      }
     }
 
     return Container(
@@ -176,7 +190,7 @@ class _DiscoverPageState extends State<DiscoverPage> {
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
-            profilePicture(40, "test.jpeg"),
+            teamPicture(40, avatarURL),
             const SizedBox(width: 10),
             Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               subHeaderText(teamName),
@@ -196,11 +210,12 @@ class _DiscoverPageState extends State<DiscoverPage> {
           ]),
           const SizedBox(height: 10),
           subHeaderText("Roles Needed: ", size: 12.0),
-          bodyText("Frontend Developer, Mobile Developer, and more",
-              size: 12.0),
+          allRoles == ' '
+              ? overflowText(allRoles, size: 12.0, maxLines: 1)
+              : overflowText('Any', size: 12.0, maxLines: 1),
           const SizedBox(height: 5),
           subHeaderText("Interest: ", size: 12.0),
-          bodyText("blah blah waiting for format", size: 12.0),
+          overflowText(allInterest, size: 12.0, maxLines: 2),
         ]),
       ),
     );

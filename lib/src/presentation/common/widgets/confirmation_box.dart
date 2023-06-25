@@ -17,9 +17,11 @@ class ConfirmationBox extends StatelessWidget {
   Widget build(BuildContext context) {
     return AlertDialog(
       title: Text(title),
-      content: bodyText(message),
+      content: bodyText(message, weight: FontWeight.normal),
       actions: [
-        ElevatedButton(onPressed: onClose, child: bodyText("  Ok  ")),
+        ElevatedButton(
+            onPressed: onClose,
+            child: bodyText("  Ok  ", weight: FontWeight.normal)),
       ],
     );
   }

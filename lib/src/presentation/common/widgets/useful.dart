@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:launchlab/src/config/app_theme.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -19,6 +20,7 @@ Widget userInput({
   String? errorText,
   TextInputType keyboard = TextInputType.multiline,
   bool endSpacing = true,
+  List<TextInputFormatter>? inputFormatter,
 }) {
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
@@ -50,6 +52,7 @@ Widget userInput({
         keyboardType: size > 1 ? keyboard : null,
         minLines: size,
         maxLines: size,
+        inputFormatters: inputFormatter,
         obscureText: obscureText,
         decoration: InputDecoration(
           errorText: errorText,
@@ -139,10 +142,45 @@ Widget profilePicture(double diameter, String address, {bool isUrl = false}) {
           shape: BoxShape.circle,
           image: DecorationImage(
             image: isUrl
-                ? Image.network(address).image
+                ? address == ''
+                    ? const ExactAssetImage("assets/images/avatar_temp.png")
+                    : Image.network(address).image
                 : ExactAssetImage("assets/images/$address"),
             fit: BoxFit.cover,
           )));
+}
+
+Widget teamPicture(double diameter, String address) {
+  return Container(
+      width: diameter,
+      height: diameter,
+      decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          image: DecorationImage(
+            image: address == ''
+                ? const ExactAssetImage("assets/images/test.jpeg")
+                : Image.network(address).image,
+            fit: BoxFit.cover,
+          )));
+}
+
+Widget circleIcon({color, icon}) {
+  return Container(
+    decoration: BoxDecoration(color: color, shape: BoxShape.circle, boxShadow: [
+      BoxShadow(
+        color: Colors.grey.withOpacity(0.3),
+        spreadRadius: 3,
+        blurRadius: 3,
+        offset: const Offset(0, 3),
+      )
+    ]),
+    child: Padding(
+        padding: const EdgeInsets.all(15),
+        child: Icon(
+          icon,
+          size: 30,
+        )),
+  );
 }
 
 Widget searchBar() {
@@ -421,7 +459,7 @@ Widget memberProfile(imgDir, name, position,
   return Column(children: [
     const SizedBox(height: 7),
     Row(children: [
-      profilePicture(imgSize, imgDir),
+      profilePicture(imgSize, imgDir, isUrl: true),
       const SizedBox(width: 10),
       Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         isBold
@@ -430,33 +468,6 @@ Widget memberProfile(imgDir, name, position,
         bodyText(position, color: darkGreyColor, size: textSize)
       ])
     ])
-  ]);
-}
-
-Widget manageMemberBar(imgDir, name, position) {
-  return Column(children: [
-    const SizedBox(height: 20),
-    Container(
-      width: double.infinity,
-      decoration: BoxDecoration(
-          color: whiteColor,
-          borderRadius: BorderRadius.circular(12),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withOpacity(0.3),
-              spreadRadius: 3,
-              blurRadius: 3,
-              offset: const Offset(0, 3),
-            )
-          ]),
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Column(children: [
-          memberProfile(imgDir, name, position, imgSize: 35.0, isBold: true),
-          const SizedBox(height: 7),
-        ]),
-      ),
-    ),
   ]);
 }
 
@@ -489,7 +500,7 @@ Widget taskBar(taskName, isChecked, checkBox) {
   );
 }
 
-void applicationConfirmationBox(context, title, message) {
+void confirmationBox(context, title, message, {onAccept}) {
   showDialog(
     context: context,
     builder: (context) {
@@ -502,8 +513,8 @@ void applicationConfirmationBox(context, title, message) {
   );
 }
 
-String stringToDateFormatter(date) {
-  final formatter = DateFormat('dd MMM yyyy');
+String stringToDateFormatter(date, {noDate = false}) {
+  final formatter = noDate ? DateFormat('MMM yyyy') : DateFormat('dd MMM yyyy');
   return formatter.format(DateTime.parse(date));
 }
 
@@ -512,9 +523,15 @@ String dateToDateFormatter(date) {
   return formattedDate;
 }
 
-Widget futureBuilderFail() {
-  return Center(
-      child: bodyText('Please ensure that you have internet connection'));
+Widget futureBuilderFail(onReload) {
+  return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Center(
+            child: bodyText('Please ensure that you have internet connection')),
+        ElevatedButton(onPressed: onReload, child: bodyText("Reload"))
+      ]);
 }
 
 Widget chip<T>(label, T value, {void Function(T value)? onDeleteHandler}) {

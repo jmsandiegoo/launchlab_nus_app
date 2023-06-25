@@ -32,8 +32,8 @@ class TeamConfirmationBox extends StatelessWidget {
             title: Text(title),
             content: bodyText(message),
             actions: [
-              ElevatedButton(
-                  onPressed: () {
+              TextButton(
+                  onPressed: () async {
                     if (purpose == 'List') {
                       teamCubit.listTeam(teamId: teamId);
                     } else if (purpose == 'Unlist') {
@@ -42,10 +42,16 @@ class TeamConfirmationBox extends StatelessWidget {
                       teamCubit.disbandTeam(teamId: teamId);
                       navigateGo(context, '/team-home');
                     }
-                    onClose;
+                    Navigator.pop(context);
                   },
-                  child: bodyText("  Yes  ")),
-              OutlinedButton(onPressed: onClose, child: bodyText("  Cancel  ")),
+                  style: TextButton.styleFrom(textStyle: const TextStyle()),
+                  child: bodyText('Yes',
+                      weight: FontWeight.bold, color: Colors.blue)),
+              TextButton(
+                  onPressed: onClose,
+                  style: TextButton.styleFrom(textStyle: const TextStyle()),
+                  child: bodyText('No',
+                      weight: FontWeight.bold, color: Colors.blue)),
             ],
           );
         }));

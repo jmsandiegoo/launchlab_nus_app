@@ -39,7 +39,7 @@ class ManageRolesBox extends StatelessWidget {
                     : bodyText("  Update  ", weight: FontWeight.w500),
                 onPressed: () {
                   if (_taskTitle.text == '') {
-                    applicationConfirmationBox(context, "Try again",
+                    confirmationBox(context, "Try again",
                         "The Role Title field cannot be blank!");
                   } else {
                     context.pop([

@@ -17,13 +17,15 @@ class ExternalTeamCubit extends Cubit<ExternalTeamState> {
   final supabase = Supabase.instance.client;
 
   getData(teamId) async {
-    var teamNameData = await supabase
+    var teamData = await supabase
         .from('teams')
-        .select('*, team_users(user_id)')
+        .select('*, team_users(user_id), roles_open(title, description)')
         .eq('id', teamId);
-    var ownerName = await supabase
+
+    var ownerDetails = await supabase
         .from('users')
-        .select('first_name, last_name, team_users!inner(team_id ,is_owner)')
+        .select(
+            'first_name, last_name, avatar, team_users!inner(team_id ,is_owner)')
         .eq('team_users.is_owner', true)
         .eq('team_users.team_id', teamId);
 
@@ -32,7 +34,24 @@ class ExternalTeamCubit extends Cubit<ExternalTeamState> {
         .select('user_id')
         .eq('team_id', teamId);
 
-    return [teamNameData, ownerName, applicants];
+    var teamAvatarURL = teamData[0]['avatar'] == null
+        ? ''
+        : await supabase.storage
+            .from('team_avatar_bucket')
+            .createSignedUrl('${teamData[0]['avatar']}', 30);
+    teamData[0]['avatar_url'] = teamAvatarURL;
+
+    var teamOwnerURL = ownerDetails[0]['avatar'] == null
+        ? ''
+        : await supabase.storage
+            .from('user_avatar_bucket')
+            .createSignedUrl('${ownerDetails[0]['avatar']}', 30);
+    ownerDetails[0]['avatar_url'] = teamOwnerURL;
+    return [
+      teamData,
+      ownerDetails,
+      applicants,
+    ];
   }
 
   applyToTeam({teamId, userId}) async {

@@ -7,6 +7,7 @@ import 'package:launchlab/src/config/app_theme.dart';
 import 'package:launchlab/src/presentation/common/widgets/useful.dart';
 import 'package:launchlab/src/presentation/team/cubits/manage_team_cubit.dart';
 import 'package:launchlab/src/presentation/team/widgets/manage_roles_form.dart';
+import 'package:launchlab/src/utils/helper.dart';
 
 class ManageTeamPage extends StatefulWidget {
   final String teamId;
@@ -35,8 +36,9 @@ class _ManageTeamPageState extends State<ManageTeamPage> {
                   return const Center(child: CircularProgressIndicator());
                 }
                 if (snapshot.hasData) {
-                  final List applicantsData = snapshot.data[0];
+                  final List applicantUserData = snapshot.data[0];
                   final List rolesData = snapshot.data[1];
+
                   return Scaffold(
                     appBar: AppBar(
                       backgroundColor: Colors.transparent,
@@ -72,16 +74,18 @@ class _ManageTeamPageState extends State<ManageTeamPage> {
                               //Add the remaining details here.
                               const SizedBox(height: 20),
 
-                              GestureDetector(
-                                onTap: () {
-                                  _manageRoles("", "", manageTeamCubit);
-                                },
-                                child: Row(children: [
-                                  subHeaderText("Roles"),
-                                  const SizedBox(width: 20),
-                                  const Icon(Icons.add)
-                                ]),
-                              ),
+                              Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    subHeaderText("Roles"),
+                                    GestureDetector(
+                                        onTap: () {
+                                          _manageRoles("", "", manageTeamCubit);
+                                        },
+                                        child: subHeaderText("Add Role +",
+                                            size: 13.0))
+                                  ]),
                               for (int i = 0; i < rolesData.length; i++) ...[
                                 const SizedBox(height: 10),
                                 Row(
@@ -110,7 +114,9 @@ class _ManageTeamPageState extends State<ManageTeamPage> {
                                       ),
                                       IconButton(
                                         onPressed: () {
-                                          //Send to confirmation. Let them know what to do on accept.
+                                          manageTeamCubit.deleteRoles(
+                                              roleId: rolesData[i]['id']);
+                                          setState(() {});
                                         },
                                         icon: const Icon(Icons.delete_outline),
                                       ),
@@ -122,45 +128,20 @@ class _ManageTeamPageState extends State<ManageTeamPage> {
                               subHeaderText('Applicants'),
                               Column(children: [
                                 for (int i = 0;
-                                    i < applicantsData.length;
+                                    i < applicantUserData.length;
                                     i++) ...[
                                   const SizedBox(height: 20),
-                                  Container(
-                                    width: double.infinity,
-                                    decoration: BoxDecoration(
-                                        color: whiteColor,
-                                        borderRadius: BorderRadius.circular(12),
-                                        boxShadow: [
-                                          BoxShadow(
-                                            color: Colors.grey.withOpacity(0.3),
-                                            spreadRadius: 3,
-                                            blurRadius: 3,
-                                            offset: const Offset(0, 3),
-                                          )
-                                        ]),
-                                    child: Padding(
-                                      padding: EdgeInsets.all(10),
-                                      child: Column(children: [
-                                        Row(children: [
-                                          profilePicture(
-                                              40.0, 'circle_profile_pic.png'),
-                                          const SizedBox(width: 10),
-                                          Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              subHeaderText(
-                                                  "${applicantsData[i]['first_name']} ${applicantsData[i]['last_name']}",
-                                                  size: 16.0),
-                                              bodyText(
-                                                  applicantsData[i]['title'],
-                                                  size: 13.0)
-                                            ],
-                                          )
-                                        ]),
-                                      ]),
-                                    ),
-                                  ),
+                                  GestureDetector(
+                                      onTap: () {
+                                        navigatePushWithData(
+                                            context,
+                                            "/applicants",
+                                            applicantUserData[i]
+                                                    ['team_applicants'][0]['id']
+                                                .toString());
+                                      },
+                                      child:
+                                          _applicantCard(applicantUserData[i])),
                                 ]
                               ])
                             ]),
@@ -168,10 +149,45 @@ class _ManageTeamPageState extends State<ManageTeamPage> {
                     ),
                   );
                 } else {
-                  return futureBuilderFail();
+                  return futureBuilderFail(() => setState(() {}));
                 }
               });
         }));
+  }
+
+  Widget _applicantCard(applicantData) {
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+          color: whiteColor,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.3),
+              spreadRadius: 3,
+              blurRadius: 3,
+              offset: const Offset(0, 3),
+            )
+          ]),
+      child: Padding(
+        padding: const EdgeInsets.all(10),
+        child: Column(children: [
+          Row(children: [
+            profilePicture(40.0, applicantData['avatar_url'], isUrl: true),
+            const SizedBox(width: 10),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                subHeaderText(
+                    "${applicantData['first_name']} ${applicantData['last_name']}",
+                    size: 16.0),
+                bodyText(applicantData['title'], size: 13.0)
+              ],
+            )
+          ]),
+        ]),
+      ),
+    );
   }
 
   void _manageRoles(title, description, cubit, {roleId = ''}) {

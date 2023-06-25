@@ -21,10 +21,16 @@ enum PictureUploadPickerError { invalid }
 
 class PictureUploadPickerWidget extends StatelessWidget {
   const PictureUploadPickerWidget(
-      {super.key, required this.onPictureUploadChangedHandler, this.image});
+      {super.key,
+      required this.onPictureUploadChangedHandler,
+      this.image,
+      this.imageURL = '',
+      this.isTeam = false});
 
   final void Function(File?) onPictureUploadChangedHandler;
   final File? image;
+  final String? imageURL;
+  final bool isTeam;
 
   Future pickImage(ImagePicker picker, ImageSource source) async {
     XFile? pickedImageXFile = await picker.pickImage(source: source);
@@ -62,11 +68,15 @@ class PictureUploadPickerWidget extends StatelessWidget {
         );
       },
       child: CircleAvatar(
-        radius: 50.0,
-        backgroundImage: image != null ? FileImage(image!) : null,
-        child:
-            image == null ? Image.asset("assets/images/avatar_temp.png") : null,
-      ),
+          radius: 50.0,
+          backgroundImage: image != null ? FileImage(image!) : null,
+          child: image == null
+              ? imageURL == ''
+                  ? isTeam
+                      ? Image.asset("assets/images/team_avatar_temp.jpeg")
+                      : Image.asset("assets/images/avatar_temp.png")
+                  : Image.network(imageURL!)
+              : null),
     );
   }
 }
