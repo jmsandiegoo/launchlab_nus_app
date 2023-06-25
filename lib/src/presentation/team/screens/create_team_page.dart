@@ -219,7 +219,10 @@ class _CreateTeamPageState extends State<CreateTeamPage> {
                                     child: Text(items),
                                   );
                                 }).toList(),
-                                onChanged: (String? newValue) {},
+                                onChanged: (String? newValue) {
+                                  editCreateTeamCubit
+                                      .onCategoryChanged(newValue!);
+                                },
                               ),
                             ),
                           ]),
