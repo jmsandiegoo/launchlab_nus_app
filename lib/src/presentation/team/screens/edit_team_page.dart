@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:launchlab/src/data/common/common_repository.dart';
 import 'package:launchlab/src/domain/common/models/skill_entity.dart';
 import 'package:launchlab/src/presentation/common/widgets/form_fields/date_picker.dart';
 import 'package:launchlab/src/presentation/common/widgets/form_fields/dropwdown_search_field.dart';
+import 'package:launchlab/src/presentation/common/widgets/form_fields/picture_upload_picker.dart';
 import 'package:launchlab/src/presentation/common/widgets/form_fields/text_field.dart';
 import 'package:launchlab/src/presentation/common/widgets/useful.dart';
 import 'package:launchlab/src/presentation/team/cubits/edit_create_team_cubit.dart';
 import 'package:launchlab/src/utils/helper.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../config/app_theme.dart';
 
 class EditTeamPage extends StatefulWidget {
@@ -16,12 +20,11 @@ class EditTeamPage extends StatefulWidget {
   const EditTeamPage({super.key, required this.teamId});
 
   @override
-  State<EditTeamPage> createState() => _EditTeamPageState(teamId);
+  State<EditTeamPage> createState() => _EditTeamPageState();
 }
 
 class _EditTeamPageState extends State<EditTeamPage> {
-  _EditTeamPageState(this.teamId);
-  String teamId;
+  _EditTeamPageState();
   final _teamNameFocusNode = FocusNode();
   final _descriptionFocusNode = FocusNode();
   final _startDateFocusNode = FocusNode();
@@ -45,7 +48,7 @@ class _EditTeamPageState extends State<EditTeamPage> {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-        create: (_) => EditCreateTeamCubit(),
+        create: (_) => EditCreateTeamCubit(CommonRepository(Supabase.instance)),
         child: BlocBuilder<EditCreateTeamCubit, EditCreateTeamState>(
             builder: (context, state) {
           final editCreateTeamCubit =
@@ -55,24 +58,24 @@ class _EditTeamPageState extends State<EditTeamPage> {
               _startDateController.text == '' &&
               _endDateController.text == '' &&
               _maxMemberController.text == '') {
-            editCreateTeamCubit.getData(teamId).then((data) {
+            editCreateTeamCubit.getData(widget.teamId).then((data) {
               editCreateTeamCubit.initState(
-                teamName: data[0]['team_name'],
-                description: data[0]['description'],
-                startDate: data[0]['start_date'],
-                commitment: data[0]['commitment'],
-                category: data[0]['project_category'],
-                maxMember: data[0]['max_members'],
-              );
+                  teamName: data['team_name'],
+                  description: data['description'],
+                  startDate: data['start_date'],
+                  commitment: data['commitment'],
+                  category: data['project_category'],
+                  maxMember: data['max_members'],
+                  interest: data['interest'],
+                  avatarURL: data['avatar_url']);
 
-              data[0]['end_date'] == null
+              data['end_date'] == null
                   ? editCreateTeamCubit.onIsCheckedChanged(true)
                   : editCreateTeamCubit
                       .onEndDateChanged(DateTime.parse(data[0]['end_date']));
-              _teamNameController.text = data[0]['team_name'];
-              _descriptionController.text = data[0]['description'];
-              _maxMemberController.text = data[0]['max_members'].toString();
-
+              _teamNameController.text = data['team_name'];
+              _descriptionController.text = data['description'];
+              _maxMemberController.text = data['max_members'].toString();
               debugPrint("Data Loaded");
             });
           }
@@ -97,11 +100,26 @@ class _EditTeamPageState extends State<EditTeamPage> {
                               children: [
                                 const SizedBox(height: 20),
                                 headerText("Edit Team"),
-                                bodyText("Need Some Changes?")
+                                bodyText("Need Some Changes?"),
+                                const SizedBox(height: 10),
+                                SizedBox(
+                                  height: 50,
+                                  child: PictureUploadPickerWidget(
+                                    onPictureUploadChangedHandler: (image) =>
+                                        editCreateTeamCubit
+                                            .onPictureUploadChanged(image),
+                                    image: editCreateTeamCubit
+                                        .state.pictureUploadInput.value,
+                                    isTeam: true,
+                                    imageURL: editCreateTeamCubit
+                                        .state.avatarURL
+                                        .toString(),
+                                  ),
+                                )
                               ],
                             ),
                             SizedBox(
-                                height: 150,
+                                height: 100,
                                 child: SvgPicture.asset(
                                     'assets/images/create_team.svg'))
                           ]),
@@ -230,9 +248,7 @@ class _EditTeamPageState extends State<EditTeamPage> {
                                     child: Text(items),
                                   );
                                 }).toList(),
-                                onChanged: (String? newValue) {
-                                  debugPrint(newValue);
-                                },
+                                onChanged: (String? newValue) {},
                               ),
                             ),
                           ]),
@@ -241,11 +257,11 @@ class _EditTeamPageState extends State<EditTeamPage> {
                       Row(
                           mainAxisAlignment: MainAxisAlignment.spaceAround,
                           children: [
-                            commitmentButton(
+                            _commitmentButton(
                                 "    Low    ", 'Low', editCreateTeamCubit),
-                            commitmentButton(
+                            _commitmentButton(
                                 "  Medium  ", 'Medium', editCreateTeamCubit),
-                            commitmentButton(
+                            _commitmentButton(
                                 "    High    ", 'High', editCreateTeamCubit),
                           ]),
                       const SizedBox(height: 20),
@@ -259,6 +275,9 @@ class _EditTeamPageState extends State<EditTeamPage> {
                         hint: 'Input a number',
                         value: editCreateTeamCubit.state.maxMemberInput.value,
                         keyboard: TextInputType.number,
+                        inputFormatter: [
+                          FilteringTextInputFormatter.digitsOnly
+                        ],
                         errorText: editCreateTeamCubit
                             .state.maxMemberInput.displayError
                             ?.text(),
@@ -272,23 +291,28 @@ class _EditTeamPageState extends State<EditTeamPage> {
                       DropdownSearchFieldMultiWidget<SkillEntity>(
                         focusNode: FocusNode(),
                         label: "",
-                        getItems: (String filter) async => [],
+                        getItems: (String filter) async {
+                          await editCreateTeamCubit
+                              .handleGetSkillsInterests(filter);
+                          return editCreateTeamCubit.state.skillInterestOptions;
+                        },
                         selectedItems:
                             editCreateTeamCubit.state.interestInput.value,
                         isChipsOutside: true,
-                        onChangedHandler: (values) =>
-                            editCreateTeamCubit.onInterestChanged(values),
+                        isFilterOnline: true,
+                        onChangedHandler: (values) {
+                          editCreateTeamCubit.onInterestChanged(values);
+                        },
                         compareFnHandler: (p0, p1) => p0.emsiId == p1.emsiId,
                       ),
                       const SizedBox(height: 20),
                       Center(
                           child: ElevatedButton(
                               onPressed: () {
-                                print(state.interestInput.value);
                                 editCreateTeamCubit.finish()
                                     ? editCreateTeamCubit
                                         .updateTeamData(
-                                            teamId: teamId,
+                                            teamId: widget.teamId,
                                             teamName: _teamNameController.text,
                                             description:
                                                 _descriptionController.text,
@@ -298,7 +322,8 @@ class _EditTeamPageState extends State<EditTeamPage> {
                                             category: state.categoryInput,
                                             commitment: state.commitmentInput,
                                             maxMember:
-                                                _maxMemberController.text)
+                                                _maxMemberController.text,
+                                            interest: state.interestInput.value)
                                         .then((val) {
                                         navigatePop(context);
                                       })
@@ -313,7 +338,7 @@ class _EditTeamPageState extends State<EditTeamPage> {
         }));
   }
 
-  Widget commitmentButton(text, newLevel, cubit) {
+  Widget _commitmentButton(text, newLevel, cubit) {
     return OutlinedButton(
         style: OutlinedButton.styleFrom(
             backgroundColor: cubit.state.commitmentInput == newLevel

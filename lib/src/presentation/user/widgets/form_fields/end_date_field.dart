@@ -39,9 +39,9 @@ extension EndDateFieldErrorExt on EndDateFieldError {
   String text() {
     switch (this) {
       case EndDateFieldError.empty:
-        return "End Date is empty.";
+        return "End Date is required";
       case EndDateFieldError.invalid:
-        return "End Date is earlier.";
+        return "End Date is earlier";
     }
   }
 }

@@ -3,17 +3,21 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:launchlab/src/config/app_theme.dart';
 import 'package:launchlab/src/presentation/common/widgets/useful.dart';
 import 'package:launchlab/src/presentation/search/cubits/external_team_cubit.dart';
-import 'package:launchlab/src/presentation/common/widgets/confirmation_box.dart';
 import 'package:launchlab/src/utils/helper.dart';
 
-class ExternalTeamPage extends StatelessWidget {
+class ExternalTeamPage extends StatefulWidget {
   final List teamIdUserIdData;
   const ExternalTeamPage({super.key, required this.teamIdUserIdData});
 
   @override
+  State<ExternalTeamPage> createState() => _ExternalTeamPageState();
+}
+
+class _ExternalTeamPageState extends State<ExternalTeamPage> {
+  @override
   Widget build(BuildContext context) {
-    final String teamId = teamIdUserIdData[0];
-    final String userId = teamIdUserIdData[1];
+    final String teamId = widget.teamIdUserIdData[0];
+    final String userId = widget.teamIdUserIdData[1];
 
     return BlocProvider(
         create: (_) => ExternalTeamCubit(),
@@ -48,7 +52,7 @@ class ExternalTeamPage extends StatelessWidget {
                     ),
                     body: Padding(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 40, vertical: 10),
+                          horizontal: 20, vertical: 10),
                       child: SingleChildScrollView(
                         child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -56,7 +60,7 @@ class ExternalTeamPage extends StatelessWidget {
                               Row(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    profilePicture(70, "test.jpeg"),
+                                    teamPicture(70, teamData['avatar_url']),
                                     const SizedBox(width: 15),
                                     Expanded(
                                       child: Column(
@@ -75,10 +79,13 @@ class ExternalTeamPage extends StatelessWidget {
                                             boldFirstText("Commitment: ",
                                                 teamData['commitment']),
                                             boldFirstText(
-                                                "Interest & Skills Involved: ",
-                                                ""),
-                                            boldFirstText(
-                                                "Interest ", "Placeholder")
+                                                "Interest Areas: ", ""),
+                                            for (int i = 0;
+                                                i < teamData['interest'].length;
+                                                i++) ...[
+                                              smallText(teamData['interest'][i]
+                                                  ['name'])
+                                            ]
                                           ]),
                                     ),
                                   ]),
@@ -94,57 +101,59 @@ class ExternalTeamPage extends StatelessWidget {
                                     boldFirstText("Members: ",
                                         "${teamData['current_members']} / ${teamData['max_members']}",
                                         size: 15.0),
+                                    const SizedBox(width: 20),
                                     Row(
                                         mainAxisAlignment:
                                             MainAxisAlignment.end,
                                         children: [
                                           subHeaderText("Owner: ", size: 15.0),
                                           const SizedBox(width: 5),
-                                          profilePicture(
-                                              30.0, "circle_profile_pic.png"),
+                                          profilePicture(30.0,
+                                              snapshot.data[1][0]['avatar_url'],
+                                              isUrl: true),
                                           const SizedBox(width: 5),
                                           bodyText(ownerName, size: 13.0)
                                         ]),
                                   ]),
                               const SizedBox(height: 40),
-                              subHeaderText("Roles Needed"),
-                              const SizedBox(height: 10),
-                              const SizedBox(height: 10),
-                              subHeaderText("Frontend Developer", size: 15.0),
-                              bodyText(
-                                  "Lorem ipsum dolor sit amet, consectetur adipiscing"),
-                              const SizedBox(height: 10),
-                              subHeaderText("App Developer", size: 15.0),
-                              bodyText(
-                                  "Lorem ipsum dolor sit amet, consectetur adipiscing"),
-                              const SizedBox(height: 10),
-                              subHeaderText("Analyst", size: 15.0),
-                              bodyText(
-                                  "Lorem ipsum dolor sit amet, consectetur adipiscing"),
-                              const SizedBox(height: 40),
+                              teamData['roles_open'].length == 0
+                                  ? const SizedBox()
+                                  : Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                          subHeaderText("Roles Needed"),
+                                          const SizedBox(height: 10),
+                                          for (int i = 0;
+                                              i < teamData['roles_open'].length;
+                                              i++) ...[
+                                            const SizedBox(height: 10),
+                                            subHeaderText(
+                                                teamData['roles_open'][i]
+                                                    ['title'],
+                                                size: 15.0),
+                                            bodyText(teamData['roles_open'][i]
+                                                ['description']),
+                                          ]
+                                        ]),
+                              const SizedBox(height: 50),
                               Center(
                                 child: ElevatedButton(
                                     child: bodyText("   Apply   "),
                                     onPressed: () {
                                       if (currentMembers.contains(userId)) {
-                                        applicationConfirmationBox(
-                                            context,
-                                            "Failure",
+                                        confirmationBox(context, "Failure",
                                             "You cannot apply to the team that you are already in!");
                                       } else if (currentApplicants
                                           .contains(userId)) {
-                                        applicationConfirmationBox(
-                                            context,
-                                            "Failure",
+                                        confirmationBox(context, "Failure",
                                             "You have already applied to this team. \n\nPlease wait for the team owner to review your application.");
                                       } else {
+                                        confirmationBox(context, "Success",
+                                            "You have successfully applied to the team!");
                                         externalTeamPageCubit.applyToTeam(
                                             teamId: teamId, userId: userId);
                                         navigatePop(context);
-                                        applicationConfirmationBox(
-                                            context,
-                                            "Success",
-                                            "You have successfully applied to the team!");
                                       }
                                     }),
                               ),
@@ -153,22 +162,9 @@ class ExternalTeamPage extends StatelessWidget {
                     ),
                   );
                 } else {
-                  return futureBuilderFail();
+                  return futureBuilderFail(() => setState(() {}));
                 }
               });
         }));
-  }
-
-  void applicationConfirmationBox(context, title, message) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return ConfirmationBox(
-          title: title,
-          message: message,
-          onClose: () => navigatePop(context),
-        );
-      },
-    );
   }
 }

@@ -1,9 +1,11 @@
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:flutter/cupertino.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:mime/mime.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'constants.dart';
@@ -55,4 +57,18 @@ Future<String> uploadFile({
       );
   print("fileName: $fileName");
   return fileName;
+}
+
+Future<File> downloadFile({
+  required Supabase supabase,
+  required String bucket,
+  required String fileName,
+}) async {
+  final Uint8List downloadedFile =
+      await supabase.client.storage.from(bucket).download(fileName);
+
+  final tempDir = await getTemporaryDirectory();
+  File file = await File('${tempDir.path}/image.png').create();
+  file.writeAsBytesSync(downloadedFile);
+  return file;
 }

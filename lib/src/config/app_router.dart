@@ -9,6 +9,7 @@ import 'package:launchlab/src/presentation/common/screens/splash_screen_page.dar
 import 'package:launchlab/src/presentation/common/screens/unprotected_screen_page.dart';
 import 'package:launchlab/src/presentation/common/widgets/scaffold_with_bottom_nav.dart';
 import 'package:launchlab/src/presentation/search/screens/discover_page.dart';
+import 'package:launchlab/src/presentation/team/screens/manage_team_page.dart';
 import 'package:launchlab/src/presentation/team/screens/team_home_page.dart';
 import 'package:launchlab/src/presentation/user/screens/onboarding_add_accomplishment_page.dart';
 import 'package:launchlab/src/presentation/user/screens/onboarding_add_experience_page.dart';
@@ -20,6 +21,16 @@ import 'package:launchlab/src/presentation/user/screens/onboarding_step2_page.da
 import 'package:launchlab/src/presentation/user/screens/onboarding_step3_page.dart';
 import 'package:launchlab/src/presentation/user/screens/onboarding_step4_page.dart';
 import 'package:launchlab/src/presentation/user/screens/onboarding_welcome_page.dart';
+import 'package:launchlab/src/presentation/user/screens/profile_add_accomplishment_page.dart';
+import 'package:launchlab/src/presentation/user/screens/profile_add_experience_page.dart';
+import 'package:launchlab/src/presentation/user/screens/profile_edit_about_page.dart';
+import 'package:launchlab/src/presentation/user/screens/profile_edit_accomplishment_page.dart';
+import 'package:launchlab/src/presentation/user/screens/profile_edit_experience_page.dart';
+import 'package:launchlab/src/presentation/user/screens/profile_edit_intro_page.dart';
+import 'package:launchlab/src/presentation/user/screens/profile_edit_preference_page.dart';
+import 'package:launchlab/src/presentation/user/screens/profile_edit_skills_page.dart';
+import 'package:launchlab/src/presentation/user/screens/profile_manage_accomplishment_page.dart';
+import 'package:launchlab/src/presentation/user/screens/profile_manage_experience_page.dart';
 import 'package:launchlab/src/presentation/user/screens/profile_page.dart';
 import 'package:launchlab/src/presentation/user/widgets/onboarding_container.dart';
 import 'package:launchlab/src/presentation/user/widgets/onboarding_steps_layout.dart';
@@ -40,12 +51,16 @@ final _onboardingShellKey = GlobalKey<NavigatorState>();
 final _nestedOnboardingShellKey = GlobalKey<NavigatorState>();
 
 final GoRouter appRouter = GoRouter(
+  debugLogDiagnostics: true,
   initialLocation: "/",
   navigatorKey: _rootNavigatorKey,
   routes: [
     GoRoute(
-      path: "/",
-      builder: (context, state) => const SplashScreenPage(),
+      parentNavigatorKey: _rootNavigatorKey,
+      path: '/',
+      builder: (context, state) {
+        return const SplashScreenPage();
+      },
     ),
     ShellRoute(
       navigatorKey: _unprotectedShellNavigatorKey,
@@ -54,6 +69,7 @@ final GoRouter appRouter = GoRouter(
       },
       routes: [
         GoRoute(
+          parentNavigatorKey: _unprotectedShellNavigatorKey,
           path: "/signin",
           pageBuilder: (context, state) =>
               const NoTransitionPage(child: SigninPage()),
@@ -164,9 +180,81 @@ final GoRouter appRouter = GoRouter(
                   const NoTransitionPage(child: DiscoverPage()),
             ),
             GoRoute(
+              parentNavigatorKey: _mainShellKey,
               path: "/profile",
               pageBuilder: (context, state) =>
                   const NoTransitionPage(child: ProfilePage()),
+              routes: [
+                GoRoute(
+                  path: "edit-settings",
+                  builder: (context, state) => ProfileEditPreferencePage(
+                    props: state.extra as ProfileEditPreferencePageProps,
+                  ),
+                ),
+                GoRoute(
+                  path: "edit-intro",
+                  builder: (context, state) => ProfileEditIntroPage(
+                    props: state.extra as ProfileEditIntroPageProps,
+                  ),
+                ),
+                GoRoute(
+                  path: "edit-about",
+                  builder: (context, state) => ProfileEditAboutPage(
+                    props: state.extra as ProfileEditAboutPageProps,
+                  ),
+                ),
+                GoRoute(
+                    parentNavigatorKey: _mainShellKey,
+                    path: "manage-experience",
+                    builder: (context, state) => ProfileManageExperiencePage(
+                          props:
+                              state.extra as ProfileManageExperiencePageProps,
+                        ),
+                    routes: [
+                      GoRoute(
+                        parentNavigatorKey: _mainShellKey,
+                        path: "add-experience",
+                        builder: (context, state) =>
+                            const ProfileAddExperiencePage(),
+                      ),
+                      GoRoute(
+                        parentNavigatorKey: _mainShellKey,
+                        path: "edit-experience",
+                        builder: (context, state) => ProfileEditExperiencePage(
+                          experience: state.extra as ExperienceEntity,
+                        ),
+                      ),
+                    ]),
+                GoRoute(
+                  path: "edit-skills",
+                  builder: (context, state) => ProfileEditSkillsPage(
+                    props: state.extra as ProfileEditSkillsPageProps,
+                  ),
+                ),
+                GoRoute(
+                  parentNavigatorKey: _mainShellKey,
+                  path: "manage-accomplishment",
+                  builder: (context, state) => ProfileManageAccomplishmentPage(
+                      props:
+                          state.extra as ProfileManageAccomplishmentPageProps),
+                  routes: [
+                    GoRoute(
+                      parentNavigatorKey: _mainShellKey,
+                      path: "add-accomplishment",
+                      builder: (context, state) =>
+                          const ProfileAddAccomplishmentPage(),
+                    ),
+                    GoRoute(
+                      parentNavigatorKey: _mainShellKey,
+                      path: "edit-accomplishment",
+                      builder: (context, state) =>
+                          ProfileEditAccomplishmentPage(
+                              accomplishment:
+                                  state.extra as AccomplishmentEntity),
+                    ),
+                  ],
+                ),
+              ],
             ),
             GoRoute(
               path: "/teams",
@@ -187,6 +275,11 @@ final GoRouter appRouter = GoRouter(
               pageBuilder: (context, state) => NoTransitionPage(
                   child:
                       ExternalTeamPage(teamIdUserIdData: state.extra as List)),
+            ),
+            GoRoute(
+              path: "/manage_teams",
+              pageBuilder: (context, state) => NoTransitionPage(
+                  child: ManageTeamPage(teamId: state.extra as String)),
             ),
           ],
         ),

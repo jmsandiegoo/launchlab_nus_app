@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:formz/formz.dart';
 import 'package:launchlab/src/presentation/common/widgets/useful.dart';
 
@@ -9,9 +10,21 @@ class TextFieldInput extends FormzInput<String, TextFieldError> {
 
   @override
   TextFieldError? validator(String value) {
-    if (value.isEmpty) {
+    if (value.trim().isEmpty) {
       return TextFieldError.empty;
     }
+    return null;
+  }
+}
+
+class NotReqTextFieldInput extends FormzInput<String, TextFieldError> {
+  const NotReqTextFieldInput.unvalidated([String value = ''])
+      : super.pure(value);
+  const NotReqTextFieldInput.validated([String value = ''])
+      : super.dirty(value);
+
+  @override
+  TextFieldError? validator(String value) {
     return null;
   }
 }
@@ -42,7 +55,8 @@ class TextFieldWidget extends StatefulWidget {
       this.errorText,
       this.size = 1,
       required this.controller,
-      this.keyboard = TextInputType.multiline});
+      this.keyboard = TextInputType.multiline,
+      this.inputFormatter = const []});
 
   final FocusNode focusNode;
   final void Function(String) onChangedHandler;
@@ -53,6 +67,7 @@ class TextFieldWidget extends StatefulWidget {
   final int size;
   final TextEditingController controller;
   final TextInputType keyboard;
+  final List<TextInputFormatter> inputFormatter;
 
   @override
   State<TextFieldWidget> createState() => _TextFieldWidgetState();
@@ -76,6 +91,7 @@ class _TextFieldWidgetState extends State<TextFieldWidget> {
       errorText: widget.errorText,
       size: widget.size,
       keyboard: widget.keyboard,
+      inputFormatter: widget.inputFormatter,
     );
   }
 }

@@ -56,6 +56,7 @@ dependencies:
   http: ^1.0.0
   mime: ^1.0.4
   uuid: ^3.0.6
+  path_provider: ^2.0.15
 
 dev_dependencies:
   auto_route_generator: ^7.1.1

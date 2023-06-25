@@ -14,7 +14,9 @@ Future<void> main() async {
   await Supabase.initialize(
     url: supabaseUrl,
     anonKey: supabaseToken,
+    authCallbackUrlHostname: 'login-callback',
   );
+
   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
     statusBarColor: Colors.transparent,
     statusBarIconBrightness: Brightness.dark,
@@ -51,6 +53,8 @@ class _RootAppContentState extends State<RootAppContent> {
     super.initState();
     _appRootCubit = BlocProvider.of<AppRootCubit>(context);
     _appRootCubit.handleAuthListener();
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky,
+        overlays: [SystemUiOverlay.top]);
   }
 
   @override

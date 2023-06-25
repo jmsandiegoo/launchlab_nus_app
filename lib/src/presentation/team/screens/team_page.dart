@@ -5,6 +5,7 @@ import 'package:launchlab/src/presentation/common/widgets/useful.dart';
 import 'package:launchlab/src/presentation/team/cubits/team_cubit.dart';
 import 'package:launchlab/src/presentation/team/widgets/manage_member_form.dart';
 import 'package:launchlab/src/presentation/team/widgets/add_task.dart';
+import 'package:launchlab/src/presentation/team/widgets/team_confirmation.dart';
 import 'package:launchlab/src/utils/helper.dart';
 
 class TeamPage extends StatefulWidget {
@@ -13,34 +14,33 @@ class TeamPage extends StatefulWidget {
 
   @override
   // ignore: no_logic_in_create_state
-  State<TeamPage> createState() => _TeamPageState(teamIdIsOwner);
+  State<TeamPage> createState() => _TeamPageState();
 }
 
 class _TeamPageState extends State<TeamPage> {
-  _TeamPageState(this.teamIdIsOwner);
-
-  final List teamIdIsOwner;
+  _TeamPageState();
 
   @override
   Widget build(BuildContext context) {
-    final String teamId = teamIdIsOwner[0];
-    final bool isOwner = teamIdIsOwner[1];
+    final String teamId = widget.teamIdIsOwner[0];
+    final bool isOwner = widget.teamIdIsOwner[1];
     return BlocProvider(
         create: (_) => TeamCubit(),
         child: BlocBuilder<TeamCubit, TeamState>(builder: (context, state) {
           final teamCubit = BlocProvider.of<TeamCubit>(context);
+
           return FutureBuilder(
               future: teamCubit.getData(teamId),
               builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator());
                 }
-
                 if (snapshot.hasData) {
                   final List memberData = snapshot.data[0];
                   final List completedMilestone = snapshot.data[1];
                   final List incompleteMilestone = snapshot.data[2];
                   final Map teamData = snapshot.data[3][0];
+
                   return Scaffold(
                     appBar: AppBar(
                         backgroundColor: Colors.transparent,
@@ -58,27 +58,20 @@ class _TeamPageState extends State<TeamPage> {
                               icon: const Icon(Icons.chat_bubble_outline)),
                           isOwner
                               ? PopupMenuButton<String>(
-                                  onSelected: handleClick,
+                                  onSelected: _handleClick,
                                   itemBuilder: (BuildContext context) {
                                     return {
-                                      teamData['is_listed'] ? 'Unlist' : 'List',
                                       'Edit',
+                                      teamData['is_listed'] ? 'Unlist' : 'List',
+                                      'Manage',
                                       'Disband'
                                     }.map((String choice) {
-                                      choice == 'List'
-                                          ? debugPrint("list")
-                                          : choice == 'Unlist'
-                                              ? debugPrint('Unlist')
-                                              : choice == 'Disband'
-                                                  ? debugPrint('Disband')
-                                                  : debugPrint(
-                                                      "Nothing Happened");
                                       return PopupMenuItem<String>(
                                           value: choice, child: Text(choice));
                                     }).toList();
                                   },
                                 )
-                              : SizedBox()
+                              : const SizedBox()
                         ]),
                     body: SingleChildScrollView(
                       child: Padding(
@@ -87,7 +80,7 @@ class _TeamPageState extends State<TeamPage> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Row(children: [
-                                profilePicture(70, "test.jpeg"),
+                                teamPicture(70, teamData['avatar_url']),
                                 const SizedBox(width: 15),
                                 Expanded(
                                   child: Column(
@@ -107,6 +100,13 @@ class _TeamPageState extends State<TeamPage> {
                                             teamData['project_category']),
                                         boldFirstText("Commitment: ",
                                             teamData['commitment']),
+                                        boldFirstText("Interest Areas: ", ''),
+                                        for (int i = 0;
+                                            i < teamData['interest'].length;
+                                            i++) ...[
+                                          smallText(
+                                              teamData['interest'][i]['name'])
+                                        ]
                                       ]),
                                 ),
                               ]),
@@ -138,7 +138,13 @@ class _TeamPageState extends State<TeamPage> {
                                         ),
                                         GestureDetector(
                                           onTap: () {
-                                            manageMember(memberData);
+                                            _manageMember(
+                                              isOwner,
+                                              memberData,
+                                              teamId,
+                                              teamData['current_members'],
+                                              teamCubit,
+                                            );
                                           },
                                           child: Column(
                                               crossAxisAlignment:
@@ -159,7 +165,8 @@ class _TeamPageState extends State<TeamPage> {
                                                         i < 4;
                                                     i++) ...[
                                                   memberProfile(
-                                                      "circle_profile_pic.png",
+                                                      memberData[i]['users']
+                                                          ['avatar_url'],
                                                       "${memberData[i]['users']['first_name']} ${memberData[i]['users']['last_name']}",
                                                       memberData[i]['position'])
                                                 ],
@@ -179,7 +186,7 @@ class _TeamPageState extends State<TeamPage> {
                                           subHeaderText("Milestones"),
                                           GestureDetector(
                                               onTap: () {
-                                                addTask(teamData, teamCubit);
+                                                _addTask(teamData, teamCubit);
                                               },
                                               child: subHeaderText("Add Task +",
                                                   size: 13.0))
@@ -187,7 +194,7 @@ class _TeamPageState extends State<TeamPage> {
                                     for (int i = 0;
                                         i < incompleteMilestone.length;
                                         i++) ...[
-                                      taskCard(
+                                      _taskCard(
                                           incompleteMilestone[i]['title'],
                                           incompleteMilestone[i]
                                               ['is_completed'],
@@ -199,7 +206,7 @@ class _TeamPageState extends State<TeamPage> {
                                     for (int i = 0;
                                         i < completedMilestone.length;
                                         i++) ...[
-                                      taskCard(
+                                      _taskCard(
                                           completedMilestone[i]['title'],
                                           completedMilestone[i]['is_completed'],
                                           completedMilestone[i]['id'],
@@ -207,31 +214,41 @@ class _TeamPageState extends State<TeamPage> {
                                           teamCubit),
                                     ],
                                   ]),
-                              const SizedBox(height: 0),
                             ]),
                       ),
                     ),
                   );
                 } else {
-                  return futureBuilderFail();
+                  return futureBuilderFail(() => setState(() {}));
                 }
               });
         }));
   }
 
-  void manageMember(memberData) {
+  void _manageMember(isOwner, memberData, teamId, currentMembers, cubit) {
     showDialog(
-      context: context,
-      builder: (context) {
-        return ManageMemberBox(
-          memberData: memberData,
-          onClose: () => navigatePop(context),
-        );
-      },
-    );
+        context: context,
+        builder: (context) {
+          return ManageMemberBox(
+            isOwner: isOwner,
+            memberData: memberData,
+            onClose: () => Navigator.pop(context),
+          );
+        }).then((value) {
+      if (value != null && value[0] == 'Delete') {
+        cubit
+            .deleteMember(
+                memberId: value[1],
+                teamId: teamId,
+                newCurrentMember: currentMembers - 1)
+            .then((_) {
+          setState(() {});
+        });
+      }
+    });
   } //manageMember
 
-  void addTask(teamData, teamCubit) {
+  void _addTask(teamData, teamCubit) {
     showModalBottomSheet(
         shape:
             RoundedRectangleBorder(borderRadius: BorderRadius.circular(15.0)),
@@ -251,30 +268,59 @@ class _TeamPageState extends State<TeamPage> {
     });
   }
 
-  void handleClick(String value) {
+  void _teamConfirmationBox({title, message, purpose}) {
+    showDialog(
+        context: context,
+        builder: (context) {
+          return TeamConfirmationBox(
+            teamId: widget.teamIdIsOwner[0].toString(),
+            title: title,
+            message: message,
+            purpose: purpose,
+            onClose: () => Navigator.of(context, rootNavigator: false).pop(),
+          );
+        }).then((_) {
+      setState(() {});
+    });
+  }
+
+  void _handleClick(String value) {
     switch (value) {
-      case 'Unlist':
-        debugPrint("Unlist");
-        break;
       case 'List':
-        debugPrint("List");
+        _teamConfirmationBox(
+            title: 'Are you sure?',
+            message: 'Do you really want to list this team?',
+            purpose: 'List');
+        break;
+      case 'Unlist':
+        _teamConfirmationBox(
+            title: 'Are you sure?',
+            message: 'Do you really want to unlist this team?',
+            purpose: 'Unlist');
+        break;
+      case 'Manage':
+        navigatePushWithData(
+            context, "/manage_teams", widget.teamIdIsOwner[0].toString());
         break;
       case 'Edit':
         navigatePushWithData(
-            context, "/edit_teams", teamIdIsOwner[0].toString());
+            context, "/edit_teams", widget.teamIdIsOwner[0].toString());
         break;
       case 'Disband':
-        debugPrint("Disband");
+        _teamConfirmationBox(
+            title: 'Are you sure?',
+            message: 'Do you really want to disband this team?',
+            purpose: 'Disband');
 
         break;
     }
   }
 
-  Widget taskCard(taskName, isChecked, taskId, isOwner, teamCubit) {
+  Widget _taskCard(taskName, isChecked, taskId, isOwner, cubit) {
     void manageTask(String value) {
       switch (value) {
         case 'Delete':
-          teamCubit.deleteTask(taskId: taskId);
+          cubit.deleteTask(taskId: taskId);
           setState(() {});
           break;
       }
@@ -300,7 +346,7 @@ class _TeamPageState extends State<TeamPage> {
             Checkbox(
               value: isChecked,
               onChanged: (bool? value) {
-                teamCubit.saveMilestoneCheckData(val: value, taskId: taskId);
+                cubit.saveMilestoneCheckData(val: value, taskId: taskId);
                 setState(() {});
               },
               activeColor: yellowColor,

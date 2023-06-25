@@ -22,3 +22,12 @@ class UserSkillsInterestsFieldInput
 enum UserSkillsInterestsError {
   empty,
 }
+
+extension UserSkillsInterestsErrorExt on UserSkillsInterestsError {
+  String text() {
+    switch (this) {
+      case UserSkillsInterestsError.empty:
+        return "Skills is required";
+    }
+  }
+}

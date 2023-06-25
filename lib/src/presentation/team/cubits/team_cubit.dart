@@ -17,8 +17,17 @@ class TeamCubit extends Cubit<TeamState> {
   getData(teamId) async {
     var teamMemberData = await supabase
         .from('team_users')
-        .select('*, users(first_name, last_name)')
+        .select('*, users(first_name, last_name, avatar)')
         .eq('team_id', teamId);
+
+    for (int i = 0; i < teamMemberData.length; i++) {
+      var avatarURL = teamMemberData[i]['users']['avatar'] == null
+          ? ''
+          : await supabase.storage.from('user_avatar_bucket').createSignedUrl(
+              '${teamMemberData[i]['users']['avatar']}', 10000);
+      teamMemberData[i]['users']['avatar_url'] = avatarURL;
+    }
+
     var completedMilestones = await supabase
         .from('milestones')
         .select()
@@ -31,7 +40,21 @@ class TeamCubit extends Cubit<TeamState> {
         .eq('is_completed', false);
 
     var teamData = await supabase.from('teams').select().eq('id', teamId);
-    return [teamMemberData, completedMilestones, incompleteMilestone, teamData];
+
+    var teamAvatarURL = teamData[0]['avatar'] == null
+        ? ''
+        : await supabase.storage
+            .from('team_avatar_bucket')
+            .createSignedUrl('${teamData[0]['avatar']}', 30);
+
+    teamData[0]['avatar_url'] = teamAvatarURL;
+
+    return [
+      teamMemberData,
+      completedMilestones,
+      incompleteMilestone,
+      teamData,
+    ];
   }
 
   void saveMilestoneCheckData({val, taskId}) async {
@@ -53,7 +76,7 @@ class TeamCubit extends Cubit<TeamState> {
   }
 
   void listTeam({teamId}) async {
-    await supabase.from('milestones').update({
+    await supabase.from('teams').update({
       'is_listed': true,
       'updated_at': DateTime.now().toString()
     }).eq('id', teamId);
@@ -61,7 +84,7 @@ class TeamCubit extends Cubit<TeamState> {
   }
 
   void unlistTeam({teamId}) async {
-    await supabase.from('milestones').update({
+    await supabase.from('teams').update({
       'is_listed': false,
       'updated_at': DateTime.now().toString()
     }).eq('id', teamId);
@@ -69,15 +92,25 @@ class TeamCubit extends Cubit<TeamState> {
   }
 
   void disbandTeam({teamId}) async {
-    await supabase.from('milestones').update({
+    debugPrint(teamId);
+    await supabase.from('teams').update({
       'is_current': false,
+      'is_listed': false,
       'updated_at': DateTime.now().toString()
     }).eq('id', teamId);
-    debugPrint("Unlisted");
+    debugPrint("Team Disbanded");
   }
 
   void deleteTask({taskId}) async {
     await supabase.from('milestones').delete().match({'id': taskId});
     debugPrint("Deleted Task");
+  }
+
+  void deleteMember({memberId, teamId, newCurrentMember}) async {
+    await supabase
+        .from('teams')
+        .update({'current_members': newCurrentMember}).eq('id', teamId);
+    await supabase.from('team_users').delete().match({'id': memberId});
+    debugPrint("Deleted Member");
   }
 }

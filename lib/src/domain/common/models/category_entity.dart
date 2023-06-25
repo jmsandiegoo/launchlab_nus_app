@@ -16,8 +16,8 @@ class CategoryEntity implements Equatable {
   CategoryEntity.fromJson(Map<String, dynamic> json)
       : id = json['id'],
         name = json['name'],
-        createdAt = DateTime.tryParse(json['created_at']),
-        updatedAt = DateTime.tryParse(json['updated_at']);
+        createdAt = DateTime.tryParse(json['created_at'].toString()),
+        updatedAt = DateTime.tryParse(json['updated_at'].toString());
 
   Map<String, dynamic> toJson() {
     return {
@@ -34,7 +34,12 @@ class CategoryEntity implements Equatable {
   }
 
   @override
-  List<Object?> get props => [id, name];
+  List<Object?> get props => [
+        id,
+        name,
+        createdAt,
+        updatedAt,
+      ];
 
   @override
   bool? get stringify => true;

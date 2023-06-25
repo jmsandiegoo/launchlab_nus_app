@@ -24,26 +24,52 @@ class TeamHomeCubit extends Cubit<TeamHomeState> {
   }
 
   final supabase = Supabase.instance.client;
-  getData() async {
+  getData(data) async {
+    final User? user = supabase.auth.currentUser;
+
     var userData = await supabase
         .from('users')
-        .select('id, first_name')
-        .eq('id', 'ca1956b9-0bc8-4b82-8b08-a59a24c13697');
+        .select('id, first_name, avatar')
+        .eq('id', user!.id);
     var memberTeamData = await supabase
         .from('teams')
         .select('*, team_users!inner(user_id, is_owner) , milestones(*)')
         .eq('team_users.is_owner', false)
-        .eq('team_users.user_id', 'ca1956b9-0bc8-4b82-8b08-a59a24c13697')
+        .eq('team_users.user_id', user.id)
         .eq('is_current', true);
 
     var ownerTeamData = await supabase
         .from('teams')
         .select('*, team_users!inner(user_id, is_owner), milestones(*)')
         .eq('team_users.is_owner', true)
-        .eq('team_users.user_id', 'ca1956b9-0bc8-4b82-8b08-a59a24c13697')
+        .eq('team_users.user_id', user.id)
         .eq('is_current', true);
 
-    return [memberTeamData, ownerTeamData, userData];
+    var userAvatarURL = userData[0]['avatar'] == null
+        ? ''
+        : await supabase.storage
+            .from('user_avatar_bucket')
+            .createSignedUrl('${userData[0]['avatar']}', 30);
+
+    for (int i = 0; i < memberTeamData.length; i++) {
+      var avatarURL = memberTeamData[i]['avatar'] == null
+          ? ''
+          : await supabase.storage
+              .from('team_avatar_bucket')
+              .createSignedUrl('${memberTeamData[i]['avatar']}', 30);
+      memberTeamData[i]['avatar_url'] = avatarURL;
+    }
+
+    for (int i = 0; i < ownerTeamData.length; i++) {
+      var avatarURL = ownerTeamData[i]['avatar'] == null
+          ? ''
+          : await supabase.storage
+              .from('team_avatar_bucket')
+              .createSignedUrl('${ownerTeamData[i]['avatar']}', 30);
+      ownerTeamData[i]['avatar_url'] = avatarURL;
+    }
+
+    return [memberTeamData, ownerTeamData, userData, userAvatarURL];
   }
 
   void setIsLeadingState(bool value) {

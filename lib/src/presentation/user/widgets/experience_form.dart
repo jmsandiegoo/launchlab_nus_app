@@ -202,16 +202,21 @@ class _ExperienceFormState extends State<ExperienceForm> {
                   context,
                   () => widget.onSubmitHandler(context, state),
                   widget.isEditMode ? "Edit" : "Create",
-                  elevation: 0),
+                  elevation: 0,
+                  isLoading: state.experienceFormStatus ==
+                          ExperienceFormStatus.createLoading ||
+                      state.experienceFormStatus ==
+                          ExperienceFormStatus.updateLoading),
               ...() {
                 return widget.isEditMode
                     ? [
-                        OutlinedButton(
-                          onPressed: () =>
+                        outlinedButton(
+                          label: "Delete",
+                          onPressedHandler: () =>
                               widget.onDeleteHandler!(context, state),
-                          style: OutlinedButton.styleFrom(
-                              side: const BorderSide(color: errorColor)),
-                          child: bodyText("Delete", color: errorColor),
+                          color: errorColor,
+                          isLoading: state.experienceFormStatus ==
+                              ExperienceFormStatus.deleteLoading,
                         ),
                       ]
                     : [];

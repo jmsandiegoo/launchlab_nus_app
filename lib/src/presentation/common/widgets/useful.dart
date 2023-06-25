@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:launchlab/src/config/app_theme.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:launchlab/src/presentation/common/widgets/confirmation_box.dart';
 
 Widget userInput({
   required FocusNode focusNode,
@@ -17,6 +20,7 @@ Widget userInput({
   String? errorText,
   TextInputType keyboard = TextInputType.multiline,
   bool endSpacing = true,
+  List<TextInputFormatter>? inputFormatter,
 }) {
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
@@ -48,6 +52,7 @@ Widget userInput({
         keyboardType: size > 1 ? keyboard : null,
         minLines: size,
         maxLines: size,
+        inputFormatters: inputFormatter,
         obscureText: obscureText,
         decoration: InputDecoration(
           errorText: errorText,
@@ -129,16 +134,53 @@ Widget checkBox(String label, bool? value, bool tristate,
   ]);
 }
 
-Widget profilePicture(double diameter, String address) {
+Widget profilePicture(double diameter, String address, {bool isUrl = false}) {
   return Container(
       width: diameter,
       height: diameter,
       decoration: BoxDecoration(
           shape: BoxShape.circle,
           image: DecorationImage(
-            image: ExactAssetImage("assets/images/$address"),
-            fit: BoxFit.fitHeight,
+            image: isUrl
+                ? address == ''
+                    ? const ExactAssetImage("assets/images/avatar_temp.png")
+                    : Image.network(address).image
+                : ExactAssetImage("assets/images/$address"),
+            fit: BoxFit.cover,
           )));
+}
+
+Widget teamPicture(double diameter, String address) {
+  return Container(
+      width: diameter,
+      height: diameter,
+      decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          image: DecorationImage(
+            image: address == ''
+                ? const ExactAssetImage("assets/images/test.jpeg")
+                : Image.network(address).image,
+            fit: BoxFit.cover,
+          )));
+}
+
+Widget circleIcon({color, icon}) {
+  return Container(
+    decoration: BoxDecoration(color: color, shape: BoxShape.circle, boxShadow: [
+      BoxShadow(
+        color: Colors.grey.withOpacity(0.3),
+        spreadRadius: 3,
+        blurRadius: 3,
+        offset: const Offset(0, 3),
+      )
+    ]),
+    child: Padding(
+        padding: const EdgeInsets.all(15),
+        child: Icon(
+          icon,
+          size: 30,
+        )),
+  );
 }
 
 Widget searchBar() {
@@ -292,10 +334,36 @@ Widget secondaryButton(
   );
 }
 
-Widget descriptionText(String label, {size = 15.0, color = blackColor}) {
+Widget outlinedButton({
+  required String label,
+  required void Function() onPressedHandler,
+  required Color color,
+  bool isLoading = false,
+}) {
+  return OutlinedButton(
+      onPressed: () {
+        if (isLoading) {
+          return;
+        }
+
+        onPressedHandler();
+      },
+      style: OutlinedButton.styleFrom(side: BorderSide(color: color)),
+      child: isLoading
+          ? SizedBox(
+              height: 17,
+              width: 17,
+              child: CircularProgressIndicator(strokeWidth: 1, color: color),
+            )
+          : bodyText(label, color: color));
+}
+
+Widget overflowText(String label,
+    {size = 15.0, color = blackColor, maxLines = 3}) {
   return Text(
     label,
-    maxLines: 3,
+    maxLines: maxLines,
+    softWrap: true,
     overflow: TextOverflow.ellipsis,
     style: TextStyle(fontSize: size, color: color),
   );
@@ -391,7 +459,7 @@ Widget memberProfile(imgDir, name, position,
   return Column(children: [
     const SizedBox(height: 7),
     Row(children: [
-      profilePicture(imgSize, imgDir),
+      profilePicture(imgSize, imgDir, isUrl: true),
       const SizedBox(width: 10),
       Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         isBold
@@ -400,33 +468,6 @@ Widget memberProfile(imgDir, name, position,
         bodyText(position, color: darkGreyColor, size: textSize)
       ])
     ])
-  ]);
-}
-
-Widget manageMemberBar(imgDir, name, position) {
-  return Column(children: [
-    const SizedBox(height: 20),
-    Container(
-      width: double.infinity,
-      decoration: BoxDecoration(
-          color: whiteColor,
-          borderRadius: BorderRadius.circular(12),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withOpacity(0.3),
-              spreadRadius: 3,
-              blurRadius: 3,
-              offset: const Offset(0, 3),
-            )
-          ]),
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Column(children: [
-          memberProfile(imgDir, name, position, imgSize: 35.0, isBold: true),
-          const SizedBox(height: 7),
-        ]),
-      ),
-    ),
   ]);
 }
 
@@ -459,8 +500,21 @@ Widget taskBar(taskName, isChecked, checkBox) {
   );
 }
 
-String stringToDateFormatter(date) {
-  final formatter = DateFormat('dd MMM yyyy');
+void confirmationBox(context, title, message, {onAccept}) {
+  showDialog(
+    context: context,
+    builder: (context) {
+      return ConfirmationBox(
+        title: title,
+        message: message,
+        onClose: () => Navigator.pop(context),
+      );
+    },
+  );
+}
+
+String stringToDateFormatter(date, {noDate = false}) {
+  final formatter = noDate ? DateFormat('MMM yyyy') : DateFormat('dd MMM yyyy');
   return formatter.format(DateTime.parse(date));
 }
 
@@ -469,15 +523,21 @@ String dateToDateFormatter(date) {
   return formattedDate;
 }
 
-Widget futureBuilderFail() {
-  return Center(
-      child: bodyText('Please ensure that you have internet connection'));
+Widget futureBuilderFail(onReload) {
+  return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Center(
+            child: bodyText('Please ensure that you have internet connection')),
+        ElevatedButton(onPressed: onReload, child: bodyText("Reload"))
+      ]);
 }
 
 Widget chip<T>(label, T value, {void Function(T value)? onDeleteHandler}) {
   return Chip(
       labelPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 5.0),
-      label: bodyText(label),
+      label: smallText(label, size: 11.5),
       backgroundColor: Colors.transparent,
       deleteIcon: const Icon(
         Icons.close_outlined,
@@ -493,7 +553,6 @@ Widget chip<T>(label, T value, {void Function(T value)? onDeleteHandler}) {
 
 Widget chipsWrap<T>(List<T> items, {void Function(T value)? onDeleteHandler}) {
   return Wrap(
-    runSpacing: 5.0,
     spacing: 5.0,
     children: items
         .map((item) =>
