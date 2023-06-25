@@ -62,8 +62,7 @@ class AccomplishmentEntity extends Equatable {
         userId = json["user_id"];
 
   Map<String, dynamic> toJson() {
-    return {
-      'id': id,
+    Map<String, dynamic> json = {
       'title': title,
       'issuer': issuer,
       'is_active': isActive,
@@ -74,6 +73,12 @@ class AccomplishmentEntity extends Equatable {
       'updated_at': updatedAt?.toIso8601String(),
       'user_id': userId,
     };
+
+    if (id != null) {
+      json['id'] = id;
+    }
+
+    return json;
   }
 
   @override

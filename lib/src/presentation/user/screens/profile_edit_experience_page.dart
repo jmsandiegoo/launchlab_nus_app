@@ -2,31 +2,42 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:launchlab/src/config/app_theme.dart';
 import 'package:launchlab/src/data/user/user_repository.dart';
+import 'package:launchlab/src/domain/user/models/experience_entity.dart';
 import 'package:launchlab/src/presentation/user/cubits/experience_form_cubit.dart';
 import 'package:launchlab/src/presentation/user/widgets/experience_form.dart';
 import 'package:launchlab/src/utils/constants.dart';
 import 'package:launchlab/src/utils/helper.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-import '../../common/cubits/app_root_cubit.dart';
+class ProfileEditExperiencePage extends StatelessWidget {
+  const ProfileEditExperiencePage({super.key, required this.experience});
 
-class ProfileAddExperiencePage extends StatelessWidget {
-  const ProfileAddExperiencePage({super.key});
+  final ExperienceEntity experience;
 
   @override
   Widget build(BuildContext context) {
-    final appRootCubit = BlocProvider.of<AppRootCubit>(context);
     return BlocProvider(
-        create: (_) => ExperienceFormCubit(
-            userRepository: UserRepository(Supabase.instance)),
+        create: (_) => ExperienceFormCubit.withDefaultValues(
+              userRepository: UserRepository(Supabase.instance),
+              experience: experience,
+            ),
         child: BlocConsumer<ExperienceFormCubit, ExperienceFormState>(
           listener: (context, state) {
             if (state.experienceFormStatus ==
-                ExperienceFormStatus.createSuccess) {
+                ExperienceFormStatus.updateSuccess) {
               navigatePopWithData(
                 context,
                 state.experience,
-                ActionTypes.create,
+                ActionTypes.update,
+              );
+            }
+
+            if (state.experienceFormStatus ==
+                ExperienceFormStatus.deleteSuccess) {
+              navigatePopWithData<ExperienceEntity>(
+                context,
+                null,
+                ActionTypes.delete,
               );
             }
           },
@@ -47,7 +58,8 @@ class ProfileAddExperiencePage extends StatelessWidget {
                           ExperienceFormStatus.deleteLoading) {
                     return;
                   }
-                  navigatePopWithData(context, null, ActionTypes.cancel);
+                  navigatePopWithData<ExperienceEntity>(
+                      context, null, ActionTypes.cancel);
                 },
                 child: const Icon(Icons.keyboard_backspace_outlined),
               ),
@@ -55,14 +67,16 @@ class ProfileAddExperiencePage extends StatelessWidget {
             body: Container(
               padding:
                   const EdgeInsets.symmetric(horizontal: 30.0, vertical: 20.0),
-              // ignore: prefer_const_constructors
               child: ExperienceForm(
-                isEditMode: false,
+                isEditMode: true,
                 onSubmitHandler: (context, state) {
-                  BlocProvider.of<ExperienceFormCubit>(context).handleSubmit(
-                      isApiCalled: true,
-                      isEditMode: false,
-                      createUserId: appRootCubit.state.session?.user.id ?? '');
+                  print('called');
+                  BlocProvider.of<ExperienceFormCubit>(context)
+                      .handleSubmit(isApiCalled: true, isEditMode: true);
+                },
+                onDeleteHandler: (context, state) {
+                  BlocProvider.of<ExperienceFormCubit>(context)
+                      .handleDelete(isApiCalled: true);
                 },
               ),
             ),

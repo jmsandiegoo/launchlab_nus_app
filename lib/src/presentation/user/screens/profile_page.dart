@@ -91,7 +91,11 @@ class ProfilePage extends StatelessWidget {
                               ),
                               const SizedBox(height: 20),
                               ProfileExperienceList(
-                                  experiences: state.userExperiences),
+                                experiences: state.userExperiences,
+                                onUpdateHandler: () =>
+                                    profileCubit.handleGetProfileInfo(
+                                        state.userProfile!.id!),
+                              ),
                               const SizedBox(height: 20),
                               ProfileSkills(
                                 userPreference: state.userPreference!,

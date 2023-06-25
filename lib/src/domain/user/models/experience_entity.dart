@@ -40,6 +40,7 @@ class ExperienceEntity extends Equatable {
     final String? userId,
   }) {
     return ExperienceEntity(
+      id: id ?? this.id,
       title: title ?? this.title,
       companyName: companyName ?? this.companyName,
       isCurrent: isCurrent ?? this.isCurrent,
@@ -65,8 +66,7 @@ class ExperienceEntity extends Equatable {
         userId = json['user_id'];
 
   Map<String, dynamic> toJson() {
-    return {
-      'id': id,
+    Map<String, dynamic> json = {
       'title': title,
       'company_name': companyName,
       'is_current': isCurrent,
@@ -77,6 +77,12 @@ class ExperienceEntity extends Equatable {
       'updated_at': updatedAt?.toIso8601String(),
       'user_id': userId,
     };
+
+    if (id != null) {
+      json['id'] = id;
+    }
+
+    return json;
   }
 
   @override

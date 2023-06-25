@@ -1,15 +1,25 @@
 import 'dart:io';
-
+import 'package:dartz/dartz.dart';
 import 'package:launchlab/src/domain/user/models/accomplishment_entity.dart';
 import 'package:launchlab/src/domain/user/models/degree_programme_entity.dart';
 import 'package:launchlab/src/domain/user/models/experience_entity.dart';
 import 'package:launchlab/src/domain/user/models/preference_entity.dart';
+import 'package:launchlab/src/domain/user/models/requests/create_user_accomplishment_request.dart';
+import 'package:launchlab/src/domain/user/models/requests/create_user_experience_request.dart';
+import 'package:launchlab/src/domain/user/models/requests/delete_user_accomplishment_request.dart';
+import 'package:launchlab/src/domain/user/models/requests/delete_user_experience_request.dart';
 import 'package:launchlab/src/domain/user/models/requests/download_avatar_image_request.dart';
 import 'package:launchlab/src/domain/user/models/requests/get_profile_info_request.dart';
 import 'package:launchlab/src/domain/user/models/requests/onboard_user_request.dart';
+import 'package:launchlab/src/domain/user/models/requests/update_user_accomplishment_request.dart';
+import 'package:launchlab/src/domain/user/models/requests/update_user_experience_request.dart';
 import 'package:launchlab/src/domain/user/models/requests/update_user_request.dart';
 import 'package:launchlab/src/domain/user/models/requests/update_user_skills_request.dart';
+import 'package:launchlab/src/domain/user/models/responses/create_user_accomplishment_response.dart';
+import 'package:launchlab/src/domain/user/models/responses/create_user_experiences_response.dart';
 import 'package:launchlab/src/domain/user/models/responses/get_profile_info_response.dart';
+import 'package:launchlab/src/domain/user/models/responses/update_user_accomplishment_response.dart';
+import 'package:launchlab/src/domain/user/models/responses/update_user_experience_response.dart';
 import 'package:launchlab/src/domain/user/models/user_entity.dart';
 import 'package:launchlab/src/domain/user/repositories/user_repository_impl.dart';
 import 'package:launchlab/src/utils/failure.dart';
@@ -197,11 +207,8 @@ class UserRepository implements UserRepositoryImpl {
   Future<void> updateUser(UpdateUserRequest request) async {
     // upload new avatar
     try {
-      String? userAvatarIdentifier;
-      String? userResumeIdentifier;
-
       if (request.userAvatar != null) {
-        userAvatarIdentifier = await uploadFile(
+        await uploadFile(
           supabase: _supabase,
           bucket: "user_avatar_bucket",
           file: request.userAvatar!,
@@ -210,7 +217,7 @@ class UserRepository implements UserRepositoryImpl {
       }
 
       if (request.userResume != null) {
-        userResumeIdentifier = await uploadFile(
+        await uploadFile(
           supabase: _supabase,
           bucket: "user_resume_bucket",
           file: request.userResume!,
@@ -229,6 +236,65 @@ class UserRepository implements UserRepositoryImpl {
     }
   }
 
+  Future<CreateUserExperienceResponse> createUserExperience(
+      CreateUserExperienceRequest request) async {
+    try {
+      final List<Map<String, dynamic>> res = await _supabase.client
+          .from("experiences")
+          .insert(request.experience.toJson())
+          .select<PostgrestList>("*");
+
+      if (res.isEmpty) {
+        throw const Failure.badRequest();
+      }
+
+      return CreateUserExperienceResponse(
+        experience: ExperienceEntity.fromJson(res[0]),
+      );
+    } on Exception catch (error) {
+      print("create user experience error: $error");
+      throw Failure.badRequest();
+    }
+  }
+
+  Future<UpdateUserExperienceResponse> updateUserExperience(
+      UpdateUserExperienceRequest request) async {
+    try {
+      final List<Map<String, dynamic>> res = await _supabase.client
+          .from("experiences")
+          .update(
+            request.experience.toJson(),
+          )
+          .eq(
+            "id",
+            request.experience.id,
+          )
+          .select<PostgrestList>("*");
+
+      if (res.isEmpty) {
+        throw const Failure.badRequest();
+      }
+
+      return UpdateUserExperienceResponse(
+        experience: ExperienceEntity.fromJson(res[0]),
+      );
+    } on Exception catch (error) {
+      print("update user experience error: $error");
+      throw const Failure.badRequest();
+    }
+  }
+
+  Future<void> deleteUserExperience(DeleteUserExperienceRequest request) async {
+    try {
+      await _supabase.client.from("experiences").delete().eq(
+            'id',
+            request.experience.id,
+          );
+    } on Exception catch (error) {
+      print("delete user experience error: $error");
+    }
+  }
+
   // update userSkill data
   Future<void> updateUserSkills(UpdateUserSkillsRequest request) async {
     try {
@@ -239,6 +305,66 @@ class UserRepository implements UserRepositoryImpl {
     } on Exception catch (error) {
       print("update user skills error: $error");
       throw const Failure.badRequest();
+    }
+  }
+
+  Future<CreateUserAccomplishmentResponse> createUserAccomplishment(
+      CreateUserAccomplishmentRequest request) async {
+    try {
+      final List<Map<String, dynamic>> res = await _supabase.client
+          .from("accomplishments")
+          .insert(request.accomplishment.toJson())
+          .select<PostgrestList>("*");
+
+      if (res.isEmpty) {
+        throw const Failure.badRequest();
+      }
+
+      return CreateUserAccomplishmentResponse(
+        accomplishment: AccomplishmentEntity.fromJson(res[0]),
+      );
+    } on Exception catch (error) {
+      print("create user accomplishment error: $error");
+      throw Failure.badRequest();
+    }
+  }
+
+  Future<UpdateUserAccomplishmentResponse> updateUserAccomplishment(
+      UpdateUserAccomplishmentRequest request) async {
+    try {
+      final List<Map<String, dynamic>> res = await _supabase.client
+          .from("accomplishments")
+          .update(
+            request.accomplishment.toJson(),
+          )
+          .eq(
+            "id",
+            request.accomplishment.id,
+          )
+          .select<PostgrestList>("*");
+
+      if (res.isEmpty) {
+        throw const Failure.badRequest();
+      }
+
+      return UpdateUserAccomplishmentResponse(
+        accomplishment: AccomplishmentEntity.fromJson(res[0]),
+      );
+    } on Exception catch (error) {
+      print("update user accomplishment error: $error");
+      throw const Failure.badRequest();
+    }
+  }
+
+  Future<void> deleteUserAccomplishment(
+      DeleteUserAccomplishmentRequest request) async {
+    try {
+      await _supabase.client.from("accomplishments").delete().eq(
+            'id',
+            request.accomplishment.id,
+          );
+    } on Exception catch (error) {
+      print("delete user accomplishment error: $error");
     }
   }
 }

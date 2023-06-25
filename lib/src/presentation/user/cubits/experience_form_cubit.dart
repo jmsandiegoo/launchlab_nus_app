@@ -2,7 +2,12 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:formz/formz.dart';
+import 'package:launchlab/src/data/user/user_repository.dart';
 import 'package:launchlab/src/domain/user/models/experience_entity.dart';
+import 'package:launchlab/src/domain/user/models/requests/create_user_experience_request.dart';
+import 'package:launchlab/src/domain/user/models/requests/delete_user_experience_request.dart';
+import 'package:launchlab/src/domain/user/models/requests/update_user_experience_request.dart';
+import 'package:launchlab/src/domain/user/models/responses/create_user_experiences_response.dart';
 import 'package:launchlab/src/presentation/common/widgets/form_fields/checkbox_field.dart';
 import 'package:launchlab/src/presentation/common/widgets/form_fields/text_field.dart';
 import 'package:launchlab/src/presentation/user/widgets/form_fields/end_date_field.dart';
@@ -70,7 +75,9 @@ class ExperienceFormState extends Equatable {
 
 enum ExperienceFormStatus {
   initial,
-  loading,
+  createLoading,
+  updateLoading,
+  deleteLoading,
   createSuccess,
   updateSuccess,
   deleteSuccess,
@@ -78,7 +85,7 @@ enum ExperienceFormStatus {
 }
 
 class ExperienceFormCubit extends Cubit<ExperienceFormState> {
-  ExperienceFormCubit()
+  ExperienceFormCubit({required this.userRepository})
       : super(
           ExperienceFormState(
             experienceFormStatus: ExperienceFormStatus.initial,
@@ -91,7 +98,8 @@ class ExperienceFormCubit extends Cubit<ExperienceFormState> {
             ),
           ),
         );
-  ExperienceFormCubit.withDefaultValues({required ExperienceEntity experience})
+  ExperienceFormCubit.withDefaultValues(
+      {required this.userRepository, required ExperienceEntity experience})
       : super(
           ExperienceFormState(
             titleNameFieldInput: TextFieldInput.unvalidated(experience.title),
@@ -110,6 +118,8 @@ class ExperienceFormCubit extends Cubit<ExperienceFormState> {
             experience: experience,
           ),
         );
+
+  final UserRepository userRepository;
 
   void onTitleNameChanged(String val) {
     final prevState = state;
@@ -257,8 +267,17 @@ class ExperienceFormCubit extends Cubit<ExperienceFormState> {
     emit(newState);
   }
 
-  Future<void> handleSubmit(
-      {bool isApiCalled = false, bool isEditMode = false}) async {
+  Future<void> handleSubmit({
+    bool isApiCalled = false,
+    bool isEditMode = false,
+    String createUserId = '',
+  }) async {
+    if (state.experienceFormStatus == ExperienceFormStatus.createLoading ||
+        state.experienceFormStatus == ExperienceFormStatus.updateLoading ||
+        state.experienceFormStatus == ExperienceFormStatus.deleteLoading) {
+      return;
+    }
+
     final titleNameFieldInput =
         TextFieldInput.validated(state.titleNameFieldInput.value);
     final companyNameFieldInput =
@@ -312,15 +331,36 @@ class ExperienceFormCubit extends Cubit<ExperienceFormState> {
               : ExperienceFormStatus.createSuccess,
         ),
       );
-      return;
     } else {
       try {
-        emit(
-            state.copyWith(experienceFormStatus: ExperienceFormStatus.loading));
+        // call api update or edit api accordingly
+        ExperienceEntity experience = state.experience.copyWith(
+          title: state.titleNameFieldInput.value,
+          companyName: state.companyNameFieldInput.value,
+          isCurrent: state.isCurrentFieldInput.value,
+          startDate: state.startDateFieldInput.value,
+          endDate: state.endDateFieldInput.value,
+          description: state.descriptionFieldInput.value,
+        );
 
-        // call api update or esit api accordingly
+        if (isEditMode) {
+          emit(state.copyWith(
+              experienceFormStatus: ExperienceFormStatus.updateLoading));
+          await userRepository.updateUserExperience(
+              UpdateUserExperienceRequest(experience: experience));
+        } else {
+          emit(state.copyWith(
+              experienceFormStatus: ExperienceFormStatus.createLoading));
+          CreateUserExperienceResponse res = await userRepository
+              .createUserExperience(CreateUserExperienceRequest(
+                  experience: experience.copyWith(
+            userId: createUserId,
+          )));
+          experience = res.experience;
+        }
 
         emit(state.copyWith(
+          experience: experience,
           experienceFormStatus: isEditMode
               ? ExperienceFormStatus.updateSuccess
               : ExperienceFormStatus.createSuccess,
@@ -334,10 +374,32 @@ class ExperienceFormCubit extends Cubit<ExperienceFormState> {
   }
 
   Future<void> handleDelete({bool isApiCalled = false}) async {
+    if (state.experienceFormStatus == ExperienceFormStatus.createLoading ||
+        state.experienceFormStatus == ExperienceFormStatus.updateLoading ||
+        state.experienceFormStatus == ExperienceFormStatus.deleteLoading) {
+      return;
+    }
+
     if (!isApiCalled) {
       emit(state.copyWith(
           experienceFormStatus: ExperienceFormStatus.deleteSuccess));
       return;
+    }
+
+    try {
+      emit(state.copyWith(
+          experienceFormStatus: ExperienceFormStatus.deleteLoading));
+      await userRepository.deleteUserExperience(
+          DeleteUserExperienceRequest(experience: state.experience));
+      emit(state.copyWith(
+        experienceFormStatus: ExperienceFormStatus.deleteSuccess,
+      ));
+    } on Exception catch (error) {
+      emit(
+        state.copyWith(
+          experienceFormStatus: ExperienceFormStatus.error,
+        ),
+      );
     }
   }
 }

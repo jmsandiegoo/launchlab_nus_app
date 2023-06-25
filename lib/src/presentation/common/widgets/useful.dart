@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:launchlab/src/config/app_theme.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 Widget userInput({
   required FocusNode focusNode,
@@ -292,6 +293,30 @@ Widget secondaryButton(
                   TextStyle(color: Theme.of(context).colorScheme.onSecondary),
             ),
   );
+}
+
+Widget outlinedButton({
+  required String label,
+  required void Function() onPressedHandler,
+  required Color color,
+  bool isLoading = false,
+}) {
+  return OutlinedButton(
+      onPressed: () {
+        if (isLoading) {
+          return;
+        }
+
+        onPressedHandler();
+      },
+      style: OutlinedButton.styleFrom(side: BorderSide(color: color)),
+      child: isLoading
+          ? SizedBox(
+              height: 17,
+              width: 17,
+              child: CircularProgressIndicator(strokeWidth: 1, color: color),
+            )
+          : bodyText(label, color: color));
 }
 
 Widget descriptionText(String label, {size = 15.0, color = blackColor}) {

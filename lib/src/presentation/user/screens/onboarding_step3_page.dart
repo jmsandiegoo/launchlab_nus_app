@@ -1,9 +1,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:launchlab/src/domain/user/models/experience_entity.dart';
 import 'package:launchlab/src/presentation/common/widgets/form_fields/file_upload.dart';
 import 'package:launchlab/src/presentation/common/widgets/useful.dart';
 import 'package:launchlab/src/presentation/user/cubits/onboarding_cubit.dart';
 import 'package:launchlab/src/presentation/user/widgets/experience_list.dart';
+import 'package:launchlab/src/utils/constants.dart';
+import 'package:launchlab/src/utils/helper.dart';
 
 class OnboardingStep3Page extends StatelessWidget {
   const OnboardingStep3Page({super.key});
@@ -36,7 +39,6 @@ class _OnboardingStep3ContentState extends State<OnboardingStep3Content> {
 
   @override
   Widget build(BuildContext context) {
-    print('rebuild');
     return ListView(
       children: [
         headerText("Upload Resume"),
@@ -59,8 +61,53 @@ class _OnboardingStep3ContentState extends State<OnboardingStep3Content> {
         ),
         ExperienceList(
           experiences: _onboardingCubit.state.experienceListInput.value,
-          onChangedHandler: (values) =>
-              _onboardingCubit.onExperienceListChanged(values),
+          onAddHandler: () async {
+            final returnData = await navigatePush(
+              context,
+              "/profile/manage-experience/add-experience",
+            );
+
+            if (returnData == null ||
+                returnData.actionType == ActionTypes.cancel) {
+              return;
+            }
+
+            if (returnData.actionType == ActionTypes.create) {
+              final newExperiences = [
+                ..._onboardingCubit.state.experienceListInput.value
+              ];
+              newExperiences.add(returnData.data);
+              _onboardingCubit.onExperienceListChanged(
+                newExperiences,
+              );
+            }
+          },
+          onEditHandler: (exp) async {
+            final NavigationData<ExperienceEntity>? returnData =
+                await navigatePushWithData<ExperienceEntity>(
+                    context, "/onboard-edit-experience", exp);
+
+            List<ExperienceEntity> newExperiences = [
+              ..._onboardingCubit.state.experienceListInput.value
+            ];
+
+            final index = newExperiences.indexOf(exp);
+
+            if (returnData == null ||
+                returnData.actionType == ActionTypes.cancel) {
+              return;
+            }
+
+            if (returnData.actionType == ActionTypes.update) {
+              newExperiences[index] = returnData.data!;
+              _onboardingCubit.onExperienceListChanged(newExperiences);
+            }
+
+            if (returnData.actionType == ActionTypes.delete) {
+              newExperiences.removeAt(index);
+              _onboardingCubit.onExperienceListChanged(newExperiences);
+            }
+          },
         ),
       ],
     );

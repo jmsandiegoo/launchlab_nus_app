@@ -2,66 +2,21 @@ import 'package:flutter/material.dart';
 import 'package:launchlab/src/config/app_theme.dart';
 import 'package:launchlab/src/domain/user/models/experience_entity.dart';
 import 'package:launchlab/src/presentation/common/widgets/useful.dart';
-import 'package:launchlab/src/utils/constants.dart';
 import 'package:launchlab/src/utils/helper.dart';
 
 class ExperienceList extends StatelessWidget {
   const ExperienceList({
     super.key,
     required this.experiences,
-    required this.onChangedHandler,
+    required this.onAddHandler,
+    required this.onEditHandler,
     this.isOnboardMode = true,
   });
 
   final List<ExperienceEntity> experiences;
-  final void Function(List<ExperienceEntity>) onChangedHandler;
+  final Future<void> Function() onAddHandler;
+  final Future<void> Function(ExperienceEntity) onEditHandler;
   final bool isOnboardMode;
-
-  Future<void> addExperience(BuildContext context) async {
-    final returnData = await navigatePush(
-        context,
-        isOnboardMode
-            ? "/onboard-add-experience"
-            : "/profile/manage-experience/add-experience");
-
-    if (returnData == null) {
-      return;
-    }
-
-    if (returnData.actionType == ActionTypes.create) {
-      final newExperiences = [...experiences];
-      newExperiences.add(returnData.data);
-      onChangedHandler(newExperiences);
-    }
-  }
-
-  Future<void> editExperience(
-      BuildContext context, ExperienceEntity exp) async {
-    final NavigationData<ExperienceEntity>? returnData =
-        await navigatePushWithData<ExperienceEntity>(
-            context,
-            isOnboardMode
-                ? "/onboard-edit-experience"
-                : "/profile/manage-experience/edit-experience",
-            exp);
-
-    List<ExperienceEntity> newExperiences = [...experiences];
-    final index = newExperiences.indexOf(exp);
-
-    if (returnData == null) {
-      return;
-    }
-
-    if (returnData.actionType == ActionTypes.update) {
-      newExperiences[index] = returnData.data!;
-      onChangedHandler(newExperiences);
-    }
-
-    if (returnData.actionType == ActionTypes.delete) {
-      newExperiences.removeAt(index);
-      onChangedHandler(newExperiences);
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -89,21 +44,27 @@ class ExperienceList extends StatelessWidget {
         ...() {
           return sortedExperiences
               .map((item) => ExperienceCard(
-                  experience: item,
-                  onTapHandler: (context, exp) => editExperience(context, exp)))
+                  experience: item, onTapHandler: (exp) => onEditHandler(exp)))
               .toList();
         }(),
-        LimitedBox(
-          maxWidth: 100,
-          child: OutlinedButton(
-              style: OutlinedButton.styleFrom(
-                backgroundColor: blackColor,
-              ),
-              onPressed: () {
-                addExperience(context);
-              },
-              child: bodyText("Add", color: whiteColor)),
-        )
+        ...() {
+          if (isOnboardMode) {
+            return [
+              LimitedBox(
+                maxWidth: 100,
+                child: OutlinedButton(
+                    style: OutlinedButton.styleFrom(
+                      backgroundColor: blackColor,
+                    ),
+                    onPressed: () {
+                      onAddHandler();
+                    },
+                    child: bodyText("Add", color: whiteColor)),
+              )
+            ];
+          }
+          return [];
+        }(),
       ],
     );
   }
@@ -114,7 +75,7 @@ class ExperienceCard extends StatelessWidget {
       {super.key, required this.experience, required this.onTapHandler});
 
   final ExperienceEntity experience;
-  final void Function(BuildContext, ExperienceEntity) onTapHandler;
+  final void Function(ExperienceEntity) onTapHandler;
 
   @override
   Widget build(BuildContext context) {
@@ -132,7 +93,7 @@ class ExperienceCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     smallText(
-                        "${dateStringFormatter("MMM yyyy", experience.startDate)} - ${experience.endDate != null ? dateStringFormatter("MMM yyyy", experience.endDate!) : "Present"}"),
+                        "${dateStringFormatter("dd MMM yyyy", experience.startDate)} - ${experience.endDate != null ? dateStringFormatter("dd MMM yyyy", experience.endDate!) : "Present"}"),
                     const SizedBox(height: 1.0),
                     smallText(experience.title, weight: FontWeight.w600),
                     const SizedBox(height: 1.0),
@@ -140,7 +101,7 @@ class ExperienceCard extends StatelessWidget {
                 ),
                 GestureDetector(
                   onTap: () {
-                    onTapHandler(context, experience);
+                    onTapHandler(experience);
                     // edited stuffs,
                   },
                   child: const Icon(

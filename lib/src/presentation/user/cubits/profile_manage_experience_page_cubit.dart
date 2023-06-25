@@ -3,25 +3,21 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:launchlab/src/domain/user/models/experience_entity.dart';
 import 'package:launchlab/src/presentation/user/widgets/form_fields/experience_list_field.dart';
 
-class ProfileExperienceListPageState extends Equatable {
-  const ProfileExperienceListPageState({
+class ProfileManageExperiencePageState extends Equatable {
+  const ProfileManageExperiencePageState({
     this.userExperiences = const ExperienceListFieldInput.unvalidated(),
-    required this.userId,
     required this.profileExperienceListPageStatus,
   });
 
   final ExperienceListFieldInput userExperiences;
-  final String userId;
   final ProfileExperienceListPageStatus profileExperienceListPageStatus;
 
-  ProfileExperienceListPageState copyWith({
+  ProfileManageExperiencePageState copyWith({
     ExperienceListFieldInput? userExperiences,
-    String? userId,
     ProfileExperienceListPageStatus? profileExperienceListPageStatus,
   }) {
-    return ProfileExperienceListPageState(
+    return ProfileManageExperiencePageState(
       userExperiences: userExperiences ?? this.userExperiences,
-      userId: userId ?? this.userId,
       profileExperienceListPageStatus: profileExperienceListPageStatus ??
           this.profileExperienceListPageStatus,
     );
@@ -30,7 +26,6 @@ class ProfileExperienceListPageState extends Equatable {
   @override
   List<Object?> get props => [
         userExperiences,
-        userId,
         profileExperienceListPageStatus,
       ];
 }
@@ -42,14 +37,13 @@ enum ProfileExperienceListPageStatus {
   error,
 }
 
-class ProfileExperienceListPageCubit
-    extends Cubit<ProfileExperienceListPageState> {
-  ProfileExperienceListPageCubit(
-      {required List<ExperienceEntity> userExperiences, required String userId})
-      : super(ProfileExperienceListPageState(
+class ProfileManageExperiencePageCubit
+    extends Cubit<ProfileManageExperiencePageState> {
+  ProfileManageExperiencePageCubit(
+      {required List<ExperienceEntity> userExperiences})
+      : super(ProfileManageExperiencePageState(
           userExperiences:
               ExperienceListFieldInput.unvalidated(userExperiences),
-          userId: userId,
           profileExperienceListPageStatus:
               ProfileExperienceListPageStatus.initial,
         ));
@@ -59,6 +53,7 @@ class ProfileExperienceListPageCubit
 
     final newState = state.copyWith(
       userExperiences: newUserExperiences,
+      profileExperienceListPageStatus: ProfileExperienceListPageStatus.success,
     );
 
     emit(newState);
