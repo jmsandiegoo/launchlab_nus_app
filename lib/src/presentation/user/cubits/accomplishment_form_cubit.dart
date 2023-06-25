@@ -2,7 +2,12 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:formz/formz.dart';
+import 'package:launchlab/src/data/user/user_repository.dart';
 import 'package:launchlab/src/domain/user/models/accomplishment_entity.dart';
+import 'package:launchlab/src/domain/user/models/requests/create_user_accomplishment_request.dart';
+import 'package:launchlab/src/domain/user/models/requests/delete_user_accomplishment_request.dart';
+import 'package:launchlab/src/domain/user/models/requests/update_user_accomplishment_request.dart';
+import 'package:launchlab/src/domain/user/models/responses/create_user_accomplishment_response.dart';
 import 'package:launchlab/src/presentation/common/widgets/form_fields/checkbox_field.dart';
 import 'package:launchlab/src/presentation/common/widgets/form_fields/text_field.dart';
 import 'package:launchlab/src/presentation/user/widgets/form_fields/end_date_field.dart';
@@ -70,7 +75,9 @@ class AccomplishmentFormState extends Equatable {
 
 enum AccomplishmentFormStatus {
   initial,
-  loading,
+  createLoading,
+  updateLoading,
+  deleteLoading,
   createSuccess,
   updateSuccess,
   deleteSuccess,
@@ -78,7 +85,7 @@ enum AccomplishmentFormStatus {
 }
 
 class AccomplishmentFormCubit extends Cubit<AccomplishmentFormState> {
-  AccomplishmentFormCubit()
+  AccomplishmentFormCubit({required this.userRepository})
       : super(
           AccomplishmentFormState(
             accomplishmentFormStatus: AccomplishmentFormStatus.initial,
@@ -91,8 +98,9 @@ class AccomplishmentFormCubit extends Cubit<AccomplishmentFormState> {
             ),
           ),
         );
-  AccomplishmentFormCubit.withDefaultValue(
-      {required AccomplishmentEntity accomplishment})
+  AccomplishmentFormCubit.withDefaultValues(
+      {required this.userRepository,
+      required AccomplishmentEntity accomplishment})
       : super(
           AccomplishmentFormState(
             titleNameFieldInput:
@@ -111,6 +119,8 @@ class AccomplishmentFormCubit extends Cubit<AccomplishmentFormState> {
             accomplishment: accomplishment,
           ),
         );
+
+  final UserRepository userRepository;
 
   void onTitleNameChanged(String val) {
     final prevState = state;
@@ -295,8 +305,20 @@ class AccomplishmentFormCubit extends Cubit<AccomplishmentFormState> {
     return isFormValid;
   }
 
-  Future<void> handleSubmit(
-      {bool isApiCalled = false, bool isEditMode = false}) async {
+  Future<void> handleSubmit({
+    bool isApiCalled = false,
+    bool isEditMode = false,
+    String createUserId = '',
+  }) async {
+    if (state.accomplishmentFormStatus ==
+            AccomplishmentFormStatus.createLoading ||
+        state.accomplishmentFormStatus ==
+            AccomplishmentFormStatus.updateLoading ||
+        state.accomplishmentFormStatus ==
+            AccomplishmentFormStatus.deleteLoading) {
+      return;
+    }
+
     final titleNameFieldInput =
         TextFieldInput.validated(state.titleNameFieldInput.value);
     final issuerFieldInput =
@@ -353,12 +375,35 @@ class AccomplishmentFormCubit extends Cubit<AccomplishmentFormState> {
       return;
     } else {
       try {
-        emit(state.copyWith(
-            accomplishmentFormStatus: AccomplishmentFormStatus.loading));
+        AccomplishmentEntity accomplishment = state.accomplishment.copyWith(
+          title: state.titleNameFieldInput.value,
+          issuer: state.issuerFieldInput.value,
+          isActive: state.isActiveFieldInput.value,
+          startDate: state.startDateFieldInput.value,
+          endDate: state.endDateFieldInput.value,
+          description: state.descriptionFieldInput.value,
+        );
 
-        // call api update or esit api accordingly
+        if (isEditMode) {
+          emit(state.copyWith(
+              accomplishmentFormStatus:
+                  AccomplishmentFormStatus.updateLoading));
+          await userRepository.updateUserAccomplishment(
+              UpdateUserAccomplishmentRequest(accomplishment: accomplishment));
+        } else {
+          emit(state.copyWith(
+              accomplishmentFormStatus:
+                  AccomplishmentFormStatus.createLoading));
+          CreateUserAccomplishmentResponse res = await userRepository
+              .createUserAccomplishment(CreateUserAccomplishmentRequest(
+                  accomplishment: accomplishment.copyWith(
+            userId: createUserId,
+          )));
+          accomplishment = res.accomplishment;
+        }
 
         emit(state.copyWith(
+          accomplishment: accomplishment,
           accomplishmentFormStatus: isEditMode
               ? AccomplishmentFormStatus.updateSuccess
               : AccomplishmentFormStatus.createSuccess,
@@ -376,6 +421,23 @@ class AccomplishmentFormCubit extends Cubit<AccomplishmentFormState> {
       emit(state.copyWith(
           accomplishmentFormStatus: AccomplishmentFormStatus.deleteSuccess));
       return;
+    }
+
+    try {
+      emit(state.copyWith(
+          accomplishmentFormStatus: AccomplishmentFormStatus.deleteLoading));
+      await userRepository.deleteUserAccomplishment(
+          DeleteUserAccomplishmentRequest(
+              accomplishment: state.accomplishment));
+      emit(state.copyWith(
+        accomplishmentFormStatus: AccomplishmentFormStatus.deleteSuccess,
+      ));
+    } on Exception catch (error) {
+      emit(
+        state.copyWith(
+          accomplishmentFormStatus: AccomplishmentFormStatus.error,
+        ),
+      );
     }
   }
 }

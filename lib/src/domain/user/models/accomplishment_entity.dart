@@ -36,8 +36,10 @@ class AccomplishmentEntity extends Equatable {
     String? description,
     DateTime? createdAt,
     DateTime? updatedAt,
+    String? userId,
   }) {
     return AccomplishmentEntity(
+      id: id ?? this.id,
       title: title ?? this.title,
       issuer: issuer ?? this.issuer,
       isActive: isActive ?? this.isActive,
@@ -46,6 +48,7 @@ class AccomplishmentEntity extends Equatable {
       description: description ?? this.description,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
+      userId: userId ?? this.userId,
     );
   }
 

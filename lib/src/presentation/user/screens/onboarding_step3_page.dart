@@ -64,7 +64,7 @@ class _OnboardingStep3ContentState extends State<OnboardingStep3Content> {
           onAddHandler: () async {
             final returnData = await navigatePush(
               context,
-              "/profile/manage-experience/add-experience",
+              "/onboard-add-experience",
             );
 
             if (returnData == null ||

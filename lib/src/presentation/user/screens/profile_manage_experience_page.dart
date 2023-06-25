@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:launchlab/src/config/app_theme.dart';
 import 'package:launchlab/src/domain/user/models/experience_entity.dart';
-import 'package:launchlab/src/presentation/common/cubits/app_root_cubit.dart';
 import 'package:launchlab/src/presentation/user/cubits/profile_manage_experience_page_cubit.dart';
 import 'package:launchlab/src/presentation/user/widgets/experience_list.dart';
 import 'package:launchlab/src/utils/constants.dart';

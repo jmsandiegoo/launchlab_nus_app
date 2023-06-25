@@ -21,21 +21,22 @@ import 'package:launchlab/src/presentation/user/screens/onboarding_step2_page.da
 import 'package:launchlab/src/presentation/user/screens/onboarding_step3_page.dart';
 import 'package:launchlab/src/presentation/user/screens/onboarding_step4_page.dart';
 import 'package:launchlab/src/presentation/user/screens/onboarding_welcome_page.dart';
+import 'package:launchlab/src/presentation/user/screens/profile_add_accomplishment_page.dart';
 import 'package:launchlab/src/presentation/user/screens/profile_add_experience_page.dart';
 import 'package:launchlab/src/presentation/user/screens/profile_edit_about_page.dart';
+import 'package:launchlab/src/presentation/user/screens/profile_edit_accomplishment_page.dart';
 import 'package:launchlab/src/presentation/user/screens/profile_edit_experience_page.dart';
 import 'package:launchlab/src/presentation/user/screens/profile_edit_intro_page.dart';
 import 'package:launchlab/src/presentation/user/screens/profile_edit_skills_page.dart';
+import 'package:launchlab/src/presentation/user/screens/profile_manage_accomplishment_page.dart';
 import 'package:launchlab/src/presentation/user/screens/profile_manage_experience_page.dart';
 import 'package:launchlab/src/presentation/user/screens/profile_page.dart';
-import 'package:launchlab/src/presentation/user/widgets/intro_form.dart';
 import 'package:launchlab/src/presentation/user/widgets/onboarding_container.dart';
 import 'package:launchlab/src/presentation/user/widgets/onboarding_steps_layout.dart';
 import 'package:launchlab/src/presentation/team/screens/create_team_page.dart';
 import 'package:launchlab/src/presentation/team/screens/edit_team_page.dart';
 import 'package:launchlab/src/presentation/search/screens/external_team_page.dart';
 import 'package:launchlab/src/presentation/team/screens/team_page.dart';
-import 'package:launchlab/src/presentation/user/widgets/profile_experience_list.dart';
 
 /// A file to configure the routing of the application
 
@@ -222,6 +223,26 @@ final GoRouter appRouter = GoRouter(
                   builder: (context, state) => ProfileEditSkillsPage(
                     props: state.extra as ProfileEditSkillsPageProps,
                   ),
+                ),
+                GoRoute(
+                  path: "manage-accomplishment",
+                  builder: (context, state) => ProfileManageAccomplishmentPage(
+                      props:
+                          state.extra as ProfileManageAccomplishmentPageProps),
+                  routes: [
+                    GoRoute(
+                      path: "add-accomplishment",
+                      builder: (context, state) =>
+                          const ProfileAddAccomplishmentPage(),
+                    ),
+                    GoRoute(
+                      path: "edit-accomplishment",
+                      builder: (context, state) =>
+                          ProfileEditAccomplishmentPage(
+                              accomplishment:
+                                  state.extra as AccomplishmentEntity),
+                    ),
+                  ],
                 ),
               ],
             ),

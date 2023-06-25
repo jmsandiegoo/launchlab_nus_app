@@ -106,6 +106,9 @@ class ProfilePage extends StatelessWidget {
                               const SizedBox(height: 20),
                               ProfileAccomplishmentList(
                                 accomplishments: state.userAccomplishments,
+                                onUpdateHandler: () =>
+                                    profileCubit.handleGetProfileInfo(
+                                        state.userProfile!.id!),
                               ),
                             ],
                           ),

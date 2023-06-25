@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:launchlab/src/config/app_theme.dart';
+import 'package:launchlab/src/data/user/user_repository.dart';
 import 'package:launchlab/src/domain/user/models/accomplishment_entity.dart';
 import 'package:launchlab/src/presentation/user/cubits/accomplishment_form_cubit.dart';
 import 'package:launchlab/src/presentation/user/widgets/accomplishment_form.dart';
 import 'package:launchlab/src/utils/constants.dart';
 import 'package:launchlab/src/utils/helper.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class OnboardingEditAccomplishmentPage extends StatelessWidget {
   const OnboardingEditAccomplishmentPage({
@@ -18,7 +20,8 @@ class OnboardingEditAccomplishmentPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => AccomplishmentFormCubit.withDefaultValue(
+      create: (_) => AccomplishmentFormCubit.withDefaultValues(
+          userRepository: UserRepository(Supabase.instance),
           accomplishment: accomplishment),
       child: BlocListener<AccomplishmentFormCubit, AccomplishmentFormState>(
         listener: (context, state) {

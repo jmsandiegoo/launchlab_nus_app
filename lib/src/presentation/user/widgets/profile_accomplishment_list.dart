@@ -2,22 +2,57 @@ import 'package:flutter/material.dart';
 import 'package:launchlab/src/config/app_theme.dart';
 import 'package:launchlab/src/domain/user/models/accomplishment_entity.dart';
 import 'package:launchlab/src/presentation/common/widgets/useful.dart';
+import 'package:launchlab/src/presentation/user/screens/profile_add_accomplishment_page.dart';
+import 'package:launchlab/src/presentation/user/screens/profile_manage_accomplishment_page.dart';
+import 'package:launchlab/src/utils/constants.dart';
 import 'package:launchlab/src/utils/helper.dart';
 
 class ProfileAccomplishmentList extends StatelessWidget {
   const ProfileAccomplishmentList({
     super.key,
     required this.accomplishments,
+    required this.onUpdateHandler,
   });
 
   final List<AccomplishmentEntity> accomplishments;
+  final void Function() onUpdateHandler;
+
+  Future<void> manageAccomplishment(
+      BuildContext context, ProfileManageAccomplishmentPageProps props) async {
+    final NavigationData<Object?>? returnData =
+        await navigatePushWithData<Object?>(
+      context,
+      "/profile/manage-accomplishment",
+      props,
+    );
+
+    if (returnData == null || returnData.actionType == ActionTypes.cancel) {
+      return;
+    }
+
+    if (returnData.actionType == ActionTypes.update) {
+      onUpdateHandler();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
         Row(
-          children: [subHeaderText("Accomplishment")],
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            subHeaderText("Accomplishment"),
+            IconButton(
+              onPressed: () {
+                manageAccomplishment(
+                    context,
+                    ProfileManageAccomplishmentPageProps(
+                        userAccomplishments: accomplishments));
+              },
+              icon: const Icon(Icons.edit_outlined, color: blackColor),
+            ),
+          ],
         ),
         const SizedBox(height: 5),
         IntrinsicHeight(
@@ -74,7 +109,7 @@ class AccomplishmentWidget extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   smallText(
-                      "${dateStringFormatter("dd MMM yyyy", accomplishment.startDate)} - ${accomplishment.endDate != null ? dateStringFormatter("MMM yyyy", accomplishment.endDate!) : "Present"}",
+                      "${dateStringFormatter("dd MMM yyyy", accomplishment.startDate)} - ${accomplishment.endDate != null ? dateStringFormatter("dd MMM yyyy", accomplishment.endDate!) : "Present"}",
                       color: greyColor.shade700),
                   const SizedBox(height: 1.0),
                   smallText(accomplishment.title, weight: FontWeight.w600),
