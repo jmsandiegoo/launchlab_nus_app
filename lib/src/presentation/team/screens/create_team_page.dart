@@ -89,11 +89,10 @@ class _CreateTeamPageState extends State<CreateTeamPage> {
                                 )
                               ],
                             ),
-                            const SizedBox(width: 30),
-                            Flexible(
-                                flex: 1,
+                            SizedBox(
+                                height: 100,
                                 child: SvgPicture.asset(
-                                    'assets/images/create_team.svg')),
+                                    'assets/images/create_team.svg'))
                           ]),
                       const SizedBox(height: 20),
                       TextFieldWidget(
@@ -220,10 +219,7 @@ class _CreateTeamPageState extends State<CreateTeamPage> {
                                     child: Text(items),
                                   );
                                 }).toList(),
-                                onChanged: (String? newValue) {
-                                  editCreateTeamCubit
-                                      .onCategoryChanged(newValue!);
-                                },
+                                onChanged: (String? newValue) {},
                               ),
                             ),
                           ]),

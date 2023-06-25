@@ -347,7 +347,6 @@ class EditCreateTeamCubit extends Cubit<EditCreateTeamState> {
     interest,
     avatar,
   }) async {
-    print(category);
     await supabase.from('teams').update({
       'team_name': teamName,
       'description': description,

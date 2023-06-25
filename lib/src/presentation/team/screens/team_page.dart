@@ -368,18 +368,16 @@ class _TeamPageState extends State<TeamPage> {
             ),
           ]),
           isOwner
-              ? Flexible(
-                  flex: 1,
-                  child: PopupMenuButton<String>(
-                    onSelected: manageTask,
-                    itemBuilder: (BuildContext context) {
-                      return {'Delete'}.map((String choice) {
-                        return PopupMenuItem<String>(
-                            value: choice, child: Text(choice));
-                      }).toList();
-                    },
-                  ))
-              : const SizedBox(),
+              ? PopupMenuButton<String>(
+                  onSelected: manageTask,
+                  itemBuilder: (BuildContext context) {
+                    return {'Delete'}.map((String choice) {
+                      return PopupMenuItem<String>(
+                          value: choice, child: Text(choice));
+                    }).toList();
+                  },
+                )
+              : const SizedBox()
         ]),
       )
     ]);

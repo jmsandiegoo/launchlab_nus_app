@@ -50,9 +50,9 @@ class _TeamHomePageState extends State<TeamHomePage> {
                             Stack(
                               children: <Widget>[
                                 Image.asset(
-                                    "assets/images/yellow_curve_shape.png"),
+                                    "assets/images/yellow_curve_shape_3.png"),
                                 Positioned(
-                                  top: 150,
+                                  top: 100,
                                   left: 20,
                                   child: Column(
                                     crossAxisAlignment:
