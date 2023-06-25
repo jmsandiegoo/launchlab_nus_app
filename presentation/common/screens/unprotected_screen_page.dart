@@ -1,0 +1,30 @@
+import 'package:flutter/cupertino.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+import 'package:launchlab/src/presentation/common/cubits/app_root_cubit.dart';
+
+class UnprotectedScreenPage extends StatelessWidget {
+  const UnprotectedScreenPage({super.key, required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocListener<AppRootCubit, AppRootState>(
+      listener: (context, state) {
+        if (state.isSignedIn &&
+            state.authUserProfile != null &&
+            state.authUserProfile!.isOnboarded) {
+          context.go("/team-home");
+        }
+
+        if (state.isSignedIn &&
+            state.authUserProfile != null &&
+            !state.authUserProfile!.isOnboarded) {
+          context.go("/onboard");
+        }
+      },
+      child: child,
+    );
+  }
+}
