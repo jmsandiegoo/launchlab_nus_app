@@ -352,7 +352,7 @@ class _TeamPageState extends State<TeamPage> {
               activeColor: yellowColor,
             ),
             SizedBox(
-              width: 250,
+              width: 230,
               child: Text(
                 taskName,
                 overflow: TextOverflow.ellipsis,
