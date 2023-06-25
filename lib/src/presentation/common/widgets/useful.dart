@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:launchlab/src/config/app_theme.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:launchlab/src/presentation/common/widgets/confirmation_box.dart';
 
 Widget userInput({
   required FocusNode focusNode,
@@ -319,10 +320,12 @@ Widget outlinedButton({
           : bodyText(label, color: color));
 }
 
-Widget descriptionText(String label, {size = 15.0, color = blackColor}) {
+Widget overflowText(String label,
+    {size = 15.0, color = blackColor, maxLines = 3}) {
   return Text(
     label,
-    maxLines: 3,
+    maxLines: maxLines,
+    softWrap: true,
     overflow: TextOverflow.ellipsis,
     style: TextStyle(fontSize: size, color: color),
   );
@@ -483,6 +486,19 @@ Widget taskBar(taskName, isChecked, checkBox) {
         ),
       ],
     ),
+  );
+}
+
+void applicationConfirmationBox(context, title, message) {
+  showDialog(
+    context: context,
+    builder: (context) {
+      return ConfirmationBox(
+        title: title,
+        message: message,
+        onClose: () => Navigator.pop(context),
+      );
+    },
   );
 }
 

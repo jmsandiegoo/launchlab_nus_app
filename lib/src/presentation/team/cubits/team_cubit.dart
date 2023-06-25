@@ -53,7 +53,7 @@ class TeamCubit extends Cubit<TeamState> {
   }
 
   void listTeam({teamId}) async {
-    await supabase.from('milestones').update({
+    await supabase.from('teams').update({
       'is_listed': true,
       'updated_at': DateTime.now().toString()
     }).eq('id', teamId);
@@ -61,7 +61,7 @@ class TeamCubit extends Cubit<TeamState> {
   }
 
   void unlistTeam({teamId}) async {
-    await supabase.from('milestones').update({
+    await supabase.from('teams').update({
       'is_listed': false,
       'updated_at': DateTime.now().toString()
     }).eq('id', teamId);
@@ -69,11 +69,12 @@ class TeamCubit extends Cubit<TeamState> {
   }
 
   void disbandTeam({teamId}) async {
-    await supabase.from('milestones').update({
+    await supabase.from('teams').update({
       'is_current': false,
+      'is_listed': false,
       'updated_at': DateTime.now().toString()
     }).eq('id', teamId);
-    debugPrint("Unlisted");
+    debugPrint("Team Disbanded");
   }
 
   void deleteTask({taskId}) async {

@@ -37,7 +37,7 @@ class _AddTaskBoxState extends State<AddTaskBox> {
           const SizedBox(height: 30),
           Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
             ElevatedButton(
-                child: bodyText("  Add  "),
+                child: bodyText("  Add  ", weight: FontWeight.w500),
                 onPressed: () {
                   context.pop([
                     _taskTitle.text,
@@ -46,7 +46,7 @@ class _AddTaskBoxState extends State<AddTaskBox> {
                   ]);
                 }),
             OutlinedButton(
-              child: bodyText("  Close  "),
+              child: bodyText("  Close  ", weight: FontWeight.w500),
               onPressed: () {
                 navigatePop(context);
               },

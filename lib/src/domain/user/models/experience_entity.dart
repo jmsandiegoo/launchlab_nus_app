@@ -1,5 +1,4 @@
 import 'package:equatable/equatable.dart';
-import 'package:launchlab/src/domain/user/models/user_entity.dart';
 
 class ExperienceEntity extends Equatable {
   const ExperienceEntity({
