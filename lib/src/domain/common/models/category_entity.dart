@@ -34,7 +34,12 @@ class CategoryEntity implements Equatable {
   }
 
   @override
-  List<Object?> get props => [id, name];
+  List<Object?> get props => [
+        id,
+        name,
+        createdAt,
+        updatedAt,
+      ];
 
   @override
   bool? get stringify => true;

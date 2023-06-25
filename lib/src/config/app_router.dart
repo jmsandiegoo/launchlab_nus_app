@@ -27,6 +27,7 @@ import 'package:launchlab/src/presentation/user/screens/profile_edit_about_page.
 import 'package:launchlab/src/presentation/user/screens/profile_edit_accomplishment_page.dart';
 import 'package:launchlab/src/presentation/user/screens/profile_edit_experience_page.dart';
 import 'package:launchlab/src/presentation/user/screens/profile_edit_intro_page.dart';
+import 'package:launchlab/src/presentation/user/screens/profile_edit_preference_page.dart';
 import 'package:launchlab/src/presentation/user/screens/profile_edit_skills_page.dart';
 import 'package:launchlab/src/presentation/user/screens/profile_manage_accomplishment_page.dart';
 import 'package:launchlab/src/presentation/user/screens/profile_manage_experience_page.dart';
@@ -184,6 +185,12 @@ final GoRouter appRouter = GoRouter(
               pageBuilder: (context, state) =>
                   const NoTransitionPage(child: ProfilePage()),
               routes: [
+                GoRoute(
+                  path: "edit-settings",
+                  builder: (context, state) => ProfileEditPreferencePage(
+                    props: state.extra as ProfileEditPreferencePageProps,
+                  ),
+                ),
                 GoRoute(
                   path: "edit-intro",
                   builder: (context, state) => ProfileEditIntroPage(

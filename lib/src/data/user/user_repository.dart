@@ -12,6 +12,7 @@ import 'package:launchlab/src/domain/user/models/requests/get_profile_info_reque
 import 'package:launchlab/src/domain/user/models/requests/onboard_user_request.dart';
 import 'package:launchlab/src/domain/user/models/requests/update_user_accomplishment_request.dart';
 import 'package:launchlab/src/domain/user/models/requests/update_user_experience_request.dart';
+import 'package:launchlab/src/domain/user/models/requests/update_user_preference_request.dart';
 import 'package:launchlab/src/domain/user/models/requests/update_user_request.dart';
 import 'package:launchlab/src/domain/user/models/requests/update_user_skills_request.dart';
 import 'package:launchlab/src/domain/user/models/responses/create_user_accomplishment_response.dart';
@@ -200,6 +201,18 @@ class UserRepository implements UserRepositoryImpl {
     } on Exception catch (error) {
       print("download avatar error occured: $error");
       rethrow;
+    }
+  }
+
+  Future<void> updateUserPreference(UpdateUserPreferenceRequest request) async {
+    try {
+      await _supabase.client.rpc(
+        "handle_user_preference_update",
+        params: {"request_data": request.toJson()},
+      );
+    } on Exception catch (error) {
+      print("update user preference error: $error");
+      throw const Failure.badRequest();
     }
   }
 
