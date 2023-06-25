@@ -352,7 +352,7 @@ class _TeamPageState extends State<TeamPage> {
               activeColor: yellowColor,
             ),
             SizedBox(
-              width: 250,
+              width: 230,
               child: Text(
                 taskName,
                 overflow: TextOverflow.ellipsis,
@@ -366,16 +366,18 @@ class _TeamPageState extends State<TeamPage> {
             ),
           ]),
           isOwner
-              ? PopupMenuButton<String>(
-                  onSelected: manageTask,
-                  itemBuilder: (BuildContext context) {
-                    return {'Delete'}.map((String choice) {
-                      return PopupMenuItem<String>(
-                          value: choice, child: Text(choice));
-                    }).toList();
-                  },
-                )
-              : const SizedBox()
+              ? Flexible(
+                  flex: 1,
+                  child: PopupMenuButton<String>(
+                    onSelected: manageTask,
+                    itemBuilder: (BuildContext context) {
+                      return {'Delete'}.map((String choice) {
+                        return PopupMenuItem<String>(
+                            value: choice, child: Text(choice));
+                      }).toList();
+                    },
+                  ))
+              : const SizedBox(),
         ]),
       )
     ]);

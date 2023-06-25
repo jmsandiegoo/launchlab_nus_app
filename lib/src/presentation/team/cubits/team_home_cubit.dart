@@ -49,14 +49,14 @@ class TeamHomeCubit extends Cubit<TeamHomeState> {
         ? ''
         : await supabase.storage
             .from('user_avatar_bucket')
-            .createSignedUrl('${userData[0]['avatar']}', 30);
+            .createSignedUrl('${userData[0]['avatar']}', 1000);
 
     for (int i = 0; i < memberTeamData.length; i++) {
       var avatarURL = memberTeamData[i]['avatar'] == null
           ? ''
           : await supabase.storage
               .from('team_avatar_bucket')
-              .createSignedUrl('${memberTeamData[i]['avatar']}', 30);
+              .createSignedUrl('${memberTeamData[i]['avatar']}', 1000);
       memberTeamData[i]['avatar_url'] = avatarURL;
     }
 
@@ -65,7 +65,7 @@ class TeamHomeCubit extends Cubit<TeamHomeState> {
           ? ''
           : await supabase.storage
               .from('team_avatar_bucket')
-              .createSignedUrl('${ownerTeamData[i]['avatar']}', 30);
+              .createSignedUrl('${ownerTeamData[i]['avatar']}', 1000);
       ownerTeamData[i]['avatar_url'] = avatarURL;
     }
 

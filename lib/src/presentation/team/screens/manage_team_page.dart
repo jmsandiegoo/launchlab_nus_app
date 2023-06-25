@@ -65,8 +65,9 @@ class _ManageTeamPageState extends State<ManageTeamPage> {
                                             "Create new roles and \nmanage applicants here!")
                                       ],
                                     ),
-                                    SizedBox(
-                                        height: 150,
+                                    const SizedBox(width: 25),
+                                    Flexible(
+                                        flex: 1,
                                         child: SvgPicture.asset(
                                             'assets/images/create_team.svg'))
                                   ]),

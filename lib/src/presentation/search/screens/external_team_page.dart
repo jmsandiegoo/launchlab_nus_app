@@ -72,8 +72,13 @@ class _ExternalTeamPageState extends State<ExternalTeamPage> {
                                             //subHeaderText("     Listed 5h ago", size: 11.0, color: Colors.green)
 
                                             const SizedBox(height: 2),
-                                            boldFirstText(
-                                                "Deadline: ", "31 May 2023"),
+                                            teamData['end_date'] == null
+                                                ? boldFirstText(
+                                                    "Deadline: ", 'None')
+                                                : boldFirstText(
+                                                    "Deadline: ",
+                                                    stringToDateFormatter(
+                                                        teamData['end_date'])),
                                             boldFirstText("Category: ",
                                                 teamData['project_category']),
                                             boldFirstText("Commitment: ",

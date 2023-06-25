@@ -72,7 +72,7 @@ class _EditTeamPageState extends State<EditTeamPage> {
               data['end_date'] == null
                   ? editCreateTeamCubit.onIsCheckedChanged(true)
                   : editCreateTeamCubit
-                      .onEndDateChanged(DateTime.parse(data[0]['end_date']));
+                      .onEndDateChanged(DateTime.parse(data['end_date']));
               _teamNameController.text = data['team_name'];
               _descriptionController.text = data['description'];
               _maxMemberController.text = data['max_members'].toString();
@@ -118,10 +118,11 @@ class _EditTeamPageState extends State<EditTeamPage> {
                                 )
                               ],
                             ),
-                            SizedBox(
-                                height: 100,
+                            const SizedBox(width: 30),
+                            Flexible(
+                                flex: 1,
                                 child: SvgPicture.asset(
-                                    'assets/images/create_team.svg'))
+                                    'assets/images/create_team.svg')),
                           ]),
                       const SizedBox(height: 20),
                       TextFieldWidget(
@@ -248,7 +249,10 @@ class _EditTeamPageState extends State<EditTeamPage> {
                                     child: Text(items),
                                   );
                                 }).toList(),
-                                onChanged: (String? newValue) {},
+                                onChanged: (String? newValue) {
+                                  editCreateTeamCubit
+                                      .onCategoryChanged(newValue!);
+                                },
                               ),
                             ),
                           ]),
