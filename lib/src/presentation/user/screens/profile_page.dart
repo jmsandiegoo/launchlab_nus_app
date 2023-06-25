@@ -77,7 +77,10 @@ class ProfilePage extends StatelessWidget {
                                   },
                                   icon: const Icon(Icons.settings_outlined)),
                               IconButton(
-                                onPressed: () {},
+                                onPressed: () {
+                                  BlocProvider.of<AppRootCubit>(context)
+                                      .handleSignOut();
+                                },
                                 icon: const Icon(Icons.logout_outlined,
                                     color: blackColor),
                               ),
