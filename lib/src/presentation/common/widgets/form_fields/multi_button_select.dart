@@ -3,12 +3,13 @@ import 'package:launchlab/src/config/app_theme.dart';
 import 'package:launchlab/src/presentation/common/widgets/useful.dart';
 
 class MultiButtonSingleSelectWidget<T> extends StatelessWidget {
-  const MultiButtonSingleSelectWidget(
-      {super.key,
-      required this.value,
-      required this.options,
-      required this.colNo,
-      required this.onPressHandler});
+  const MultiButtonSingleSelectWidget({
+    super.key,
+    required this.value,
+    required this.options,
+    required this.colNo,
+    required this.onPressHandler,
+  });
 
   final T value;
   final List<T> options;
@@ -49,22 +50,27 @@ class MultiButtonSingleSelectWidget<T> extends StatelessWidget {
 }
 
 class MultiButtonMultiSelectWidget<T> extends StatelessWidget {
-  const MultiButtonMultiSelectWidget(
-      {super.key,
-      required this.values,
-      required this.options,
-      required this.colNo,
-      required this.onPressHandler});
+  const MultiButtonMultiSelectWidget({
+    super.key,
+    required this.values,
+    required this.options,
+    required this.colNo,
+    required this.onPressHandler,
+    this.onCompareHandler,
+  });
 
   final List<T> values;
   final List<T> options;
   final int colNo;
   final void Function(List<T>) onPressHandler;
+  final bool Function(T, List<T>)? onCompareHandler;
 
   List<SelectButton> renderButtons() {
     List<SelectButton> buttons = [];
     for (int i = 0; i < options.length; i++) {
-      bool isSelected = values.contains(options[i]);
+      bool isSelected = onCompareHandler != null
+          ? onCompareHandler!(options[i], values)
+          : values.contains(options[i]);
       buttons.add(
         SelectButton<T>(
           isSelected: isSelected,

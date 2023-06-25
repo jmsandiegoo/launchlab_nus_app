@@ -19,35 +19,25 @@ class _AddTaskBoxState extends State<AddTaskBox> {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 400,
-      child: ListView(children: [
-        Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: Column(children: [
-            subHeaderText("Add Task"),
-            const SizedBox(height: 30),
-            userInput_2(label: "Task Title", controller: _taskTitle),
-            Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
-              datePicker("Start Date", _startDateController),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 5.0),
-                child: const Text("\n—"),
-              ),
-              datePicker("End Date", _endDateController),
-            ]),
-            const SizedBox(height: 30),
-            Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
-              ElevatedButton(
-                  child: bodyText("  Add  ", weight: FontWeight.w500),
-                  onPressed: () {
-                    context.pop([
-                      _taskTitle.text,
-                      _startDateController.text,
-                      _endDateController.text
-                    ]);
-                  }),
-              OutlinedButton(
-                child: bodyText("  Close  ", weight: FontWeight.w500),
+
+      child: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: ListView(children: [
+          subHeaderText("Add Task"),
+          const SizedBox(height: 30),
+          userInput_2(label: "Task Title", controller: _taskTitle),
+          Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
+            datePicker("Start Date", _startDateController),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 5.0),
+              child: const Text("\n—"),
+            ),
+            datePicker("End Date", _endDateController),
+          ]),
+          const SizedBox(height: 30),
+          Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
+            ElevatedButton(
+                child: bodyText("  Add  ", weight: FontWeight.w500),
                 onPressed: () {
                   navigatePop(context);
                 },

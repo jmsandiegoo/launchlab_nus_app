@@ -61,13 +61,13 @@ class UserEntity extends Equatable {
         isOnboarded = json['is_onboarded'],
         firstName = json['first_name'],
         lastName = json['last_name'],
-        title = json['last_name'],
+        title = json['title'],
         avatar = json['avatar'],
         resume = json['resume'],
         about = json['about'],
         degreeProgrammeId = json['degree_programme_id'],
-        createdAt = DateTime.tryParse(json['created_at']),
-        updatedAt = DateTime.tryParse(json['updated_at']);
+        createdAt = DateTime.tryParse(json['created_at'].toString()),
+        updatedAt = DateTime.tryParse(json['updated_at'].toString());
 
   Map<String, dynamic> toJson() {
     return {

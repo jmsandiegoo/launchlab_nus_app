@@ -159,7 +159,9 @@ class _AccomplishmentFormState extends State<AccomplishmentForm> {
                 ),
                 Container(
                   height: 30,
-                  padding: const EdgeInsets.symmetric(horizontal: 5.0),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 5.0,
+                  ),
                   child: const Text("—"),
                 ),
                 Expanded(
@@ -201,16 +203,21 @@ class _AccomplishmentFormState extends State<AccomplishmentForm> {
                     context,
                     () => widget.onSubmitHandler(context, state),
                     widget.isEditMode ? "Edit" : "Create",
-                    elevation: 0),
+                    elevation: 0,
+                    isLoading: state.accomplishmentFormStatus ==
+                            AccomplishmentFormStatus.createLoading ||
+                        state.accomplishmentFormStatus ==
+                            AccomplishmentFormStatus.updateLoading),
                 ...() {
                   return widget.isEditMode
                       ? [
-                          OutlinedButton(
-                            onPressed: () =>
+                          outlinedButton(
+                            label: "Delete",
+                            onPressedHandler: () =>
                                 widget.onDeleteHandler!(context, state),
-                            style: OutlinedButton.styleFrom(
-                                side: const BorderSide(color: errorColor)),
-                            child: bodyText("Delete", color: errorColor),
+                            color: errorColor,
+                            isLoading: state.accomplishmentFormStatus ==
+                                AccomplishmentFormStatus.deleteLoading,
                           ),
                         ]
                       : [];

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:launchlab/src/config/app_theme.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:launchlab/src/presentation/common/widgets/confirmation_box.dart';
 
 Widget userInput({
@@ -333,6 +334,30 @@ Widget secondaryButton(
   );
 }
 
+Widget outlinedButton({
+  required String label,
+  required void Function() onPressedHandler,
+  required Color color,
+  bool isLoading = false,
+}) {
+  return OutlinedButton(
+      onPressed: () {
+        if (isLoading) {
+          return;
+        }
+
+        onPressedHandler();
+      },
+      style: OutlinedButton.styleFrom(side: BorderSide(color: color)),
+      child: isLoading
+          ? SizedBox(
+              height: 17,
+              width: 17,
+              child: CircularProgressIndicator(strokeWidth: 1, color: color),
+            )
+          : bodyText(label, color: color));
+}
+
 Widget overflowText(String label,
     {size = 15.0, color = blackColor, maxLines = 3}) {
   return Text(
@@ -512,7 +537,7 @@ Widget futureBuilderFail(onReload) {
 Widget chip<T>(label, T value, {void Function(T value)? onDeleteHandler}) {
   return Chip(
       labelPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 5.0),
-      label: bodyText(label),
+      label: smallText(label, size: 11.5),
       backgroundColor: Colors.transparent,
       deleteIcon: const Icon(
         Icons.close_outlined,
@@ -528,7 +553,6 @@ Widget chip<T>(label, T value, {void Function(T value)? onDeleteHandler}) {
 
 Widget chipsWrap<T>(List<T> items, {void Function(T value)? onDeleteHandler}) {
   return Wrap(
-    runSpacing: 5.0,
     spacing: 5.0,
     children: items
         .map((item) =>
