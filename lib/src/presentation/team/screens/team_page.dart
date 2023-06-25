@@ -250,8 +250,10 @@ class _TeamPageState extends State<TeamPage> {
 
   void _addTask(teamData, teamCubit) {
     showModalBottomSheet(
-        shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(15.0)),
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(15.0),
+                topRight: Radius.circular(15.0))),
         context: context,
         builder: (context) {
           return const AddTaskBox();

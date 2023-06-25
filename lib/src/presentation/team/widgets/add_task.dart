@@ -19,10 +19,10 @@ class _AddTaskBoxState extends State<AddTaskBox> {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 400,
+      // height: 450,
       child: Padding(
         padding: const EdgeInsets.all(20.0),
-        child: Column(children: [
+        child: ListView(children: [
           subHeaderText("Add Task"),
           const SizedBox(height: 30),
           userInput_2(label: "Task Title", controller: _taskTitle),

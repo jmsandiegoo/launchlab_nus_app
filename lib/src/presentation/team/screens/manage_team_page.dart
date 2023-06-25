@@ -51,25 +51,49 @@ class _ManageTeamPageState extends State<ManageTeamPage> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Column(
+                                mainAxisSize: MainAxisSize.min,
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                children: [
+                                  Expanded(
+                                    flex: 3,
+                                    child: Column(
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
                                       children: [
-                                        const SizedBox(height: 20),
                                         headerText("Manage Team"),
                                         bodyText(
                                             "Create new roles and \nmanage applicants here!")
                                       ],
                                     ),
-                                    SizedBox(
-                                        height: 150,
-                                        child: SvgPicture.asset(
-                                            'assets/images/create_team.svg'))
-                                  ]),
+                                  ),
+                                  const SizedBox(width: 10.0),
+                                  Expanded(
+                                    flex: 2,
+                                    child: SvgPicture.asset(
+                                        'assets/images/create_team.svg'),
+                                  ),
+                                ],
+                              ),
+                              // Row(
+                              //     mainAxisAlignment:
+                              //         MainAxisAlignment.spaceBetween,
+                              //     crossAxisAlignment: CrossAxisAlignment.start,
+                              //     children: [
+                              //       Column(
+                              //         crossAxisAlignment:
+                              //             CrossAxisAlignment.start,
+                              //         children: [
+                              //           const SizedBox(height: 20),
+                              //           headerText("Manage Team"),
+                              //           bodyText(
+                              //               "Create new roles and \nmanage applicants here!")
+                              //         ],
+                              //       ),
+                              //       SizedBox(
+                              //           height: 150,
+                              //           child: SvgPicture.asset(
+                              //               'assets/images/create_team.svg'))
+                              //     ]),
 
                               //Add the remaining details here.
                               const SizedBox(height: 20),
