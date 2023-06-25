@@ -1,3 +1,5 @@
+// ignore_for_file: unused_catch_clause, unused_local_variable
+
 import 'package:launchlab/src/domain/user/models/degree_programme_entity.dart';
 import 'package:launchlab/src/domain/user/models/experience_entity.dart';
 import 'package:launchlab/src/domain/user/models/requests/get_profile_info_request.dart';
