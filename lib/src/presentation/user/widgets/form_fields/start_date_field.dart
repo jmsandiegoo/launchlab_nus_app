@@ -22,7 +22,7 @@ extension StartDateFieldErrorExt on StartDateFieldError {
   String text() {
     switch (this) {
       case StartDateFieldError.empty:
-        return "Start Date must not be empty.";
+        return "Start Date required";
     }
   }
 }

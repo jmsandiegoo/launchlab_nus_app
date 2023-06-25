@@ -50,7 +50,7 @@ class _OnboardingStep4ContentState extends State<OnboardingStep4Content> {
           onAddHandler: () async {
             final returnData = await navigatePush(
               context,
-              "/onboard-edit-accomplishment",
+              "/onboard-add-accomplishment",
             );
 
             if (returnData == null ||

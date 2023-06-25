@@ -225,17 +225,20 @@ final GoRouter appRouter = GoRouter(
                   ),
                 ),
                 GoRoute(
+                  parentNavigatorKey: _mainShellKey,
                   path: "manage-accomplishment",
                   builder: (context, state) => ProfileManageAccomplishmentPage(
                       props:
                           state.extra as ProfileManageAccomplishmentPageProps),
                   routes: [
                     GoRoute(
+                      parentNavigatorKey: _mainShellKey,
                       path: "add-accomplishment",
                       builder: (context, state) =>
                           const ProfileAddAccomplishmentPage(),
                     ),
                     GoRoute(
+                      parentNavigatorKey: _mainShellKey,
                       path: "edit-accomplishment",
                       builder: (context, state) =>
                           ProfileEditAccomplishmentPage(
