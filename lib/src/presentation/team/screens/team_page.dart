@@ -250,7 +250,7 @@ class _TeamPageState extends State<TeamPage> {
 
   void _addTask(teamData, teamCubit) {
     showModalBottomSheet(
-        shape: RoundedRectangleBorder(
+        shape: const RoundedRectangleBorder(
             borderRadius: BorderRadius.only(
                 topLeft: Radius.circular(15.0),
                 topRight: Radius.circular(15.0))),
@@ -354,7 +354,7 @@ class _TeamPageState extends State<TeamPage> {
               activeColor: yellowColor,
             ),
             SizedBox(
-              width: 230,
+              width: 200,
               child: Text(
                 taskName,
                 overflow: TextOverflow.ellipsis,
@@ -368,16 +368,20 @@ class _TeamPageState extends State<TeamPage> {
             ),
           ]),
           isOwner
-              ? PopupMenuButton<String>(
-                  onSelected: manageTask,
-                  itemBuilder: (BuildContext context) {
-                    return {'Delete'}.map((String choice) {
-                      return PopupMenuItem<String>(
-                          value: choice, child: Text(choice));
-                    }).toList();
-                  },
+              ? Flexible(
+                  flex: 1,
+                  child: PopupMenuButton<String>(
+                    onSelected: manageTask,
+                    itemBuilder: (BuildContext context) {
+                      return {'Delete'}.map((String choice) {
+                        return PopupMenuItem<String>(
+                            value: choice, child: Text(choice));
+                      }).toList();
+                    },
+                  ),
                 )
-              : const SizedBox()
+              : const SizedBox(),
+          const SizedBox(width: 5)
         ]),
       )
     ]);

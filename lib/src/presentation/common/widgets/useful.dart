@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:launchlab/src/config/app_theme.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:launchlab/src/presentation/common/widgets/confirmation_box.dart';
 
 Widget userInput({

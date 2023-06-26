@@ -72,7 +72,7 @@ class _EditTeamPageState extends State<EditTeamPage> {
               data['end_date'] == null
                   ? editCreateTeamCubit.onIsCheckedChanged(true)
                   : editCreateTeamCubit
-                      .onEndDateChanged(DateTime.parse(data[0]['end_date']));
+                      .onEndDateChanged(DateTime.parse(data['end_date']));
               _teamNameController.text = data['team_name'];
               _descriptionController.text = data['description'];
               _maxMemberController.text = data['max_members'].toString();
@@ -169,7 +169,7 @@ class _EditTeamPageState extends State<EditTeamPage> {
                         Container(
                           height: 30,
                           padding: const EdgeInsets.symmetric(horizontal: 5.0),
-                          child: const Text("\n—"),
+                          child: const Text("—"),
                         ),
                         Expanded(
                           child: state.isChecked.value
@@ -248,7 +248,10 @@ class _EditTeamPageState extends State<EditTeamPage> {
                                     child: Text(items),
                                   );
                                 }).toList(),
-                                onChanged: (String? newValue) {},
+                                onChanged: (String? newValue) {
+                                  editCreateTeamCubit
+                                      .onCategoryChanged(newValue!);
+                                },
                               ),
                             ),
                           ]),
