@@ -216,8 +216,10 @@ class _ManageTeamPageState extends State<ManageTeamPage> {
 
   void _manageRoles(title, description, cubit, {roleId = ''}) {
     showModalBottomSheet(
-        shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(15.0)),
+        shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(15.0),
+                topRight: Radius.circular(15.0))),
         context: context,
         builder: (context) {
           return ManageRolesBox(

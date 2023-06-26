@@ -23,7 +23,7 @@ class _AddTaskBoxState extends State<AddTaskBox> {
       child: Padding(
         padding: const EdgeInsets.all(20.0),
         child: ListView(children: [
-          subHeaderText("Add Task"),
+          Center(child: subHeaderText("Add Task")),
           const SizedBox(height: 30),
           userInput_2(label: "Task Title", controller: _taskTitle),
           Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
