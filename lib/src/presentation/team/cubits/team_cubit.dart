@@ -48,7 +48,7 @@ class TeamCubit extends Cubit<TeamState> {
             .createSignedUrl('${teamData[0]['avatar']}', 30);
 
     teamData[0]['avatar_url'] = teamAvatarURL;
-
+    print("Team Loaded");
     return [
       teamMemberData,
       completedMilestones,

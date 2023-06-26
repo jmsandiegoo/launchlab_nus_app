@@ -140,7 +140,7 @@ class _CreateTeamPageState extends State<CreateTeamPage> {
                         Container(
                           height: 30,
                           padding: const EdgeInsets.symmetric(horizontal: 5.0),
-                          child: const Text("\n—"),
+                          child: const Text("-"),
                         ),
                         Expanded(
                           child: state.isChecked.value
