@@ -5,7 +5,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:formz/formz.dart';
 import 'package:launchlab/src/data/user/user_repository.dart';
 import 'package:launchlab/src/domain/user/models/degree_programme_entity.dart';
+import 'package:launchlab/src/domain/user/models/requests/delete_user_avatar_resume_request.dart';
 import 'package:launchlab/src/domain/user/models/requests/update_user_request.dart';
+import 'package:launchlab/src/domain/user/models/requests/upload_user_avatar_request.dart';
+import 'package:launchlab/src/domain/user/models/user_avatar_entity.dart';
 import 'package:launchlab/src/domain/user/models/user_entity.dart';
 import 'package:launchlab/src/presentation/common/widgets/form_fields/picture_upload_picker.dart';
 import 'package:launchlab/src/presentation/common/widgets/form_fields/text_field.dart';
@@ -85,10 +88,10 @@ class IntroFormCubit extends Cubit<IntroFormState> {
     required this.userRepository,
     required UserEntity userProfile,
     required DegreeProgrammeEntity userDegreeProgramme,
-    required File? userAvatarImage,
+    required UserAvatarEntity? userAvatar,
   }) : super(IntroFormState(
           pictureUploadPickerInput:
-              PictureUploadPickerInput.unvalidated(userAvatarImage),
+              PictureUploadPickerInput.unvalidated(userAvatar?.file),
           firstNameInput: TextFieldInput.unvalidated(userProfile.firstName!),
           lastNameInput: TextFieldInput.unvalidated(userProfile.lastName!),
           titleInput: TextFieldInput.unvalidated(userProfile.title!),
@@ -272,6 +275,16 @@ class IntroFormCubit extends Cubit<IntroFormState> {
     try {
       emit(state.copyWith(introFormStatus: IntroFormStatus.loading));
 
+      if (state.pictureUploadPickerInput.value != null) {
+        await userRepository.uploadUserAvatar(UploadUserAvatarRequest(
+            userAvatar: UserAvatarEntity(
+                userId: state.userProfile.id!,
+                file: state.pictureUploadPickerInput.value!)));
+      } else {
+        await userRepository.deleteUserAvatar(
+            DeleteUserAvatarResumeRequest(userId: state.userProfile.id!));
+      }
+
       await userRepository.updateUser(UpdateUserRequest(
         userProfile: state.userProfile.copyWith(
           firstName: state.firstNameInput.value,
@@ -279,7 +292,6 @@ class IntroFormCubit extends Cubit<IntroFormState> {
           title: state.titleInput.value,
           degreeProgrammeId: state.degreeProgrammeInput.value!.id,
         ),
-        userAvatar: state.pictureUploadPickerInput.value,
       ));
 
       emit(state.copyWith(

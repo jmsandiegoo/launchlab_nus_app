@@ -4,12 +4,13 @@ import 'package:launchlab/src/config/app_theme.dart';
 import 'package:launchlab/src/data/user/user_repository.dart';
 import 'package:launchlab/src/presentation/common/cubits/app_root_cubit.dart';
 import 'package:launchlab/src/presentation/common/widgets/useful.dart';
-import 'package:launchlab/src/presentation/user/cubits/profile_cubit.dart';
+import 'package:launchlab/src/presentation/user/cubits/profile_page_cubit.dart';
 import 'package:launchlab/src/presentation/user/screens/profile_edit_preference_page.dart';
 import 'package:launchlab/src/presentation/user/widgets/profile_about.dart';
 import 'package:launchlab/src/presentation/user/widgets/profile_accomplishment_list.dart';
 import 'package:launchlab/src/presentation/user/widgets/profile_experience_list.dart';
 import 'package:launchlab/src/presentation/user/widgets/profile_header.dart';
+import 'package:launchlab/src/presentation/user/widgets/profile_resume.dart';
 import 'package:launchlab/src/presentation/user/widgets/profile_skills.dart';
 import 'package:launchlab/src/utils/constants.dart';
 import 'package:launchlab/src/utils/helper.dart';
@@ -39,15 +40,17 @@ class ProfilePage extends StatelessWidget {
   Widget build(BuildContext context) {
     AppRootCubit appRootCubit = BlocProvider.of<AppRootCubit>(context);
     return BlocProvider(
-      create: (_) => ProfileCubit(UserRepository(Supabase.instance))
+      create: (_) => ProfilePageCubit(UserRepository(Supabase.instance))
         ..handleGetProfileInfo(appRootCubit.state.authUserProfile?.id ?? ''),
-      child: BlocBuilder<ProfileCubit, ProfileState>(
+      child: BlocBuilder<ProfilePageCubit, ProfilePageState>(
         builder: (context, state) {
-          ProfileCubit profileCubit = BlocProvider.of<ProfileCubit>(context);
+          ProfilePageCubit profileCubit =
+              BlocProvider.of<ProfilePageCubit>(context);
           return Scaffold(
             body: SafeArea(
               child: () {
-                if (state.profileStateStatus == ProfileStateStatus.loading) {
+                if (state.profilePageStatus == ProfilePageStatus.initial ||
+                    state.profilePageStatus == ProfilePageStatus.error) {
                   return const Center(
                     child: CircularProgressIndicator(),
                   );
@@ -89,7 +92,7 @@ class ProfilePage extends StatelessWidget {
                           ProfileHeader(
                             userProfile: state.userProfile!,
                             userDegreeProgramme: state.userDegreeProgramme!,
-                            userAvatarUrl: state.userAvatarUrl,
+                            userAvatar: state.userAvatar,
                             onUpdateHandler: () => profileCubit
                                 .handleGetProfileInfo(state.userProfile!.id!),
                           ),
@@ -104,6 +107,15 @@ class ProfilePage extends StatelessWidget {
                                   onUpdateHandler: () =>
                                       profileCubit.handleGetProfileInfo(
                                           state.userProfile!.id!),
+                                ),
+                                const SizedBox(height: 20),
+                                ProfileResume(
+                                  userResume: state.userResumeInput.value,
+                                  onChangedHandler: (file) {
+                                    profileCubit.onUserResumeChanged(file);
+                                  },
+                                  isLoading: state.profilePageStatus ==
+                                      ProfilePageStatus.uploadLoading,
                                 ),
                                 const SizedBox(height: 20),
                                 ProfileExperienceList(

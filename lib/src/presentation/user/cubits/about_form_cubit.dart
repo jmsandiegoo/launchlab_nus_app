@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:formz/formz.dart';
@@ -12,6 +14,7 @@ class AboutFormState extends Equatable {
     required this.aboutFormStatus,
     required this.userProfile,
   });
+
   final TextFieldInput aboutInput;
   final AboutFormStatus aboutFormStatus;
   final UserEntity userProfile;
@@ -44,14 +47,16 @@ enum AboutFormStatus {
 }
 
 class AboutFormCubit extends Cubit<AboutFormState> {
-  AboutFormCubit(
-      {required this.userRepository, required UserEntity userProfile})
-      : super(AboutFormState(
-            aboutInput: TextFieldInput.unvalidated(
-              userProfile.about ?? '',
-            ),
-            aboutFormStatus: AboutFormStatus.initial,
-            userProfile: userProfile));
+  AboutFormCubit({
+    required this.userRepository,
+    required UserEntity userProfile,
+  }) : super(AboutFormState(
+          aboutInput: TextFieldInput.unvalidated(
+            userProfile.about ?? '',
+          ),
+          aboutFormStatus: AboutFormStatus.initial,
+          userProfile: userProfile,
+        ));
 
   final UserRepository userRepository;
 
@@ -101,8 +106,8 @@ class AboutFormCubit extends Cubit<AboutFormState> {
     try {
       emit(state.copyWith(aboutFormStatus: AboutFormStatus.loading));
       await userRepository.updateUser(UpdateUserRequest(
-          userProfile:
-              state.userProfile.copyWith(about: state.aboutInput.value)));
+        userProfile: state.userProfile.copyWith(about: state.aboutInput.value),
+      ));
       emit(state.copyWith(aboutFormStatus: AboutFormStatus.success));
     } on Exception catch (_) {
       emit(state.copyWith(aboutFormStatus: AboutFormStatus.error));

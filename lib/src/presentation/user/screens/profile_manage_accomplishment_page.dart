@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:launchlab/src/config/app_theme.dart';
 import 'package:launchlab/src/domain/user/models/accomplishment_entity.dart';
 import 'package:launchlab/src/presentation/user/cubits/profie_manage_accomplishment_page_cubit.dart';
-import 'package:launchlab/src/presentation/user/screens/accomplishment_list.dart';
+import 'package:launchlab/src/presentation/user/widgets/accomplishment_list.dart';
 import 'package:launchlab/src/utils/constants.dart';
 import 'package:launchlab/src/utils/helper.dart';
 

@@ -2,11 +2,13 @@ import 'package:equatable/equatable.dart';
 
 class DownloadAvatarImageRequest extends Equatable {
   const DownloadAvatarImageRequest({
-    required this.fileName,
+    required this.userId,
+    this.isSignedUrlEnabled = false,
   });
 
-  final String fileName;
+  final String userId;
+  final bool isSignedUrlEnabled;
 
   @override
-  List<Object?> get props => [fileName];
+  List<Object?> get props => [userId];
 }

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:launchlab/src/config/app_theme.dart';
@@ -10,7 +12,9 @@ import 'package:launchlab/src/utils/helper.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ProfileEditAboutPageProps {
-  const ProfileEditAboutPageProps({required this.userProfile});
+  const ProfileEditAboutPageProps({
+    required this.userProfile,
+  });
   final UserEntity userProfile;
 }
 

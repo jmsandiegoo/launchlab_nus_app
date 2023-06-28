@@ -57,6 +57,7 @@ dependencies:
   mime: ^1.0.4
   uuid: ^3.0.6
   path_provider: ^2.0.15
+  open_file: ^3.3.2
 
 dev_dependencies:
   auto_route_generator: ^7.1.1

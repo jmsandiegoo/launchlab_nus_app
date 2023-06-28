@@ -13,7 +13,9 @@ import 'package:launchlab/src/domain/user/models/accomplishment_entity.dart';
 import 'package:launchlab/src/domain/user/models/degree_programme_entity.dart';
 import 'package:launchlab/src/domain/user/models/experience_entity.dart';
 import 'package:launchlab/src/domain/user/models/requests/onboard_user_request.dart';
+import 'package:launchlab/src/domain/user/models/user_avatar_entity.dart';
 import 'package:launchlab/src/domain/user/models/user_entity.dart';
+import 'package:launchlab/src/domain/user/models/user_resume_entity.dart';
 import 'package:launchlab/src/presentation/common/widgets/form_fields/picture_upload_picker.dart';
 import 'package:launchlab/src/presentation/common/widgets/form_fields/text_field.dart';
 import 'package:launchlab/src/presentation/user/widgets/form_fields/accomplishments_list_field.dart';
@@ -191,7 +193,7 @@ class OnboardingCubit extends Cubit<OnboardingState> {
 
       emit(state.copyWith(degreeProgrammeOptions: degreeProgrammeOptions));
     } on Exception catch (error) {
-      print(error);
+      debugPrint("$error");
     }
   }
 
@@ -376,7 +378,7 @@ class OnboardingCubit extends Cubit<OnboardingState> {
 
       emit(state.copyWith(skillInterestOptions: skillInterestOptions));
     } on Exception catch (error) {
-      print(error);
+      debugPrint("$error");
     }
   }
 
@@ -462,7 +464,7 @@ class OnboardingCubit extends Cubit<OnboardingState> {
       ));
       // not loading state
     } on Exception catch (error) {
-      print("error occured ${error}");
+      debugPrint("error occured $error");
     } finally {
       emit(state.copyWith(onboardingStatus: null));
     }
@@ -574,8 +576,14 @@ class OnboardingCubit extends Cubit<OnboardingState> {
       onboardingStatus: OnboardingStatus.submissionInProgress,
     ));
     final OnboardUserRequest request = OnboardUserRequest(
-      userAvatar: state.pictureUploadPickerInput.value,
-      userResume: state.userResumeInput.value,
+      userAvatar: state.pictureUploadPickerInput.value != null
+          ? UserAvatarEntity(
+              userId: user.id!, file: state.pictureUploadPickerInput.value!)
+          : null,
+      userResume: state.userResumeInput.value != null
+          ? UserResumeEntity(
+              userId: user.id!, file: state.userResumeInput.value!)
+          : null,
       user: user.copyWith(
         firstName: state.firstNameInput.value,
         lastName: state.lastNameInput.value,
@@ -589,13 +597,13 @@ class OnboardingCubit extends Cubit<OnboardingState> {
       accomplishments: state.accomplishmentListInput.value,
     );
     try {
-      print("request: $request");
+      debugPrint("request: $request");
       await _userRepository.onboardUser(request: request);
       emit(state.copyWith(
         onboardingStatus: OnboardingStatus.submissionSuccess,
       ));
     } on Exception catch (error) {
-      print(error);
+      debugPrint("$error");
       emit(state.copyWith(
         onboardingStatus: OnboardingStatus.submissionError,
       ));

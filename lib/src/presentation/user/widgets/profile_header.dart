@@ -1,7 +1,10 @@
+import 'dart:io';
+
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:launchlab/src/config/app_theme.dart';
 import 'package:launchlab/src/domain/user/models/degree_programme_entity.dart';
+import 'package:launchlab/src/domain/user/models/user_avatar_entity.dart';
 import 'package:launchlab/src/domain/user/models/user_entity.dart';
 import 'package:launchlab/src/presentation/common/widgets/useful.dart';
 import 'package:launchlab/src/presentation/user/screens/profile_edit_intro_page.dart';
@@ -13,13 +16,13 @@ class ProfileHeader extends StatelessWidget {
     super.key,
     required this.userProfile,
     required this.userDegreeProgramme,
-    this.userAvatarUrl,
+    this.userAvatar,
     required this.onUpdateHandler,
   });
 
   final UserEntity userProfile;
   final DegreeProgrammeEntity userDegreeProgramme;
-  final String? userAvatarUrl;
+  final UserAvatarEntity? userAvatar;
   final void Function() onUpdateHandler;
 
   Future<void> editProfileIntro(
@@ -61,16 +64,19 @@ class ProfileHeader extends StatelessWidget {
                       editProfileIntro(
                           context,
                           ProfileEditIntroPageProps(
-                              userProfile: userProfile,
-                              userDegreeProgramme: userDegreeProgramme));
+                            userProfile: userProfile,
+                            userDegreeProgramme: userDegreeProgramme,
+                            userAvatar: userAvatar,
+                          ));
                     },
                     icon: const Icon(Icons.edit_outlined, color: blackColor),
                   ),
                 ),
               ),
               Center(
-                  child: profilePicture(100, userAvatarUrl ?? "avatar_temp.png",
-                      isUrl: userAvatarUrl != null ? true : false)),
+                  child: profilePicture(
+                      100, userAvatar?.signedUrl ?? "avatar_temp.png",
+                      isUrl: userAvatar?.signedUrl != null ? true : false)),
             ],
           ),
           ConstrainedBox(
