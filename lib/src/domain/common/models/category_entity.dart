@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
 
-class CategoryEntity implements Equatable {
+class CategoryEntity extends Equatable {
   const CategoryEntity({
     required this.id,
     required this.name,

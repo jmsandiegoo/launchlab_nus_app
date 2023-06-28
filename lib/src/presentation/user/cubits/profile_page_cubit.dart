@@ -103,6 +103,7 @@ class ProfilePageCubit extends Cubit<ProfilePageState> {
   Future<void> handleGetProfileInfo(String userId) async {
     // call the user fetch profile
     try {
+      emit(state.copyWith(profilePageStatus: ProfilePageStatus.loading));
       final GetProfileInfoResponse res = await _userRepository
           .getProfileInfo(GetProfileInfoRequest(userId: userId));
       emit(state.copyWith(

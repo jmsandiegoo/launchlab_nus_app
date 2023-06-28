@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:launchlab/src/domain/user/models/degree_programme_entity.dart';
 import 'package:launchlab/src/domain/user/models/requests/create_user_accomplishment_request.dart';
 import 'package:launchlab/src/domain/user/models/requests/create_user_experience_request.dart';

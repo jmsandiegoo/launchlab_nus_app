@@ -50,6 +50,7 @@ class ProfilePage extends StatelessWidget {
             body: SafeArea(
               child: () {
                 if (state.profilePageStatus == ProfilePageStatus.initial ||
+                    state.profilePageStatus == ProfilePageStatus.loading ||
                     state.profilePageStatus == ProfilePageStatus.error) {
                   return const Center(
                     child: CircularProgressIndicator(),
