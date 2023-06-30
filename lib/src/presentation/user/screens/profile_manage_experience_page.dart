@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:launchlab/src/config/app_theme.dart';
 import 'package:launchlab/src/domain/user/models/experience_entity.dart';
+import 'package:launchlab/src/domain/user/models/user_entity.dart';
 import 'package:launchlab/src/presentation/common/widgets/feedback_toast.dart';
 import 'package:launchlab/src/presentation/user/cubits/profile_manage_experience_page_cubit.dart';
 import 'package:launchlab/src/presentation/user/widgets/experience_list.dart';
@@ -11,8 +12,11 @@ import 'package:launchlab/src/utils/toast_manager.dart';
 
 class ProfileManageExperiencePageProps {
   const ProfileManageExperiencePageProps({
+    required this.userProfile,
     required this.userExperiences,
   });
+
+  final UserEntity userProfile;
   final List<ExperienceEntity> userExperiences;
 }
 
@@ -28,7 +32,7 @@ class ProfileManageExperiencePage extends StatelessWidget {
   ) async {
     final returnData = await navigatePush(
       context,
-      "/profile/manage-experience/add-experience",
+      "/profile/${props.userProfile.id}/manage-experience/add-experience",
     );
 
     if (returnData == null || returnData.actionType == ActionTypes.cancel) {
@@ -95,9 +99,12 @@ class ProfileManageExperiencePage extends StatelessWidget {
                   profileManageExperiencePageCubit.onExperienceListChanged,
                   state.userExperiences.value),
               onEditHandler: (exp) async {
-                final NavigationData<ExperienceEntity>? returnData =
-                    await navigatePushWithData<ExperienceEntity>(context,
-                        "/profile/manage-experience/edit-experience", exp);
+                final NavigationData<
+                    ExperienceEntity>? returnData = await navigatePushWithData<
+                        ExperienceEntity>(
+                    context,
+                    "/profile/${props.userProfile.id}/manage-experience/edit-experience",
+                    exp);
 
                 List<ExperienceEntity> newExperiences = [
                   ...state.userExperiences.value

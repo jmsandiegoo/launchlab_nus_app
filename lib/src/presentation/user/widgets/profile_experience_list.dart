@@ -40,7 +40,7 @@ class ProfileExperienceList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (isAuthProfile && experiences.isEmpty) {
+    if (!isAuthProfile && experiences.isEmpty) {
       return const SizedBox(
         height: 0,
         width: 0,
@@ -83,6 +83,7 @@ class ProfileExperienceList extends StatelessWidget {
                     manageExperience(
                       context,
                       ProfileManageExperiencePageProps(
+                          userProfile: userProfile,
                           userExperiences: experiences),
                     );
                   },

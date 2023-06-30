@@ -41,7 +41,7 @@ class ProfileAccomplishmentList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (isAuthProfile && accomplishments.isEmpty) {
+    if (!isAuthProfile && accomplishments.isEmpty) {
       return const SizedBox(
         height: 0,
         width: 0,
@@ -84,6 +84,7 @@ class ProfileAccomplishmentList extends StatelessWidget {
                     manageAccomplishment(
                         context,
                         ProfileManageAccomplishmentPageProps(
+                            userProfile: userProfile,
                             userAccomplishments: accomplishments));
                   },
                   icon: const Icon(Icons.edit_outlined, color: blackColor),
