@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:launchlab/src/domain/common/models/category_entity.dart';
+import 'package:launchlab/src/presentation/common/widgets/feedback_toast.dart';
 import 'package:launchlab/src/presentation/common/widgets/form_fields/multi_button_select.dart';
 import 'package:launchlab/src/presentation/common/widgets/useful.dart';
 import 'package:launchlab/src/presentation/user/cubits/preference_form_cubit.dart';
+import 'package:launchlab/src/utils/toast_manager.dart';
 
 class PreferenceForm extends StatefulWidget {
   const PreferenceForm({super.key});
@@ -23,7 +25,22 @@ class _PreferenceFormState extends State<PreferenceForm> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<PreferenceFormCubit, PreferenceFormState>(
+    return BlocConsumer<PreferenceFormCubit, PreferenceFormState>(
+      listener: (context, state) {
+        if (state.preferenceFormStatus == PreferenceFormStatus.success) {
+          ToastManager().showFToast(
+              child: const SuccessFeedback(msg: "Edit preference successful!"));
+        }
+
+        if (state.preferenceFormStatus == PreferenceFormStatus.error &&
+            state.error != null) {
+          ToastManager()
+              .showFToast(child: ErrorFeedback(msg: state.error!.errorMessage));
+        }
+      },
+      listenWhen: (previous, current) {
+        return previous.preferenceFormStatus != current.preferenceFormStatus;
+      },
       builder: (context, state) => ListView(
         children: [
           headerText("Account Settings"),

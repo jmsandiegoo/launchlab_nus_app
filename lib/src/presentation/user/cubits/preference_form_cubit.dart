@@ -7,6 +7,7 @@ import 'package:launchlab/src/domain/common/models/category_entity.dart';
 import 'package:launchlab/src/domain/user/models/preference_entity.dart';
 import 'package:launchlab/src/domain/user/models/requests/update_user_preference_request.dart';
 import 'package:launchlab/src/presentation/user/widgets/form_fields/user_preferred_category_field.dart';
+import 'package:launchlab/src/utils/failure.dart';
 
 class PreferenceFormState extends Equatable {
   const PreferenceFormState({
@@ -15,18 +16,21 @@ class PreferenceFormState extends Equatable {
     this.categoryOptions = const [],
     required this.userPreference,
     required this.preferenceFormStatus,
+    this.error,
   });
 
   final UserPreferredCategoryFieldInput userPreferredCategoryInput;
   final List<CategoryEntity> categoryOptions;
   final PreferenceEntity userPreference;
   final PreferenceFormStatus preferenceFormStatus;
+  final Failure? error;
 
   PreferenceFormState copyWith({
     UserPreferredCategoryFieldInput? userPreferredCategoryInput,
     List<CategoryEntity>? categoryOptions,
     PreferenceEntity? userPreference,
     PreferenceFormStatus? preferenceFormStatus,
+    Failure? error,
   }) {
     return PreferenceFormState(
       userPreferredCategoryInput:
@@ -34,6 +38,7 @@ class PreferenceFormState extends Equatable {
       categoryOptions: categoryOptions ?? this.categoryOptions,
       userPreference: userPreference ?? this.userPreference,
       preferenceFormStatus: preferenceFormStatus ?? this.preferenceFormStatus,
+      error: error,
     );
   }
 
@@ -43,6 +48,7 @@ class PreferenceFormState extends Equatable {
         categoryOptions,
         userPreference,
         preferenceFormStatus,
+        error,
       ];
 }
 
@@ -91,9 +97,9 @@ class PreferenceFormCubit extends Cubit<PreferenceFormState> {
           categoryOptions: categoryOptions,
           preferenceFormStatus: PreferenceFormStatus.success));
       // not loading state
-    } on Exception catch (error) {
-      print("error occured ${error}");
-      emit(state.copyWith(preferenceFormStatus: PreferenceFormStatus.error));
+    } on Failure catch (error) {
+      emit(state.copyWith(
+          preferenceFormStatus: PreferenceFormStatus.error, error: error));
     }
   }
 
@@ -123,8 +129,9 @@ class PreferenceFormCubit extends Cubit<PreferenceFormState> {
       );
 
       emit(state.copyWith(preferenceFormStatus: PreferenceFormStatus.success));
-    } on Exception catch (_) {
-      emit(state.copyWith(preferenceFormStatus: PreferenceFormStatus.error));
+    } on Failure catch (error) {
+      emit(state.copyWith(
+          preferenceFormStatus: PreferenceFormStatus.error, error: error));
     }
   }
 }
