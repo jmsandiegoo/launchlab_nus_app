@@ -24,7 +24,7 @@ class ToastManager {
       Widget Function(BuildContext, Widget)? positionedToastBuilder,
       required Widget child}) {
     _fToast.showToast(
-      gravity: ToastGravity.TOP_RIGHT,
+      gravity: gravity,
       toastDuration: toastDuration,
       fadeDuration: fadeDuration,
       positionedToastBuilder: positionedToastBuilder,

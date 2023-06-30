@@ -73,7 +73,8 @@ class _IntroFormState extends State<IntroForm> {
               child: const SuccessFeedback(msg: "Edit intro successful!"));
         }
 
-        if (state.introFormStatus == IntroFormStatus.error) {
+        if (state.introFormStatus == IntroFormStatus.error &&
+            state.error != null) {
           ToastManager()
               .showFToast(child: ErrorFeedback(msg: state.error!.errorMessage));
         }

@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:launchlab/src/config/app_theme.dart';
 import 'package:launchlab/src/data/user/user_repository.dart';
 import 'package:launchlab/src/presentation/common/cubits/app_root_cubit.dart';
+import 'package:launchlab/src/presentation/common/widgets/feedback_toast.dart';
 import 'package:launchlab/src/presentation/common/widgets/useful.dart';
 import 'package:launchlab/src/presentation/user/cubits/profile_page_cubit.dart';
 import 'package:launchlab/src/presentation/user/screens/profile_edit_preference_page.dart';
@@ -14,6 +16,7 @@ import 'package:launchlab/src/presentation/user/widgets/profile_resume.dart';
 import 'package:launchlab/src/presentation/user/widgets/profile_skills.dart';
 import 'package:launchlab/src/utils/constants.dart';
 import 'package:launchlab/src/utils/helper.dart';
+import 'package:launchlab/src/utils/toast_manager.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 // own cubit for profile
@@ -42,7 +45,15 @@ class ProfilePage extends StatelessWidget {
     return BlocProvider(
       create: (_) => ProfilePageCubit(UserRepository(Supabase.instance))
         ..handleGetProfileInfo(appRootCubit.state.authUserProfile?.id ?? ''),
-      child: BlocBuilder<ProfilePageCubit, ProfilePageState>(
+      child: BlocConsumer<ProfilePageCubit, ProfilePageState>(
+        listener: (context, state) {
+          if (state.profilePageStatus == ProfilePageStatus.uploadError &&
+              state.error != null) {
+            ToastManager().showFToast(
+                // gravity: ToastGravity.BOTTOM,
+                child: ErrorFeedback(msg: state.error!.errorMessage));
+          }
+        },
         builder: (context, state) {
           ProfilePageCubit profileCubit =
               BlocProvider.of<ProfilePageCubit>(context);
@@ -57,7 +68,9 @@ class ProfilePage extends StatelessWidget {
                   );
                 }
                 return RefreshIndicator(
-                  onRefresh: () async {},
+                  onRefresh: () async {
+                    profileCubit.handleGetProfileInfo(state.userProfile!.id!);
+                  },
                   child: SingleChildScrollView(
                     physics: const AlwaysScrollableScrollPhysics(),
                     child: () {

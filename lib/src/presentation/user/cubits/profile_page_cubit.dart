@@ -16,6 +16,7 @@ import 'package:launchlab/src/domain/user/models/user_avatar_entity.dart';
 import 'package:launchlab/src/domain/user/models/user_entity.dart';
 import 'package:launchlab/src/domain/user/models/user_resume_entity.dart';
 import 'package:launchlab/src/presentation/user/widgets/form_fields/user_resume_field.dart';
+import 'package:launchlab/src/utils/failure.dart';
 
 @immutable
 class ProfilePageState extends Equatable {
@@ -30,6 +31,7 @@ class ProfilePageState extends Equatable {
     this.userPreference,
     required this.profilePageStatus,
     this.userResumeInput = const UserResumeFieldInput.unvalidated(),
+    this.error,
   });
 
   final UserEntity? userProfile;
@@ -42,6 +44,7 @@ class ProfilePageState extends Equatable {
   final PreferenceEntity? userPreference;
   final ProfilePageStatus profilePageStatus;
   final UserResumeFieldInput userResumeInput;
+  final Failure? error;
 
   ProfilePageState copyWith({
     UserEntity? userProfile,
@@ -54,6 +57,7 @@ class ProfilePageState extends Equatable {
     PreferenceEntity? userPreference,
     ProfilePageStatus? profilePageStatus,
     UserResumeFieldInput? userResumeInput,
+    Failure? error,
   }) {
     return ProfilePageState(
       userProfile: userProfile ?? this.userProfile,
@@ -66,6 +70,7 @@ class ProfilePageState extends Equatable {
       userPreference: userPreference ?? this.userPreference,
       profilePageStatus: profilePageStatus ?? this.profilePageStatus,
       userResumeInput: userResumeInput ?? this.userResumeInput,
+      error: error,
     );
   }
 
@@ -81,6 +86,7 @@ class ProfilePageState extends Equatable {
         userPreference,
         profilePageStatus,
         userResumeInput,
+        error,
       ];
 }
 
@@ -90,6 +96,7 @@ enum ProfilePageStatus {
   uploadLoading,
   success,
   error,
+  uploadError,
 }
 
 class ProfilePageCubit extends Cubit<ProfilePageState> {
@@ -117,9 +124,9 @@ class ProfilePageCubit extends Cubit<ProfilePageState> {
           profilePageStatus: ProfilePageStatus.success,
           userResumeInput:
               UserResumeFieldInput.unvalidated(res.userResume?.file)));
-    } on Exception catch (error) {
-      debugPrint("error get profile cubit $error");
-      emit(state.copyWith(profilePageStatus: ProfilePageStatus.error));
+    } on Failure catch (error) {
+      emit(state.copyWith(
+          profilePageStatus: ProfilePageStatus.error, error: error));
     }
   }
 
@@ -151,11 +158,12 @@ class ProfilePageCubit extends Cubit<ProfilePageState> {
           profilePageStatus: ProfilePageStatus.success,
         ));
       }
-    } on Exception catch (_) {
+    } on Failure catch (error) {
       emit(state.copyWith(
         userResumeInput:
             UserResumeFieldInput.validated(prevState.userResumeInput.value),
-        profilePageStatus: ProfilePageStatus.error,
+        profilePageStatus: ProfilePageStatus.uploadError,
+        error: error,
       ));
     }
   }

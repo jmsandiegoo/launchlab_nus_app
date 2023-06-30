@@ -129,7 +129,7 @@ class UserRepository implements UserRepositoryImpl {
 
       await uploadFile(
         supabase: _supabase,
-        bucket: "user_avatar_bucket",
+        bucket: "user_resume_buckett",
         uploadFile: request.userResume,
       );
 
