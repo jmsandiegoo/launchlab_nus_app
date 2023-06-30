@@ -45,6 +45,12 @@ class _AboutFormState extends State<AboutForm> {
           ToastManager().showFToast(
               child: const SuccessFeedback(msg: "Edit about successful!"));
         }
+
+        if (state.aboutFormStatus == AboutFormStatus.error &&
+            state.error != null) {
+          ToastManager()
+              .showFToast(child: ErrorFeedback(msg: state.error!.errorMessage));
+        }
       },
       listenWhen: (previous, current) {
         return previous.aboutFormStatus != current.aboutFormStatus;
