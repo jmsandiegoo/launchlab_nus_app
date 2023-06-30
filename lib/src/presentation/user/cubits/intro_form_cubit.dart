@@ -117,8 +117,8 @@ class IntroFormCubit extends Cubit<IntroFormState> {
           await userRepository.getDegreeProgrammes(filter);
 
       emit(state.copyWith(degreeProgrammeOptions: degreeProgrammeOptions));
-    } on Exception catch (error) {
-      print(error);
+    } on Exception catch (_) {
+      rethrow;
     }
   }
 

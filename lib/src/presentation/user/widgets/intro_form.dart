@@ -129,9 +129,10 @@ class _IntroFormState extends State<IntroForm> {
             focusNode: _degreeProgrammeFocusNode,
             label: "Degree Programme",
             hint: "Select",
+            isFilterOnline: true,
             getItems: (String filter) async {
               await _introFormCubit.handleGetDegreeProgrammes(filter);
-              return state.degreeProgrammeOptions;
+              return _introFormCubit.state.degreeProgrammeOptions;
             },
             selectedItem: state.degreeProgrammeInput.value,
             onChangedHandler: (val) =>

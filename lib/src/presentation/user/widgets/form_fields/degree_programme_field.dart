@@ -11,8 +11,22 @@ class DegreeProgrammeFieldInput
 
   @override
   DegreeProgrammeFieldError? validator(DegreeProgrammeEntity? value) {
+    if (value == null) {
+      return DegreeProgrammeFieldError.empty;
+    }
     return null;
   }
 }
 
-enum DegreeProgrammeFieldError { none }
+enum DegreeProgrammeFieldError {
+  empty,
+}
+
+extension DegreeProgrammeFieldErrorExt on DegreeProgrammeFieldError {
+  String text() {
+    switch (this) {
+      case DegreeProgrammeFieldError.empty:
+        return "Degree Programme is required";
+    }
+  }
+}

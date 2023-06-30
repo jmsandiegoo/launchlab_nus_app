@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:launchlab/src/domain/user/models/degree_programme_entity.dart';
 import 'package:launchlab/src/presentation/common/widgets/form_fields/dropwdown_search_field.dart';
 import 'package:launchlab/src/presentation/common/widgets/form_fields/picture_upload_picker.dart';
+import 'package:launchlab/src/presentation/user/widgets/form_fields/degree_programme_field.dart';
 import 'package:launchlab/src/presentation/common/widgets/form_fields/text_field.dart';
 import 'package:launchlab/src/presentation/common/widgets/useful.dart';
 import 'package:launchlab/src/presentation/user/cubits/onboarding_cubit.dart';
@@ -86,8 +87,6 @@ class _OnboardingStep1ContentState extends State<OnboardingStep1Content> {
 
   @override
   Widget build(BuildContext context) {
-    print(
-        "currStep & step: ${_onboardingCubit.state.currStep} , ${_onboardingCubit.state.steps}");
     return ListView(
       children: [
         headerText("Tell us about yourself"),
@@ -144,8 +143,9 @@ class _OnboardingStep1ContentState extends State<OnboardingStep1Content> {
           onChangedHandler: (val) =>
               _onboardingCubit.onDegreeProgrammeChanged(val),
           compareFnHandler: (item1, item2) => item1.id == item2.id,
+          errorText:
+              _onboardingCubit.state.degreeProgrammeInput.displayError?.text(),
         ),
-
         headerText("Make an about me"),
         const SizedBox(
           height: 10.0,

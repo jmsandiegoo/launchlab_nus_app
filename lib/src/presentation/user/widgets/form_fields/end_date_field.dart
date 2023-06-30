@@ -35,7 +35,6 @@ class EndDateFieldInput extends FormzInput<DateTime?, EndDateFieldError> {
 enum EndDateFieldError { empty, invalid }
 
 extension EndDateFieldErrorExt on EndDateFieldError {
-  // ignore: unused_element
   String text() {
     switch (this) {
       case EndDateFieldError.empty:

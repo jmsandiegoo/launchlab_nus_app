@@ -40,10 +40,17 @@ class UserRepository implements UserRepositoryImpl {
   Future<List<DegreeProgrammeEntity>> getDegreeProgrammes(
       String? filter) async {
     try {
-      final res = await _supabase.client
-          .from("degree_programmes")
-          .select<PostgrestList>('*')
-          .filter("name", "ilike", "%$filter%");
+      List<Map<String, dynamic>> res;
+      if (filter != null || filter!.isNotEmpty) {
+        res = await _supabase.client
+            .from("degree_programmes")
+            .select<PostgrestList>('*')
+            .filter("name", "ilike", "%$filter%");
+      } else {
+        res = await _supabase.client
+            .from("degree_programmes")
+            .select<PostgrestList>('*');
+      }
 
       List<DegreeProgrammeEntity> degreeProgrammeList = [];
       for (int i = 0; i < res.length; i++) {
