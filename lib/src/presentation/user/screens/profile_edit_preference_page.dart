@@ -59,7 +59,8 @@ class ProfileEditPreferencePage extends StatelessWidget {
             ),
           ),
           body: () {
-            if (state.preferenceFormStatus == PreferenceFormStatus.initial) {
+            if (state.preferenceFormStatus == PreferenceFormStatus.initial ||
+                state.preferenceFormStatus == PreferenceFormStatus.error) {
               return const Center(
                 child: CircularProgressIndicator(),
               );

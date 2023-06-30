@@ -12,6 +12,7 @@ import 'package:launchlab/src/presentation/common/widgets/form_fields/checkbox_f
 import 'package:launchlab/src/presentation/common/widgets/form_fields/text_field.dart';
 import 'package:launchlab/src/presentation/user/widgets/form_fields/end_date_field.dart';
 import 'package:launchlab/src/presentation/user/widgets/form_fields/start_date_field.dart';
+import 'package:launchlab/src/utils/failure.dart';
 
 @immutable
 class ExperienceFormState extends Equatable {
@@ -24,6 +25,7 @@ class ExperienceFormState extends Equatable {
     this.descriptionFieldInput = const TextFieldInput.unvalidated(),
     required this.experienceFormStatus,
     required this.experience,
+    this.error,
   });
 
   final TextFieldInput titleNameFieldInput;
@@ -33,6 +35,7 @@ class ExperienceFormState extends Equatable {
   final EndDateFieldInput endDateFieldInput;
   final TextFieldInput descriptionFieldInput;
   final ExperienceFormStatus experienceFormStatus;
+  final Failure? error;
 
   final ExperienceEntity experience;
 
@@ -44,6 +47,7 @@ class ExperienceFormState extends Equatable {
     EndDateFieldInput? endDateFieldInput,
     TextFieldInput? descriptionFieldInput,
     ExperienceFormStatus? experienceFormStatus,
+    Failure? error,
     ExperienceEntity? experience,
   }) {
     return ExperienceFormState(
@@ -56,6 +60,7 @@ class ExperienceFormState extends Equatable {
       descriptionFieldInput:
           descriptionFieldInput ?? this.descriptionFieldInput,
       experienceFormStatus: experienceFormStatus ?? this.experienceFormStatus,
+      error: error,
       experience: experience ?? this.experience,
     );
   }
@@ -70,6 +75,7 @@ class ExperienceFormState extends Equatable {
         descriptionFieldInput,
         experienceFormStatus,
         experience,
+        error,
       ];
 }
 
@@ -365,10 +371,11 @@ class ExperienceFormCubit extends Cubit<ExperienceFormState> {
               ? ExperienceFormStatus.updateSuccess
               : ExperienceFormStatus.createSuccess,
         ));
-      } on Exception catch (_) {
-        emit(state.copyWith(
-          experienceFormStatus: ExperienceFormStatus.error,
-        ));
+      } on Failure catch (error) {
+        emit(
+          state.copyWith(
+              experienceFormStatus: ExperienceFormStatus.error, error: error),
+        );
       }
     }
   }
@@ -394,11 +401,10 @@ class ExperienceFormCubit extends Cubit<ExperienceFormState> {
       emit(state.copyWith(
         experienceFormStatus: ExperienceFormStatus.deleteSuccess,
       ));
-    } on Exception catch (error) {
+    } on Failure catch (error) {
       emit(
         state.copyWith(
-          experienceFormStatus: ExperienceFormStatus.error,
-        ),
+            experienceFormStatus: ExperienceFormStatus.error, error: error),
       );
     }
   }

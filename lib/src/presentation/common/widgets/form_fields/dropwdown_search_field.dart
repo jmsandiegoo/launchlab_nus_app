@@ -164,6 +164,13 @@ class DropdownSearchFieldMultiWidget<T> extends StatelessWidget {
             menuProps: const MenuProps(
               backgroundColor: blackColor,
             ),
+            errorBuilder: (context, searchEntry, exception) {
+              return const Center(
+                  child: Text(
+                "Error occured please try again.",
+                style: TextStyle(color: whiteColor),
+              ));
+            },
             itemBuilder: (context, item, isSelected) {
               return ListTile(
                   title: Text(item.toString(),
