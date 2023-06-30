@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:launchlab/src/config/app_theme.dart';
 import 'package:launchlab/src/domain/user/models/experience_entity.dart';
+import 'package:launchlab/src/domain/user/models/user_entity.dart';
 import 'package:launchlab/src/presentation/common/widgets/useful.dart';
 import 'package:launchlab/src/presentation/user/screens/profile_manage_experience_page.dart';
 import 'package:launchlab/src/utils/constants.dart';
@@ -9,10 +10,13 @@ import 'package:launchlab/src/utils/helper.dart';
 class ProfileExperienceList extends StatelessWidget {
   const ProfileExperienceList({
     super.key,
+    this.isAuthProfile = false,
+    required this.userProfile,
     required this.experiences,
     required this.onUpdateHandler,
   });
-
+  final bool isAuthProfile;
+  final UserEntity userProfile;
   final List<ExperienceEntity> experiences;
   final void Function() onUpdateHandler;
 
@@ -21,7 +25,7 @@ class ProfileExperienceList extends StatelessWidget {
     final NavigationData<Object?>? returnData =
         await navigatePushWithData<Object?>(
       context,
-      "/profile/manage-experience",
+      "/profile/${userProfile.id}/manage-experience",
       props,
     );
 
@@ -36,6 +40,13 @@ class ProfileExperienceList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (isAuthProfile && experiences.isEmpty) {
+      return const SizedBox(
+        height: 0,
+        width: 0,
+      );
+    }
+
     List<ExperienceEntity> sortedExperiences = [...experiences];
 
     sortedExperiences.sort((exp1, exp2) {
@@ -60,15 +71,25 @@ class ProfileExperienceList extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             subHeaderText("Experience"),
-            IconButton(
-              onPressed: () {
-                manageExperience(
-                    context,
-                    ProfileManageExperiencePageProps(
-                        userExperiences: experiences));
-              },
-              icon: const Icon(Icons.edit_outlined, color: blackColor),
-            ),
+            ...() {
+              if (!isAuthProfile) {
+                return [
+                  const SizedBox(height: 45.0),
+                ];
+              }
+              return [
+                IconButton(
+                  onPressed: () {
+                    manageExperience(
+                      context,
+                      ProfileManageExperiencePageProps(
+                          userExperiences: experiences),
+                    );
+                  },
+                  icon: const Icon(Icons.edit_outlined, color: blackColor),
+                ),
+              ];
+            }(),
           ],
         ),
         const SizedBox(height: 5),
@@ -87,7 +108,7 @@ class ProfileExperienceList extends StatelessWidget {
                   children: [
                     ...() {
                       if (sortedExperiences.isEmpty) {
-                        return [bodyText("You have no experiences stated.")];
+                        return [bodyText("No experiences stated.")];
                       }
                       return sortedExperiences
                           .map((item) => ExperienceWidget(experience: item))

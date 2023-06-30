@@ -7,16 +7,25 @@ import 'package:launchlab/src/presentation/common/widgets/useful.dart';
 class ProfileResume extends StatelessWidget {
   const ProfileResume(
       {super.key,
+      this.isAuthProfile = false,
       this.userResume,
       required this.onChangedHandler,
       required this.isLoading});
 
+  final bool isAuthProfile;
   final File? userResume;
   final void Function(File?) onChangedHandler;
   final bool isLoading;
 
   @override
   Widget build(BuildContext context) {
+    if (!isAuthProfile && userResume == null) {
+      return const SizedBox(
+        width: 0,
+        height: 0,
+      );
+    }
+
     return Column(
       children: [
         Row(

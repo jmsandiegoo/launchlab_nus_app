@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:launchlab/src/config/app_theme.dart';
 import 'package:launchlab/src/data/user/user_repository.dart';
 import 'package:launchlab/src/presentation/common/cubits/app_root_cubit.dart';
@@ -21,14 +20,16 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 // own cubit for profile
 class ProfilePage extends StatelessWidget {
-  const ProfilePage({Key? key}) : super(key: key);
+  const ProfilePage({Key? key, required this.userId}) : super(key: key);
+
+  final String userId;
 
   Future<void> editPreference(
       BuildContext context,
       ProfileEditPreferencePageProps props,
       void Function() onUpdateHandler) async {
     final returnData = await navigatePushWithData<Object?>(
-        context, "/profile/edit-settings", props);
+        context, "/profile/$userId/edit-settings", props);
 
     if (returnData == null || returnData.actionType == ActionTypes.cancel) {
       return;
@@ -39,12 +40,23 @@ class ProfilePage extends StatelessWidget {
     }
   }
 
+  bool checkIsAuthProfile(BuildContext context, String userId) {
+    AppRootCubit appRootCubit = BlocProvider.of<AppRootCubit>(context);
+
+    if (appRootCubit.state.authUserProfile?.id == null) {
+      return false;
+    }
+
+    return appRootCubit.state.authUserProfile!.id == userId;
+  }
+
   @override
   Widget build(BuildContext context) {
-    AppRootCubit appRootCubit = BlocProvider.of<AppRootCubit>(context);
+    final bool isAuthProfile = checkIsAuthProfile(context, userId);
+
     return BlocProvider(
       create: (_) => ProfilePageCubit(UserRepository(Supabase.instance))
-        ..handleGetProfileInfo(appRootCubit.state.authUserProfile?.id ?? ''),
+        ..handleGetProfileInfo(userId),
       child: BlocConsumer<ProfilePageCubit, ProfilePageState>(
         listener: (context, state) {
           if (state.profilePageStatus == ProfilePageStatus.uploadError &&
@@ -69,7 +81,7 @@ class ProfilePage extends StatelessWidget {
                 }
                 return RefreshIndicator(
                   onRefresh: () async {
-                    profileCubit.handleGetProfileInfo(state.userProfile!.id!);
+                    profileCubit.handleGetProfileInfo(userId);
                   },
                   child: SingleChildScrollView(
                     physics: const AlwaysScrollableScrollPhysics(),
@@ -78,32 +90,53 @@ class ProfilePage extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           AppBar(
+                            leading: () {
+                              if (!isAuthProfile) {
+                                return GestureDetector(
+                                  onTap: () {
+                                    navigatePop(context);
+                                  },
+                                  child: const Icon(
+                                      Icons.keyboard_backspace_outlined),
+                                );
+                              }
+                              return null;
+                            }(),
                             backgroundColor: yellowColor,
                             centerTitle: false,
-                            title: headerText("My Profile"),
-                            actions: [
-                              IconButton(
+                            title: headerText(
+                                "${isAuthProfile ? 'My ' : ''}Profile"),
+                            actions: () {
+                              if (!isAuthProfile) {
+                                return null;
+                              }
+
+                              return [
+                                IconButton(
+                                    onPressed: () {
+                                      editPreference(
+                                          context,
+                                          ProfileEditPreferencePageProps(
+                                            userPreference:
+                                                state.userPreference!,
+                                          ),
+                                          () => profileCubit
+                                              .handleGetProfileInfo(userId));
+                                    },
+                                    icon: const Icon(Icons.settings_outlined)),
+                                IconButton(
                                   onPressed: () {
-                                    editPreference(
-                                        context,
-                                        ProfileEditPreferencePageProps(
-                                          userPreference: state.userPreference!,
-                                        ),
-                                        () => profileCubit.handleGetProfileInfo(
-                                            state.userProfile!.id!));
+                                    BlocProvider.of<AppRootCubit>(context)
+                                        .handleSignOut();
                                   },
-                                  icon: const Icon(Icons.settings_outlined)),
-                              IconButton(
-                                onPressed: () {
-                                  BlocProvider.of<AppRootCubit>(context)
-                                      .handleSignOut();
-                                },
-                                icon: const Icon(Icons.logout_outlined,
-                                    color: blackColor),
-                              ),
-                            ],
+                                  icon: const Icon(Icons.logout_outlined,
+                                      color: blackColor),
+                                ),
+                              ];
+                            }(),
                           ),
                           ProfileHeader(
+                            isAuthProfile: isAuthProfile,
                             userProfile: state.userProfile!,
                             userDegreeProgramme: state.userDegreeProgramme!,
                             userAvatar: state.userAvatar,
@@ -117,6 +150,7 @@ class ProfilePage extends StatelessWidget {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 ProfileAbout(
+                                  isAuthProfile: isAuthProfile,
                                   userProfile: state.userProfile!,
                                   onUpdateHandler: () =>
                                       profileCubit.handleGetProfileInfo(
@@ -124,6 +158,7 @@ class ProfilePage extends StatelessWidget {
                                 ),
                                 const SizedBox(height: 20),
                                 ProfileResume(
+                                  isAuthProfile: isAuthProfile,
                                   userResume: state.userResumeInput.value,
                                   onChangedHandler: (file) {
                                     profileCubit.onUserResumeChanged(file);
@@ -133,6 +168,8 @@ class ProfilePage extends StatelessWidget {
                                 ),
                                 const SizedBox(height: 20),
                                 ProfileExperienceList(
+                                  isAuthProfile: isAuthProfile,
+                                  userProfile: state.userProfile!,
                                   experiences: state.userExperiences,
                                   onUpdateHandler: () =>
                                       profileCubit.handleGetProfileInfo(
@@ -140,6 +177,8 @@ class ProfilePage extends StatelessWidget {
                                 ),
                                 const SizedBox(height: 20),
                                 ProfileSkills(
+                                  isAuthProfile: isAuthProfile,
+                                  userProfile: state.userProfile!,
                                   userPreference: state.userPreference!,
                                   onUpdateHandler: () =>
                                       profileCubit.handleGetProfileInfo(
@@ -147,6 +186,8 @@ class ProfilePage extends StatelessWidget {
                                 ),
                                 const SizedBox(height: 20),
                                 ProfileAccomplishmentList(
+                                  isAuthProfile: isAuthProfile,
+                                  userProfile: state.userProfile!,
                                   accomplishments: state.userAccomplishments,
                                   onUpdateHandler: () =>
                                       profileCubit.handleGetProfileInfo(

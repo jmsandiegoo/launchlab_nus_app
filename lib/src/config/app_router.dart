@@ -181,9 +181,14 @@ final GoRouter appRouter = GoRouter(
             ),
             GoRoute(
               parentNavigatorKey: _mainShellKey,
-              path: "/profile",
-              pageBuilder: (context, state) =>
-                  const NoTransitionPage(child: ProfilePage()),
+              path: "/profile/:id",
+              pageBuilder: (context, state) {
+                final userId = state.pathParameters['id']!;
+                return NoTransitionPage(
+                    child: ProfilePage(
+                  userId: userId,
+                ));
+              },
               routes: [
                 GoRoute(
                   path: "edit-settings",

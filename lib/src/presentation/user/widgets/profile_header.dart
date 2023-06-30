@@ -14,12 +14,14 @@ import 'package:launchlab/src/utils/helper.dart';
 class ProfileHeader extends StatelessWidget {
   const ProfileHeader({
     super.key,
+    this.isAuthProfile = false,
     required this.userProfile,
     required this.userDegreeProgramme,
     this.userAvatar,
     required this.onUpdateHandler,
   });
 
+  final bool isAuthProfile;
   final UserEntity userProfile;
   final DegreeProgrammeEntity userDegreeProgramme;
   final UserAvatarEntity? userAvatar;
@@ -29,7 +31,7 @@ class ProfileHeader extends StatelessWidget {
       BuildContext context, ProfileEditIntroPageProps props) async {
     final NavigationData<Object?>? returnData =
         await navigatePushWithData<Object?>(
-            context, "/profile/edit-intro", props);
+            context, "/profile/${userProfile.id}/edit-intro", props);
 
     if (returnData == null) {
       return;
@@ -55,24 +57,33 @@ class ProfileHeader extends StatelessWidget {
         children: [
           Stack(
             children: [
-              Align(
-                alignment: Alignment.topRight,
-                child: Container(
-                  margin: const EdgeInsets.only(right: 15.0),
-                  child: IconButton(
-                    onPressed: () {
-                      editProfileIntro(
-                          context,
-                          ProfileEditIntroPageProps(
-                            userProfile: userProfile,
-                            userDegreeProgramme: userDegreeProgramme,
-                            userAvatar: userAvatar,
-                          ));
-                    },
-                    icon: const Icon(Icons.edit_outlined, color: blackColor),
+              ...() {
+                if (!isAuthProfile) {
+                  return [];
+                }
+
+                return [
+                  Align(
+                    alignment: Alignment.topRight,
+                    child: Container(
+                      margin: const EdgeInsets.only(right: 15.0),
+                      child: IconButton(
+                        onPressed: () {
+                          editProfileIntro(
+                              context,
+                              ProfileEditIntroPageProps(
+                                userProfile: userProfile,
+                                userDegreeProgramme: userDegreeProgramme,
+                                userAvatar: userAvatar,
+                              ));
+                        },
+                        icon:
+                            const Icon(Icons.edit_outlined, color: blackColor),
+                      ),
+                    ),
                   ),
-                ),
-              ),
+                ];
+              }(),
               Center(
                   child: profilePicture(
                       100, userAvatar?.signedUrl ?? "avatar_temp.png",

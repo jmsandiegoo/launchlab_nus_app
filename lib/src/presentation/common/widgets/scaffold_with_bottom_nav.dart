@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:launchlab/src/presentation/common/cubits/app_root_cubit.dart';
 
 /// A custom scaffold widget to work with Shell routes.
 class ScaffoldWithBottomNav extends StatefulWidget {
@@ -16,40 +18,43 @@ class _ScaffoldWithBottomNavState extends State<ScaffoldWithBottomNav> {
   int get _currentIndex => _locationToTabIndex(GoRouter.of(context).location);
 
   int _locationToTabIndex(String location) {
-    final index =
-        _tabs.indexWhere((t) => location.startsWith(t.initialLocation));
+    final index = _tabs(context)
+        .indexWhere((t) => location.startsWith(t.initialLocation));
     return index < 0 ? 0 : index;
   }
 
   // A callback function to navigate to the desired tab
   void _onItemTapped(BuildContext context, int tabIndex) {
     if (tabIndex != _currentIndex) {
-      context.go(_tabs[tabIndex].initialLocation);
+      context.go(_tabs(context)[tabIndex].initialLocation);
     }
   }
 
-  static final List<ScaffoldWithNavTabItem> _tabs = <ScaffoldWithNavTabItem>[
-    const ScaffoldWithNavTabItem(
-      initialLocation: "/team-home",
-      icon: Icon(Icons.home_outlined),
-      label: "",
-    ),
-    const ScaffoldWithNavTabItem(
-      initialLocation: "/chats",
-      icon: Icon(Icons.forum_outlined),
-      label: "",
-    ),
-    const ScaffoldWithNavTabItem(
-      initialLocation: "/discover",
-      icon: Icon(Icons.rocket_launch_outlined),
-      label: "",
-    ),
-    const ScaffoldWithNavTabItem(
-      initialLocation: "/profile",
-      icon: Icon(Icons.person_outline),
-      label: "",
-    ),
-  ];
+  List<ScaffoldWithNavTabItem> _tabs(BuildContext context) =>
+      <ScaffoldWithNavTabItem>[
+        const ScaffoldWithNavTabItem(
+          initialLocation: "/team-home",
+          icon: Icon(Icons.home_outlined),
+          label: "",
+        ),
+        const ScaffoldWithNavTabItem(
+          initialLocation: "/chats",
+          icon: Icon(Icons.forum_outlined),
+          label: "",
+        ),
+        const ScaffoldWithNavTabItem(
+          initialLocation: "/discover",
+          icon: Icon(Icons.rocket_launch_outlined),
+          label: "",
+        ),
+        ScaffoldWithNavTabItem(
+          initialLocation:
+              "/profile/${BlocProvider.of<AppRootCubit>(context).state.authUserProfile!.id}",
+          // initialLocation: "/profile/aec490eb-695f-46ed-919c-654c757d71e9", // testing
+          icon: const Icon(Icons.person_outline),
+          label: "",
+        ),
+      ];
 
   @override
   Widget build(BuildContext context) {
@@ -57,7 +62,7 @@ class _ScaffoldWithBottomNavState extends State<ScaffoldWithBottomNav> {
       body: widget.child,
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
-        items: _tabs,
+        items: _tabs(context),
         currentIndex: _currentIndex,
         onTap: (index) => _onItemTapped(context, index),
         showSelectedLabels: false,
