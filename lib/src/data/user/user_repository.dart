@@ -51,12 +51,12 @@ class UserRepository implements UserRepositoryImpl {
       }
 
       return degreeProgrammeList;
-    } on AuthException catch (error) {
+    } on PostgrestException catch (error) {
       debugPrint("get Degree Programme error: $error");
-      throw const Failure.unauthorized();
+      throw Failure.request(code: error.code);
     } on Exception catch (error) {
       debugPrint("get Degree Programme error: $error");
-      throw const Failure.badRequest();
+      throw Failure.unexpected();
     }
   }
 
@@ -80,15 +80,25 @@ class UserRepository implements UserRepositoryImpl {
       );
 
       // call the rpc function to insert into db
+    } on Failure catch (_) {
+      rethrow;
+    } on PostgrestException catch (error) {
+      debugPrint("onboard postgre error: $error");
+      throw Failure.request(code: error.code);
     } on StorageException catch (error) {
       debugPrint("onboard storage error: $error");
+      throw Failure.request(code: error.statusCode);
     } on Exception catch (error) {
       debugPrint("Unexpected error occured $error");
+      throw Failure.unexpected();
     }
   }
 
   Future<void> uploadUserAvatar(UploadUserAvatarRequest request) async {
     try {
+      await deleteUserAvatar(
+          DeleteUserAvatarResumeRequest(userId: request.userAvatar.userId));
+
       await uploadFile(
         supabase: _supabase,
         bucket: "user_avatar_bucket",
@@ -98,24 +108,46 @@ class UserRepository implements UserRepositoryImpl {
       await _supabase.client
           .from("user_avatars")
           .upsert(request.userAvatar.toJson(), onConflict: 'id');
+    } on Failure catch (_) {
+      rethrow;
+    } on PostgrestException catch (error) {
+      debugPrint("upload user avatar postgre error: $error");
+      throw Failure.request(code: error.code);
+    } on StorageException catch (error) {
+      debugPrint("Upload user avatar storage error: $error");
+      throw Failure.request(code: error.statusCode);
     } on Exception catch (error) {
-      debugPrint("Upload user avatar error: $error");
+      debugPrint("Upload user avatar unexpected error: $error");
+      throw Failure.unexpected();
     }
   }
 
   Future<void> uploadUserResume(UploadUserResumeRequest request) async {
     try {
+      await deleteUserResume(
+          DeleteUserAvatarResumeRequest(userId: request.userResume.userId));
+
       await uploadFile(
         supabase: _supabase,
         bucket: "user_avatar_bucket",
         uploadFile: request.userResume,
       );
 
-      await _supabase.client
-          .from("user_resumes")
-          .upsert(request.userResume.toJson(), onConflict: "user_id");
+      await _supabase.client.from("user_resumes").upsert(
+            request.userResume.toJson(),
+            onConflict: "user_id",
+          );
+    } on Failure catch (_) {
+      rethrow;
+    } on PostgrestException catch (error) {
+      debugPrint("upload user resume postgre error: $error");
+      throw Failure.request(code: error.code);
+    } on StorageException catch (error) {
+      debugPrint("Upload user resume storage error: $error");
+      throw Failure.request(code: error.statusCode);
     } on Exception catch (error) {
-      debugPrint("Upload user resume error: $error");
+      debugPrint("Upload user resume unexpected error: $error");
+      throw Failure.unexpected();
     }
   }
 
@@ -143,8 +175,15 @@ class UserRepository implements UserRepositoryImpl {
           .from("user_avatars")
           .delete()
           .eq("user_id", request.userId);
+    } on PostgrestException catch (error) {
+      debugPrint("delete user avatar postgre error: $error");
+      throw Failure.request(code: error.code);
+    } on StorageException catch (error) {
+      debugPrint("delete user avatar storage error: $error");
+      throw Failure.request(code: error.statusCode);
     } on Exception catch (error) {
-      debugPrint("Delete user avatar error: $error");
+      debugPrint("delete user avatar unexpected error occured $error");
+      throw Failure.unexpected();
     }
   }
 
@@ -172,8 +211,15 @@ class UserRepository implements UserRepositoryImpl {
           .from("user_resumes")
           .delete()
           .eq("user_id", request.userId);
+    } on PostgrestException catch (error) {
+      debugPrint("delete user resume postgre error: $error");
+      throw Failure.request(code: error.code);
+    } on StorageException catch (error) {
+      debugPrint("delete user resume storage error: $error");
+      throw Failure.request(code: error.statusCode);
     } on Exception catch (error) {
-      debugPrint("Delete user resume error: $error");
+      debugPrint("delete user resume unexpected error occured $error");
+      throw Failure.unexpected();
     }
   }
 
@@ -188,7 +234,8 @@ class UserRepository implements UserRepositoryImpl {
           .eq("id", request.userId);
 
       if (userRes.isEmpty) {
-        throw const Failure.badRequest();
+        debugPrint("No user found while getting profile info.");
+        throw Failure.request();
       }
 
       final UserEntity user = UserEntity.fromJson(userRes[0]);
@@ -214,7 +261,8 @@ class UserRepository implements UserRepositoryImpl {
           );
 
       if (degRes.isEmpty) {
-        throw const Failure.badRequest();
+        debugPrint("No deg found while getting profile info.");
+        throw Failure.request();
       }
 
       DegreeProgrammeEntity deg = DegreeProgrammeEntity.fromJson(degRes[0]);
@@ -254,7 +302,8 @@ class UserRepository implements UserRepositoryImpl {
           );
 
       if (prefRes.isEmpty) {
-        throw const Failure.badRequest();
+        debugPrint("No user preference found while getting profile info.");
+        throw Failure.request();
       }
 
       final PreferenceEntity pref = PreferenceEntity.fromJson(prefRes[0]);
@@ -267,9 +316,17 @@ class UserRepository implements UserRepositoryImpl {
           userExperiences: experienceList,
           userAccomplishments: accomplishmentList,
           userPreference: pref);
-    } on Exception catch (error) {
-      debugPrint("get Profile error occured $error");
+    } on Failure catch (_) {
       rethrow;
+    } on PostgrestException catch (error) {
+      debugPrint("fetch user postgre error: $error");
+      throw Failure.request(code: error.code);
+    } on StorageException catch (error) {
+      debugPrint("fetch user storage error: $error");
+      throw Failure.request(code: error.statusCode);
+    } on Exception catch (error) {
+      debugPrint("fetch user unexpected error occured $error");
+      throw Failure.unexpected();
     }
   }
 
@@ -306,9 +363,15 @@ class UserRepository implements UserRepositoryImpl {
           userId: res[0]['user_id'],
           file: file,
           signedUrl: signedUrl);
+    } on PostgrestException catch (error) {
+      debugPrint("fetch user avatar postgre error: $error");
+      throw Failure.request(code: error.code);
+    } on StorageException catch (error) {
+      debugPrint("fetch user avatar storage error: $error");
+      throw Failure.request(code: error.statusCode);
     } on Exception catch (error) {
-      debugPrint("download avatar error occured: $error");
-      rethrow;
+      debugPrint("fetch user avatar unexpected error occured $error");
+      throw Failure.unexpected();
     }
   }
 
@@ -334,9 +397,15 @@ class UserRepository implements UserRepositoryImpl {
 
       return UserResumeEntity(
           id: res[0]['id'], userId: res[0]['user_id'], file: file);
+    } on PostgrestException catch (error) {
+      debugPrint("fetch user resume postgre error: $error");
+      throw Failure.request(code: error.code);
+    } on StorageException catch (error) {
+      debugPrint("fetch user resume storage error: $error");
+      throw Failure.request(code: error.statusCode);
     } on Exception catch (error) {
-      debugPrint("download resume error occured: $error");
-      rethrow;
+      debugPrint("fetch user resume unexpected error occured $error");
+      throw Failure.unexpected();
     }
   }
 
@@ -347,9 +416,12 @@ class UserRepository implements UserRepositoryImpl {
         "handle_user_preference_update",
         params: {"request_data": request.toJson()},
       );
+    } on PostgrestException catch (error) {
+      debugPrint("update user preference postgre error: $error");
+      throw Failure.request(code: error.code);
     } on Exception catch (error) {
-      debugPrint("update user preference error: $error");
-      throw const Failure.badRequest();
+      debugPrint("update user preference unexpected error occured $error");
+      throw Failure.unexpected();
     }
   }
 
@@ -360,8 +432,12 @@ class UserRepository implements UserRepositoryImpl {
           .from("users")
           .update(request.userProfile.toJson())
           .eq('id', request.userProfile.id);
+    } on PostgrestException catch (error) {
+      debugPrint("update user postgre error: $error");
+      throw Failure.request(code: error.code);
     } on Exception catch (error) {
-      debugPrint("update user error: $error");
+      debugPrint("update user unexpected error occured $error");
+      throw Failure.unexpected();
     }
   }
 
@@ -375,15 +451,21 @@ class UserRepository implements UserRepositoryImpl {
           .select<PostgrestList>("*");
 
       if (res.isEmpty) {
-        throw const Failure.badRequest();
+        debugPrint("Created user exp was not found");
+        throw Failure.unexpected();
       }
 
       return CreateUserExperienceResponse(
         experience: ExperienceEntity.fromJson(res[0]),
       );
+    } on Failure {
+      rethrow;
+    } on PostgrestException catch (error) {
+      debugPrint("create user exp error: $error");
+      throw Failure.request(code: error.code);
     } on Exception catch (error) {
-      debugPrint("create user experience error: $error");
-      throw const Failure.badRequest();
+      debugPrint("create user exp error occured $error");
+      throw Failure.unexpected();
     }
   }
 
@@ -403,15 +485,21 @@ class UserRepository implements UserRepositoryImpl {
           .select<PostgrestList>("*");
 
       if (res.isEmpty) {
-        throw const Failure.badRequest();
+        debugPrint("Updated user exp was not found");
+        throw Failure.unexpected();
       }
 
       return UpdateUserExperienceResponse(
         experience: ExperienceEntity.fromJson(res[0]),
       );
+    } on Failure {
+      rethrow;
+    } on PostgrestException catch (error) {
+      debugPrint("update user exp error: $error");
+      throw Failure.request(code: error.code);
     } on Exception catch (error) {
-      debugPrint("update user experience error: $error");
-      throw const Failure.badRequest();
+      debugPrint("update user exp error occured $error");
+      throw Failure.unexpected();
     }
   }
 
@@ -422,8 +510,12 @@ class UserRepository implements UserRepositoryImpl {
             'id',
             request.experience.id,
           );
+    } on PostgrestException catch (error) {
+      debugPrint("delete user exp error: $error");
+      throw Failure.request(code: error.code);
     } on Exception catch (error) {
-      debugPrint("delete user experience error: $error");
+      debugPrint("delete user exp error occured $error");
+      throw Failure.unexpected();
     }
   }
 
@@ -435,9 +527,12 @@ class UserRepository implements UserRepositoryImpl {
         "handle_user_selected_skills_update",
         params: {"request_data": request.toJson()},
       );
+    } on PostgrestException catch (error) {
+      debugPrint("update user skill postgre error: $error");
+      throw Failure.request(code: error.code);
     } on Exception catch (error) {
-      debugPrint("update user skills error: $error");
-      throw const Failure.badRequest();
+      debugPrint("update user skill unexpected error occured $error");
+      throw Failure.unexpected();
     }
   }
 
@@ -451,15 +546,21 @@ class UserRepository implements UserRepositoryImpl {
           .select<PostgrestList>("*");
 
       if (res.isEmpty) {
-        throw const Failure.badRequest();
+        debugPrint("created accomplishment not found.");
+        throw Failure.unexpected();
       }
 
       return CreateUserAccomplishmentResponse(
         accomplishment: AccomplishmentEntity.fromJson(res[0]),
       );
+    } on Failure {
+      rethrow;
+    } on PostgrestException catch (error) {
+      debugPrint("create user accomplishemnt error: $error");
+      throw Failure.request(code: error.code);
     } on Exception catch (error) {
-      debugPrint("create user accomplishment error: $error");
-      throw const Failure.badRequest();
+      debugPrint("create user accomplishment error occured $error");
+      throw Failure.unexpected();
     }
   }
 
@@ -479,15 +580,21 @@ class UserRepository implements UserRepositoryImpl {
           .select<PostgrestList>("*");
 
       if (res.isEmpty) {
-        throw const Failure.badRequest();
+        debugPrint("updated accomplishment not found.");
+        throw Failure.unexpected();
       }
 
       return UpdateUserAccomplishmentResponse(
         accomplishment: AccomplishmentEntity.fromJson(res[0]),
       );
+    } on Failure {
+      rethrow;
+    } on PostgrestException catch (error) {
+      debugPrint("update user accomplishemnt error: $error");
+      throw Failure.request(code: error.code);
     } on Exception catch (error) {
-      debugPrint("update user accomplishment error: $error");
-      throw const Failure.badRequest();
+      debugPrint("update user accomplishment error occured $error");
+      throw Failure.unexpected();
     }
   }
 
@@ -499,8 +606,12 @@ class UserRepository implements UserRepositoryImpl {
             'id',
             request.accomplishment.id,
           );
-    } on Exception catch (error) {
+    } on PostgrestException catch (error) {
       debugPrint("delete user accomplishment error: $error");
+      throw Failure.request(code: error.code);
+    } on Exception catch (error) {
+      debugPrint("delete user accomplishment error occured $error");
+      throw Failure.unexpected();
     }
   }
 }

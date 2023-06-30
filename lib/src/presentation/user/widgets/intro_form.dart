@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:launchlab/src/domain/user/models/degree_programme_entity.dart';
+import 'package:launchlab/src/presentation/common/widgets/feedback_toast.dart';
 import 'package:launchlab/src/presentation/common/widgets/form_fields/dropwdown_search_field.dart';
 import 'package:launchlab/src/presentation/common/widgets/form_fields/picture_upload_picker.dart';
 import 'package:launchlab/src/presentation/common/widgets/form_fields/text_field.dart';
 import 'package:launchlab/src/presentation/common/widgets/useful.dart';
 import 'package:launchlab/src/presentation/user/cubits/intro_form_cubit.dart';
+import 'package:launchlab/src/utils/toast_manager.dart';
 
 class IntroForm extends StatefulWidget {
   const IntroForm({super.key});
@@ -64,7 +66,21 @@ class _IntroFormState extends State<IntroForm> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<IntroFormCubit, IntroFormState>(
+    return BlocConsumer<IntroFormCubit, IntroFormState>(
+      listener: (context, state) {
+        if (state.introFormStatus == IntroFormStatus.success) {
+          ToastManager().showFToast(
+              child: const SuccessFeedback(msg: "Edit intro successful!"));
+        }
+
+        if (state.introFormStatus == IntroFormStatus.error) {
+          ToastManager()
+              .showFToast(child: ErrorFeedback(msg: state.error!.errorMessage));
+        }
+      },
+      listenWhen: (previous, current) {
+        return previous.introFormStatus != current.introFormStatus;
+      },
       builder: (context, state) => ListView(
         children: [
           headerText("Edit Intro"),

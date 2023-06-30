@@ -22,13 +22,26 @@ class AuthRepository implements AuthRepositoryImpl {
 
   @override
   Future<void> signinWithGoogle() async {
-    var res = await _supabase.client.auth.signInWithOAuth(
-      Provider.google,
-      redirectTo: kIsWeb ? null : 'io.supabase.launchlabnus://login-callback/',
-    );
+    try {
+      var res = await _supabase.client.auth.signInWithOAuth(
+        Provider.google,
+        redirectTo:
+            kIsWeb ? null : 'io.supabase.launchlabnus://login-callback/',
+      );
 
-    if (!res) {
-      throw const Failure.badRequest();
+      if (!res) {
+        throw Failure.unexpected();
+      }
+    } on Failure catch (_) {
+      rethrow;
+    } on AuthException catch (error) {
+      debugPrint("Sign in google authenticaton error occured: $error");
+      throw Failure.unauthorized(
+          code: error.statusCode, message: error.message);
+    } on Exception catch (error) {
+      debugPrint(
+          "Sign in google authenticaton unexpected error occured: $error");
+      throw Failure.unexpected();
     }
   }
 
@@ -57,9 +70,14 @@ class AuthRepository implements AuthRepositoryImpl {
       } else {
         return UserEntity.fromJson(res[0]);
       }
+    } on PostgrestException catch (error) {
+      debugPrint(
+          "Get curr user authenticaton profile postgre error occured: $error");
+      throw Failure.unauthorized(code: error.code);
     } on Exception catch (error) {
-      print("getAuthUserProfile error: ${error}");
-      throw const Failure.badRequest();
+      debugPrint(
+          "Sign in google authenticaton unexpected error occured: $error");
+      throw Failure.unexpected();
     }
   }
 

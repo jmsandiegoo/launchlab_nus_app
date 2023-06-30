@@ -13,6 +13,7 @@ import 'package:launchlab/src/domain/user/models/user_entity.dart';
 import 'package:launchlab/src/presentation/common/widgets/form_fields/picture_upload_picker.dart';
 import 'package:launchlab/src/presentation/common/widgets/form_fields/text_field.dart';
 import 'package:launchlab/src/presentation/user/widgets/form_fields/degree_programme_field.dart';
+import 'package:launchlab/src/utils/failure.dart';
 
 class IntroFormState extends Equatable {
   const IntroFormState({
@@ -25,6 +26,7 @@ class IntroFormState extends Equatable {
     this.degreeProgrammeOptions = const [],
     required this.introFormStatus,
     required this.userProfile,
+    this.error,
   });
 
   // inputs
@@ -38,6 +40,7 @@ class IntroFormState extends Equatable {
   final UserEntity userProfile;
   final List<DegreeProgrammeEntity> degreeProgrammeOptions;
   final IntroFormStatus introFormStatus;
+  final Failure? error;
 
   IntroFormState copyWith({
     PictureUploadPickerInput? pictureUploadPickerInput,
@@ -48,6 +51,7 @@ class IntroFormState extends Equatable {
     List<DegreeProgrammeEntity>? degreeProgrammeOptions,
     IntroFormStatus? introFormStatus,
     UserEntity? userProfile,
+    Failure? error,
   }) {
     return IntroFormState(
       pictureUploadPickerInput:
@@ -60,6 +64,7 @@ class IntroFormState extends Equatable {
           degreeProgrammeOptions ?? this.degreeProgrammeOptions,
       introFormStatus: introFormStatus ?? this.introFormStatus,
       userProfile: userProfile ?? this.userProfile,
+      error: error,
     );
   }
 
@@ -73,6 +78,7 @@ class IntroFormState extends Equatable {
         degreeProgrammeOptions,
         introFormStatus,
         userProfile,
+        error,
       ];
 }
 
@@ -99,6 +105,7 @@ class IntroFormCubit extends Cubit<IntroFormState> {
               DegreeProgrammeFieldInput.unvalidated(userDegreeProgramme),
           introFormStatus: IntroFormStatus.initial,
           userProfile: userProfile,
+          error: null,
         ));
 
   final UserRepository userRepository;
@@ -296,9 +303,11 @@ class IntroFormCubit extends Cubit<IntroFormState> {
 
       emit(state.copyWith(
         introFormStatus: IntroFormStatus.success,
+        error: null,
       ));
-    } on Exception catch (_) {
-      emit(state.copyWith(introFormStatus: IntroFormStatus.error));
+    } on Failure catch (error) {
+      emit(
+          state.copyWith(introFormStatus: IntroFormStatus.error, error: error));
     }
   }
 }
