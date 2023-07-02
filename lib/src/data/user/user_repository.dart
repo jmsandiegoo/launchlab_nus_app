@@ -3,6 +3,7 @@ import 'package:launchlab/src/domain/user/models/accomplishment_entity.dart';
 import 'package:launchlab/src/domain/user/models/degree_programme_entity.dart';
 import 'package:launchlab/src/domain/user/models/experience_entity.dart';
 import 'package:launchlab/src/domain/user/models/preference_entity.dart';
+import 'package:launchlab/src/domain/user/models/requests/check_if_username_exists_request.dart';
 import 'package:launchlab/src/domain/user/models/requests/create_user_accomplishment_request.dart';
 import 'package:launchlab/src/domain/user/models/requests/create_user_experience_request.dart';
 import 'package:launchlab/src/domain/user/models/requests/delete_user_accomplishment_request.dart';
@@ -63,6 +64,33 @@ class UserRepository implements UserRepositoryImpl {
       throw Failure.request(code: error.code);
     } on Exception catch (error) {
       debugPrint("get Degree Programme error: $error");
+      throw Failure.unexpected();
+    }
+  }
+
+  @override
+  Future<bool> checkIfUsernameExists(
+      CheckIfUsernameExistsRequest request) async {
+    try {
+      final res = await _supabase.client
+          .from("users")
+          .select("*")
+          .eq("username", request.username);
+
+      if (res.isEmpty) {
+        return false;
+      } else if (request.currUsername == null) {
+        return true;
+      } else if (request.currUsername == res[0]['username']) {
+        return false;
+      } else {
+        return true;
+      }
+    } on PostgrestException catch (error) {
+      debugPrint("update user preference postgre error: $error");
+      throw Failure.request(code: error.code);
+    } on Exception catch (error) {
+      debugPrint("update user preference unexpected error occured $error");
       throw Failure.unexpected();
     }
   }
@@ -441,7 +469,11 @@ class UserRepository implements UserRepositoryImpl {
           .eq('id', request.userProfile.id);
     } on PostgrestException catch (error) {
       debugPrint("update user postgre error: $error");
-      throw Failure.request(code: error.code);
+      throw Failure.request(
+          code: error.code,
+          message: error.code != null && error.code == "23505"
+              ? "Username is already taken"
+              : "Request failed please try again");
     } on Exception catch (error) {
       debugPrint("update user unexpected error occured $error");
       throw Failure.unexpected();

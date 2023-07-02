@@ -108,7 +108,7 @@ class DropdownSearchFieldWidget<T> extends StatelessWidget {
         ),
         ...() {
           if (errorText != null) {
-            return [smallText(errorText!, color: errorColor)];
+            return [smallText(errorText!, color: errorColor.shade900)];
           }
           return [];
         }(),
@@ -248,7 +248,7 @@ class DropdownSearchFieldMultiWidget<T> extends StatelessWidget {
         ...() {
           List<Widget> widgets = [];
           if (errorText != null) {
-            widgets.add(smallText(errorText!, color: errorColor));
+            widgets.add(smallText(errorText!, color: errorColor.shade900));
           }
 
           if (isChipsOutside) {

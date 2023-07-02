@@ -14,6 +14,7 @@ Widget userInput({
   bool isEnabled = true,
   bool isReadOnly = false,
   void Function()? onTapHandler,
+  Widget? prefixWidget,
   Widget? suffixWidget,
   TextEditingController? controller,
   String? errorText,
@@ -55,6 +56,7 @@ Widget userInput({
         obscureText: obscureText,
         decoration: InputDecoration(
           errorText: errorText,
+          prefixIcon: prefixWidget,
           suffixIcon: suffixWidget,
           hintText: hint,
           fillColor: isEnabled ? whiteColor : greyColor.shade300,
