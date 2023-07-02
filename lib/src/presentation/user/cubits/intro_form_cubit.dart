@@ -13,6 +13,7 @@ import 'package:launchlab/src/domain/user/models/user_entity.dart';
 import 'package:launchlab/src/presentation/common/widgets/form_fields/picture_upload_picker.dart';
 import 'package:launchlab/src/presentation/common/widgets/form_fields/text_field.dart';
 import 'package:launchlab/src/presentation/user/widgets/form_fields/degree_programme_field.dart';
+import 'package:launchlab/src/presentation/user/widgets/form_fields/username_field.dart';
 import 'package:launchlab/src/utils/failure.dart';
 
 class IntroFormState extends Equatable {
@@ -20,6 +21,8 @@ class IntroFormState extends Equatable {
     this.pictureUploadPickerInput =
         const PictureUploadPickerInput.unvalidated(),
     this.firstNameInput = const TextFieldInput.unvalidated(),
+    this.usernameInput = const UsernameFieldInput.unvalidated(),
+    this.usernameAsyncError,
     this.lastNameInput = const TextFieldInput.unvalidated(),
     this.titleInput = const TextFieldInput.unvalidated(),
     this.degreeProgrammeInput = const DegreeProgrammeFieldInput.unvalidated(),
@@ -31,6 +34,8 @@ class IntroFormState extends Equatable {
 
   // inputs
   final PictureUploadPickerInput pictureUploadPickerInput;
+  final UsernameFieldInput usernameInput;
+  final UsernameFieldError? usernameAsyncError;
   final TextFieldInput firstNameInput;
   final TextFieldInput lastNameInput;
   final TextFieldInput titleInput;
@@ -44,6 +49,9 @@ class IntroFormState extends Equatable {
 
   IntroFormState copyWith({
     PictureUploadPickerInput? pictureUploadPickerInput,
+    UsernameFieldInput? usernameInput,
+    UsernameFieldError? usernameAsyncError,
+    bool isForceUsernameErrorNull = false,
     TextFieldInput? firstNameInput,
     TextFieldInput? lastNameInput,
     TextFieldInput? titleInput,
@@ -56,6 +64,10 @@ class IntroFormState extends Equatable {
     return IntroFormState(
       pictureUploadPickerInput:
           pictureUploadPickerInput ?? this.pictureUploadPickerInput,
+      usernameInput: usernameInput ?? this.usernameInput,
+      usernameAsyncError: isForceUsernameErrorNull
+          ? usernameAsyncError
+          : (usernameAsyncError ?? this.usernameAsyncError),
       firstNameInput: firstNameInput ?? this.firstNameInput,
       lastNameInput: lastNameInput ?? this.lastNameInput,
       titleInput: titleInput ?? this.titleInput,
@@ -71,6 +83,8 @@ class IntroFormState extends Equatable {
   @override
   List<Object?> get props => [
         pictureUploadPickerInput,
+        usernameInput,
+        usernameAsyncError,
         firstNameInput,
         lastNameInput,
         titleInput,
@@ -84,7 +98,9 @@ class IntroFormState extends Equatable {
 
 enum IntroFormStatus {
   initial,
+  idle,
   success,
+  usernameCheckLoading,
   loading,
   error,
 }
@@ -98,6 +114,7 @@ class IntroFormCubit extends Cubit<IntroFormState> {
   }) : super(IntroFormState(
           pictureUploadPickerInput:
               PictureUploadPickerInput.unvalidated(userAvatar?.file),
+          usernameInput: UsernameFieldInput.unvalidated(userProfile.username),
           firstNameInput: TextFieldInput.unvalidated(userProfile.firstName!),
           lastNameInput: TextFieldInput.unvalidated(userProfile.lastName!),
           titleInput: TextFieldInput.unvalidated(userProfile.title!),
@@ -135,6 +152,49 @@ class IntroFormCubit extends Cubit<IntroFormState> {
 
     final newState = state.copyWith(
       pictureUploadPickerInput: newPictureUploadPickerInputState,
+    );
+
+    emit(newState);
+  }
+
+  void onUsernameChanged(String val) {
+    final prevState = state;
+    final prevUsernameInputState = prevState.usernameInput;
+
+    final shouldValidate = prevUsernameInputState.isNotValid;
+
+    final newUsernameInputState = shouldValidate
+        ? UsernameFieldInput.validated(val)
+        : UsernameFieldInput.unvalidated(val);
+    print(newUsernameInputState.displayError);
+    final newState = state.copyWith(
+      usernameInput: newUsernameInputState,
+      introFormStatus: IntroFormStatus.idle,
+      usernameAsyncError: newUsernameInputState.displayError,
+      isForceUsernameErrorNull: true,
+    );
+
+    emit(newState);
+  }
+
+  // onUsernameUnfocused
+  Future<void> onUsernameUnfocused() async {
+    final prevState = state;
+    final prevUsernameInputState = prevState.usernameInput;
+    final prevUsernameInputVal = prevUsernameInputState.value;
+
+    emit(state.copyWith(introFormStatus: IntroFormStatus.usernameCheckLoading));
+
+    final error =
+        await prevUsernameInputState.validatorAsync(state.userProfile.username);
+
+    final newUsernameInputState =
+        UsernameFieldInput.validated(prevUsernameInputVal);
+    final newState = state.copyWith(
+      usernameInput: newUsernameInputState,
+      introFormStatus: IntroFormStatus.idle,
+      usernameAsyncError: error,
+      isForceUsernameErrorNull: true,
     );
 
     emit(newState);
@@ -260,6 +320,12 @@ class IntroFormCubit extends Cubit<IntroFormState> {
     final degreeProgrammeInput =
         DegreeProgrammeFieldInput.validated(state.degreeProgrammeInput.value);
 
+    emit(state.copyWith(introFormStatus: IntroFormStatus.loading));
+
+    // check username async validation again
+    final error =
+        await state.usernameInput.validatorAsync(state.userProfile.username);
+
     final isFormValid = Formz.validate([
       pictureUploadPickerInput,
       firstNameInput,
@@ -268,20 +334,21 @@ class IntroFormCubit extends Cubit<IntroFormState> {
       degreeProgrammeInput,
     ]);
 
-    if (!isFormValid) {
+    if (!isFormValid || error != null) {
       emit(state.copyWith(
         pictureUploadPickerInput: pictureUploadPickerInput,
         firstNameInput: firstNameInput,
         lastNameInput: lastNameInput,
         titleInput: titleInput,
         degreeProgrammeInput: degreeProgrammeInput,
+        usernameAsyncError: error,
+        isForceUsernameErrorNull: true,
+        introFormStatus: IntroFormStatus.idle,
       ));
       return;
     }
 
     try {
-      emit(state.copyWith(introFormStatus: IntroFormStatus.loading));
-
       if (state.pictureUploadPickerInput.value != null) {
         await userRepository.uploadUserAvatar(UploadUserAvatarRequest(
             userAvatar: UserAvatarEntity(
@@ -294,6 +361,7 @@ class IntroFormCubit extends Cubit<IntroFormState> {
 
       await userRepository.updateUser(UpdateUserRequest(
         userProfile: state.userProfile.copyWith(
+          username: state.usernameInput.value,
           firstName: state.firstNameInput.value,
           lastName: state.lastNameInput.value,
           title: state.titleInput.value,
