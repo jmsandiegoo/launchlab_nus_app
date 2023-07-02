@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:launchlab/src/config/app_config.dart';
 import 'package:launchlab/src/config/app_router.dart';
 import 'package:launchlab/src/config/app_theme.dart';
 import 'package:launchlab/src/data/authentication/repository/auth_repository.dart';
 import 'package:launchlab/src/presentation/common/cubits/app_root_cubit.dart';
+import 'package:launchlab/src/utils/toast_manager.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 Future<void> main() async {
@@ -68,6 +70,16 @@ class _RootAppContentState extends State<RootAppContent> {
     return MaterialApp.router(
       theme: appThemeData,
       routerConfig: appRouter,
+      builder: (context, child) => Overlay(
+        initialEntries: <OverlayEntry>[
+          OverlayEntry(
+            builder: (BuildContext context) {
+              ToastManager().initFToast(context);
+              return child!;
+            },
+          ),
+        ],
+      ),
     );
   }
 }

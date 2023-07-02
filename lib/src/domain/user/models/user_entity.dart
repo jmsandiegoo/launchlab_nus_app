@@ -7,8 +7,6 @@ class UserEntity extends Equatable {
     this.firstName,
     this.lastName,
     this.title,
-    this.avatar,
-    this.resume,
     this.about,
     this.degreeProgrammeId,
     this.createdAt,
@@ -20,13 +18,25 @@ class UserEntity extends Equatable {
   final String? firstName;
   final String? lastName;
   final String? title;
-  final String? avatar;
-  final String? resume;
   final String? about;
   final DateTime? createdAt;
   final DateTime? updatedAt;
 
   final String? degreeProgrammeId;
+
+  UserEntity setAvatar({String? avatar}) {
+    return UserEntity(
+      id: id,
+      isOnboarded: isOnboarded,
+      firstName: firstName,
+      lastName: lastName,
+      title: title,
+      about: about,
+      degreeProgrammeId: degreeProgrammeId,
+      createdAt: createdAt,
+      updatedAt: updatedAt,
+    );
+  }
 
   UserEntity copyWith({
     String? id,
@@ -47,8 +57,6 @@ class UserEntity extends Equatable {
       firstName: firstName ?? this.firstName,
       lastName: lastName ?? this.lastName,
       title: title ?? this.title,
-      avatar: avatar ?? this.avatar,
-      resume: resume ?? this.resume,
       about: about ?? this.about,
       degreeProgrammeId: degreeProgrammeId ?? this.degreeProgrammeId,
       createdAt: createdAt ?? this.createdAt,
@@ -62,8 +70,6 @@ class UserEntity extends Equatable {
         firstName = json['first_name'],
         lastName = json['last_name'],
         title = json['title'],
-        avatar = json['avatar'],
-        resume = json['resume'],
         about = json['about'],
         degreeProgrammeId = json['degree_programme_id'],
         createdAt = DateTime.tryParse(json['created_at'].toString()),
@@ -76,8 +82,6 @@ class UserEntity extends Equatable {
       'first_name': firstName,
       'last_name': lastName,
       'title': title,
-      'avatar': avatar,
-      'resume': resume,
       'about': about,
       'degree_programme_id': degreeProgrammeId,
       'created_at': createdAt?.toIso8601String(),
@@ -92,8 +96,6 @@ class UserEntity extends Equatable {
         firstName,
         lastName,
         title,
-        avatar,
-        resume,
         about,
         degreeProgrammeId,
         createdAt,

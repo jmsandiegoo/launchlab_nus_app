@@ -5,11 +5,15 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:formz/formz.dart';
 import 'package:launchlab/src/data/user/user_repository.dart';
 import 'package:launchlab/src/domain/user/models/degree_programme_entity.dart';
+import 'package:launchlab/src/domain/user/models/requests/delete_user_avatar_resume_request.dart';
 import 'package:launchlab/src/domain/user/models/requests/update_user_request.dart';
+import 'package:launchlab/src/domain/user/models/requests/upload_user_avatar_request.dart';
+import 'package:launchlab/src/domain/user/models/user_avatar_entity.dart';
 import 'package:launchlab/src/domain/user/models/user_entity.dart';
 import 'package:launchlab/src/presentation/common/widgets/form_fields/picture_upload_picker.dart';
 import 'package:launchlab/src/presentation/common/widgets/form_fields/text_field.dart';
 import 'package:launchlab/src/presentation/user/widgets/form_fields/degree_programme_field.dart';
+import 'package:launchlab/src/utils/failure.dart';
 
 class IntroFormState extends Equatable {
   const IntroFormState({
@@ -22,6 +26,7 @@ class IntroFormState extends Equatable {
     this.degreeProgrammeOptions = const [],
     required this.introFormStatus,
     required this.userProfile,
+    this.error,
   });
 
   // inputs
@@ -35,6 +40,7 @@ class IntroFormState extends Equatable {
   final UserEntity userProfile;
   final List<DegreeProgrammeEntity> degreeProgrammeOptions;
   final IntroFormStatus introFormStatus;
+  final Failure? error;
 
   IntroFormState copyWith({
     PictureUploadPickerInput? pictureUploadPickerInput,
@@ -45,6 +51,7 @@ class IntroFormState extends Equatable {
     List<DegreeProgrammeEntity>? degreeProgrammeOptions,
     IntroFormStatus? introFormStatus,
     UserEntity? userProfile,
+    Failure? error,
   }) {
     return IntroFormState(
       pictureUploadPickerInput:
@@ -57,6 +64,7 @@ class IntroFormState extends Equatable {
           degreeProgrammeOptions ?? this.degreeProgrammeOptions,
       introFormStatus: introFormStatus ?? this.introFormStatus,
       userProfile: userProfile ?? this.userProfile,
+      error: error,
     );
   }
 
@@ -70,6 +78,7 @@ class IntroFormState extends Equatable {
         degreeProgrammeOptions,
         introFormStatus,
         userProfile,
+        error,
       ];
 }
 
@@ -85,10 +94,10 @@ class IntroFormCubit extends Cubit<IntroFormState> {
     required this.userRepository,
     required UserEntity userProfile,
     required DegreeProgrammeEntity userDegreeProgramme,
-    required File? userAvatarImage,
+    required UserAvatarEntity? userAvatar,
   }) : super(IntroFormState(
           pictureUploadPickerInput:
-              PictureUploadPickerInput.unvalidated(userAvatarImage),
+              PictureUploadPickerInput.unvalidated(userAvatar?.file),
           firstNameInput: TextFieldInput.unvalidated(userProfile.firstName!),
           lastNameInput: TextFieldInput.unvalidated(userProfile.lastName!),
           titleInput: TextFieldInput.unvalidated(userProfile.title!),
@@ -96,6 +105,7 @@ class IntroFormCubit extends Cubit<IntroFormState> {
               DegreeProgrammeFieldInput.unvalidated(userDegreeProgramme),
           introFormStatus: IntroFormStatus.initial,
           userProfile: userProfile,
+          error: null,
         ));
 
   final UserRepository userRepository;
@@ -107,8 +117,8 @@ class IntroFormCubit extends Cubit<IntroFormState> {
           await userRepository.getDegreeProgrammes(filter);
 
       emit(state.copyWith(degreeProgrammeOptions: degreeProgrammeOptions));
-    } on Exception catch (error) {
-      print(error);
+    } on Exception catch (_) {
+      rethrow;
     }
   }
 
@@ -272,6 +282,16 @@ class IntroFormCubit extends Cubit<IntroFormState> {
     try {
       emit(state.copyWith(introFormStatus: IntroFormStatus.loading));
 
+      if (state.pictureUploadPickerInput.value != null) {
+        await userRepository.uploadUserAvatar(UploadUserAvatarRequest(
+            userAvatar: UserAvatarEntity(
+                userId: state.userProfile.id!,
+                file: state.pictureUploadPickerInput.value!)));
+      } else {
+        await userRepository.deleteUserAvatar(
+            DeleteUserAvatarResumeRequest(userId: state.userProfile.id!));
+      }
+
       await userRepository.updateUser(UpdateUserRequest(
         userProfile: state.userProfile.copyWith(
           firstName: state.firstNameInput.value,
@@ -279,14 +299,15 @@ class IntroFormCubit extends Cubit<IntroFormState> {
           title: state.titleInput.value,
           degreeProgrammeId: state.degreeProgrammeInput.value!.id,
         ),
-        userAvatar: state.pictureUploadPickerInput.value,
       ));
 
       emit(state.copyWith(
         introFormStatus: IntroFormStatus.success,
+        error: null,
       ));
-    } on Exception catch (_) {
-      emit(state.copyWith(introFormStatus: IntroFormStatus.error));
+    } on Failure catch (error) {
+      emit(
+          state.copyWith(introFormStatus: IntroFormStatus.error, error: error));
     }
   }
 }

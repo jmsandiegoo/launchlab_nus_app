@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:launchlab/src/presentation/common/widgets/feedback_toast.dart';
 import 'package:launchlab/src/presentation/common/widgets/form_fields/text_field.dart';
 import 'package:launchlab/src/presentation/common/widgets/useful.dart';
 import 'package:launchlab/src/presentation/user/cubits/about_form_cubit.dart';
+import 'package:launchlab/src/utils/toast_manager.dart';
 
 class AboutForm extends StatefulWidget {
   const AboutForm({super.key});
@@ -37,7 +39,22 @@ class _AboutFormState extends State<AboutForm> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<AboutFormCubit, AboutFormState>(
+    return BlocConsumer<AboutFormCubit, AboutFormState>(
+      listener: (context, state) {
+        if (state.aboutFormStatus == AboutFormStatus.success) {
+          ToastManager().showFToast(
+              child: const SuccessFeedback(msg: "Edit about successful!"));
+        }
+
+        if (state.aboutFormStatus == AboutFormStatus.error &&
+            state.error != null) {
+          ToastManager()
+              .showFToast(child: ErrorFeedback(msg: state.error!.errorMessage));
+        }
+      },
+      listenWhen: (previous, current) {
+        return previous.aboutFormStatus != current.aboutFormStatus;
+      },
       builder: ((context, state) {
         return ListView(
           children: [

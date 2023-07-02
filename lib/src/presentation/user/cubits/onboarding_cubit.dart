@@ -13,7 +13,9 @@ import 'package:launchlab/src/domain/user/models/accomplishment_entity.dart';
 import 'package:launchlab/src/domain/user/models/degree_programme_entity.dart';
 import 'package:launchlab/src/domain/user/models/experience_entity.dart';
 import 'package:launchlab/src/domain/user/models/requests/onboard_user_request.dart';
+import 'package:launchlab/src/domain/user/models/user_avatar_entity.dart';
 import 'package:launchlab/src/domain/user/models/user_entity.dart';
+import 'package:launchlab/src/domain/user/models/user_resume_entity.dart';
 import 'package:launchlab/src/presentation/common/widgets/form_fields/picture_upload_picker.dart';
 import 'package:launchlab/src/presentation/common/widgets/form_fields/text_field.dart';
 import 'package:launchlab/src/presentation/user/widgets/form_fields/accomplishments_list_field.dart';
@@ -22,6 +24,7 @@ import 'package:launchlab/src/presentation/user/widgets/form_fields/experience_l
 import 'package:launchlab/src/presentation/user/widgets/form_fields/user_preferred_category_field.dart';
 import 'package:launchlab/src/presentation/user/widgets/form_fields/user_resume_field.dart';
 import 'package:launchlab/src/presentation/user/widgets/form_fields/user_skills_interests_field.dart';
+import 'package:launchlab/src/utils/failure.dart';
 
 @immutable
 class OnboardingState extends Equatable {
@@ -47,6 +50,7 @@ class OnboardingState extends Equatable {
     this.experienceListInput = const ExperienceListFieldInput.unvalidated(),
     this.accomplishmentListInput =
         const AccomplishmentListFieldInput.unvalidated(),
+    this.error,
   });
 
   // ====================================================================
@@ -56,6 +60,7 @@ class OnboardingState extends Equatable {
   final int steps;
   final int currStep;
   final OnboardingStatus? onboardingStatus;
+  final Failure? error;
 
   // ====================================================================
   // STEP 1 Input states
@@ -114,6 +119,7 @@ class OnboardingState extends Equatable {
     UserResumeFieldInput? userResumeInput,
     ExperienceListFieldInput? experienceListInput,
     AccomplishmentListFieldInput? accomplishmentListInput,
+    Failure? error,
   }) {
     return OnboardingState(
       steps: steps ?? this.steps,
@@ -138,6 +144,7 @@ class OnboardingState extends Equatable {
       experienceListInput: experienceListInput ?? this.experienceListInput,
       accomplishmentListInput:
           accomplishmentListInput ?? this.accomplishmentListInput,
+      error: error,
     );
   }
 
@@ -160,6 +167,7 @@ class OnboardingState extends Equatable {
         userResumeInput,
         experienceListInput,
         accomplishmentListInput,
+        error,
       ];
 }
 
@@ -169,6 +177,7 @@ enum OnboardingStatus {
   nextPage,
   submissionInProgress,
   submissionSuccess,
+  initializingError,
   submissionError,
 }
 
@@ -190,8 +199,8 @@ class OnboardingCubit extends Cubit<OnboardingState> {
           await _userRepository.getDegreeProgrammes(filter);
 
       emit(state.copyWith(degreeProgrammeOptions: degreeProgrammeOptions));
-    } on Exception catch (error) {
-      print(error);
+    } on Failure catch (_) {
+      rethrow;
     }
   }
 
@@ -376,7 +385,7 @@ class OnboardingCubit extends Cubit<OnboardingState> {
 
       emit(state.copyWith(skillInterestOptions: skillInterestOptions));
     } on Exception catch (error) {
-      print(error);
+      debugPrint("$error");
     }
   }
 
@@ -461,10 +470,10 @@ class OnboardingCubit extends Cubit<OnboardingState> {
         onboardingStatus: OnboardingStatus.nextPage,
       ));
       // not loading state
-    } on Exception catch (error) {
-      print("error occured ${error}");
-    } finally {
-      emit(state.copyWith(onboardingStatus: null));
+    } on Failure catch (error) {
+      debugPrint("error occured $error");
+      emit(state.copyWith(
+          onboardingStatus: OnboardingStatus.initializingError, error: error));
     }
   }
 
@@ -574,8 +583,14 @@ class OnboardingCubit extends Cubit<OnboardingState> {
       onboardingStatus: OnboardingStatus.submissionInProgress,
     ));
     final OnboardUserRequest request = OnboardUserRequest(
-      userAvatar: state.pictureUploadPickerInput.value,
-      userResume: state.userResumeInput.value,
+      userAvatar: state.pictureUploadPickerInput.value != null
+          ? UserAvatarEntity(
+              userId: user.id!, file: state.pictureUploadPickerInput.value!)
+          : null,
+      userResume: state.userResumeInput.value != null
+          ? UserResumeEntity(
+              userId: user.id!, file: state.userResumeInput.value!)
+          : null,
       user: user.copyWith(
         firstName: state.firstNameInput.value,
         lastName: state.lastNameInput.value,
@@ -589,16 +604,15 @@ class OnboardingCubit extends Cubit<OnboardingState> {
       accomplishments: state.accomplishmentListInput.value,
     );
     try {
-      print("request: $request");
+      debugPrint("request: $request");
       await _userRepository.onboardUser(request: request);
       emit(state.copyWith(
         onboardingStatus: OnboardingStatus.submissionSuccess,
       ));
-    } on Exception catch (error) {
-      print(error);
+    } on Failure catch (error) {
+      debugPrint("$error");
       emit(state.copyWith(
-        onboardingStatus: OnboardingStatus.submissionError,
-      ));
+          onboardingStatus: OnboardingStatus.submissionError, error: error));
     }
   }
 

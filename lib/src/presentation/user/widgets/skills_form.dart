@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:launchlab/src/domain/common/models/skill_entity.dart';
+import 'package:launchlab/src/presentation/common/widgets/feedback_toast.dart';
 import 'package:launchlab/src/presentation/common/widgets/form_fields/dropwdown_search_field.dart';
 import 'package:launchlab/src/presentation/common/widgets/useful.dart';
 import 'package:launchlab/src/presentation/user/cubits/skills_form_cubit.dart';
 import 'package:launchlab/src/presentation/user/widgets/form_fields/user_skills_interests_field.dart';
+import 'package:launchlab/src/utils/toast_manager.dart';
 
 class SkillsForm extends StatefulWidget {
   const SkillsForm({super.key});
@@ -24,7 +26,22 @@ class _SkillsFormState extends State<SkillsForm> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<SkillsFormCubit, SkillsFormState>(
+    return BlocConsumer<SkillsFormCubit, SkillsFormState>(
+      listener: (context, state) {
+        if (state.skillsFormStatus == SkillsFormStatus.success) {
+          ToastManager().showFToast(
+              child: const SuccessFeedback(msg: "Edit about successful!"));
+        }
+
+        if (state.skillsFormStatus == SkillsFormStatus.error &&
+            state.error != null) {
+          ToastManager()
+              .showFToast(child: ErrorFeedback(msg: state.error!.errorMessage));
+        }
+      },
+      listenWhen: (previous, current) {
+        return previous.skillsFormStatus != current.skillsFormStatus;
+      },
       builder: (context, state) {
         return ListView(
           children: [
