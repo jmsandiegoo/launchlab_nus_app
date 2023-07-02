@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:launchlab/src/config/app_theme.dart';
 import 'package:launchlab/src/domain/user/models/degree_programme_entity.dart';
 import 'package:launchlab/src/presentation/common/widgets/feedback_toast.dart';
 import 'package:launchlab/src/presentation/common/widgets/form_fields/dropwdown_search_field.dart';
 import 'package:launchlab/src/presentation/common/widgets/form_fields/picture_upload_picker.dart';
+import 'package:launchlab/src/presentation/user/widgets/form_fields/username_field.dart';
 import 'package:launchlab/src/presentation/common/widgets/form_fields/text_field.dart';
 import 'package:launchlab/src/presentation/common/widgets/useful.dart';
 import 'package:launchlab/src/presentation/user/cubits/intro_form_cubit.dart';
@@ -18,11 +20,13 @@ class IntroForm extends StatefulWidget {
 
 class _IntroFormState extends State<IntroForm> {
   late IntroFormCubit _introFormCubit;
+  final _usernameFocusNode = FocusNode();
   final _firstNameFocusNode = FocusNode();
   final _lastNameFocusNode = FocusNode();
   final _titleFocusNode = FocusNode();
   final _degreeProgrammeFocusNode = FocusNode();
 
+  final _usernameController = TextEditingController();
   final _firstNameController = TextEditingController();
   final _lastNameController = TextEditingController();
   final _titleController = TextEditingController();
@@ -31,6 +35,12 @@ class _IntroFormState extends State<IntroForm> {
   void initState() {
     super.initState();
     _introFormCubit = BlocProvider.of<IntroFormCubit>(context);
+
+    _usernameFocusNode.addListener(() {
+      if (!_usernameFocusNode.hasFocus) {
+        _introFormCubit.onUsernameUnfocused();
+      }
+    });
 
     _firstNameFocusNode.addListener(() {
       if (!_firstNameFocusNode.hasFocus) {
@@ -53,11 +63,13 @@ class _IntroFormState extends State<IntroForm> {
 
   @override
   void dispose() {
+    _usernameFocusNode.dispose();
     _firstNameFocusNode.dispose();
     _lastNameFocusNode.dispose();
     _titleFocusNode.dispose();
     _degreeProgrammeFocusNode.dispose();
 
+    _usernameController.dispose();
     _firstNameController.dispose();
     _lastNameController.dispose();
     _titleController.dispose();
@@ -95,6 +107,35 @@ class _IntroFormState extends State<IntroForm> {
           ),
           const SizedBox(
             height: 30,
+          ),
+          TextFieldWidget(
+            focusNode: _usernameFocusNode,
+            controller: _usernameController,
+            label: "Username",
+            hint: "",
+            value: state.usernameInput.value,
+            prefixWidget:
+                const Icon(Icons.alternate_email_outlined, size: 20.0),
+            suffixWidget: () {
+              if (state.introFormStatus !=
+                  IntroFormStatus.usernameCheckLoading) {
+                return null;
+              }
+              return Container(
+                padding: const EdgeInsets.all(15.0),
+                height: 5,
+                width: 5,
+                child: const CircularProgressIndicator(
+                  strokeWidth: 1.5,
+                  color: blackColor,
+                ),
+              );
+            }(),
+            onChangedHandler: (val) {
+              print('onchanged username');
+              _introFormCubit.onUsernameChanged(val);
+            },
+            errorText: state.usernameAsyncError?.text(),
           ),
           TextFieldWidget(
             focusNode: _firstNameFocusNode,

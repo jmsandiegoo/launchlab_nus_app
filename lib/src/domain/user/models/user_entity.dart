@@ -4,6 +4,7 @@ class UserEntity extends Equatable {
   const UserEntity({
     this.id,
     required this.isOnboarded,
+    required this.username,
     this.firstName,
     this.lastName,
     this.title,
@@ -15,6 +16,7 @@ class UserEntity extends Equatable {
 
   final String? id;
   final bool isOnboarded;
+  final String username;
   final String? firstName;
   final String? lastName;
   final String? title;
@@ -28,6 +30,7 @@ class UserEntity extends Equatable {
     return UserEntity(
       id: id,
       isOnboarded: isOnboarded,
+      username: username,
       firstName: firstName,
       lastName: lastName,
       title: title,
@@ -41,6 +44,7 @@ class UserEntity extends Equatable {
   UserEntity copyWith({
     String? id,
     bool? isOnboarded,
+    String? username,
     String? firstName,
     String? lastName,
     String? title,
@@ -54,6 +58,7 @@ class UserEntity extends Equatable {
     return UserEntity(
       id: id ?? this.id,
       isOnboarded: isOnboarded ?? this.isOnboarded,
+      username: username ?? this.username,
       firstName: firstName ?? this.firstName,
       lastName: lastName ?? this.lastName,
       title: title ?? this.title,
@@ -67,6 +72,7 @@ class UserEntity extends Equatable {
   UserEntity.fromJson(Map<String, dynamic> json)
       : id = json['id'],
         isOnboarded = json['is_onboarded'],
+        username = json['username'],
         firstName = json['first_name'],
         lastName = json['last_name'],
         title = json['title'],
@@ -79,6 +85,7 @@ class UserEntity extends Equatable {
     return {
       'id': id,
       'is_onboarded': isOnboarded,
+      'username': username,
       'first_name': firstName,
       'last_name': lastName,
       'title': title,
@@ -93,6 +100,7 @@ class UserEntity extends Equatable {
   List<Object?> get props => [
         id,
         isOnboarded,
+        username,
         firstName,
         lastName,
         title,

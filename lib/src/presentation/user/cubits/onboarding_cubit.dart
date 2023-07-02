@@ -13,6 +13,7 @@ import 'package:launchlab/src/domain/user/models/accomplishment_entity.dart';
 import 'package:launchlab/src/domain/user/models/degree_programme_entity.dart';
 import 'package:launchlab/src/domain/user/models/experience_entity.dart';
 import 'package:launchlab/src/domain/user/models/requests/onboard_user_request.dart';
+import 'package:launchlab/src/domain/user/models/requests/update_user_request.dart';
 import 'package:launchlab/src/domain/user/models/user_avatar_entity.dart';
 import 'package:launchlab/src/domain/user/models/user_entity.dart';
 import 'package:launchlab/src/domain/user/models/user_resume_entity.dart';
@@ -24,6 +25,7 @@ import 'package:launchlab/src/presentation/user/widgets/form_fields/experience_l
 import 'package:launchlab/src/presentation/user/widgets/form_fields/user_preferred_category_field.dart';
 import 'package:launchlab/src/presentation/user/widgets/form_fields/user_resume_field.dart';
 import 'package:launchlab/src/presentation/user/widgets/form_fields/user_skills_interests_field.dart';
+import 'package:launchlab/src/presentation/user/widgets/form_fields/username_field.dart';
 import 'package:launchlab/src/utils/failure.dart';
 
 @immutable
@@ -34,6 +36,8 @@ class OnboardingState extends Equatable {
     this.onboardingStatus,
     this.pictureUploadPickerInput =
         const PictureUploadPickerInput.unvalidated(),
+    this.usernameInput = const UsernameFieldInput.unvalidated(),
+    this.usernameAsyncError,
     this.firstNameInput = const TextFieldInput.unvalidated(),
     this.lastNameInput = const TextFieldInput.unvalidated(),
     this.titleInput = const TextFieldInput.unvalidated(),
@@ -67,6 +71,7 @@ class OnboardingState extends Equatable {
   // ====================================================================
 
   final PictureUploadPickerInput pictureUploadPickerInput;
+  final UsernameFieldInput usernameInput;
   final TextFieldInput firstNameInput;
   final TextFieldInput lastNameInput;
   final TextFieldInput titleInput;
@@ -74,6 +79,8 @@ class OnboardingState extends Equatable {
   final TextFieldInput aboutInput;
 
   final List<DegreeProgrammeEntity> degreeProgrammeOptions;
+  final UsernameFieldError? usernameAsyncError;
+
   // ====================================================================
   // STEP 2 Input states
   // ====================================================================
@@ -106,6 +113,9 @@ class OnboardingState extends Equatable {
     int? currStep,
     OnboardingStatus? onboardingStatus,
     PictureUploadPickerInput? pictureUploadPickerInput,
+    UsernameFieldInput? usernameInput,
+    UsernameFieldError? usernameAsyncError,
+    bool isForceUsernameErrorNull = false,
     TextFieldInput? firstNameInput,
     TextFieldInput? lastNameInput,
     TextFieldInput? titleInput,
@@ -127,6 +137,10 @@ class OnboardingState extends Equatable {
       onboardingStatus: onboardingStatus,
       pictureUploadPickerInput:
           pictureUploadPickerInput ?? this.pictureUploadPickerInput,
+      usernameInput: usernameInput ?? this.usernameInput,
+      usernameAsyncError: isForceUsernameErrorNull
+          ? usernameAsyncError
+          : (usernameAsyncError ?? this.usernameAsyncError),
       firstNameInput: firstNameInput ?? this.firstNameInput,
       lastNameInput: lastNameInput ?? this.lastNameInput,
       titleInput: titleInput ?? this.titleInput,
@@ -154,6 +168,8 @@ class OnboardingState extends Equatable {
         currStep,
         onboardingStatus,
         pictureUploadPickerInput,
+        usernameInput,
+        usernameAsyncError,
         firstNameInput,
         lastNameInput,
         titleInput,
@@ -175,6 +191,7 @@ enum OnboardingStatus {
   initializing,
   prevPage,
   nextPage,
+  usernameCheckInProgress,
   submissionInProgress,
   submissionSuccess,
   initializingError,
@@ -218,6 +235,49 @@ class OnboardingCubit extends Cubit<OnboardingState> {
     final newState = state.copyWith(
       pictureUploadPickerInput: newPictureUploadPickerInputState,
       onboardingStatus: null,
+    );
+
+    emit(newState);
+  }
+
+  void onUsernameChanged(String val) {
+    final prevState = state;
+    final prevUsernameInputState = prevState.usernameInput;
+
+    final shouldValidate = prevUsernameInputState.isNotValid;
+
+    final newUsernameInputState = shouldValidate
+        ? UsernameFieldInput.validated(val)
+        : UsernameFieldInput.unvalidated(val);
+    print(newUsernameInputState.displayError);
+    final newState = state.copyWith(
+      usernameInput: newUsernameInputState,
+      onboardingStatus: null,
+      usernameAsyncError: newUsernameInputState.displayError,
+      isForceUsernameErrorNull: true,
+    );
+
+    emit(newState);
+  }
+
+  // onUsernameUnfocused
+  Future<void> onUsernameUnfocused() async {
+    final prevState = state;
+    final prevUsernameInputState = prevState.usernameInput;
+    final prevUsernameInputVal = prevUsernameInputState.value;
+
+    emit(state.copyWith(
+        onboardingStatus: OnboardingStatus.usernameCheckInProgress));
+
+    final error = await prevUsernameInputState.validatorAsync(null);
+
+    final newUsernameInputState =
+        UsernameFieldInput.validated(prevUsernameInputVal);
+    final newState = state.copyWith(
+      usernameInput: newUsernameInputState,
+      onboardingStatus: null,
+      usernameAsyncError: error,
+      isForceUsernameErrorNull: true,
     );
 
     emit(newState);
@@ -286,6 +346,7 @@ class OnboardingCubit extends Cubit<OnboardingState> {
     final newState = prevState.copyWith(
       lastNameInput: newLastNameInputState,
       onboardingStatus: null,
+      usernameAsyncError: state.usernameInput.displayError,
     );
     emit(newState);
   }
@@ -486,6 +547,8 @@ class OnboardingCubit extends Cubit<OnboardingState> {
     if (state.currStep == 1) {
       final pictureUploadPickerInput = PictureUploadPickerInput.validated(
           state.pictureUploadPickerInput.value);
+      final userNameInput =
+          UsernameFieldInput.validated(state.usernameInput.value);
       final firstNameInput =
           TextFieldInput.validated(state.firstNameInput.value);
       final lastNameInput = TextFieldInput.validated(state.lastNameInput.value);
@@ -494,8 +557,14 @@ class OnboardingCubit extends Cubit<OnboardingState> {
           DegreeProgrammeFieldInput.validated(state.degreeProgrammeInput.value);
       final aboutInput = TextFieldInput.validated(state.aboutInput.value);
 
+      emit(state.copyWith(
+          onboardingStatus: OnboardingStatus.submissionInProgress));
+      // check username async validation again
+      final error = await state.usernameInput.validatorAsync(null);
+
       final isFormValid = Formz.validate([
         pictureUploadPickerInput,
+        userNameInput,
         firstNameInput,
         lastNameInput,
         titleInput,
@@ -503,11 +572,7 @@ class OnboardingCubit extends Cubit<OnboardingState> {
         aboutInput,
       ]);
 
-      if (isFormValid) {
-        emit(state.copyWith(
-            onboardingStatus: OnboardingStatus.nextPage,
-            currStep: state.currStep + 1));
-      } else {
+      if (!isFormValid || error != null) {
         emit(state.copyWith(
           pictureUploadPickerInput: pictureUploadPickerInput,
           firstNameInput: firstNameInput,
@@ -515,6 +580,30 @@ class OnboardingCubit extends Cubit<OnboardingState> {
           titleInput: titleInput,
           degreeProgrammeInput: degreeProgrammeInput,
           aboutInput: aboutInput,
+          usernameAsyncError: error,
+          isForceUsernameErrorNull: true,
+          onboardingStatus: null,
+        ));
+        return;
+      }
+
+      try {
+        await _userRepository.updateUser(UpdateUserRequest(
+            userProfile: user.copyWith(
+          username: state.usernameInput.value,
+          firstName: state.firstNameInput.value,
+          lastName: state.lastNameInput.value,
+          title: state.titleInput.value,
+          degreeProgrammeId: state.degreeProgrammeInput.value!.id,
+        )));
+
+        emit(state.copyWith(
+            onboardingStatus: OnboardingStatus.nextPage,
+            currStep: state.currStep + 1));
+      } on Failure catch (error) {
+        emit(state.copyWith(
+          onboardingStatus: OnboardingStatus.submissionError,
+          error: error,
         ));
       }
     } else if (state.currStep == 2) {

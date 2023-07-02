@@ -45,18 +45,21 @@ extension TextFieldErrorExt on TextFieldError {
 /// Widget
 
 class TextFieldWidget extends StatefulWidget {
-  const TextFieldWidget(
-      {super.key,
-      required this.focusNode,
-      required this.onChangedHandler,
-      required this.label,
-      required this.value,
-      required this.hint,
-      this.errorText,
-      this.size = 1,
-      required this.controller,
-      this.keyboard = TextInputType.multiline,
-      this.inputFormatter = const []});
+  const TextFieldWidget({
+    super.key,
+    required this.focusNode,
+    required this.onChangedHandler,
+    required this.label,
+    required this.value,
+    required this.hint,
+    this.errorText,
+    this.size = 1,
+    required this.controller,
+    this.keyboard = TextInputType.multiline,
+    this.inputFormatter = const [],
+    this.prefixWidget,
+    this.suffixWidget,
+  });
 
   final FocusNode focusNode;
   final void Function(String) onChangedHandler;
@@ -68,6 +71,8 @@ class TextFieldWidget extends StatefulWidget {
   final TextEditingController controller;
   final TextInputType keyboard;
   final List<TextInputFormatter> inputFormatter;
+  final Widget? prefixWidget;
+  final Widget? suffixWidget;
 
   @override
   State<TextFieldWidget> createState() => _TextFieldWidgetState();
@@ -83,6 +88,8 @@ class _TextFieldWidgetState extends State<TextFieldWidget> {
   @override
   Widget build(BuildContext context) {
     return userInput(
+      prefixWidget: widget.prefixWidget,
+      suffixWidget: widget.suffixWidget,
       focusNode: widget.focusNode,
       controller: widget.controller,
       onChangedHandler: widget.onChangedHandler,

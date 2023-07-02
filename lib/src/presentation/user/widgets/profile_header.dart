@@ -99,6 +99,7 @@ class ProfileHeader extends StatelessWidget {
                 const SizedBox(height: 15),
                 headerText("${userProfile.firstName} ${userProfile.lastName}",
                     alignment: TextAlign.center),
+                smallText("@ ${userProfile.username}"),
                 const SizedBox(height: 5),
                 bodyText(userProfile.title!, alignment: TextAlign.center),
                 bodyText(userDegreeProgramme.name,
