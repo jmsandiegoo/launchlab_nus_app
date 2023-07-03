@@ -25,7 +25,7 @@ class ProfileSkills extends StatelessWidget {
       BuildContext context, ProfileEditSkillsPageProps props) async {
     final NavigationData<Object?>? returnData =
         await navigatePushWithData<Object?>(
-            context, "/profile/${userProfile.id}/edit-skills", props);
+            context, "/profile/edit-skills", props);
 
     if (returnData == null) {
       return;

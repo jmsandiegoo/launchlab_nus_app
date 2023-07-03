@@ -60,7 +60,7 @@ class ProfileEditIntroPage extends StatelessWidget {
                     ActionTypes.update,
                   );
                 } else {
-                  navigatePop(context);
+                  navigatePopWithData(context, null, ActionTypes.cancel);
                 }
               },
               child: const Icon(Icons.keyboard_backspace_outlined),

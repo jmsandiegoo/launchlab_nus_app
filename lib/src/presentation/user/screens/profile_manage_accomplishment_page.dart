@@ -31,7 +31,7 @@ class ProfileManageAccomplishmentPage extends StatelessWidget {
   ) async {
     final returnData = await navigatePush(
       context,
-      "/profile/${props.userProfile.id}/manage-accomplishment/add-accomplishment",
+      "/profile/manage-accomplishment/add-accomplishment",
     );
 
     if (returnData == null || returnData.actionType == ActionTypes.cancel) {
@@ -100,12 +100,11 @@ class ProfileManageAccomplishmentPage extends StatelessWidget {
                       .onAccomplishmentListChanged,
                   state.userAccomplishments.value),
               onEditHandler: (acc) async {
-                final NavigationData<
-                    AccomplishmentEntity>? returnData = await navigatePushWithData<
-                        AccomplishmentEntity>(
-                    context,
-                    "/profile/${props.userProfile.id}/manage-accomplishment/edit-accomplishment",
-                    acc);
+                final NavigationData<AccomplishmentEntity>? returnData =
+                    await navigatePushWithData<AccomplishmentEntity>(
+                        context,
+                        "/profile/manage-accomplishment/edit-accomplishment",
+                        acc);
 
                 List<AccomplishmentEntity> newAccomplishments = [
                   ...state.userAccomplishments.value

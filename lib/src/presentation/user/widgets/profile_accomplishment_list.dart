@@ -26,7 +26,7 @@ class ProfileAccomplishmentList extends StatelessWidget {
     final NavigationData<Object?>? returnData =
         await navigatePushWithData<Object?>(
       context,
-      "/profile/${userProfile.id}/manage-accomplishment",
+      "/profile/manage-accomplishment",
       props,
     );
 

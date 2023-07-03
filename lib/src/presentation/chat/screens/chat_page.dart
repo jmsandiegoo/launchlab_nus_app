@@ -1,5 +1,6 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:launchlab/src/config/app_theme.dart';
 import 'package:launchlab/src/presentation/chat/widgets/chat_select_modal.dart';
 import 'package:launchlab/src/presentation/common/widgets/form_fields/multi_button_select.dart';
@@ -43,7 +44,11 @@ class ChatPage extends StatelessWidget {
             ),
             actions: [
               IconButton(
-                  onPressed: () {}, icon: Icon(Icons.waving_hand_outlined)),
+                  onPressed: () {
+                    context
+                        .push("/profile/aec490eb-695f-46ed-919c-654c757d71e9");
+                  },
+                  icon: Icon(Icons.waving_hand_outlined)),
               IconButton(onPressed: () {}, icon: Icon(Icons.info_outline))
             ],
           ),

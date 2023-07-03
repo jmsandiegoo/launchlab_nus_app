@@ -32,7 +32,7 @@ class ProfileManageExperiencePage extends StatelessWidget {
   ) async {
     final returnData = await navigatePush(
       context,
-      "/profile/${props.userProfile.id}/manage-experience/add-experience",
+      "/profile/manage-experience/add-experience",
     );
 
     if (returnData == null || returnData.actionType == ActionTypes.cancel) {
@@ -99,12 +99,9 @@ class ProfileManageExperiencePage extends StatelessWidget {
                   profileManageExperiencePageCubit.onExperienceListChanged,
                   state.userExperiences.value),
               onEditHandler: (exp) async {
-                final NavigationData<
-                    ExperienceEntity>? returnData = await navigatePushWithData<
-                        ExperienceEntity>(
-                    context,
-                    "/profile/${props.userProfile.id}/manage-experience/edit-experience",
-                    exp);
+                final NavigationData<ExperienceEntity>? returnData =
+                    await navigatePushWithData<ExperienceEntity>(context,
+                        "/profile/manage-experience/edit-experience", exp);
 
                 List<ExperienceEntity> newExperiences = [
                   ...state.userExperiences.value

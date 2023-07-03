@@ -29,7 +29,7 @@ class ProfilePage extends StatelessWidget {
       ProfileEditPreferencePageProps props,
       void Function() onUpdateHandler) async {
     final returnData = await navigatePushWithData<Object?>(
-        context, "/profile/$userId/edit-settings", props);
+        context, "/profile/edit-settings", props);
 
     if (returnData == null || returnData.actionType == ActionTypes.cancel) {
       return;

@@ -25,7 +25,7 @@ class ProfileExperienceList extends StatelessWidget {
     final NavigationData<Object?>? returnData =
         await navigatePushWithData<Object?>(
       context,
-      "/profile/${userProfile.id}/manage-experience",
+      "/profile/manage-experience",
       props,
     );
 
