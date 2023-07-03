@@ -217,6 +217,7 @@ Widget subHeaderText(String label,
   return Text(
     label,
     maxLines: 2,
+    softWrap: true,
     overflow: TextOverflow.ellipsis,
     textAlign: alignment,
     style: TextStyle(fontSize: size, fontWeight: FontWeight.bold, color: color),
@@ -519,8 +520,10 @@ String stringToDateFormatter(date, {noDate = false}) {
   return formatter.format(DateTime.parse(date));
 }
 
-String dateToDateFormatter(date) {
-  String formattedDate = DateFormat('dd MMM yyyy').format(date);
+String dateToDateFormatter(date, {noDate = false}) {
+  String formattedDate = noDate
+      ? DateFormat('MMM yyyy').format(date)
+      : DateFormat('dd MMM yyyy').format(date);
   return formattedDate;
 }
 

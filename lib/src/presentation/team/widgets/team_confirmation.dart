@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:launchlab/src/data/team/team_repository.dart';
 import 'package:launchlab/src/presentation/common/widgets/useful.dart';
 import 'package:launchlab/src/presentation/team/cubits/team_cubit.dart';
 import 'package:launchlab/src/utils/helper.dart';
@@ -25,7 +26,7 @@ class TeamConfirmationBox extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-        create: (_) => TeamCubit(),
+        create: (_) => TeamCubit(TeamRepository()),
         child: BlocBuilder<TeamCubit, TeamState>(builder: (context, state) {
           final teamCubit = BlocProvider.of<TeamCubit>(context);
           return AlertDialog(
@@ -35,14 +36,14 @@ class TeamConfirmationBox extends StatelessWidget {
               TextButton(
                   onPressed: () async {
                     if (purpose == 'List') {
-                      teamCubit.listTeam(teamId: teamId);
+                      teamCubit.listTeam(teamId: teamId, isListed: true);
                     } else if (purpose == 'Unlist') {
-                      teamCubit.unlistTeam(teamId: teamId);
+                      teamCubit.listTeam(teamId: teamId, isListed: false);
                     } else if (purpose == 'Disband') {
                       teamCubit.disbandTeam(teamId: teamId);
                       navigateGo(context, '/team-home');
                     }
-                    Navigator.pop(context);
+                    Navigator.of(context).pop(true);
                   },
                   style: TextButton.styleFrom(textStyle: const TextStyle()),
                   child: bodyText('Yes',

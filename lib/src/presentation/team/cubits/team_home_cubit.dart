@@ -2,77 +2,74 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:launchlab/src/data/authentication/repository/auth_repository.dart';
-//import 'package:launchlab/src/utils/failure.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:launchlab/src/data/team/team_repository.dart';
+import 'package:launchlab/src/domain/team/responses/get_team_home_data.dart';
+import 'package:launchlab/src/domain/team/team_entity.dart';
+import 'package:launchlab/src/domain/team/user_entity.dart';
 
 @immutable
 class TeamHomeState extends Equatable {
+  final List<TeamEntity> memberTeamData;
+  final List<TeamEntity> ownerTeamData;
+  final UserEntity? userData;
   final bool isLeading;
-  const TeamHomeState({this.isLeading = false});
+  final bool isLoaded;
+
+  const TeamHomeState({
+    this.memberTeamData = const [],
+    this.ownerTeamData = const [],
+    this.userData,
+    this.isLeading = true,
+    this.isLoaded = false,
+  });
+
+  TeamHomeState copyWith({
+    List<TeamEntity>? memberTeamData,
+    List<TeamEntity>? ownerTeamData,
+    UserEntity? userData,
+    List? userAvatarURL,
+    bool? isLeading,
+    bool? isLoaded,
+  }) {
+    return TeamHomeState(
+      memberTeamData: memberTeamData ?? this.memberTeamData,
+      ownerTeamData: ownerTeamData ?? this.ownerTeamData,
+      userData: userData ?? this.userData,
+      isLeading: isLeading ?? this.isLeading,
+      isLoaded: isLoaded ?? this.isLoaded,
+    );
+  }
 
   @override
-  List<Object?> get props => [isLeading];
+  List<Object?> get props =>
+      [memberTeamData, ownerTeamData, userData, isLeading, isLoaded];
 }
 
 class TeamHomeCubit extends Cubit<TeamHomeState> {
   final AuthRepository _authRepository;
+  final TeamRepository _teamRepository;
 
-  TeamHomeCubit(this._authRepository) : super(const TeamHomeState());
+  TeamHomeCubit(this._authRepository, this._teamRepository)
+      : super(const TeamHomeState());
 
   Future<void> handleSignOut() async {
     await _authRepository.signOut();
   }
 
-  final supabase = Supabase.instance.client;
-  getData(data) async {
-    final User? user = supabase.auth.currentUser;
+//Emit state here, no longer need future builder.
+  void initData() async {
+    final GetTeamHomeData res = await _teamRepository.getTeamHomeData();
 
-    var userData = await supabase
-        .from('users')
-        .select('id, first_name, avatar')
-        .eq('id', user!.id);
-    var memberTeamData = await supabase
-        .from('teams')
-        .select('*, team_users!inner(user_id, is_owner) , milestones(*)')
-        .eq('team_users.is_owner', false)
-        .eq('team_users.user_id', user.id)
-        .eq('is_current', true);
-
-    var ownerTeamData = await supabase
-        .from('teams')
-        .select('*, team_users!inner(user_id, is_owner), milestones(*)')
-        .eq('team_users.is_owner', true)
-        .eq('team_users.user_id', user.id)
-        .eq('is_current', true);
-
-    var userAvatarURL = userData[0]['avatar'] == null
-        ? ''
-        : await supabase.storage
-            .from('user_avatar_bucket')
-            .createSignedUrl('${userData[0]['avatar']}', 30);
-
-    for (int i = 0; i < memberTeamData.length; i++) {
-      var avatarURL = memberTeamData[i]['avatar'] == null
-          ? ''
-          : await supabase.storage
-              .from('team_avatar_bucket')
-              .createSignedUrl('${memberTeamData[i]['avatar']}', 30);
-      memberTeamData[i]['avatar_url'] = avatarURL;
-    }
-
-    for (int i = 0; i < ownerTeamData.length; i++) {
-      var avatarURL = ownerTeamData[i]['avatar'] == null
-          ? ''
-          : await supabase.storage
-              .from('team_avatar_bucket')
-              .createSignedUrl('${ownerTeamData[i]['avatar']}', 30);
-      ownerTeamData[i]['avatar_url'] = avatarURL;
-    }
-
-    return [memberTeamData, ownerTeamData, userData, userAvatarURL];
+    final newState = state.copyWith(
+        memberTeamData: res.memberTeams,
+        ownerTeamData: res.ownerTeams,
+        userData: res.user,
+        isLoaded: true);
+    debugPrint('Home state emitted');
+    emit(newState);
   }
 
   void setIsLeadingState(bool value) {
-    emit(TeamHomeState(isLeading: value));
+    emit(state.copyWith(isLeading: value));
   }
 }

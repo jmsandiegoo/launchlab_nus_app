@@ -5,7 +5,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:formz/formz.dart';
 import 'package:launchlab/src/data/common/common_repository.dart';
+import 'package:launchlab/src/data/team/team_repository.dart';
 import 'package:launchlab/src/domain/common/models/skill_entity.dart';
+import 'package:launchlab/src/domain/team/team_entity.dart';
 import 'package:launchlab/src/presentation/common/widgets/form_fields/checkbox_field.dart';
 import 'package:launchlab/src/presentation/common/widgets/form_fields/picture_upload_picker.dart';
 import 'package:launchlab/src/presentation/common/widgets/form_fields/text_field.dart';
@@ -13,7 +15,6 @@ import 'package:launchlab/src/presentation/user/widgets/form_fields/end_date_fie
 import 'package:launchlab/src/presentation/user/widgets/form_fields/start_date_field.dart';
 import 'package:launchlab/src/presentation/user/widgets/form_fields/user_skills_interests_field.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:uuid/uuid.dart';
 
 @immutable
 class EditCreateTeamState extends Equatable {
@@ -30,6 +31,7 @@ class EditCreateTeamState extends Equatable {
     this.interestInput = const UserSkillsInterestsFieldInput.unvalidated(),
     this.skillInterestOptions = const [],
     this.avatarURL = '',
+    this.isLoaded = false,
   });
 
   final PictureUploadPickerInput pictureUploadInput;
@@ -44,6 +46,7 @@ class EditCreateTeamState extends Equatable {
   final UserSkillsInterestsFieldInput interestInput;
   final List<SkillEntity> skillInterestOptions;
   final String avatarURL;
+  final bool isLoaded;
 
   EditCreateTeamState copyWith(
       {PictureUploadPickerInput? pictureUploadInput,
@@ -57,7 +60,8 @@ class EditCreateTeamState extends Equatable {
       TextFieldInput? maxMemberInput,
       UserSkillsInterestsFieldInput? interestInput,
       List<SkillEntity>? skillInterestOptions,
-      String? avatarURL}) {
+      String? avatarURL,
+      bool? isLoaded}) {
     return EditCreateTeamState(
         pictureUploadInput: pictureUploadInput ?? this.pictureUploadInput,
         teamNameInput: teamNameInput ?? this.teamNameInput,
@@ -70,7 +74,8 @@ class EditCreateTeamState extends Equatable {
         maxMemberInput: maxMemberInput ?? this.maxMemberInput,
         interestInput: interestInput ?? this.interestInput,
         skillInterestOptions: skillInterestOptions ?? this.skillInterestOptions,
-        avatarURL: avatarURL ?? this.avatarURL);
+        avatarURL: avatarURL ?? this.avatarURL,
+        isLoaded: isLoaded ?? this.isLoaded);
   }
 
   @override
@@ -90,10 +95,11 @@ class EditCreateTeamState extends Equatable {
 }
 
 class EditCreateTeamCubit extends Cubit<EditCreateTeamState> {
-  EditCreateTeamCubit(this._commonRepository)
+  EditCreateTeamCubit(this._commonRepository, this._teamRepository)
       : super(const EditCreateTeamState());
 
   final CommonRepository _commonRepository;
+  final TeamRepository _teamRepository;
 
   // ====================================================================
   // Input handlers
@@ -270,51 +276,7 @@ class EditCreateTeamCubit extends Cubit<EditCreateTeamState> {
           maxMemberInput: maxMemberInput,
           interestInput: interestInput));
     }
-
     return isFormValid;
-  }
-
-  void initState(
-      {teamName,
-      description,
-      startDate,
-      endDate,
-      category,
-      commitment,
-      maxMember,
-      interest,
-      avatar,
-      avatarURL}) {
-    final newTeamNameState = TextFieldInput.validated(teamName);
-    final newDescriptionState = TextFieldInput.validated(description);
-    final newStartDateState =
-        StartDateFieldInput.validated(DateTime.parse(startDate));
-
-    final newMaxMemberState = TextFieldInput.validated(maxMember.toString());
-
-    final newPictureUploadInputState =
-        PictureUploadPickerInput.validated(avatar);
-
-    List<SkillEntity> allInterest = [];
-    interest.forEach((interest) {
-      allInterest.add(
-          SkillEntity(emsiId: interest['emsi_id'], name: interest['name']));
-    });
-
-    final newInterestInput =
-        UserSkillsInterestsFieldInput.validated(allInterest);
-
-    final newState = state.copyWith(
-        teamNameInput: newTeamNameState,
-        descriptionInput: newDescriptionState,
-        startDateInput: newStartDateState,
-        categoryInput: category,
-        commitmentInput: commitment,
-        maxMemberInput: newMaxMemberState,
-        interestInput: newInterestInput,
-        pictureUploadInput: newPictureUploadInputState,
-        avatarURL: avatarURL);
-    emit(newState);
   }
 
   // ====================================================================
@@ -323,16 +285,35 @@ class EditCreateTeamCubit extends Cubit<EditCreateTeamState> {
 
   final supabase = Supabase.instance.client;
   getData(teamId) async {
-    var teamData = await supabase.from('teams').select().eq('id', teamId);
+    final TeamEntity res = await _teamRepository.getEditCreateTeamData(teamId);
+    final newTeamNameState = TextFieldInput.validated(res.teamName);
+    final newDescriptionState = TextFieldInput.validated(res.description);
+    final newStartDateState = StartDateFieldInput.validated(res.startDate);
+    final newMaxMemberState =
+        TextFieldInput.validated(res.maxMembers.toString());
+    List<SkillEntity> allInterest = [];
+    res.interest.forEach((interest) {
+      allInterest.add(
+          SkillEntity(emsiId: interest['emsi_id'], name: interest['name']));
+    });
+    final newInterestInput =
+        UserSkillsInterestsFieldInput.validated(allInterest);
 
-    var avatarURL = teamData[0]['avatar'] == null
-        ? ''
-        : await supabase.storage
-            .from('team_avatar_bucket')
-            .createSignedUrl('${teamData[0]['avatar']}', 30);
-    teamData[0]['avatar_url'] = avatarURL;
+    res.endDate == null
+        ? onIsCheckedChanged(true)
+        : onEndDateChanged(res.endDate);
 
-    return teamData[0];
+    final newState = state.copyWith(
+        teamNameInput: newTeamNameState,
+        descriptionInput: newDescriptionState,
+        startDateInput: newStartDateState,
+        categoryInput: res.category,
+        commitmentInput: res.commitment,
+        maxMemberInput: newMaxMemberState,
+        interestInput: newInterestInput,
+        avatarURL: res.avatarURL,
+        isLoaded: true);
+    emit(newState);
   }
 
   updateTeamData({
@@ -347,21 +328,21 @@ class EditCreateTeamCubit extends Cubit<EditCreateTeamState> {
     interest,
     avatar,
   }) async {
-    print(category);
-    await supabase.from('teams').update({
-      'team_name': teamName,
-      'description': description,
-      'start_date': startDate,
-      'end_date': endDate == '' ? null : endDate,
-      'project_category': category,
-      'commitment': commitment,
-      'max_members': maxMember,
-      'interest': interest,
-      'updated_at': DateTime.now().toString()
-    }).eq('id', teamId);
+    _teamRepository.updateTeamData(
+        teamId: teamId,
+        teamName: teamName,
+        description: description,
+        startDate: startDate,
+        endDate: endDate,
+        category: category,
+        commitment: commitment,
+        maxMember: maxMember,
+        interest: interest,
+        avatar: avatar);
     debugPrint("Edited Team Data Saved");
   }
 
+  //Create a save team data class next time
   createNewTeam(
       {userId,
       teamName,
@@ -373,37 +354,17 @@ class EditCreateTeamCubit extends Cubit<EditCreateTeamState> {
       maxMember,
       interest,
       avatar}) async {
-    var teamId = const Uuid().v4();
-    await supabase.from('teams').insert({
-      'id': teamId,
-      'team_name': teamName,
-      'description': description,
-      'start_date': startDate,
-      'end_date': endDate == '' ? null : endDate,
-      'project_category': category,
-      'commitment': commitment,
-      'current_members': 1,
-      'max_members': maxMember,
-      'interest': interest,
-      'avatar': avatar.toString() == 'null'
-          ? null
-          : '${teamId}_avatar${avatar.toString().substring(avatar.toString().indexOf('.'))}',
-    });
-
-    avatar.toString() == 'null'
-        ? debugPrint('No Picture Uploaded')
-        : await supabase.storage.from('team_avatar_bucket').upload(
-            '${teamId}_avatar${avatar.toString().substring(avatar.toString().indexOf('.'))}',
-            avatar,
-            fileOptions:
-                const FileOptions(cacheControl: '3600', upsert: false));
-
-    await supabase.from('team_users').insert({
-      'user_id': userId,
-      'team_id': teamId,
-      'is_owner': true,
-      'position': 'Owner'
-    });
+    _teamRepository.createNewTeam(
+        userId: userId,
+        teamName: teamName,
+        description: description,
+        startDate: startDate,
+        endDate: endDate,
+        category: category,
+        commitment: commitment,
+        maxMember: maxMember,
+        interest: interest,
+        avatar: avatar);
 
     debugPrint("New Team Created");
   }

@@ -14,6 +14,7 @@ import 'package:launchlab/src/presentation/search/screens/discover_page.dart';
 import 'package:launchlab/src/presentation/team/screens/applicant_page.dart';
 import 'package:launchlab/src/presentation/team/screens/manage_team_page.dart';
 import 'package:launchlab/src/presentation/team/screens/team_home_page.dart';
+import 'package:launchlab/src/presentation/team/screens/team_page.dart';
 import 'package:launchlab/src/presentation/user/screens/onboarding_add_accomplishment_page.dart';
 import 'package:launchlab/src/presentation/user/screens/onboarding_add_experience_page.dart';
 import 'package:launchlab/src/presentation/user/screens/onboarding_edit_accomplishment_page.dart';
@@ -40,7 +41,6 @@ import 'package:launchlab/src/presentation/user/widgets/onboarding_steps_layout.
 import 'package:launchlab/src/presentation/team/screens/create_team_page.dart';
 import 'package:launchlab/src/presentation/team/screens/edit_team_page.dart';
 import 'package:launchlab/src/presentation/search/screens/external_team_page.dart';
-import 'package:launchlab/src/presentation/team/screens/team_page.dart';
 
 /// A file to configure the routing of the application
 
@@ -165,6 +165,7 @@ final GoRouter appRouter = GoRouter(
             ),
           ],
         ),
+
 
         // Main Navigator
         StatefulShellRoute.indexedStack(
@@ -332,6 +333,7 @@ final GoRouter appRouter = GoRouter(
                       ),
                     ],
                   ),
+
                 ],
               ),
             ])

@@ -4,12 +4,14 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:launchlab/src/config/app_theme.dart';
 import 'package:launchlab/src/data/common/common_repository.dart';
+import 'package:launchlab/src/data/team/team_repository.dart';
 import 'package:launchlab/src/domain/common/models/skill_entity.dart';
 import 'package:launchlab/src/presentation/common/widgets/form_fields/date_picker.dart';
 import 'package:launchlab/src/presentation/common/widgets/form_fields/dropwdown_search_field.dart';
 import 'package:launchlab/src/presentation/common/widgets/form_fields/picture_upload_picker.dart';
 import 'package:launchlab/src/presentation/common/widgets/useful.dart';
 import 'package:launchlab/src/presentation/team/cubits/edit_create_team_cubit.dart';
+import 'package:launchlab/src/presentation/team/widgets/commitment_button.dart';
 import 'package:launchlab/src/utils/helper.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../common/widgets/form_fields/text_field.dart';
@@ -48,7 +50,8 @@ class _CreateTeamPageState extends State<CreateTeamPage> {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-        create: (_) => EditCreateTeamCubit(CommonRepository(Supabase.instance)),
+        create: (_) => EditCreateTeamCubit(
+            CommonRepository(Supabase.instance), TeamRepository()),
         child: BlocBuilder<EditCreateTeamCubit, EditCreateTeamState>(
             builder: (context, state) {
           final editCreateTeamCubit =
@@ -231,12 +234,18 @@ class _CreateTeamPageState extends State<CreateTeamPage> {
                       Row(
                           mainAxisAlignment: MainAxisAlignment.spaceAround,
                           children: [
-                            _commitmentButton(
-                                "    Low    ", 'Low', editCreateTeamCubit),
-                            _commitmentButton(
-                                "  Medium  ", 'Medium', editCreateTeamCubit),
-                            _commitmentButton(
-                                "    High    ", 'High', editCreateTeamCubit),
+                            CommitmentButton(
+                                text: "    Low    ",
+                                newLevel: 'Low',
+                                cubit: editCreateTeamCubit),
+                            CommitmentButton(
+                                text: "  Medium  ",
+                                newLevel: 'Medium',
+                                cubit: editCreateTeamCubit),
+                            CommitmentButton(
+                                text: "    High    ",
+                                newLevel: 'High',
+                                cubit: editCreateTeamCubit),
                           ]),
                       const SizedBox(height: 20),
                       TextFieldWidget(
@@ -302,7 +311,7 @@ class _CreateTeamPageState extends State<CreateTeamPage> {
                                         .then((val) {
                                         navigatePop(context);
                                       })
-                                    : debugPrint("Not Validated");
+                                    : debugPrint("Not Valridated");
                               },
                               child: bodyText("   Create   "))),
                       const SizedBox(height: 50),
@@ -311,21 +320,5 @@ class _CreateTeamPageState extends State<CreateTeamPage> {
             ),
           );
         }));
-  }
-
-  Widget _commitmentButton(text, newLevel, cubit) {
-    return OutlinedButton(
-        style: OutlinedButton.styleFrom(
-            backgroundColor: cubit.state.commitmentInput == newLevel
-                ? blackColor
-                : lightGreyColor),
-        onPressed: () {
-          cubit.onCommitmentChanged(newLevel);
-        },
-        child: bodyText(text,
-            size: 12.0,
-            color: cubit.state.commitmentInput == newLevel
-                ? whiteColor
-                : blackColor));
   }
 }
