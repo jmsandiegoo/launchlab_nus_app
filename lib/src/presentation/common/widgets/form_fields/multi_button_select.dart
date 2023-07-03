@@ -9,12 +9,14 @@ class MultiButtonSingleSelectWidget<T> extends StatelessWidget {
     required this.options,
     required this.colNo,
     required this.onPressHandler,
+    this.itemRatio = (1 / .4),
   });
 
   final T value;
   final List<T> options;
   final int colNo;
   final void Function(T) onPressHandler;
+  final double itemRatio;
 
   List<SelectButton> renderButtons() {
     List<SelectButton> buttons = [];
@@ -38,7 +40,7 @@ class MultiButtonSingleSelectWidget<T> extends StatelessWidget {
         Expanded(
           child: GridView.count(
             crossAxisSpacing: 20.0,
-            childAspectRatio: (1 / .4),
+            childAspectRatio: itemRatio,
             shrinkWrap: true,
             crossAxisCount: colNo,
             children: [...buttons],
@@ -130,6 +132,7 @@ class SelectButton<T> extends StatelessWidget {
     return OutlinedButton(
         onPressed: () => onPressedHandler(value),
         style: OutlinedButton.styleFrom(
+          side: const BorderSide(color: blackColor),
           backgroundColor: isSelected ? blackColor : whiteColor,
         ),
         child: bodyText(label,
