@@ -10,8 +10,8 @@ import 'package:launchlab/src/presentation/team/widgets/team_home_card.dart';
 import 'package:launchlab/src/utils/helper.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-class TeamHome extends StatelessWidget {
-  const TeamHome({super.key});
+class TeamHomePage extends StatelessWidget {
+  const TeamHomePage({super.key});
 
   @override
   Widget build(BuildContext context) {
