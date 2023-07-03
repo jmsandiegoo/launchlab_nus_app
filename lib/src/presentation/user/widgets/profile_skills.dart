@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:launchlab/src/config/app_theme.dart';
 import 'package:launchlab/src/domain/user/models/preference_entity.dart';
+import 'package:launchlab/src/domain/user/models/user_entity.dart';
 import 'package:launchlab/src/presentation/common/widgets/useful.dart';
 import 'package:launchlab/src/presentation/user/screens/profile_edit_skills_page.dart';
 import 'package:launchlab/src/utils/constants.dart';
@@ -9,10 +10,14 @@ import 'package:launchlab/src/utils/helper.dart';
 class ProfileSkills extends StatelessWidget {
   const ProfileSkills({
     super.key,
+    this.isAuthProfile = false,
+    required this.userProfile,
     required this.userPreference,
     required this.onUpdateHandler,
   });
 
+  final bool isAuthProfile;
+  final UserEntity userProfile;
   final PreferenceEntity userPreference;
   final void Function() onUpdateHandler;
 
@@ -40,16 +45,25 @@ class ProfileSkills extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             subHeaderText("Skills"),
-            IconButton(
-              onPressed: () {
-                editProfileSkills(
-                    context,
-                    ProfileEditSkillsPageProps(
-                      userPreference: userPreference,
-                    ));
-              },
-              icon: const Icon(Icons.edit_outlined, color: blackColor),
-            ),
+            ...() {
+              if (!isAuthProfile) {
+                return [
+                  const SizedBox(height: 45.0),
+                ];
+              }
+              return [
+                IconButton(
+                  onPressed: () {
+                    editProfileSkills(
+                        context,
+                        ProfileEditSkillsPageProps(
+                          userPreference: userPreference,
+                        ));
+                  },
+                  icon: const Icon(Icons.edit_outlined, color: blackColor),
+                ),
+              ];
+            }(),
           ],
         ),
         const SizedBox(height: 5),

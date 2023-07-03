@@ -12,6 +12,7 @@ import 'package:launchlab/src/presentation/common/widgets/form_fields/checkbox_f
 import 'package:launchlab/src/presentation/common/widgets/form_fields/text_field.dart';
 import 'package:launchlab/src/presentation/user/widgets/form_fields/end_date_field.dart';
 import 'package:launchlab/src/presentation/user/widgets/form_fields/start_date_field.dart';
+import 'package:launchlab/src/utils/failure.dart';
 
 @immutable
 class AccomplishmentFormState extends Equatable {
@@ -24,6 +25,7 @@ class AccomplishmentFormState extends Equatable {
     this.descriptionFieldInput = const TextFieldInput.unvalidated(),
     required this.accomplishmentFormStatus,
     required this.accomplishment,
+    this.error,
   });
 
   final TextFieldInput titleNameFieldInput;
@@ -33,6 +35,7 @@ class AccomplishmentFormState extends Equatable {
   final EndDateFieldInput endDateFieldInput;
   final TextFieldInput descriptionFieldInput;
   final AccomplishmentFormStatus accomplishmentFormStatus;
+  final Failure? error;
 
   final AccomplishmentEntity accomplishment;
 
@@ -44,6 +47,7 @@ class AccomplishmentFormState extends Equatable {
     EndDateFieldInput? endDateFieldInput,
     TextFieldInput? descriptionFieldInput,
     AccomplishmentFormStatus? accomplishmentFormStatus,
+    Failure? error,
     AccomplishmentEntity? accomplishment,
   }) {
     return AccomplishmentFormState(
@@ -56,6 +60,7 @@ class AccomplishmentFormState extends Equatable {
           descriptionFieldInput ?? this.descriptionFieldInput,
       accomplishmentFormStatus:
           accomplishmentFormStatus ?? this.accomplishmentFormStatus,
+      error: error,
       accomplishment: accomplishment ?? this.accomplishment,
     );
   }
@@ -70,6 +75,7 @@ class AccomplishmentFormState extends Equatable {
         descriptionFieldInput,
         accomplishmentFormStatus,
         accomplishment,
+        error,
       ];
 }
 
@@ -408,10 +414,12 @@ class AccomplishmentFormCubit extends Cubit<AccomplishmentFormState> {
               ? AccomplishmentFormStatus.updateSuccess
               : AccomplishmentFormStatus.createSuccess,
         ));
-      } on Exception catch (_) {
-        emit(state.copyWith(
-          accomplishmentFormStatus: AccomplishmentFormStatus.error,
-        ));
+      } on Failure catch (error) {
+        emit(
+          state.copyWith(
+              accomplishmentFormStatus: AccomplishmentFormStatus.error,
+              error: error),
+        );
       }
     }
   }
@@ -432,11 +440,11 @@ class AccomplishmentFormCubit extends Cubit<AccomplishmentFormState> {
       emit(state.copyWith(
         accomplishmentFormStatus: AccomplishmentFormStatus.deleteSuccess,
       ));
-    } on Exception catch (error) {
+    } on Failure catch (error) {
       emit(
         state.copyWith(
-          accomplishmentFormStatus: AccomplishmentFormStatus.error,
-        ),
+            accomplishmentFormStatus: AccomplishmentFormStatus.error,
+            error: error),
       );
     }
   }

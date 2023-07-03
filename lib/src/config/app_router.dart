@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:launchlab/src/domain/user/models/accomplishment_entity.dart';
 import 'package:launchlab/src/domain/user/models/experience_entity.dart';
 import 'package:launchlab/src/presentation/authentication/screens/signin_page.dart';
 import 'package:launchlab/src/presentation/chat/screens/chat_page.dart';
+import 'package:launchlab/src/presentation/common/cubits/app_root_cubit.dart';
 import 'package:launchlab/src/presentation/common/screens/protected_screen_page.dart';
 import 'package:launchlab/src/presentation/common/screens/splash_screen_page.dart';
 import 'package:launchlab/src/presentation/common/screens/unprotected_screen_page.dart';
@@ -47,7 +49,10 @@ final _rootNavigatorKey = GlobalKey<NavigatorState>();
 final _protectedShellNavigatorKey = GlobalKey<NavigatorState>();
 final _unprotectedShellNavigatorKey = GlobalKey<NavigatorState>();
 
-final _mainShellKey = GlobalKey<NavigatorState>();
+final _profileShellKey = GlobalKey<NavigatorState>();
+final _teamShellKey = GlobalKey<NavigatorState>();
+final _chatShellKey = GlobalKey<NavigatorState>();
+final _discoverShellKey = GlobalKey<NavigatorState>();
 final _onboardingShellKey = GlobalKey<NavigatorState>();
 final _nestedOnboardingShellKey = GlobalKey<NavigatorState>();
 
@@ -160,143 +165,193 @@ final GoRouter appRouter = GoRouter(
             ),
           ],
         ),
-        ShellRoute(
-          navigatorKey: _mainShellKey,
-          builder: (context, state, child) =>
-              ScaffoldWithBottomNav(child: child),
-          routes: [
-            GoRoute(
-                path: "/team-home",
-                pageBuilder: (context, state) {
-                  return const NoTransitionPage(child: TeamHome());
-                }),
-            GoRoute(
-              path: "/chats",
-              pageBuilder: (context, state) =>
-                  const NoTransitionPage(child: ChatPage()),
-            ),
-            GoRoute(
-              path: "/discover",
-              pageBuilder: (context, state) =>
-                  const NoTransitionPage(child: DiscoverPage()),
-            ),
-            GoRoute(
-              parentNavigatorKey: _mainShellKey,
-              path: "/profile",
-              pageBuilder: (context, state) =>
-                  const NoTransitionPage(child: ProfilePage()),
+
+
+        // Main Navigator
+        StatefulShellRoute.indexedStack(
+          builder: (context, state, navigationShell) {
+            return ScaffoldWithBottomNav(
+              navigationShell: navigationShell,
+            );
+          },
+          branches: [
+            // team navigation tree
+            StatefulShellBranch(
+                initialLocation: "/team-home",
+                navigatorKey: _teamShellKey,
+                routes: [
+                  GoRoute(
+                      path: "/team-home",
+                      pageBuilder: (context, state) {
+                        return const NoTransitionPage(child: TeamHomePage());
+                      }),
+                  GoRoute(
+                    path: "/teams",
+                    builder: (context, state) => TeamPage(state.extra as List),
+                  ),
+                  GoRoute(
+                    path: "/create_teams",
+                    pageBuilder: (context, state) => NoTransitionPage(
+                        child: CreateTeamPage(userId: state.extra as String)),
+                  ),
+                  GoRoute(
+                    path: "/edit_teams",
+                    pageBuilder: (context, state) => NoTransitionPage(
+                        child: EditTeamPage(teamId: state.extra as String)),
+                  ),
+                  GoRoute(
+                    path: "/external_teams",
+                    pageBuilder: (context, state) => NoTransitionPage(
+                        child: ExternalTeamPage(
+                            teamIdUserIdData: state.extra as List)),
+                  ),
+                  GoRoute(
+                    path: "/manage_teams",
+                    pageBuilder: (context, state) => NoTransitionPage(
+                        child: ManageTeamPage(teamId: state.extra as String)),
+                  ),
+                  GoRoute(
+                    path: "/applicants",
+                    pageBuilder: (context, state) => NoTransitionPage(
+                        child: ApplicantPage(
+                            applicationID: state.extra as String)),
+                  ),
+                ]),
+
+            // chat navigation tree
+            StatefulShellBranch(
+              initialLocation: "/chats",
+              navigatorKey: _chatShellKey,
               routes: [
                 GoRoute(
-                  path: "edit-settings",
-                  builder: (context, state) => ProfileEditPreferencePage(
-                    props: state.extra as ProfileEditPreferencePageProps,
-                  ),
-                ),
-                GoRoute(
-                  path: "edit-intro",
-                  builder: (context, state) => ProfileEditIntroPage(
-                    props: state.extra as ProfileEditIntroPageProps,
-                  ),
-                ),
-                GoRoute(
-                  path: "edit-about",
-                  builder: (context, state) => ProfileEditAboutPage(
-                    props: state.extra as ProfileEditAboutPageProps,
-                  ),
-                ),
-                GoRoute(
-                    parentNavigatorKey: _mainShellKey,
-                    path: "manage-experience",
-                    builder: (context, state) => ProfileManageExperiencePage(
-                          props:
-                              state.extra as ProfileManageExperiencePageProps,
-                        ),
-                    routes: [
-                      GoRoute(
-                        parentNavigatorKey: _mainShellKey,
-                        path: "add-experience",
-                        builder: (context, state) =>
-                            const ProfileAddExperiencePage(),
-                      ),
-                      GoRoute(
-                        parentNavigatorKey: _mainShellKey,
-                        path: "edit-experience",
-                        builder: (context, state) => ProfileEditExperiencePage(
-                          experience: state.extra as ExperienceEntity,
-                        ),
-                      ),
-                    ]),
-                GoRoute(
-                  path: "edit-skills",
-                  builder: (context, state) => ProfileEditSkillsPage(
-                    props: state.extra as ProfileEditSkillsPageProps,
-                  ),
-                ),
-                GoRoute(
-                  parentNavigatorKey: _mainShellKey,
-                  path: "manage-accomplishment",
-                  builder: (context, state) => ProfileManageAccomplishmentPage(
-                      props:
-                          state.extra as ProfileManageAccomplishmentPageProps),
-                  routes: [
-                    GoRoute(
-                      parentNavigatorKey: _mainShellKey,
-                      path: "add-accomplishment",
-                      builder: (context, state) =>
-                          const ProfileAddAccomplishmentPage(),
-                    ),
-                    GoRoute(
-                      parentNavigatorKey: _mainShellKey,
-                      path: "edit-accomplishment",
-                      builder: (context, state) =>
-                          ProfileEditAccomplishmentPage(
-                              accomplishment:
-                                  state.extra as AccomplishmentEntity),
-                    ),
-                  ],
+                  path: "/chats",
+                  pageBuilder: (context, state) =>
+                      const NoTransitionPage(child: ChatPage()),
                 ),
               ],
             ),
-            GoRoute(
-              path: "/teams",
-              builder: (context, state) => TeamPage(state.extra as List),
-            ),
-            GoRoute(
-              path: "/create_teams",
-              pageBuilder: (context, state) => NoTransitionPage(
-                  child: CreateTeamPage(userId: state.extra as String)),
-            ),
-            GoRoute(
-              path: "/edit_teams",
-              parentNavigatorKey: _mainShellKey,
-              pageBuilder: (context, state) => NoTransitionPage(
-                  child: EditTeamPage(teamId: state.extra as String)),
-            ),
-            GoRoute(
-              path: "/external_teams",
-              parentNavigatorKey: _mainShellKey,
-              pageBuilder: (context, state) => NoTransitionPage(
-                  child:
-                      ExternalTeamPage(teamIdUserIdData: state.extra as List)),
-            ),
-            GoRoute(
-              path: "/manage_teams",
-              parentNavigatorKey: _mainShellKey,
-              builder: (context, state) =>
-                  ManageTeamPage(teamId: state.extra as String),
-            ),
-            GoRoute(
-              path: "/applicants",
-              parentNavigatorKey: _mainShellKey,
-              pageBuilder: (context, state) => NoTransitionPage(
-                  child: ApplicantPage(applicationID: state.extra as String)),
-            ),
-            GoRoute(
-              path: "/test",
-              builder: (context, state) =>
-                  ManageTeamPage(teamId: state.extra as String),
-            ),
+
+            // discover navigation tree
+            StatefulShellBranch(
+                initialLocation: "/discover",
+                navigatorKey: _discoverShellKey,
+                routes: [
+                  GoRoute(
+                    path: "/discover",
+                    pageBuilder: (context, state) =>
+                        const NoTransitionPage(child: DiscoverPage()),
+                  ),
+                ]),
+
+            // profile navigation tree
+            StatefulShellBranch(navigatorKey: _profileShellKey, routes: [
+              GoRoute(
+                parentNavigatorKey: _profileShellKey,
+                path: "/profile",
+                pageBuilder: (context, state) {
+                  return NoTransitionPage(
+                      child: ProfilePage(
+                    userId: BlocProvider.of<AppRootCubit>(context)
+                        .state
+                        .authUserProfile!
+                        .id!,
+                  ));
+                },
+                routes: [
+                  GoRoute(
+                    parentNavigatorKey: _profileShellKey,
+                    path: "edit-settings",
+                    builder: (context, state) => ProfileEditPreferencePage(
+                      props: state.extra as ProfileEditPreferencePageProps,
+                    ),
+                  ),
+                  GoRoute(
+                    parentNavigatorKey: _profileShellKey,
+                    path: "edit-intro",
+                    builder: (context, state) => ProfileEditIntroPage(
+                      props: state.extra as ProfileEditIntroPageProps,
+                    ),
+                  ),
+                  GoRoute(
+                    parentNavigatorKey: _profileShellKey,
+                    path: "edit-about",
+                    builder: (context, state) => ProfileEditAboutPage(
+                      props: state.extra as ProfileEditAboutPageProps,
+                    ),
+                  ),
+                  GoRoute(
+                      parentNavigatorKey: _profileShellKey,
+                      path: "manage-experience",
+                      builder: (context, state) => ProfileManageExperiencePage(
+                            props:
+                                state.extra as ProfileManageExperiencePageProps,
+                          ),
+                      routes: [
+                        GoRoute(
+                          parentNavigatorKey: _profileShellKey,
+                          path: "add-experience",
+                          builder: (context, state) =>
+                              const ProfileAddExperiencePage(),
+                        ),
+                        GoRoute(
+                          parentNavigatorKey: _profileShellKey,
+                          path: "edit-experience",
+                          builder: (context, state) =>
+                              ProfileEditExperiencePage(
+                            experience: state.extra as ExperienceEntity,
+                          ),
+                        ),
+                      ]),
+                  GoRoute(
+                    parentNavigatorKey: _profileShellKey,
+                    path: "edit-skills",
+                    builder: (context, state) => ProfileEditSkillsPage(
+                      props: state.extra as ProfileEditSkillsPageProps,
+                    ),
+                  ),
+                  GoRoute(
+                    parentNavigatorKey: _profileShellKey,
+                    path: "manage-accomplishment",
+                    builder: (context, state) =>
+                        ProfileManageAccomplishmentPage(
+                            props: state.extra
+                                as ProfileManageAccomplishmentPageProps),
+                    routes: [
+                      GoRoute(
+                        parentNavigatorKey: _profileShellKey,
+                        path: "add-accomplishment",
+                        builder: (context, state) =>
+                            const ProfileAddAccomplishmentPage(),
+                      ),
+                      GoRoute(
+                        parentNavigatorKey: _profileShellKey,
+                        path: "edit-accomplishment",
+                        builder: (context, state) =>
+                            ProfileEditAccomplishmentPage(
+                                accomplishment:
+                                    state.extra as AccomplishmentEntity),
+                      ),
+                    ],
+                  ),
+
+                ],
+              ),
+            ])
           ],
+        ),
+
+        // Common Routes
+        GoRoute(
+          parentNavigatorKey: _protectedShellNavigatorKey,
+          path: "/profile/:id",
+          pageBuilder: (context, state) {
+            String userId = state.pathParameters['id']!;
+
+            return NoTransitionPage(
+                child: ProfilePage(
+              userId: userId,
+            ));
+          },
         ),
       ],
     ),

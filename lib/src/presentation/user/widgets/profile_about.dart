@@ -9,10 +9,12 @@ import 'package:launchlab/src/utils/helper.dart';
 class ProfileAbout extends StatelessWidget {
   const ProfileAbout({
     super.key,
+    this.isAuthProfile = false,
     required this.userProfile,
     required this.onUpdateHandler,
   });
 
+  final bool isAuthProfile;
   final UserEntity userProfile;
   final void Function() onUpdateHandler;
 
@@ -40,13 +42,23 @@ class ProfileAbout extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             subHeaderText("About me"),
-            IconButton(
-              onPressed: () {
-                editProfileAbout(context,
-                    ProfileEditAboutPageProps(userProfile: userProfile));
-              },
-              icon: const Icon(Icons.edit_outlined, color: blackColor),
-            ),
+            ...() {
+              if (!isAuthProfile) {
+                return [
+                  const SizedBox(height: 45.0),
+                ];
+              }
+
+              return [
+                IconButton(
+                  onPressed: () {
+                    editProfileAbout(context,
+                        ProfileEditAboutPageProps(userProfile: userProfile));
+                  },
+                  icon: const Icon(Icons.edit_outlined, color: blackColor),
+                ),
+              ];
+            }(),
           ],
         ),
         bodyText(userProfile.about!),

@@ -7,6 +7,7 @@ import 'package:launchlab/src/domain/common/models/skill_entity.dart';
 import 'package:launchlab/src/domain/user/models/preference_entity.dart';
 import 'package:launchlab/src/domain/user/models/requests/update_user_skills_request.dart';
 import 'package:launchlab/src/presentation/user/widgets/form_fields/user_skills_interests_field.dart';
+import 'package:launchlab/src/utils/failure.dart';
 
 class SkillsFormState extends Equatable {
   const SkillsFormState({
@@ -15,18 +16,21 @@ class SkillsFormState extends Equatable {
     this.skillInterestOptions = const [],
     required this.userPreference,
     required this.skillsFormStatus,
+    this.error,
   });
 
   final UserSkillsInterestsFieldInput userSkillsInterestsInput;
   final List<SkillEntity> skillInterestOptions;
   final PreferenceEntity userPreference;
   final SkillsFormStatus skillsFormStatus;
+  final Failure? error;
 
   SkillsFormState copyWith({
     UserSkillsInterestsFieldInput? userSkillsInterestsInput,
     List<SkillEntity>? skillInterestOptions,
     PreferenceEntity? userPreference,
     SkillsFormStatus? skillsFormStatus,
+    Failure? error,
   }) {
     return SkillsFormState(
       userSkillsInterestsInput:
@@ -34,6 +38,7 @@ class SkillsFormState extends Equatable {
       skillInterestOptions: skillInterestOptions ?? this.skillInterestOptions,
       userPreference: userPreference ?? this.userPreference,
       skillsFormStatus: skillsFormStatus ?? this.skillsFormStatus,
+      error: error,
     );
   }
 
@@ -43,6 +48,7 @@ class SkillsFormState extends Equatable {
         skillInterestOptions,
         userPreference,
         skillsFormStatus,
+        error,
       ];
 }
 
@@ -77,8 +83,8 @@ class SkillsFormCubit extends Cubit<SkillsFormState> {
           await commonRepository.getSkillsInterestsFromEmsi(filter);
 
       emit(state.copyWith(skillInterestOptions: skillInterestOptions));
-    } on Exception catch (error) {
-      print(error);
+    } on Exception catch (_) {
+      rethrow;
     }
   }
 
@@ -123,9 +129,10 @@ class SkillsFormCubit extends Cubit<SkillsFormState> {
       emit(state.copyWith(
         skillsFormStatus: SkillsFormStatus.success,
       ));
-    } on Exception catch (_) {
+    } on Failure catch (error) {
       emit(state.copyWith(
         skillsFormStatus: SkillsFormStatus.error,
+        error: error,
       ));
     }
   }

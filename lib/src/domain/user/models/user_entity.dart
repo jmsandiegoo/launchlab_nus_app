@@ -4,11 +4,10 @@ class UserEntity extends Equatable {
   const UserEntity({
     this.id,
     required this.isOnboarded,
+    required this.username,
     this.firstName,
     this.lastName,
     this.title,
-    this.avatar,
-    this.resume,
     this.about,
     this.degreeProgrammeId,
     this.createdAt,
@@ -17,20 +16,35 @@ class UserEntity extends Equatable {
 
   final String? id;
   final bool isOnboarded;
+  final String username;
   final String? firstName;
   final String? lastName;
   final String? title;
-  final String? avatar;
-  final String? resume;
   final String? about;
   final DateTime? createdAt;
   final DateTime? updatedAt;
 
   final String? degreeProgrammeId;
 
+  UserEntity setAvatar({String? avatar}) {
+    return UserEntity(
+      id: id,
+      isOnboarded: isOnboarded,
+      username: username,
+      firstName: firstName,
+      lastName: lastName,
+      title: title,
+      about: about,
+      degreeProgrammeId: degreeProgrammeId,
+      createdAt: createdAt,
+      updatedAt: updatedAt,
+    );
+  }
+
   UserEntity copyWith({
     String? id,
     bool? isOnboarded,
+    String? username,
     String? firstName,
     String? lastName,
     String? title,
@@ -44,11 +58,10 @@ class UserEntity extends Equatable {
     return UserEntity(
       id: id ?? this.id,
       isOnboarded: isOnboarded ?? this.isOnboarded,
+      username: username ?? this.username,
       firstName: firstName ?? this.firstName,
       lastName: lastName ?? this.lastName,
       title: title ?? this.title,
-      avatar: avatar ?? this.avatar,
-      resume: resume ?? this.resume,
       about: about ?? this.about,
       degreeProgrammeId: degreeProgrammeId ?? this.degreeProgrammeId,
       createdAt: createdAt ?? this.createdAt,
@@ -59,11 +72,10 @@ class UserEntity extends Equatable {
   UserEntity.fromJson(Map<String, dynamic> json)
       : id = json['id'],
         isOnboarded = json['is_onboarded'],
+        username = json['username'],
         firstName = json['first_name'],
         lastName = json['last_name'],
         title = json['title'],
-        avatar = json['avatar'],
-        resume = json['resume'],
         about = json['about'],
         degreeProgrammeId = json['degree_programme_id'],
         createdAt = DateTime.tryParse(json['created_at'].toString()),
@@ -73,11 +85,10 @@ class UserEntity extends Equatable {
     return {
       'id': id,
       'is_onboarded': isOnboarded,
+      'username': username,
       'first_name': firstName,
       'last_name': lastName,
       'title': title,
-      'avatar': avatar,
-      'resume': resume,
       'about': about,
       'degree_programme_id': degreeProgrammeId,
       'created_at': createdAt?.toIso8601String(),
@@ -89,11 +100,10 @@ class UserEntity extends Equatable {
   List<Object?> get props => [
         id,
         isOnboarded,
+        username,
         firstName,
         lastName,
         title,
-        avatar,
-        resume,
         about,
         degreeProgrammeId,
         createdAt,

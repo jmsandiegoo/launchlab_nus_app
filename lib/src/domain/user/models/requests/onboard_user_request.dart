@@ -5,7 +5,9 @@ import 'package:launchlab/src/domain/common/models/category_entity.dart';
 import 'package:launchlab/src/domain/common/models/skill_entity.dart';
 import 'package:launchlab/src/domain/user/models/accomplishment_entity.dart';
 import 'package:launchlab/src/domain/user/models/experience_entity.dart';
+import 'package:launchlab/src/domain/user/models/user_avatar_entity.dart';
 import 'package:launchlab/src/domain/user/models/user_entity.dart';
+import 'package:launchlab/src/domain/user/models/user_resume_entity.dart';
 
 @immutable
 class OnboardUserRequest extends Equatable {
@@ -19,8 +21,8 @@ class OnboardUserRequest extends Equatable {
     required this.accomplishments,
   });
 
-  final File? userAvatar;
-  final File? userResume;
+  final UserAvatarEntity? userAvatar;
+  final UserResumeEntity? userResume;
   final UserEntity user;
   final List<SkillEntity> selectedSkills;
   final List<CategoryEntity> selectedCategories;
@@ -28,8 +30,8 @@ class OnboardUserRequest extends Equatable {
   final List<AccomplishmentEntity> accomplishments;
 
   OnboardUserRequest copyWith({
-    File? userAvatar,
-    File? userResume,
+    UserAvatarEntity? userAvatar,
+    UserResumeEntity? userResume,
     UserEntity? user,
     List<SkillEntity>? selectedSkills,
     List<CategoryEntity>? selectedCategories,
@@ -50,6 +52,8 @@ class OnboardUserRequest extends Equatable {
   Map<String, dynamic> toJson() {
     return {
       'user': user.toJson(),
+      'user_avatar': userAvatar?.toJson(),
+      'user_resume': userResume?.toJson(),
       'selected_skills': selectedSkills.map((skill) => skill.toJson()).toList(),
       'selected_categories':
           selectedCategories.map((cat) => cat.toJson()).toList(),

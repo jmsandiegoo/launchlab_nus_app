@@ -4,6 +4,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
+import 'package:launchlab/src/domain/common/models/file_entity.dart';
+import 'package:launchlab/src/utils/extensions.dart';
 import 'package:mime/mime.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -40,35 +42,38 @@ String dateStringFormatter(String pattern, DateTime date) {
 }
 
 /// throws StorageException
-Future<String> uploadFile({
+Future<void> uploadFile({
   required Supabase supabase,
   required String bucket,
-  required File file,
+  required FileEntity uploadFile,
+}) async {
+  await supabase.client.storage.from(bucket).upload(
+        uploadFile.fileIdentifier,
+        uploadFile.file,
+        fileOptions: FileOptions(
+            contentType: lookupMimeType(uploadFile.file.ext), upsert: true),
+      );
+}
+
+Future<void> deleteFile({
+  required Supabase supabase,
+  required String bucket,
   required String fileIdentifier,
 }) async {
-  final fileExt = file.path.split('.').last;
-  final fileName = '$fileIdentifier.$fileExt';
-  final filePath = fileName;
-  await supabase.client.storage.from(bucket).upload(
-        filePath,
-        file,
-        fileOptions:
-            FileOptions(contentType: lookupMimeType(fileExt), upsert: true),
-      );
-  print("fileName: $fileName");
-  return fileName;
+  await supabase.client.storage.from(bucket).remove([fileIdentifier]);
 }
 
 Future<File> downloadFile({
   required Supabase supabase,
   required String bucket,
+  required String fileIdentifier,
   required String fileName,
 }) async {
   final Uint8List downloadedFile =
-      await supabase.client.storage.from(bucket).download(fileName);
+      await supabase.client.storage.from(bucket).download(fileIdentifier);
 
   final tempDir = await getTemporaryDirectory();
-  File file = await File('${tempDir.path}/image.png').create();
+  File file = await File('${tempDir.path}/$fileName').create();
   file.writeAsBytesSync(downloadedFile);
   return file;
 }

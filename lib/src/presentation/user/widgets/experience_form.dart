@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:launchlab/src/config/app_theme.dart';
+import 'package:launchlab/src/presentation/common/widgets/feedback_toast.dart';
 import 'package:launchlab/src/presentation/common/widgets/form_fields/date_picker.dart';
 import 'package:launchlab/src/presentation/common/widgets/form_fields/text_field.dart';
 import 'package:launchlab/src/presentation/common/widgets/useful.dart';
 import 'package:launchlab/src/presentation/user/cubits/experience_form_cubit.dart';
 import 'package:launchlab/src/presentation/user/widgets/form_fields/end_date_field.dart';
 import 'package:launchlab/src/presentation/user/widgets/form_fields/start_date_field.dart';
+import 'package:launchlab/src/utils/toast_manager.dart';
 
 class ExperienceForm<T extends Cubit> extends StatefulWidget {
   const ExperienceForm({
@@ -83,8 +85,16 @@ class _ExperienceFormState extends State<ExperienceForm> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<ExperienceFormCubit, ExperienceFormState>(
-        builder: (context, state) {
+    return BlocConsumer<ExperienceFormCubit, ExperienceFormState>(
+        listener: (context, state) {
+      if (state.experienceFormStatus == ExperienceFormStatus.error &&
+          state.error != null) {
+        ToastManager()
+            .showFToast(child: ErrorFeedback(msg: state.error!.errorMessage));
+      }
+    }, listenWhen: (previous, current) {
+      return previous.experienceFormStatus != current.experienceFormStatus;
+    }, builder: (context, state) {
       return ListView(
         children: [
           Row(

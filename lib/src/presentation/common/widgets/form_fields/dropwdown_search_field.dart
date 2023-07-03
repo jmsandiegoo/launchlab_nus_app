@@ -4,24 +4,28 @@ import 'package:launchlab/src/config/app_theme.dart';
 import 'package:launchlab/src/presentation/common/widgets/useful.dart';
 
 class DropdownSearchFieldWidget<T> extends StatelessWidget {
-  const DropdownSearchFieldWidget({
+  DropdownSearchFieldWidget({
     super.key,
     required this.focusNode,
     required this.label,
     required this.getItems,
+    this.isFilterOnline = false,
     required this.onChangedHandler,
     required this.compareFnHandler,
     this.selectedItem,
     this.hint,
+    this.errorText,
   });
-
+  final _dropdownKey = GlobalKey<DropdownSearchState<T>>();
   final FocusNode focusNode;
   final String label;
   final String? hint;
   final Future<List<T>> Function(String) getItems;
+  final bool isFilterOnline;
   final T? selectedItem;
   final void Function(T?) onChangedHandler;
   final bool Function(T, T) compareFnHandler;
+  final String? errorText;
 
   @override
   Widget build(BuildContext context) {
@@ -48,7 +52,9 @@ class DropdownSearchFieldWidget<T> extends StatelessWidget {
         Focus(
           focusNode: focusNode,
           child: DropdownSearch<T>(
+            key: _dropdownKey,
             popupProps: PopupProps.menu(
+              isFilterOnline: isFilterOnline,
               showSearchBox: true,
               showSelectedItems: true,
               searchFieldProps: TextFieldProps(
@@ -67,6 +73,17 @@ class DropdownSearchFieldWidget<T> extends StatelessWidget {
                     title: Text(item.toString(),
                         style: TextStyle(
                             color: isSelected ? yellowColor : whiteColor)));
+              },
+              loadingBuilder: (context, searchEntry) => Container(
+                color: blackColor,
+                child: const Center(child: CircularProgressIndicator()),
+              ),
+              errorBuilder: (context, searchEntry, exception) {
+                return const Center(
+                    child: Text(
+                  "Error occured please try again.",
+                  style: TextStyle(color: whiteColor),
+                ));
               },
             ),
             itemAsString: (item) => item.toString(),
@@ -89,6 +106,12 @@ class DropdownSearchFieldWidget<T> extends StatelessWidget {
             ),
           ),
         ),
+        ...() {
+          if (errorText != null) {
+            return [smallText(errorText!, color: errorColor.shade900)];
+          }
+          return [];
+        }(),
         const SizedBox(
           height: 20,
         )
@@ -164,6 +187,13 @@ class DropdownSearchFieldMultiWidget<T> extends StatelessWidget {
             menuProps: const MenuProps(
               backgroundColor: blackColor,
             ),
+            errorBuilder: (context, searchEntry, exception) {
+              return const Center(
+                  child: Text(
+                "Error occured please try again.",
+                style: TextStyle(color: whiteColor),
+              ));
+            },
             itemBuilder: (context, item, isSelected) {
               return ListTile(
                   title: Text(item.toString(),
@@ -218,7 +248,7 @@ class DropdownSearchFieldMultiWidget<T> extends StatelessWidget {
         ...() {
           List<Widget> widgets = [];
           if (errorText != null) {
-            widgets.add(smallText(errorText!, color: errorColor));
+            widgets.add(smallText(errorText!, color: errorColor.shade900));
           }
 
           if (isChipsOutside) {

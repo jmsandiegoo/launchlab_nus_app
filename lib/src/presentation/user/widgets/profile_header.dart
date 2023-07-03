@@ -1,7 +1,10 @@
+import 'dart:io';
+
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:launchlab/src/config/app_theme.dart';
 import 'package:launchlab/src/domain/user/models/degree_programme_entity.dart';
+import 'package:launchlab/src/domain/user/models/user_avatar_entity.dart';
 import 'package:launchlab/src/domain/user/models/user_entity.dart';
 import 'package:launchlab/src/presentation/common/widgets/useful.dart';
 import 'package:launchlab/src/presentation/user/screens/profile_edit_intro_page.dart';
@@ -11,15 +14,17 @@ import 'package:launchlab/src/utils/helper.dart';
 class ProfileHeader extends StatelessWidget {
   const ProfileHeader({
     super.key,
+    this.isAuthProfile = false,
     required this.userProfile,
     required this.userDegreeProgramme,
-    this.userAvatarUrl,
+    this.userAvatar,
     required this.onUpdateHandler,
   });
 
+  final bool isAuthProfile;
   final UserEntity userProfile;
   final DegreeProgrammeEntity userDegreeProgramme;
-  final String? userAvatarUrl;
+  final UserAvatarEntity? userAvatar;
   final void Function() onUpdateHandler;
 
   Future<void> editProfileIntro(
@@ -27,12 +32,8 @@ class ProfileHeader extends StatelessWidget {
     final NavigationData<Object?>? returnData =
         await navigatePushWithData<Object?>(
             context, "/profile/edit-intro", props);
-
-    if (returnData == null) {
-      return;
-    }
-
-    if (returnData.actionType == ActionTypes.update) {
+    print("pop");
+    if (returnData == null || returnData.actionType == ActionTypes.update) {
       onUpdateHandler();
     }
   }
@@ -52,25 +53,37 @@ class ProfileHeader extends StatelessWidget {
         children: [
           Stack(
             children: [
-              Align(
-                alignment: Alignment.topRight,
-                child: Container(
-                  margin: const EdgeInsets.only(right: 15.0),
-                  child: IconButton(
-                    onPressed: () {
-                      editProfileIntro(
-                          context,
-                          ProfileEditIntroPageProps(
-                              userProfile: userProfile,
-                              userDegreeProgramme: userDegreeProgramme));
-                    },
-                    icon: const Icon(Icons.edit_outlined, color: blackColor),
+              ...() {
+                if (!isAuthProfile) {
+                  return [];
+                }
+
+                return [
+                  Align(
+                    alignment: Alignment.topRight,
+                    child: Container(
+                      margin: const EdgeInsets.only(right: 15.0),
+                      child: IconButton(
+                        onPressed: () {
+                          editProfileIntro(
+                              context,
+                              ProfileEditIntroPageProps(
+                                userProfile: userProfile,
+                                userDegreeProgramme: userDegreeProgramme,
+                                userAvatar: userAvatar,
+                              ));
+                        },
+                        icon:
+                            const Icon(Icons.edit_outlined, color: blackColor),
+                      ),
+                    ),
                   ),
-                ),
-              ),
+                ];
+              }(),
               Center(
-                  child: profilePicture(100, userAvatarUrl ?? "avatar_temp.png",
-                      isUrl: userAvatarUrl != null ? true : false)),
+                  child: profilePicture(
+                      100, userAvatar?.signedUrl ?? "avatar_temp.png",
+                      isUrl: userAvatar?.signedUrl != null ? true : false)),
             ],
           ),
           ConstrainedBox(
@@ -82,6 +95,7 @@ class ProfileHeader extends StatelessWidget {
                 const SizedBox(height: 15),
                 headerText("${userProfile.firstName} ${userProfile.lastName}",
                     alignment: TextAlign.center),
+                smallText("@ ${userProfile.username}"),
                 const SizedBox(height: 5),
                 bodyText(userProfile.title!, alignment: TextAlign.center),
                 bodyText(userDegreeProgramme.name,

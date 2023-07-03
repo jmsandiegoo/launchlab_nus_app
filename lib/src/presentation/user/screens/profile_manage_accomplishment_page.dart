@@ -2,15 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:launchlab/src/config/app_theme.dart';
 import 'package:launchlab/src/domain/user/models/accomplishment_entity.dart';
+import 'package:launchlab/src/domain/user/models/user_entity.dart';
+import 'package:launchlab/src/presentation/common/widgets/feedback_toast.dart';
 import 'package:launchlab/src/presentation/user/cubits/profie_manage_accomplishment_page_cubit.dart';
-import 'package:launchlab/src/presentation/user/screens/accomplishment_list.dart';
+import 'package:launchlab/src/presentation/user/widgets/accomplishment_list.dart';
 import 'package:launchlab/src/utils/constants.dart';
 import 'package:launchlab/src/utils/helper.dart';
+import 'package:launchlab/src/utils/toast_manager.dart';
 
 class ProfileManageAccomplishmentPageProps {
   const ProfileManageAccomplishmentPageProps({
+    required this.userProfile,
     required this.userAccomplishments,
   });
+  final UserEntity userProfile;
   final List<AccomplishmentEntity> userAccomplishments;
 }
 
@@ -37,6 +42,10 @@ class ProfileManageAccomplishmentPage extends StatelessWidget {
       final newAccomplishments = [...accomplishments];
       newAccomplishments.add(returnData.data);
       onChangedHandler(newAccomplishments);
+      ToastManager().showFToast(
+          child: const SuccessFeedback(
+        msg: "Create accomplishment successful!",
+      ));
       // show success message
     }
   }
@@ -111,12 +120,20 @@ class ProfileManageAccomplishmentPage extends StatelessWidget {
                   newAccomplishments[index] = returnData.data!;
                   profileManageAccomplishmentPageCubit
                       .onAccomplishmentListChanged(newAccomplishments);
+                  ToastManager().showFToast(
+                      child: const SuccessFeedback(
+                    msg: "Edit accomplishment successful!",
+                  ));
                 }
 
                 if (returnData.actionType == ActionTypes.delete) {
                   newAccomplishments.removeAt(index);
                   profileManageAccomplishmentPageCubit
                       .onAccomplishmentListChanged(newAccomplishments);
+                  ToastManager().showFToast(
+                      child: const SuccessFeedback(
+                    msg: "Delete accomplishment successful!",
+                  ));
                 }
               },
             ),

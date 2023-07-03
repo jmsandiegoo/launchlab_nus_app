@@ -10,7 +10,9 @@ import 'package:launchlab/src/utils/helper.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ProfileEditAboutPageProps {
-  const ProfileEditAboutPageProps({required this.userProfile});
+  const ProfileEditAboutPageProps({
+    required this.userProfile,
+  });
   final UserEntity userProfile;
 }
 
@@ -47,7 +49,7 @@ class ProfileEditAboutPage extends StatelessWidget {
                     ActionTypes.update,
                   );
                 } else {
-                  navigatePop(context);
+                  navigatePopWithData(context, null, ActionTypes.cancel);
                 }
               },
               child: const Icon(Icons.keyboard_backspace_outlined),
