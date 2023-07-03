@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:launchlab/src/config/app_theme.dart';
+import 'package:launchlab/src/domain/team/team_user_entity.dart';
 import 'package:launchlab/src/presentation/common/widgets/useful.dart';
 
 class ManageMemberBox extends StatelessWidget {
   final bool isOwner;
-  final List memberData;
+  final List<TeamUserEntity> memberData;
   final VoidCallback onClose;
 
   const ManageMemberBox({
@@ -43,10 +44,10 @@ class ManageMemberBox extends StatelessWidget {
                           ]),
                       for (int i = 0; i < memberData.length; i++) ...[
                         manageMemberBar(
-                            memberData[i]['users']['avatar_url'],
-                            "${memberData[i]['users']['first_name']} ${memberData[i]['users']['last_name']}",
-                            memberData[i]['position'],
-                            memberData[i]['id'],
+                            memberData[i].getAvatarURL(),
+                            memberData[i].getFullName(),
+                            memberData[i].positon,
+                            memberData[i].id,
                             context)
                       ]
                     ]),

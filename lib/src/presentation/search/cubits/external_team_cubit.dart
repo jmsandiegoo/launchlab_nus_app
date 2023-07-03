@@ -1,65 +1,66 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:launchlab/src/data/search/search_repository.dart';
+import 'package:launchlab/src/domain/search/external_team_entity.dart';
+import 'package:launchlab/src/domain/search/owner_entity.dart';
+import 'package:launchlab/src/domain/search/responses/get_external_team.dart';
 
 @immutable
 class ExternalTeamState extends Equatable {
+  final ExternalTeamEntity? teamData;
+  final OwnerEntity? ownerData;
+  final List currentApplicants;
+  final List currentMembers;
+  final bool isLoaded;
   @override
-  List<Object?> get props => [];
+  List<Object?> get props =>
+      [teamData, currentApplicants, currentMembers, isLoaded];
 
-  const ExternalTeamState();
+  const ExternalTeamState(
+      {this.teamData,
+      this.ownerData,
+      this.currentApplicants = const [],
+      this.currentMembers = const [],
+      this.isLoaded = false});
+
+  ExternalTeamState copyWith({
+    ExternalTeamEntity? teamData,
+    OwnerEntity? ownerData,
+    List? currentApplicants,
+    List? currentMembers,
+    bool? isLoaded,
+  }) {
+    return ExternalTeamState(
+      teamData: teamData ?? this.teamData,
+      ownerData: ownerData ?? this.ownerData,
+      currentApplicants: currentApplicants ?? this.currentApplicants,
+      currentMembers: currentMembers ?? this.currentMembers,
+      isLoaded: isLoaded ?? this.isLoaded,
+    );
+  }
 }
 
 class ExternalTeamCubit extends Cubit<ExternalTeamState> {
-  ExternalTeamCubit() : super(const ExternalTeamState());
+  ExternalTeamCubit(this._searchRepository) : super(const ExternalTeamState());
 
-  final supabase = Supabase.instance.client;
+  final SearchRepository _searchRepository;
 
-  getData(teamId) async {
-    var teamData = await supabase
-        .from('teams')
-        .select('*, team_users(user_id), roles_open(title, description)')
-        .eq('id', teamId);
+  void getData(teamId) async {
+    final GetExternalTeam res =
+        await _searchRepository.getExternalTeamData(teamId);
 
-    var ownerDetails = await supabase
-        .from('users')
-        .select(
-            'first_name, last_name, avatar, team_users!inner(team_id ,is_owner)')
-        .eq('team_users.is_owner', true)
-        .eq('team_users.team_id', teamId);
-
-    var applicants = await supabase
-        .from('team_applicants')
-        .select('user_id')
-        .eq('team_id', teamId);
-
-    var teamAvatarURL = teamData[0]['avatar'] == null
-        ? ''
-        : await supabase.storage
-            .from('team_avatar_bucket')
-            .createSignedUrl('${teamData[0]['avatar']}', 30);
-    teamData[0]['avatar_url'] = teamAvatarURL;
-
-    var teamOwnerURL = ownerDetails[0]['avatar'] == null
-        ? ''
-        : await supabase.storage
-            .from('user_avatar_bucket')
-            .createSignedUrl('${ownerDetails[0]['avatar']}', 30);
-    ownerDetails[0]['avatar_url'] = teamOwnerURL;
-    return [
-      teamData,
-      ownerDetails,
-      applicants,
-    ];
+    final newState = state.copyWith(
+        teamData: res.teamData,
+        ownerData: res.ownerData,
+        currentApplicants: res.getCurrentApplicants(),
+        currentMembers: res.getCurrentMembers(),
+        isLoaded: true);
+    emit(newState);
   }
 
   applyToTeam({teamId, userId}) async {
-    await supabase.from('team_applicants').insert({
-      'user_id': userId,
-      'team_id': teamId,
-      'applied_at': DateTime.now().toString(),
-    });
+    await _searchRepository.applyToTeam(teamId: teamId, userId: userId);
     debugPrint("Applied to Team");
   }
 }
