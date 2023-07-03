@@ -12,6 +12,7 @@ import 'package:launchlab/src/presentation/search/screens/discover_page.dart';
 import 'package:launchlab/src/presentation/team/screens/applicant_page.dart';
 import 'package:launchlab/src/presentation/team/screens/manage_team_page.dart';
 import 'package:launchlab/src/presentation/team/screens/team_home_page.dart';
+import 'package:launchlab/src/presentation/team/screens/team_page.dart';
 import 'package:launchlab/src/presentation/user/screens/onboarding_add_accomplishment_page.dart';
 import 'package:launchlab/src/presentation/user/screens/onboarding_add_experience_page.dart';
 import 'package:launchlab/src/presentation/user/screens/onboarding_edit_accomplishment_page.dart';
@@ -38,7 +39,6 @@ import 'package:launchlab/src/presentation/user/widgets/onboarding_steps_layout.
 import 'package:launchlab/src/presentation/team/screens/create_team_page.dart';
 import 'package:launchlab/src/presentation/team/screens/edit_team_page.dart';
 import 'package:launchlab/src/presentation/search/screens/external_team_page.dart';
-import 'package:launchlab/src/presentation/team/screens/team_page.dart';
 
 /// A file to configure the routing of the application
 
@@ -168,7 +168,7 @@ final GoRouter appRouter = GoRouter(
             GoRoute(
                 path: "/team-home",
                 pageBuilder: (context, state) {
-                  return const NoTransitionPage(child: TeamHomePage());
+                  return const NoTransitionPage(child: TeamHome());
                 }),
             GoRoute(
               path: "/chats",
@@ -268,24 +268,33 @@ final GoRouter appRouter = GoRouter(
             ),
             GoRoute(
               path: "/edit_teams",
+              parentNavigatorKey: _mainShellKey,
               pageBuilder: (context, state) => NoTransitionPage(
                   child: EditTeamPage(teamId: state.extra as String)),
             ),
             GoRoute(
               path: "/external_teams",
+              parentNavigatorKey: _mainShellKey,
               pageBuilder: (context, state) => NoTransitionPage(
                   child:
                       ExternalTeamPage(teamIdUserIdData: state.extra as List)),
             ),
             GoRoute(
               path: "/manage_teams",
-              pageBuilder: (context, state) => NoTransitionPage(
-                  child: ManageTeamPage(teamId: state.extra as String)),
+              parentNavigatorKey: _mainShellKey,
+              builder: (context, state) =>
+                  ManageTeamPage(teamId: state.extra as String),
             ),
             GoRoute(
               path: "/applicants",
+              parentNavigatorKey: _mainShellKey,
               pageBuilder: (context, state) => NoTransitionPage(
                   child: ApplicantPage(applicationID: state.extra as String)),
+            ),
+            GoRoute(
+              path: "/test",
+              builder: (context, state) =>
+                  ManageTeamPage(teamId: state.extra as String),
             ),
           ],
         ),
