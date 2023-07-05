@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:launchlab/src/config/app_theme.dart';
+import 'package:launchlab/src/data/common/common_repository.dart';
 import 'package:launchlab/src/data/search/search_repository.dart';
-import 'package:launchlab/src/domain/search/search_team_entity.dart';
+import 'package:launchlab/src/domain/search/search_filter_entity.dart';
 import 'package:launchlab/src/presentation/common/widgets/useful.dart';
 import 'package:launchlab/src/presentation/search/cubits/discover_cubit.dart';
 import 'package:launchlab/src/presentation/search/widgets/search_filter.dart';
+import 'package:launchlab/src/presentation/search/widgets/search_team_card.dart';
 import 'package:launchlab/src/utils/helper.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class DiscoverPage extends StatefulWidget {
   const DiscoverPage({Key? key}) : super(key: key);
@@ -23,7 +26,8 @@ class _DiscoverPageState extends State<DiscoverPage> {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-        create: (_) => DiscoverCubit(SearchRepository()),
+        create: (_) => DiscoverCubit(
+            CommonRepository(Supabase.instance), SearchRepository()),
         child: BlocBuilder<DiscoverCubit, DiscoverState>(
             builder: (context, state) {
           final discoverCubit = BlocProvider.of<DiscoverCubit>(context);
@@ -58,8 +62,15 @@ class _DiscoverPageState extends State<DiscoverPage> {
                                   focusNode: FocusNode(),
                                   cursorColor: greyColor,
                                   controller: _searchController,
-                                  onChanged: (value) =>
-                                      discoverCubit.getData(value),
+                                  onChanged: (value) => discoverCubit.getData(
+                                      value,
+                                      SearchFilterEntity(
+                                          categoryInput:
+                                              discoverCubit.state.categoryInput,
+                                          commitmentInput: discoverCubit
+                                              .state.commitmentInput,
+                                          interestInput: discoverCubit
+                                              .state.interestInput.value)),
                                   decoration: InputDecoration(
                                     fillColor: whiteColor,
                                     filled: true,
@@ -76,8 +87,15 @@ class _DiscoverPageState extends State<DiscoverPage> {
                               //
                               InkWell(
                                 onTap: () {
-                                  //searchFilter();
-                                  debugPrint("Filter");
+                                  searchFilter(
+                                      discoverCubit,
+                                      SearchFilterEntity(
+                                          categoryInput:
+                                              discoverCubit.state.categoryInput,
+                                          commitmentInput: discoverCubit
+                                              .state.commitmentInput,
+                                          interestInput: discoverCubit
+                                              .state.interestInput.value));
                                 },
                                 child: Container(
                                   margin: const EdgeInsets.only(left: 10),
@@ -113,13 +131,14 @@ class _DiscoverPageState extends State<DiscoverPage> {
                               onTap: () {
                                 searchFocusNode.unfocus();
                                 navigatePushWithData(
-                                    context, "/external_teams", [
+                                    context, "/discover/external_teams", [
                                   discoverCubit.state.externalTeamData[i].id,
                                   discoverCubit.state.userId
                                 ]);
                               },
-                              child: searchTeamCard(
-                                  discoverCubit.state.externalTeamData[i]),
+                              child: SearchTeamCard(
+                                  data:
+                                      discoverCubit.state.externalTeamData[i]),
                             ),
                             const SizedBox(height: 10),
                           ],
@@ -134,62 +153,17 @@ class _DiscoverPageState extends State<DiscoverPage> {
         }));
   }
 
-  Widget searchTeamCard(SearchTeamEntity data) {
-    String teamName = data.teamName;
-    int currentMember = data.currentMembers;
-    int maxMember = data.maxMembers;
-    String commitment = data.commitment;
-    String category = data.category;
-    String allInterest = data.getInterests();
-    String allRoles = data.getRoles();
-    String avatarURL = data.avatarURL;
-
-    return Container(
-      width: double.infinity,
-      color: whiteColor,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Row(children: [
-            teamPicture(40, avatarURL),
-            const SizedBox(width: 10),
-            Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              subHeaderText(teamName),
-              const SizedBox(height: 5),
-              Row(children: [
-                const Icon(Icons.people_alt_outlined, size: 12),
-                const SizedBox(width: 5),
-                subHeaderText("$currentMember / $maxMember", size: 12.0),
-              ]),
-            ]),
-          ]),
-          const SizedBox(height: 10),
-          Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-            boldFirstText("Category: ", category),
-            boldFirstText("Commitment level: ", commitment),
-            const SizedBox(width: 5)
-          ]),
-          const SizedBox(height: 10),
-          subHeaderText("Roles Needed: ", size: 12.0),
-          allRoles == ''
-              ? overflowText('Any', size: 12.0, maxLines: 1)
-              : overflowText(allRoles, size: 12.0, maxLines: 1),
-          const SizedBox(height: 5),
-          subHeaderText("Interest: ", size: 12.0),
-          overflowText(allInterest, size: 12.0, maxLines: 2),
-        ]),
-      ),
-    );
-  }
-
-  final _controller = TextEditingController();
-  void searchFilter() {
+  void searchFilter(DiscoverCubit cubit, SearchFilterEntity filter) {
     showModalBottomSheet(
         shape:
             RoundedRectangleBorder(borderRadius: BorderRadius.circular(15.0)),
         context: context,
         builder: (context) {
-          return SearchFilterBox(controller: _controller);
-        });
+          return SearchFilterBox(filterData: filter);
+        }).then((value) {
+      if (value != null) {
+        cubit.onFilterApply(value);
+      }
+    });
   }
 }

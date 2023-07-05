@@ -7,8 +7,9 @@ import 'package:launchlab/src/domain/team/role_entity.dart';
 import 'package:launchlab/src/domain/team/user_entity.dart';
 import 'package:launchlab/src/presentation/common/widgets/useful.dart';
 import 'package:launchlab/src/presentation/team/cubits/manage_team_cubit.dart';
-import 'package:launchlab/src/presentation/team/widgets/applicant_%20card.dart';
+import 'package:launchlab/src/presentation/team/widgets/applicant_card.dart';
 import 'package:launchlab/src/presentation/team/widgets/manage_roles_form.dart';
+import 'package:launchlab/src/utils/constants.dart';
 import 'package:launchlab/src/utils/helper.dart';
 
 class ManageTeamPage extends StatelessWidget {
@@ -19,9 +20,8 @@ class ManageTeamPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => ManageTeamCubit(TeamRepository()),
-      child: ManageTeamContent(teamId: teamId),
-    );
+        create: (_) => ManageTeamCubit(TeamRepository()),
+        child: ManageTeamContent(teamId: teamId));
   }
 }
 
@@ -37,6 +37,7 @@ class _ManageTeamState extends State<ManageTeamContent> {
   late ManageTeamCubit manageTeamCubit;
   late List<RoleEntity> rolesData;
   late List<UserEntity> applicantUserData;
+  ActionTypes actionType = ActionTypes.cancel;
 
   @override
   void initState() {
@@ -53,117 +54,137 @@ class _ManageTeamState extends State<ManageTeamContent> {
         rolesData = manageTeamCubit.state.rolesData;
         applicantUserData = manageTeamCubit.state.applicantUserData;
       }
-      return manageTeamCubit.state.isLoaded
-          ? Scaffold(
-              appBar: AppBar(
-                backgroundColor: Colors.transparent,
-                iconTheme: const IconThemeData(color: blackColor),
-              ),
-              body: SingleChildScrollView(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                            mainAxisSize: MainAxisSize.min,
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: [
-                              Expanded(
-                                flex: 3,
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    headerText("Manage Team"),
-                                    bodyText(
-                                        "Create new roles and \nmanage applicants here!")
-                                  ],
-                                ),
-                              ),
-                              const SizedBox(width: 10.0),
-                              Expanded(
-                                flex: 2,
-                                child: SvgPicture.asset(
-                                    'assets/images/create_team.svg'),
-                              ),
-                            ]),
-
-                        const SizedBox(height: 20),
-
-                        Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              subHeaderText("Roles"),
-                              GestureDetector(
-                                  onTap: () {
-                                    _manageRoles("", "");
-                                  },
-                                  child:
-                                      subHeaderText("Add Role +", size: 13.0))
-                            ]),
-                        for (int i = 0; i < rolesData.length; i++) ...[
-                          const SizedBox(height: 10),
-                          Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Expanded(
+      return RefreshIndicator(
+          onRefresh: () async {
+            refreshPage();
+          },
+          child: manageTeamCubit.state.isLoaded
+              ? Scaffold(
+                  appBar: AppBar(
+                    backgroundColor: Colors.transparent,
+                    leading: IconButton(
+                      icon: const Icon(Icons.arrow_back, color: blackColor),
+                      onPressed: () =>
+                          navigatePopWithData(context, '', actionType),
+                    ),
+                  ),
+                  body: ListView(children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                                mainAxisSize: MainAxisSize.min,
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                children: [
+                                  Expanded(
+                                    flex: 3,
                                     child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                      subHeaderText(rolesData[i].title,
-                                          size: 15.0),
-                                      overflowText(rolesData[i].description),
-                                    ])),
-                                IconButton(
-                                  onPressed: () {
-                                    _manageRoles(rolesData[i].title,
-                                        rolesData[i].description,
-                                        roleId: rolesData[i].id);
-                                  },
-                                  icon: const Icon(Icons.edit_outlined),
-                                ),
-                                IconButton(
-                                  onPressed: () {
-                                    manageTeamCubit.deleteRoles(
-                                        roleId: rolesData[i].id);
-                                    refreshPage();
-                                  },
-                                  icon: const Icon(Icons.delete_outline),
-                                ),
-                              ]),
-                          const SizedBox(height: 10),
-                        ],
-                        //Applicants
-                        const SizedBox(height: 50),
-                        subHeaderText('Applicants'),
-                        Column(children: [
-                          for (int i = 0;
-                              i < applicantUserData.length;
-                              i++) ...[
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        headerText("Manage Team"),
+                                        bodyText(
+                                            "Create new roles and \nmanage applicants here!")
+                                      ],
+                                    ),
+                                  ),
+                                  const SizedBox(width: 10.0),
+                                  Expanded(
+                                    flex: 2,
+                                    child: SvgPicture.asset(
+                                        'assets/images/create_team.svg'),
+                                  ),
+                                ]),
+
                             const SizedBox(height: 20),
-                            GestureDetector(
-                                onTap: () {
-                                  navigatePushWithData(
-                                          context,
-                                          "/applicants",
-                                          applicantUserData[i]
-                                              .applicantId
-                                              .toString())
-                                      .then((value) {
-                                    manageTeamCubit.loading();
-                                    manageTeamCubit.getData(widget.teamId);
-                                  });
-                                },
-                                child: ApplicantCard(
-                                    applicantData: applicantUserData[i]))
-                          ]
-                        ])
-                      ]),
-                ),
-              ),
-            )
-          : const Center(child: CircularProgressIndicator());
+
+                            Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  subHeaderText("Roles"),
+                                  GestureDetector(
+                                      onTap: () {
+                                        _manageRoles("", "");
+                                      },
+                                      child: subHeaderText("Add Role +",
+                                          size: 13.0))
+                                ]),
+                            for (int i = 0; i < rolesData.length; i++) ...[
+                              const SizedBox(height: 10),
+                              Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Expanded(
+                                        child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                          subHeaderText(rolesData[i].title,
+                                              size: 15.0),
+                                          overflowText(
+                                              rolesData[i].description),
+                                        ])),
+                                    IconButton(
+                                      onPressed: () {
+                                        print(actionType);
+                                        _manageRoles(rolesData[i].title,
+                                            rolesData[i].description,
+                                            roleId: rolesData[i].id);
+                                      },
+                                      icon: const Icon(Icons.edit_outlined),
+                                    ),
+                                    IconButton(
+                                      onPressed: () {
+                                        manageTeamCubit.deleteRoles(
+                                            roleId: rolesData[i].id);
+                                        refreshPage();
+                                      },
+                                      icon: const Icon(Icons.delete_outline),
+                                    ),
+                                  ]),
+                              const SizedBox(height: 10),
+                            ],
+                            //Applicants
+                            const SizedBox(height: 50),
+                            subHeaderText('Applicants'),
+                            Column(children: [
+                              for (int i = 0;
+                                  i < applicantUserData.length;
+                                  i++) ...[
+                                const SizedBox(height: 20),
+                                GestureDetector(
+                                    onTap: () {
+                                      navigatePushWithData(
+                                              context,
+                                              "/team-home/teams/manage_teams/applicants",
+                                              applicantUserData[i]
+                                                  .applicantId
+                                                  .toString())
+                                          .then((value) {
+                                        if (value?.actionType ==
+                                            ActionTypes.update) {
+                                          refreshPage();
+                                          actionType = ActionTypes.update;
+                                        }
+                                        if (value?.actionType ==
+                                            ActionTypes.delete) {
+                                          refreshPage();
+                                        }
+                                      });
+                                    },
+                                    child: ApplicantCard(
+                                        applicantData: applicantUserData[i])),
+                              ]
+                            ])
+                          ]),
+                    ),
+                  ]),
+                )
+              : const Center(child: CircularProgressIndicator()));
     });
   }
 
@@ -188,11 +209,12 @@ class _ManageTeamState extends State<ManageTeamContent> {
       if (output != null && roleId == '') {
         manageTeamCubit.addRoles(
             teamId: widget.teamId, title: output[0], description: output[1]);
+        manageTeamCubit.getData(widget.teamId);
       } else if (output != null) {
         manageTeamCubit.updateRoles(
             roleId: roleId, title: output[0], description: output[1]);
+        manageTeamCubit.getData(widget.teamId);
       }
-      refreshPage();
     });
   }
 }

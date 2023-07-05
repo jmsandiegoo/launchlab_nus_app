@@ -12,6 +12,7 @@ import 'package:launchlab/src/presentation/common/widgets/form_fields/picture_up
 import 'package:launchlab/src/presentation/common/widgets/useful.dart';
 import 'package:launchlab/src/presentation/team/cubits/edit_create_team_cubit.dart';
 import 'package:launchlab/src/presentation/team/widgets/commitment_button.dart';
+import 'package:launchlab/src/utils/constants.dart';
 import 'package:launchlab/src/utils/helper.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../common/widgets/form_fields/text_field.dart';
@@ -35,8 +36,8 @@ class _CreateTeamPageState extends State<CreateTeamPage> {
     "School",
     "Personal",
     "Competition",
-    "Startup / Company",
-    "Volunteer Work",
+    "Startup",
+    "Volunteer",
     "Others"
   ];
   final _maxMemberFocusNode = FocusNode();
@@ -60,7 +61,10 @@ class _CreateTeamPageState extends State<CreateTeamPage> {
           return Scaffold(
             appBar: AppBar(
               backgroundColor: Colors.transparent,
-              iconTheme: const IconThemeData(color: blackColor),
+              leading: IconButton(
+                icon: const Icon(Icons.arrow_back, color: blackColor),
+                onPressed: () => navigatePop(context),
+              ),
             ),
             body: SingleChildScrollView(
               child: Padding(
@@ -309,7 +313,8 @@ class _CreateTeamPageState extends State<CreateTeamPage> {
                                             avatar:
                                                 state.pictureUploadInput.value)
                                         .then((val) {
-                                        navigatePop(context);
+                                        navigatePopWithData(
+                                            context, "", ActionTypes.create);
                                       })
                                     : debugPrint("Not Valridated");
                               },

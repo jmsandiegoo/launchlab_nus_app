@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:launchlab/src/config/app_theme.dart';
 import 'package:launchlab/src/presentation/common/widgets/useful.dart';
-import 'package:launchlab/src/presentation/team/cubits/edit_create_team_cubit.dart';
 
 class CommitmentButton extends StatelessWidget {
   final String text;
-  final EditCreateTeamCubit cubit;
+  final cubit;
   final String newLevel;
   const CommitmentButton(
       {super.key,
