@@ -166,7 +166,6 @@ final GoRouter appRouter = GoRouter(
           ],
         ),
 
-
         // Main Navigator
         StatefulShellRoute.indexedStack(
           builder: (context, state, navigationShell) {
@@ -184,38 +183,44 @@ final GoRouter appRouter = GoRouter(
                       path: "/team-home",
                       pageBuilder: (context, state) {
                         return const NoTransitionPage(child: TeamHomePage());
-                      }),
-                  GoRoute(
-                    path: "/teams",
-                    builder: (context, state) => TeamPage(state.extra as List),
-                  ),
-                  GoRoute(
-                    path: "/create_teams",
-                    pageBuilder: (context, state) => NoTransitionPage(
-                        child: CreateTeamPage(userId: state.extra as String)),
-                  ),
-                  GoRoute(
-                    path: "/edit_teams",
-                    pageBuilder: (context, state) => NoTransitionPage(
-                        child: EditTeamPage(teamId: state.extra as String)),
-                  ),
-                  GoRoute(
-                    path: "/external_teams",
-                    pageBuilder: (context, state) => NoTransitionPage(
-                        child: ExternalTeamPage(
-                            teamIdUserIdData: state.extra as List)),
-                  ),
-                  GoRoute(
-                    path: "/manage_teams",
-                    pageBuilder: (context, state) => NoTransitionPage(
-                        child: ManageTeamPage(teamId: state.extra as String)),
-                  ),
-                  GoRoute(
-                    path: "/applicants",
-                    pageBuilder: (context, state) => NoTransitionPage(
-                        child: ApplicantPage(
-                            applicationID: state.extra as String)),
-                  ),
+                      },
+                      routes: [
+                        GoRoute(
+                          path: "create_teams",
+                          pageBuilder: (context, state) => NoTransitionPage(
+                              child: CreateTeamPage(
+                                  userId: state.extra as String)),
+                        ),
+                        GoRoute(
+                            path: "teams",
+                            builder: (context, state) =>
+                                TeamPage(state.extra as List),
+                            routes: [
+                              GoRoute(
+                                path: "edit_teams",
+                                pageBuilder: (context, state) =>
+                                    NoTransitionPage(
+                                        child: EditTeamPage(
+                                            teamId: state.extra as String)),
+                              ),
+                              GoRoute(
+                                  path: "manage_teams",
+                                  pageBuilder: (context, state) =>
+                                      NoTransitionPage(
+                                          child: ManageTeamPage(
+                                              teamId: state.extra as String)),
+                                  routes: [
+                                    GoRoute(
+                                      path: "applicants",
+                                      pageBuilder: (context, state) =>
+                                          NoTransitionPage(
+                                              child: ApplicantPage(
+                                                  applicationID:
+                                                      state.extra as String)),
+                                    ),
+                                  ]),
+                            ]),
+                      ]),
                 ]),
 
             // chat navigation tree
@@ -237,10 +242,17 @@ final GoRouter appRouter = GoRouter(
                 navigatorKey: _discoverShellKey,
                 routes: [
                   GoRoute(
-                    path: "/discover",
-                    pageBuilder: (context, state) =>
-                        const NoTransitionPage(child: DiscoverPage()),
-                  ),
+                      path: "/discover",
+                      pageBuilder: (context, state) =>
+                          const NoTransitionPage(child: DiscoverPage()),
+                      routes: [
+                        GoRoute(
+                          path: "external_teams",
+                          pageBuilder: (context, state) => NoTransitionPage(
+                              child: ExternalTeamPage(
+                                  teamIdUserIdData: state.extra as List)),
+                        ),
+                      ]),
                 ]),
 
             // profile navigation tree
@@ -333,7 +345,6 @@ final GoRouter appRouter = GoRouter(
                       ),
                     ],
                   ),
-
                 ],
               ),
             ])

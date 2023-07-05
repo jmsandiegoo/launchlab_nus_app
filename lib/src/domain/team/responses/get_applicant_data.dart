@@ -1,8 +1,8 @@
 import 'package:equatable/equatable.dart';
-import 'package:launchlab/src/domain/team/accomplishment_entity.dart';
-import 'package:launchlab/src/domain/team/experience_entity.dart';
 import 'package:launchlab/src/domain/team/team_entity.dart';
 import 'package:launchlab/src/domain/team/user_entity.dart';
+import 'package:launchlab/src/domain/user/models/accomplishment_entity.dart';
+import 'package:launchlab/src/domain/user/models/experience_entity.dart';
 
 class GetApplicantData extends Equatable {
   const GetApplicantData(
@@ -16,18 +16,18 @@ class GetApplicantData extends Equatable {
   @override
   List<Object?> get props => [applicant, team, experiences, accomplishments];
 
-  List<ExperienceTeamEntity> getAllExperience() {
-    List<ExperienceTeamEntity> allExperiences = [];
+  List<ExperienceEntity> getAllExperience() {
+    List<ExperienceEntity> allExperiences = [];
     for (var experience in experiences) {
-      allExperiences.add(ExperienceTeamEntity.fromJson(experience));
+      allExperiences.add(ExperienceEntity.fromJson(experience));
     }
     return allExperiences;
   }
 
-  List<AccomplishmentTeamEntity> getAllAccomplishment() {
-    List<AccomplishmentTeamEntity> allAccomplishment = [];
+  List<AccomplishmentEntity> getAllAccomplishment() {
+    List<AccomplishmentEntity> allAccomplishment = [];
     for (var accomplishment in accomplishments) {
-      allAccomplishment.add(AccomplishmentTeamEntity.fromJson(accomplishment));
+      allAccomplishment.add(AccomplishmentEntity.fromJson(accomplishment));
     }
     return allAccomplishment;
   }

@@ -23,8 +23,20 @@ class GetExternalTeam extends Equatable {
   List<String> getCurrentApplicants() {
     List<String> currentApplicants = [];
     for (var user in applicantsData) {
-      currentApplicants.add(user['user_id']);
+      if (user['status'] == 'pending') {
+        currentApplicants.add(user['user_id']);
+      }
     }
     return currentApplicants;
+  }
+
+  List<String> getPastApplicants() {
+    List<String> pastApplicants = [];
+    for (var user in applicantsData) {
+      if (user['status'] != 'pending') {
+        pastApplicants.add(user['user_id']);
+      }
+    }
+    return pastApplicants;
   }
 }

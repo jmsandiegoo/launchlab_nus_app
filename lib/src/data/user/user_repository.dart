@@ -426,7 +426,7 @@ class UserRepository implements UserRepositoryImpl {
 
       final file = await downloadFile(
           supabase: _supabase,
-          bucket: 'user_avatar_bucket',
+          bucket: 'user_resume_bucket',
           fileIdentifier: res[0]['file_identifier'],
           fileName: res[0]['file_name']);
 
