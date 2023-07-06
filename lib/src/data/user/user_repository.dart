@@ -98,14 +98,14 @@ class UserRepository implements UserRepositoryImpl {
   Future<void> onboardUser({required OnboardUserRequest request}) async {
     // upload the file and avatar
     try {
-      if (request.userAvatar != null) {
+      if (request.user.userAvatar != null) {
         uploadUserAvatar(
-            UploadUserAvatarRequest(userAvatar: request.userAvatar!));
+            UploadUserAvatarRequest(userAvatar: request.user.userAvatar!));
       }
 
-      if (request.userResume != null) {
+      if (request.user.userResume != null) {
         uploadUserResume(
-            UploadUserResumeRequest(userResume: request.userResume!));
+            UploadUserResumeRequest(userResume: request.user.userResume!));
       }
 
       await _supabase.client.rpc(

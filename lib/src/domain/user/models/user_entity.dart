@@ -159,6 +159,26 @@ class UserEntity extends Equatable {
     };
   }
 
+  Map<String, dynamic> toJsonWithRelations() {
+    return {
+      'id': id,
+      'is_onboarded': isOnboarded,
+      'username': username,
+      'first_name': firstName,
+      'last_name': lastName,
+      'title': title,
+      'about': about,
+      'degree_programme_id': degreeProgrammeId,
+      'created_at': createdAt?.toIso8601String(),
+      'updated_at': updatedAt?.toIso8601String(),
+      'preference': userPreference?.toJson(),
+      'degree_programme': userDegreeProgramme?.toJson(),
+      'experiences': userExperiences.map((item) => item.toJson()).toList(),
+      'accomplishments':
+          userAccomplishments.map((item) => item.toJson()).toList(),
+    };
+  }
+
   @override
   List<Object?> get props => [
         id,
