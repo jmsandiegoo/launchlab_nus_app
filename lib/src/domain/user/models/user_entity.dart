@@ -1,4 +1,11 @@
 import 'package:equatable/equatable.dart';
+import 'package:launchlab/src/domain/user/models/degree_programme_entity.dart';
+import 'package:launchlab/src/domain/user/models/preference_entity.dart';
+import 'package:launchlab/src/domain/user/models/user_avatar_entity.dart';
+import 'package:launchlab/src/domain/user/models/user_resume_entity.dart';
+
+import 'accomplishment_entity.dart';
+import 'experience_entity.dart';
 
 class UserEntity extends Equatable {
   const UserEntity({
@@ -9,9 +16,15 @@ class UserEntity extends Equatable {
     this.lastName,
     this.title,
     this.about,
-    this.degreeProgrammeId,
     this.createdAt,
     this.updatedAt,
+    this.degreeProgrammeId,
+    this.userPreference,
+    this.userAvatar,
+    this.userResume,
+    this.userDegreeProgramme,
+    this.userExperiences = const [],
+    this.userAccomplishments = const [],
   });
 
   final String? id;
@@ -23,10 +36,22 @@ class UserEntity extends Equatable {
   final String? about;
   final DateTime? createdAt;
   final DateTime? updatedAt;
-
   final String? degreeProgrammeId;
 
-  UserEntity setAvatar({String? avatar}) {
+  final PreferenceEntity? userPreference;
+  final UserAvatarEntity? userAvatar;
+  final UserResumeEntity? userResume;
+  final DegreeProgrammeEntity? userDegreeProgramme;
+  final List<ExperienceEntity> userExperiences;
+  final List<AccomplishmentEntity> userAccomplishments;
+
+  UserEntity setRelations(
+      {PreferenceEntity? userPreference,
+      UserAvatarEntity? userAvatar,
+      UserResumeEntity? userResume,
+      DegreeProgrammeEntity? userDegreeProgramme,
+      List<ExperienceEntity>? userExperiences,
+      List<AccomplishmentEntity>? userAccomplishments}) {
     return UserEntity(
       id: id,
       isOnboarded: isOnboarded,
@@ -35,9 +60,15 @@ class UserEntity extends Equatable {
       lastName: lastName,
       title: title,
       about: about,
-      degreeProgrammeId: degreeProgrammeId,
       createdAt: createdAt,
       updatedAt: updatedAt,
+      degreeProgrammeId: degreeProgrammeId,
+      userPreference: userPreference,
+      userAvatar: userAvatar,
+      userResume: userResume,
+      userDegreeProgramme: userDegreeProgramme,
+      userExperiences: userExperiences ?? this.userExperiences,
+      userAccomplishments: userAccomplishments ?? this.userAccomplishments,
     );
   }
 
@@ -54,6 +85,14 @@ class UserEntity extends Equatable {
     DateTime? createdAt,
     DateTime? updatedAt,
     String? degreeProgrammeId,
+
+    /// relational objects
+    PreferenceEntity? userPreference,
+    UserAvatarEntity? userAvatar,
+    UserResumeEntity? userResume,
+    DegreeProgrammeEntity? userDegreeProgramme,
+    List<ExperienceEntity>? userExperiences,
+    List<AccomplishmentEntity>? userAccomplishments,
   }) {
     return UserEntity(
       id: id ?? this.id,
@@ -63,9 +102,15 @@ class UserEntity extends Equatable {
       lastName: lastName ?? this.lastName,
       title: title ?? this.title,
       about: about ?? this.about,
-      degreeProgrammeId: degreeProgrammeId ?? this.degreeProgrammeId,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
+      degreeProgrammeId: degreeProgrammeId ?? this.degreeProgrammeId,
+      userPreference: userPreference,
+      userAvatar: userAvatar,
+      userResume: userResume,
+      userDegreeProgramme: userDegreeProgramme,
+      userExperiences: userExperiences ?? this.userExperiences,
+      userAccomplishments: userAccomplishments ?? this.userAccomplishments,
     );
   }
 
@@ -79,7 +124,25 @@ class UserEntity extends Equatable {
         about = json['about'],
         degreeProgrammeId = json['degree_programme_id'],
         createdAt = DateTime.tryParse(json['created_at'].toString()),
-        updatedAt = DateTime.tryParse(json['updated_at'].toString());
+        updatedAt = DateTime.tryParse(json['updated_at'].toString()),
+        userPreference = json['preference'] != null
+            ? PreferenceEntity.fromJson(json['preference'])
+            : null,
+        userAvatar = null,
+        userResume = null,
+        userDegreeProgramme = json['degree_programme'] != null
+            ? DegreeProgrammeEntity.fromJson(json['degree_programme'])
+            : null,
+        userAccomplishments = (json['accomplishments']
+                    ?.map((item) => AccomplishmentEntity.fromJson(item))
+                    .toList() ??
+                [])
+            .cast<AccomplishmentEntity>(),
+        userExperiences = (json['experiences']
+                    ?.map((item) => ExperienceEntity.fromJson(item))
+                    .toList() ??
+                [])
+            .cast<ExperienceEntity>();
 
   Map<String, dynamic> toJson() {
     return {

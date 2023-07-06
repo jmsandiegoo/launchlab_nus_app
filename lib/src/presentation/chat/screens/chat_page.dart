@@ -1,14 +1,16 @@
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:launchlab/src/config/app_theme.dart';
 import 'package:launchlab/src/presentation/chat/widgets/chat_select_modal.dart';
+import 'package:launchlab/src/presentation/chat/widgets/team_chat_list.dart';
 import 'package:launchlab/src/presentation/common/widgets/form_fields/multi_button_select.dart';
 import 'package:launchlab/src/presentation/common/widgets/form_fields/text_field.dart';
 import 'package:launchlab/src/presentation/common/widgets/useful.dart';
 
 class ChatPage extends StatelessWidget {
-  const ChatPage({super.key});
+  const ChatPage({super.key, this.teamId});
+
+  final String? teamId;
 
   @override
   Widget build(BuildContext context) {
@@ -46,9 +48,9 @@ class ChatPage extends StatelessWidget {
               IconButton(
                   onPressed: () {
                     context
-                        .push("/profile/aec490eb-695f-46ed-919c-654c757d71e9");
+                        .push("/profile/209b2b56-6156-42bc-91ee-4b20d5632ce3");
                   },
-                  icon: Icon(Icons.waving_hand_outlined)),
+                  icon: const Icon(Icons.waving_hand_outlined)),
               IconButton(onPressed: () {}, icon: Icon(Icons.info_outline))
             ],
           ),
@@ -80,7 +82,8 @@ class ChatPage extends StatelessWidget {
               value: "Team",
               options: const ["Team", "Requests", "Invites"],
               colNo: 3,
-              onPressHandler: (val) {})
+              onPressHandler: (val) {}),
+          TeamChatList(),
         ],
       ),
     ));

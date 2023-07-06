@@ -166,7 +166,6 @@ final GoRouter appRouter = GoRouter(
           ],
         ),
 
-
         // Main Navigator
         StatefulShellRoute.indexedStack(
           builder: (context, state, navigationShell) {
@@ -228,6 +227,12 @@ final GoRouter appRouter = GoRouter(
                   pageBuilder: (context, state) =>
                       const NoTransitionPage(child: ChatPage()),
                 ),
+                GoRoute(
+                  path: "/chats/:teamId",
+                  pageBuilder: (context, state) {
+                    return NoTransitionPage(child: ChatPage());
+                  },
+                )
               ],
             ),
 
@@ -333,7 +338,6 @@ final GoRouter appRouter = GoRouter(
                       ),
                     ],
                   ),
-
                 ],
               ),
             ])

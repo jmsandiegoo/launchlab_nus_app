@@ -213,10 +213,13 @@ Widget headerText(String label, {size = 25.0, alignment = TextAlign.left}) {
 }
 
 Widget subHeaderText(String label,
-    {size = 20.0, alignment = TextAlign.left, color = blackColor}) {
+    {size = 20.0,
+    alignment = TextAlign.left,
+    color = blackColor,
+    maxLines = 2}) {
   return Text(
     label,
-    maxLines: 2,
+    maxLines: maxLines,
     softWrap: true,
     overflow: TextOverflow.ellipsis,
     textAlign: alignment,
@@ -243,11 +246,14 @@ Widget bodyText(String label,
 Widget smallText(String label,
     {size = 13.0,
     color = blackColor,
+    int? maxLines,
     weight = FontWeight.w400,
     alignment = TextAlign.left}) {
   return Text(
     label,
+    maxLines: maxLines,
     textAlign: alignment,
+    overflow: TextOverflow.ellipsis,
     style: TextStyle(
       fontSize: size,
       color: color,

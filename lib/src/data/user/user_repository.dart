@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:launchlab/src/domain/user/models/accomplishment_entity.dart';
 import 'package:launchlab/src/domain/user/models/degree_programme_entity.dart';
 import 'package:launchlab/src/domain/user/models/experience_entity.dart';
-import 'package:launchlab/src/domain/user/models/preference_entity.dart';
 import 'package:launchlab/src/domain/user/models/requests/check_if_username_exists_request.dart';
 import 'package:launchlab/src/domain/user/models/requests/create_user_accomplishment_request.dart';
 import 'package:launchlab/src/domain/user/models/requests/create_user_experience_request.dart';
@@ -265,7 +264,8 @@ class UserRepository implements UserRepositoryImpl {
       // fetch the user profile
       final userRes = await _supabase.client
           .from("users")
-          .select<PostgrestList>("*")
+          .select<PostgrestList>(
+              "*, accomplishments(*), experiences(*), degree_programme:degree_programmes(*), preference:preferences(*, skills_interests:skills_preferences(selected_skills(*)), categories:categories_preferences(categories(*)))")
           .eq("id", request.userId);
 
       if (userRes.isEmpty) {
@@ -286,71 +286,16 @@ class UserRepository implements UserRepositoryImpl {
       UserResumeEntity? userResume =
           await fetchUserResume(DownloadUserResumeRequest(userId: user.id!));
 
-      // fetch the profile degree
-      final degRes = await _supabase.client
-          .from("degree_programmes")
-          .select<PostgrestList>("*")
-          .eq(
-            'id',
-            user.degreeProgrammeId,
-          );
-
-      if (degRes.isEmpty) {
-        debugPrint("No deg found while getting profile info.");
-        throw Failure.request();
-      }
-
-      DegreeProgrammeEntity deg = DegreeProgrammeEntity.fromJson(degRes[0]);
-
-      // fetch the experiences
-      final expRes = await _supabase.client
-          .from("experiences")
-          .select<PostgrestList>("*")
-          .eq("user_id", request.userId);
-
-      List<ExperienceEntity> experienceList = [];
-
-      for (int i = 0; i < expRes.length; i++) {
-        experienceList.add(ExperienceEntity.fromJson(expRes[i]));
-      }
-
-      // fetch the accomplishments
-      final accRes = await _supabase.client
-          .from("accomplishments")
-          .select<PostgrestList>("*")
-          .eq("user_id", request.userId);
-
-      List<AccomplishmentEntity> accomplishmentList = [];
-
-      for (int i = 0; i < accRes.length; i++) {
-        accomplishmentList.add(AccomplishmentEntity.fromJson(accRes[i]));
-      }
-
-      // fetch prefernce with interests & skills and category
-      final prefRes = await _supabase.client
-          .from("preferences")
-          .select<PostgrestList>(
-              "*, skills_interests:skills_preferences(selected_skills(*)), categories:categories_preferences(categories(*))")
-          .eq(
-            'user_id',
-            request.userId,
-          );
-
-      if (prefRes.isEmpty) {
-        debugPrint("No user preference found while getting profile info.");
-        throw Failure.request();
-      }
-
-      final PreferenceEntity pref = PreferenceEntity.fromJson(prefRes[0]);
-
       return GetProfileInfoResponse(
-          userProfile: user,
+        userProfile: user.setRelations(
           userAvatar: userAvatar,
           userResume: userResume,
-          userDegreeProgramme: deg,
-          userExperiences: experienceList,
-          userAccomplishments: accomplishmentList,
-          userPreference: pref);
+          userPreference: user.userPreference,
+          userDegreeProgramme: user.userDegreeProgramme,
+          userExperiences: user.userExperiences,
+          userAccomplishments: user.userAccomplishments,
+        ),
+      );
     } on Failure catch (_) {
       rethrow;
     } on PostgrestException catch (error) {
