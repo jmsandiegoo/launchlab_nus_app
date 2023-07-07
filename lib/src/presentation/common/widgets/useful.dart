@@ -77,6 +77,7 @@ Widget userInput({
 
 Widget userInput_2({
   label,
+  focusNode,
   obsureText = false,
   controller,
   size = 1,
@@ -93,6 +94,7 @@ Widget userInput_2({
       ),
       const SizedBox(height: 5),
       TextField(
+        focusNode: focusNode,
         keyboardType: keyboard,
         minLines: size, //Normal textInputField will be displayed
         maxLines: size,

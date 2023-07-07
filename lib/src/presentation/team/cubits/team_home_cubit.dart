@@ -57,7 +57,7 @@ class TeamHomeCubit extends Cubit<TeamHomeState> {
   }
 
 //Emit state here, no longer need future builder.
-  void initData() async {
+  void getData() async {
     final GetTeamHomeData res = await _teamRepository.getTeamHomeData();
 
     final newState = state.copyWith(
@@ -67,6 +67,10 @@ class TeamHomeCubit extends Cubit<TeamHomeState> {
         isLoaded: true);
     debugPrint('Home state emitted');
     emit(newState);
+  }
+
+  void loading() {
+    emit(state.copyWith(isLoaded: false));
   }
 
   void setIsLeadingState(bool value) {

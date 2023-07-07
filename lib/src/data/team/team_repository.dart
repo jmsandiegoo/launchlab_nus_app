@@ -15,14 +15,19 @@ class TeamRepository {
 
   getTeamHomeData() async {
     final User? user = supabase.auth.currentUser;
-    var userData = await supabase.from('users').select().eq('id', user!.id);
+    var userData = await supabase
+        .from('users')
+        .select('*, user_avatars(*)')
+        .eq('id', user!.id)
+        .single();
 
-    var userAvatarURL = userData[0]['avatar'] == null
+    var userAvatarURL = userData['user_avatars'] == null
         ? ''
-        : await supabase.storage
-            .from('user_avatar_bucket')
-            .createSignedUrl('${userData[0]['avatar']}', 1000);
-    userData[0]['avatar_url'] = userAvatarURL;
+        : await supabase.storage.from('user_avatar_bucket').createSignedUrl(
+            "${userData['user_avatars']['file_identifier']}", 1000);
+    userData['avatar_url'] = userAvatarURL;
+
+    UserEntity userEntity = UserEntity.fromJson(userData);
 
     var memberTeamData = await supabase
         .from('teams')
@@ -30,8 +35,6 @@ class TeamRepository {
         .eq('team_users.is_owner', false)
         .eq('team_users.user_id', user.id)
         .eq('is_current', true);
-
-    UserEntity userEntity = UserEntity.fromJson(userData[0]);
 
     List<TeamEntity> memberTeamsEntity = [];
 
@@ -72,21 +75,20 @@ class TeamRepository {
   getTeamData(teamId) async {
     var teamMemberData = await supabase
         .from('team_users')
-        .select('*, users(first_name, last_name, avatar)')
+        .select('*, users(first_name, last_name, avatar, user_avatars(*))')
         .eq('team_id', teamId);
 
     List<TeamUserEntity> teamMembers = [];
     for (int i = 0; i < teamMemberData.length; i++) {
-      var avatarURL = teamMemberData[i]['users']['avatar'] == null
+      var avatarURL = teamMemberData[i]['users']['user_avatars'] == null
           ? ''
-          : await supabase.storage
-              .from('user_avatar_bucket')
-              .createSignedUrl('${teamMemberData[i]['users']['avatar']}', 1000);
+          : await supabase.storage.from('user_avatar_bucket').createSignedUrl(
+              '${teamMemberData[i]['users']['user_avatars']['file_identifier']}',
+              1000);
       teamMemberData[i]['users']['avatar_url'] = avatarURL;
       teamMembers.add(TeamUserEntity.fromJson(teamMemberData[i]));
     }
 
-    //Fix this, do the processing in the get_team data instead.
     var milestone =
         await supabase.from('milestones').select().eq('team_id', teamId);
 
@@ -158,16 +160,17 @@ class TeamRepository {
   getManageTeamData(teamId) async {
     var applicantUserData = await supabase
         .from('users')
-        .select('*, team_applicants!inner(id, team_id)')
-        .eq('team_applicants.team_id', teamId);
+        .select(
+            '*, team_applicants!inner(id, team_id, status), user_avatars(*)')
+        .eq('team_applicants.team_id', teamId)
+        .eq('team_applicants.status', 'pending');
 
     List<UserEntity> users = [];
     for (int i = 0; i < applicantUserData.length; i++) {
-      var avatarURL = applicantUserData[i]['avatar'] == null
+      var avatarURL = applicantUserData[i]['user_avatars'] == null
           ? ''
-          : await supabase.storage
-              .from('user_avatar_bucket')
-              .createSignedUrl('${applicantUserData[i]['avatar']}', 60);
+          : await supabase.storage.from('user_avatar_bucket').createSignedUrl(
+              '${applicantUserData[i]['user_avatars']['file_identifier']}', 60);
       applicantUserData[i]['avatar_url'] = avatarURL;
       users.add(UserEntity.fromManageTeamJson(applicantUserData[i]));
     }
@@ -246,8 +249,10 @@ class TeamRepository {
       commitment,
       maxMember,
       interest,
+      interestName,
       avatar}) async {
     var teamId = const Uuid().v4();
+
     await supabase.from('teams').insert({
       'id': teamId,
       'team_name': teamName,
@@ -259,6 +264,7 @@ class TeamRepository {
       'current_members': 1,
       'max_members': maxMember,
       'interest': interest,
+      'interest_name': interestName,
       'avatar': avatar.toString() == 'null'
           ? null
           : '${teamId}_avatar${avatar.toString().substring(avatar.toString().indexOf('.'))}',
@@ -285,16 +291,18 @@ class TeamRepository {
   getApplicantData(applicationID) async {
     var applicantUserData = await supabase
         .from('users')
-        .select('*, team_applicants!inner(id), degree_programmes(name)')
-        .eq('team_applicants.id', applicationID);
+        .select(
+            '*, team_applicants!inner(id), degree_programmes(name), user_avatars(*)')
+        .eq('team_applicants.id', applicationID)
+        .single();
 
-    var avatarURL = applicantUserData[0]['avatar'] == null
+    var avatarURL = applicantUserData['user_avatars'] == null
         ? ''
-        : await supabase.storage
-            .from('user_avatar_bucket')
-            .createSignedUrl('${applicantUserData[0]['avatar']}', 60);
-    applicantUserData[0]['avatar_url'] = avatarURL;
-    UserEntity user = UserEntity.fromApplicantJson(applicantUserData[0]);
+        : await supabase.storage.from('user_avatar_bucket').createSignedUrl(
+            '${applicantUserData['user_avatars']['file_identifier']}', 60);
+    applicantUserData['avatar_url'] = avatarURL;
+
+    UserEntity user = UserEntity.fromApplicantJson(applicantUserData);
     var teamData = await supabase
         .from('teams')
         .select('*, team_applicants!inner(id)')
@@ -312,13 +320,13 @@ class TeamRepository {
     var experienceData = await supabase
         .from('experiences')
         .select()
-        .eq('user_id', applicantUserData[0]['id'])
+        .eq('user_id', applicantUserData['id'])
         .order('start_date');
 
     var accomplishmentData = await supabase
         .from('accomplishments')
         .select()
-        .eq('user_id', applicantUserData[0]['id'])
+        .eq('user_id', applicantUserData['id'])
         .order('start_date');
 
     return GetApplicantData(user, team, experienceData, accomplishmentData);
@@ -338,10 +346,14 @@ class TeamRepository {
       'current_members': currentMember + 1,
     }).eq('id', applicationData[0]['team_id']);
 
-    await supabase.from('team_applicants').delete().eq('id', applicationID);
+    await supabase
+        .from('team_applicants')
+        .update({'status': 'accepted'}).eq('id', applicationID);
   }
 
   rejectApplicant({applicationID}) async {
-    await supabase.from('team_applicants').delete().eq('id', applicationID);
+    await supabase
+        .from('team_applicants')
+        .update({'status': 'rejected'}).eq('id', applicationID);
   }
 }

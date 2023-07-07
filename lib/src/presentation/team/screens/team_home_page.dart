@@ -7,6 +7,7 @@ import 'package:launchlab/src/data/team/team_repository.dart';
 import 'package:launchlab/src/presentation/common/widgets/useful.dart';
 import 'package:launchlab/src/presentation/team/cubits/team_home_cubit.dart';
 import 'package:launchlab/src/presentation/team/widgets/team_home_card.dart';
+import 'package:launchlab/src/utils/constants.dart';
 import 'package:launchlab/src/utils/helper.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -37,7 +38,7 @@ class _TeamHomeState extends State<TeamHomeContent> {
   void initState() {
     super.initState();
     teamHomeCubit = BlocProvider.of<TeamHomeCubit>(context);
-    teamHomeCubit.initData();
+    teamHomeCubit.getData();
   }
 
   @override
@@ -151,10 +152,15 @@ class _TeamHomeState extends State<TeamHomeContent> {
                             style: OutlinedButton.styleFrom(
                                 backgroundColor: yellowColor),
                             onPressed: () {
-                              navigatePushWithData(context, "/create_teams",
+                              navigatePushWithData(
+                                      context,
+                                      "/team-home/create_teams",
                                       teamHomeCubit.state.userData!.id)
-                                  .then((_) {
-                                teamHomeCubit.initData();
+                                  .then((value) {
+                                if (value?.actionType == ActionTypes.create) {
+                                  teamHomeCubit.setIsLeadingState(false);
+                                  teamHomeCubit.getData();
+                                }
                               });
                             },
                             child: const Text(
@@ -181,10 +187,16 @@ class _TeamHomeState extends State<TeamHomeContent> {
                               const SizedBox(height: 20),
                               GestureDetector(
                                   onTap: () {
-                                    navigatePushWithData(context, "/teams", [
+                                    navigatePushWithData(
+                                        context, "/team-home/teams", [
                                       teamHomeCubit.state.ownerTeamData[i].id,
                                       true
-                                    ]);
+                                    ]).then((value) {
+                                      if (value?.actionType ==
+                                          ActionTypes.update) {
+                                        refreshPage();
+                                      }
+                                    });
                                   },
                                   child: TeamHomeCard(
                                       teamData:
@@ -199,7 +211,7 @@ class _TeamHomeState extends State<TeamHomeContent> {
                                 alignment: TextAlign.center),
                             ElevatedButton(
                                 onPressed: () {
-                                  navigatePush(context, "/discover");
+                                  navigateGo(context, "/discover");
                                 },
                                 child: smallText("  Search Teams  ")),
                           ])
@@ -210,7 +222,9 @@ class _TeamHomeState extends State<TeamHomeContent> {
                               const SizedBox(height: 20),
                               GestureDetector(
                                   onTap: () {
-                                    navigatePushWithData(context, "/teams",
+                                    navigatePushWithData(
+                                        context,
+                                        "/team-home/teams",
                                         [state.memberTeamData[i].id, false]);
                                   },
                                   child: TeamHomeCard(
@@ -218,12 +232,16 @@ class _TeamHomeState extends State<TeamHomeContent> {
                             ],
                           ])
                   ],
-
                   const SizedBox(height: 50),
                 ]),
               ),
             )
           : const Center(child: CircularProgressIndicator());
     });
+  }
+
+  void refreshPage() {
+    teamHomeCubit.loading();
+    teamHomeCubit.getData();
   }
 }

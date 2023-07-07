@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:launchlab/src/config/app_theme.dart';
-import 'package:launchlab/src/domain/team/experience_entity.dart';
+import 'package:launchlab/src/domain/user/models/experience_entity.dart';
 import 'package:launchlab/src/presentation/common/widgets/useful.dart';
 
 class ApplicantExperience extends StatelessWidget {
-  final ExperienceTeamEntity experienceData;
+  final ExperienceEntity experienceData;
   const ApplicantExperience({super.key, required this.experienceData});
 
   @override

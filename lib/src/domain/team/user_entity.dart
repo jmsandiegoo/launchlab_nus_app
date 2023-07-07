@@ -1,17 +1,8 @@
 import 'package:equatable/equatable.dart';
 
 class UserEntity extends Equatable {
-  const UserEntity(
-      this.id,
-      this.firstName,
-      this.lastName,
-      this.title,
-      this.about,
-      this.degree,
-      this.avatar,
-      this.avatarURL,
-      this.resume,
-      this.applicantId);
+  const UserEntity(this.id, this.firstName, this.lastName, this.title,
+      this.about, this.degree, this.avatarURL, this.resume, this.applicantId);
 
   @override
   List<Object?> get props => [
@@ -21,7 +12,6 @@ class UserEntity extends Equatable {
         title,
         about,
         degree,
-        avatar,
         avatarURL,
         resume,
         applicantId
@@ -33,7 +23,6 @@ class UserEntity extends Equatable {
   final String title;
   final String about;
   final String degree;
-  final String? avatar;
   final String avatarURL;
   final String? resume;
   final String applicantId;
@@ -45,7 +34,6 @@ class UserEntity extends Equatable {
         title = json['title'],
         about = json['about'],
         degree = '',
-        avatar = json['avatar'],
         avatarURL = json['avatar_url'],
         resume = json['resume'],
         applicantId = '';
@@ -56,9 +44,7 @@ class UserEntity extends Equatable {
         lastName = json['last_name'],
         title = json['title'],
         about = json['about'],
-        //degree = json['degree_programmes']['name'],
-        degree = '',
-        avatar = json['avatar'],
+        degree = json['degree_programmes']['name'],
         avatarURL = json['avatar_url'],
         resume = json['resume'],
         applicantId = '';
@@ -70,7 +56,6 @@ class UserEntity extends Equatable {
         title = json['title'],
         about = json['about'],
         degree = '',
-        avatar = json['avatar'],
         avatarURL = json['avatar_url'],
         resume = json['resume'],
         applicantId = json['team_applicants'][0]['id'];

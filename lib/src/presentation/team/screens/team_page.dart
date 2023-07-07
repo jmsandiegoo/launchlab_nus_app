@@ -4,14 +4,13 @@ import 'package:launchlab/src/config/app_theme.dart';
 import 'package:launchlab/src/data/team/team_repository.dart';
 import 'package:launchlab/src/domain/team/team_entity.dart';
 import 'package:launchlab/src/presentation/common/widgets/useful.dart';
+import 'package:launchlab/src/presentation/team/cubits/team_cubit.dart';
 import 'package:launchlab/src/presentation/team/widgets/manage_member_form.dart';
 import 'package:launchlab/src/presentation/team/widgets/add_task.dart';
 import 'package:launchlab/src/presentation/team/widgets/milestone_card.dart';
 import 'package:launchlab/src/presentation/team/widgets/team_confirmation.dart';
 import 'package:launchlab/src/utils/constants.dart';
 import 'package:launchlab/src/utils/helper.dart';
-
-import '../cubits/team_cubit.dart';
 
 class TeamPage extends StatelessWidget {
   final List teamIdIsOwner;
@@ -37,6 +36,8 @@ class TeamContent extends StatefulWidget {
 class _TeamState extends State<TeamContent> {
   late TeamCubit teamCubit;
   late TeamEntity teamData;
+  ActionTypes actionType = ActionTypes.cancel;
+
   @override
   void initState() {
     super.initState();
@@ -61,7 +62,11 @@ class _TeamState extends State<TeamContent> {
               ? Scaffold(
                   appBar: AppBar(
                       backgroundColor: Colors.transparent,
-                      iconTheme: const IconThemeData(color: blackColor),
+                      leading: IconButton(
+                        icon: const Icon(Icons.arrow_back, color: blackColor),
+                        onPressed: () =>
+                            navigatePopWithData(context, '', actionType),
+                      ),
                       actions: [
                         IconButton(
                             onPressed: () {
@@ -90,8 +95,8 @@ class _TeamState extends State<TeamContent> {
                               )
                             : const SizedBox()
                       ]),
-                  body: SingleChildScrollView(
-                    child: Padding(
+                  body: ListView(children: [
+                    Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 30),
                       child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -265,7 +270,7 @@ class _TeamState extends State<TeamContent> {
                                 ]),
                           ]),
                     ),
-                  ),
+                  ]),
                 )
               : const Center(child: CircularProgressIndicator()));
     });
@@ -318,7 +323,6 @@ class _TeamState extends State<TeamContent> {
               endDate: endDate,
               actionType: actionType);
         }).then((output) {
-      //Add new Task here -- to database
       if (output != null) {
         if (actionType == ActionTypes.create) {
           teamCubit.addMilestone(
@@ -333,7 +337,7 @@ class _TeamState extends State<TeamContent> {
               startDate: output[1],
               endDate: output[2]);
         }
-        refreshPage();
+        teamCubit.getData(teamData.id);
       }
     });
   }
@@ -351,8 +355,11 @@ class _TeamState extends State<TeamContent> {
                 Navigator.of(context, rootNavigator: false).pop(false),
           );
         }).then((value) {
-      if (value) {
+      if (value == ActionTypes.update) {
         refreshPage();
+      }
+      if (value == ActionTypes.delete) {
+        navigatePopWithData(context, "", ActionTypes.update);
       }
     });
   }
@@ -372,14 +379,22 @@ class _TeamState extends State<TeamContent> {
             purpose: 'Unlist');
         break;
       case 'Manage':
-        navigatePushWithData(
-            context, "/manage_teams", widget.teamIdIsOwner[0].toString());
-        break;
-      case 'Edit':
-        navigatePushWithData(
-                context, "/edit_teams", widget.teamIdIsOwner[0].toString())
+        navigatePushWithData(context, "/team-home/teams/manage_teams",
+                widget.teamIdIsOwner[0].toString())
             .then((value) {
           if (value?.actionType == ActionTypes.update) {
+            refreshPage();
+            actionType = ActionTypes.update;
+          }
+        });
+
+        break;
+      case 'Edit':
+        navigatePushWithData(context, "/team-home/teams/edit_teams",
+                widget.teamIdIsOwner[0].toString())
+            .then((value) {
+          if (value?.actionType == ActionTypes.update) {
+            actionType = ActionTypes.update;
             refreshPage();
           }
         });

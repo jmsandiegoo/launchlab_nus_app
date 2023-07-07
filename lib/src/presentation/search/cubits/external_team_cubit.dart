@@ -11,16 +11,18 @@ class ExternalTeamState extends Equatable {
   final ExternalTeamEntity? teamData;
   final OwnerEntity? ownerData;
   final List currentApplicants;
+  final List pastApplicants;
   final List currentMembers;
   final bool isLoaded;
   @override
   List<Object?> get props =>
-      [teamData, currentApplicants, currentMembers, isLoaded];
+      [teamData, currentApplicants, pastApplicants, currentMembers, isLoaded];
 
   const ExternalTeamState(
       {this.teamData,
       this.ownerData,
       this.currentApplicants = const [],
+      this.pastApplicants = const [],
       this.currentMembers = const [],
       this.isLoaded = false});
 
@@ -28,6 +30,7 @@ class ExternalTeamState extends Equatable {
     ExternalTeamEntity? teamData,
     OwnerEntity? ownerData,
     List? currentApplicants,
+    List? pastApplicants,
     List? currentMembers,
     bool? isLoaded,
   }) {
@@ -36,6 +39,7 @@ class ExternalTeamState extends Equatable {
       ownerData: ownerData ?? this.ownerData,
       currentApplicants: currentApplicants ?? this.currentApplicants,
       currentMembers: currentMembers ?? this.currentMembers,
+      pastApplicants: pastApplicants ?? this.pastApplicants,
       isLoaded: isLoaded ?? this.isLoaded,
     );
   }
@@ -54,6 +58,7 @@ class ExternalTeamCubit extends Cubit<ExternalTeamState> {
         teamData: res.teamData,
         ownerData: res.ownerData,
         currentApplicants: res.getCurrentApplicants(),
+        pastApplicants: res.getPastApplicants(),
         currentMembers: res.getCurrentMembers(),
         isLoaded: true);
     emit(newState);
@@ -62,5 +67,10 @@ class ExternalTeamCubit extends Cubit<ExternalTeamState> {
   applyToTeam({teamId, userId}) async {
     await _searchRepository.applyToTeam(teamId: teamId, userId: userId);
     debugPrint("Applied to Team");
+  }
+
+  reapplyToTeam({teamId, userId}) async {
+    await _searchRepository.reapplyToTeam(teamId: teamId, userId: userId);
+    debugPrint("Reapplied to Team");
   }
 }
