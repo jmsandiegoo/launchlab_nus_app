@@ -52,7 +52,7 @@ class _EditTeamContentState extends State<EditTeamContent> {
   final _categories = [
     "School",
     "Personal",
-    "Competition",
+    "Startup / Company",
     "Startup",
     "Volunteer",
     "Others"

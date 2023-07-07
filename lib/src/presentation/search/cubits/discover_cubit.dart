@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:launchlab/src/data/common/common_repository.dart';
 import 'package:launchlab/src/data/search/search_repository.dart';
 import 'package:launchlab/src/domain/common/models/skill_entity.dart';
+import 'package:launchlab/src/domain/search/responses/get_recomendation.dart';
 import 'package:launchlab/src/domain/search/responses/get_search_result.dart';
 import 'package:launchlab/src/domain/search/search_filter_entity.dart';
 import 'package:launchlab/src/domain/search/search_team_entity.dart';
@@ -40,7 +41,7 @@ class DiscoverState extends Equatable {
       this.commitmentInput = "",
       this.interestInput = const UserSkillsInterestsFieldInput.unvalidated(),
       this.skillInterestOptions = const [],
-      this.isLoaded = true});
+      this.isLoaded = false});
 
   DiscoverState copyWith({
     String? searchTerm,
@@ -77,6 +78,19 @@ class DiscoverCubit extends Cubit<DiscoverState> {
     final newState = state.copyWith(
         searchTerm: searchTerm,
         externalTeamData: res.uniqueSearchedTeams(),
+        userId: res.userId,
+        isLoaded: true);
+    emit(newState);
+  }
+
+  getReccomendationData() async {
+    emit(state.copyWith(isLoaded: false));
+    final GetRecomendationResult res =
+        await _searchRepository.getRecomendationData();
+
+    final newState = state.copyWith(
+        searchTerm: "",
+        externalTeamData: res.getRecomendedTeams(),
         userId: res.userId,
         isLoaded: true);
     emit(newState);

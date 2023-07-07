@@ -41,7 +41,7 @@ class _SearchFilterContentState extends State<SearchFilterContent> {
     "School",
     "Personal",
     "Competition",
-    "Startup",
+    "Startup / Company",
     "Volunteer",
     "Others"
   ];

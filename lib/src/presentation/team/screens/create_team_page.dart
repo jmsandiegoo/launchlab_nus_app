@@ -36,7 +36,7 @@ class _CreateTeamPageState extends State<CreateTeamPage> {
     "School",
     "Personal",
     "Competition",
-    "Startup",
+    "Startup / Company",
     "Volunteer",
     "Others"
   ];
