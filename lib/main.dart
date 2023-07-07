@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:launchlab/src/config/app_config.dart';
 import 'package:launchlab/src/config/app_router.dart';
 import 'package:launchlab/src/config/app_theme.dart';
@@ -55,7 +54,7 @@ class _RootAppContentState extends State<RootAppContent> {
     super.initState();
     _appRootCubit = BlocProvider.of<AppRootCubit>(context);
     _appRootCubit.handleAuthListener();
-    SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky,
         overlays: [SystemUiOverlay.top]);
   }
 
