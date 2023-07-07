@@ -1,6 +1,7 @@
 import 'package:launchlab/src/domain/search/external_team_entity.dart';
 import 'package:launchlab/src/domain/search/owner_entity.dart';
 import 'package:launchlab/src/domain/search/responses/get_external_team.dart';
+import 'package:launchlab/src/domain/search/responses/get_recomendation.dart';
 import 'package:launchlab/src/domain/search/responses/get_search_result.dart';
 import 'package:launchlab/src/domain/search/search_filter_entity.dart';
 import 'package:launchlab/src/domain/search/search_team_entity.dart';
@@ -62,6 +63,34 @@ class SearchRepository {
     var user = supabase.auth.currentUser;
 
     return GetSearchResult(searchedTeams, user!.id);
+  }
+
+  getRecomendationData() async {
+    var teamNameData = await supabase
+        .from('teams')
+        .select('*, roles_open(title)')
+        .eq('is_listed', true);
+
+    List<SearchTeamEntity> searchedTeams = [];
+    for (int i = 0; i < teamNameData.length; i++) {
+      var avatarURL = teamNameData[i]['avatar'] == null
+          ? ''
+          : await supabase.storage
+              .from('team_avatar_bucket')
+              .createSignedUrl('${teamNameData[i]['avatar']}', 30);
+      teamNameData[i]['avatar_url'] = avatarURL;
+      searchedTeams.add(SearchTeamEntity.fromJson(teamNameData[i]));
+    }
+
+    var user = supabase.auth.currentUser;
+    var preference = await supabase
+        .from('preferences')
+        .select(
+            '*, skills_preferences(selected_skills(name)), categories_preferences(categories(name))')
+        .eq('user_id', user?.id)
+        .single();
+
+    return GetRecomendationResult(searchedTeams, user!.id, preference);
   }
 
   getExternalTeamData(teamId) async {

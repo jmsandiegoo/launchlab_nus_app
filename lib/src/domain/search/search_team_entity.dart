@@ -10,6 +10,7 @@ class SearchTeamEntity extends Equatable {
       this.commitment,
       this.category,
       this.interest,
+      this.interestName,
       this.avatar,
       this.avatarURL,
       this.rolesOpen);
@@ -24,6 +25,7 @@ class SearchTeamEntity extends Equatable {
         commitment,
         category,
         interest,
+        interestName,
         avatar,
         avatarURL,
         rolesOpen
@@ -37,6 +39,7 @@ class SearchTeamEntity extends Equatable {
   final String commitment;
   final String category;
   final List interest;
+  final List interestName;
   final String? avatar;
   final String avatarURL;
   final List rolesOpen;
@@ -50,6 +53,7 @@ class SearchTeamEntity extends Equatable {
         commitment = json['commitment'],
         category = json['project_category'],
         interest = json['interest'],
+        interestName = json['interest_name'],
         avatar = json['avatar'],
         avatarURL = json['avatar_url'],
         rolesOpen = json['roles_open'];
@@ -73,4 +77,6 @@ class SearchTeamEntity extends Equatable {
     }
     return roles;
   }
+
+  compareTo(SearchTeamEntity a) {}
 }
