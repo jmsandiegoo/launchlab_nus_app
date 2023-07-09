@@ -4,8 +4,8 @@ import 'package:launchlab/src/data/team/team_repository.dart';
 import 'package:launchlab/src/data/user/user_repository.dart';
 import 'package:launchlab/src/presentation/common/widgets/useful.dart';
 import 'package:launchlab/src/presentation/team/cubits/team_cubit.dart';
-import 'package:launchlab/src/utils/helper.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:launchlab/src/utils/constants.dart';
 
 class TeamConfirmationBox extends StatelessWidget {
   final VoidCallback onClose;
@@ -40,13 +40,14 @@ class TeamConfirmationBox extends StatelessWidget {
                   onPressed: () async {
                     if (purpose == 'List') {
                       teamCubit.listTeam(teamId: teamId, isListed: true);
+                      Navigator.of(context).pop(ActionTypes.update);
                     } else if (purpose == 'Unlist') {
                       teamCubit.listTeam(teamId: teamId, isListed: false);
+                      Navigator.of(context).pop(ActionTypes.update);
                     } else if (purpose == 'Disband') {
                       teamCubit.disbandTeam(teamId: teamId);
-                      navigateGo(context, '/team-home');
+                      Navigator.of(context).pop(ActionTypes.delete);
                     }
-                    Navigator.of(context).pop(true);
                   },
                   style: TextButton.styleFrom(textStyle: const TextStyle()),
                   child: bodyText('Yes',

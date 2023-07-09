@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:launchlab/src/config/app_theme.dart';
-import 'package:launchlab/src/domain/team/accomplishment_entity.dart';
+import 'package:launchlab/src/domain/user/models/accomplishment_entity.dart';
 import 'package:launchlab/src/presentation/common/widgets/useful.dart';
 
 class ApplicantAccomplishment extends StatelessWidget {
-  final AccomplishmentTeamEntity accomplishmentData;
+  final AccomplishmentEntity accomplishmentData;
   const ApplicantAccomplishment({super.key, required this.accomplishmentData});
 
   @override
@@ -26,7 +26,7 @@ class ApplicantAccomplishment extends StatelessWidget {
           subHeaderText(accomplishmentData.title, size: 15.0),
           bodyText(accomplishmentData.issuer, size: 15.0),
           const SizedBox(height: 8),
-          bodyText(accomplishmentData.description, size: 14.0),
+          bodyText(accomplishmentData.description!, size: 14.0),
           const SizedBox(height: 30),
         ]),
       ),

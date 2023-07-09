@@ -2,11 +2,12 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:launchlab/src/data/team/team_repository.dart';
-import 'package:launchlab/src/domain/team/accomplishment_entity.dart';
-import 'package:launchlab/src/domain/team/experience_entity.dart';
 import 'package:launchlab/src/domain/team/responses/get_applicant_data.dart';
 import 'package:launchlab/src/domain/team/team_entity.dart';
 import 'package:launchlab/src/domain/team/user_entity.dart';
+import 'package:launchlab/src/domain/user/models/accomplishment_entity.dart';
+import 'package:launchlab/src/domain/user/models/experience_entity.dart';
+import 'package:launchlab/src/utils/constants.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ApplicantState extends Equatable {
@@ -16,13 +17,15 @@ class ApplicantState extends Equatable {
         applicationTeamData,
         experienceData,
         accomplishmentData,
+        actionTypes,
         isLoaded
       ];
 
   final UserEntity? applicantUserData;
   final TeamEntity? applicationTeamData;
-  final List<ExperienceTeamEntity> experienceData;
-  final List<AccomplishmentTeamEntity> accomplishmentData;
+  final List<ExperienceEntity> experienceData;
+  final List<AccomplishmentEntity> accomplishmentData;
+  final ActionTypes? actionTypes;
   final bool isLoaded;
 
   const ApplicantState(
@@ -30,13 +33,15 @@ class ApplicantState extends Equatable {
       this.applicationTeamData,
       this.experienceData = const [],
       this.accomplishmentData = const [],
+      this.actionTypes = ActionTypes.cancel,
       this.isLoaded = false});
 
   ApplicantState copyWith({
     UserEntity? applicantUserData,
     TeamEntity? applicationTeamData,
-    List<ExperienceTeamEntity>? experienceData,
-    List<AccomplishmentTeamEntity>? accomplishmentData,
+    List<ExperienceEntity>? experienceData,
+    List<AccomplishmentEntity>? accomplishmentData,
+    ActionTypes? actionTypes,
     bool? isLoaded,
   }) {
     return ApplicantState(
@@ -44,6 +49,7 @@ class ApplicantState extends Equatable {
       applicationTeamData: applicationTeamData ?? this.applicationTeamData,
       experienceData: experienceData ?? this.experienceData,
       accomplishmentData: accomplishmentData ?? this.accomplishmentData,
+      actionTypes: actionTypes ?? this.actionTypes,
       isLoaded: isLoaded ?? this.isLoaded,
     );
   }
@@ -69,14 +75,22 @@ class ApplicantCubit extends Cubit<ApplicantState> {
     emit(newState);
   }
 
+  void loading() {
+    emit(state.copyWith(isLoaded: false));
+  }
+
   acceptApplicant({applicationID, currentMember}) async {
-    _teamRepository.acceptApplicant(
-        applicationID: applicationID, currentMember: currentMember);
     debugPrint('Applicant Accepted');
+    loading();
+    emit(state.copyWith(actionTypes: ActionTypes.update));
+    return _teamRepository.acceptApplicant(
+        applicationID: applicationID, currentMember: currentMember);
   }
 
   rejectApplicant({applicationID}) async {
-    _teamRepository.rejectApplicant(applicationID: applicationID);
     debugPrint('Applicant Rejected');
+    loading();
+    emit(state.copyWith(actionTypes: ActionTypes.update));
+    return _teamRepository.rejectApplicant(applicationID: applicationID);
   }
 }

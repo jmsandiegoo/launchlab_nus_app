@@ -160,6 +160,14 @@ class _ExternalTeamContentState extends State<ExternalTeamContent> {
                                     .contains(userId)) {
                                   confirmationBox(context, "Failure",
                                       "You have already applied to this team. \n\nPlease wait for the team owner to review your application.");
+                                } else if (externalTeamPageCubit
+                                    .state.pastApplicants
+                                    .contains(userId)) {
+                                  confirmationBox(context, "Success",
+                                      "You have successfully applied to the team!");
+                                  externalTeamPageCubit.reapplyToTeam(
+                                      teamId: teamId, userId: userId);
+                                  navigatePop(context);
                                 } else {
                                   confirmationBox(context, "Success",
                                       "You have successfully applied to the team!");

@@ -52,9 +52,9 @@ class _EditTeamContentState extends State<EditTeamContent> {
   final _categories = [
     "School",
     "Personal",
-    "Competition",
     "Startup / Company",
-    "Volunteer Work",
+    "Startup",
+    "Volunteer",
     "Others"
   ];
   final _maxMemberFocusNode = FocusNode();
@@ -80,7 +80,10 @@ class _EditTeamContentState extends State<EditTeamContent> {
           ? Scaffold(
               appBar: AppBar(
                 backgroundColor: Colors.transparent,
-                iconTheme: const IconThemeData(color: blackColor),
+                leading: IconButton(
+                  icon: const Icon(Icons.arrow_back, color: blackColor),
+                  onPressed: () => navigatePop(context),
+                ),
               ),
               body: SingleChildScrollView(
                 child: Padding(

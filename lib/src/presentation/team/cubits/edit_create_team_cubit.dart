@@ -354,6 +354,11 @@ class EditCreateTeamCubit extends Cubit<EditCreateTeamState> {
       maxMember,
       interest,
       avatar}) async {
+    List<String> interestName = [];
+    interest.forEach((value) {
+      interestName.add(value.name);
+    });
+
     _teamRepository.createNewTeam(
         userId: userId,
         teamName: teamName,
@@ -364,6 +369,7 @@ class EditCreateTeamCubit extends Cubit<EditCreateTeamState> {
         commitment: commitment,
         maxMember: maxMember,
         interest: interest,
+        interestName: interestName,
         avatar: avatar);
 
     debugPrint("New Team Created");

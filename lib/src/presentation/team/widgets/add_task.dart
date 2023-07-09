@@ -31,6 +31,7 @@ class _AddTaskBoxState extends State<AddTaskBox> {
 
   final FocusNode _startDateFocusNode = FocusNode();
   final FocusNode _endDateFocusNode = FocusNode();
+  final FocusNode _taskFocusNode = FocusNode();
 
   @override
   void initState() {
@@ -43,51 +44,66 @@ class _AddTaskBoxState extends State<AddTaskBox> {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
+      height: 400,
       child: Padding(
         padding: const EdgeInsets.all(20.0),
         child: ListView(children: [
           Center(child: subHeaderText("Add Task")),
-          const SizedBox(height: 30),
-          userInput_2(label: "Task Title", controller: _taskTitle),
+          const SizedBox(height: 25),
+          userInput_2(
+            label: "Task Title",
+            focusNode: _taskFocusNode,
+            controller: _taskTitle,
+          ),
           Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
             Expanded(
-                child: DatePickerWidget(
-              controller: _startDateController,
-              focusNode: _startDateFocusNode,
-              label: "Start Date",
-              hint: '',
-              initialDate: _startDateController.text == ''
-                  ? null
-                  : DateTime.parse(_startDateController.text),
-              onChangedHandler: (value) {
-                setState(() {
-                  _startDateController.text =
-                      DateFormat('yyyy-MM-dd').format(value).toString();
-                });
-              },
-              lastDate: DateTime(2050),
-            )),
+              child: GestureDetector(
+                  onTap: () {
+                    _taskFocusNode.unfocus();
+                  },
+                  child: DatePickerWidget(
+                    controller: _startDateController,
+                    focusNode: _startDateFocusNode,
+                    label: "Start Date",
+                    hint: '',
+                    initialDate: _startDateController.text == ''
+                        ? null
+                        : DateTime.parse(_startDateController.text),
+                    onChangedHandler: (value) {
+                      setState(() {
+                        _startDateController.text =
+                            DateFormat('yyyy-MM-dd').format(value).toString();
+                      });
+                    },
+                    lastDate: DateTime(2050),
+                  )),
+            ),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 5.0),
               child: const Text("—"),
             ),
             Expanded(
-                child: DatePickerWidget(
-              controller: _endDateController,
-              focusNode: _endDateFocusNode,
-              label: "End Date",
-              hint: '',
-              initialDate: _endDateController.text == ''
-                  ? null
-                  : DateTime.parse(_endDateController.text),
-              onChangedHandler: (value) {
-                setState(() {
-                  _endDateController.text =
-                      DateFormat('yyyy-MM-dd').format(value).toString();
-                });
-              },
-              lastDate: DateTime(2050),
-            )),
+              child: GestureDetector(
+                  onTap: () {
+                    _taskFocusNode.unfocus();
+                  },
+                  child: DatePickerWidget(
+                    controller: _endDateController,
+                    focusNode: _endDateFocusNode,
+                    label: "End Date",
+                    hint: '',
+                    initialDate: _endDateController.text == ''
+                        ? null
+                        : DateTime.parse(_endDateController.text),
+                    onChangedHandler: (value) {
+                      setState(() {
+                        _endDateController.text =
+                            DateFormat('yyyy-MM-dd').format(value).toString();
+                      });
+                    },
+                    lastDate: DateTime(2050),
+                  )),
+            )
           ]),
           const SizedBox(height: 10),
           Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [

@@ -1,54 +1,146 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:launchlab/src/data/common/common_repository.dart';
 import 'package:launchlab/src/data/search/search_repository.dart';
+import 'package:launchlab/src/domain/common/models/skill_entity.dart';
+import 'package:launchlab/src/domain/search/responses/get_recomendation.dart';
 import 'package:launchlab/src/domain/search/responses/get_search_result.dart';
+import 'package:launchlab/src/domain/search/search_filter_entity.dart';
 import 'package:launchlab/src/domain/search/search_team_entity.dart';
+import 'package:launchlab/src/presentation/user/widgets/form_fields/user_skills_interests_field.dart';
 
 @immutable
 class DiscoverState extends Equatable {
   final String searchTerm;
   final List<SearchTeamEntity> externalTeamData;
   final String userId;
+  final String categoryInput;
+  final String commitmentInput;
+  final UserSkillsInterestsFieldInput interestInput;
+  final List<SkillEntity> skillInterestOptions;
   final bool isLoaded;
 
   @override
-  List<Object?> get props => [searchTerm, externalTeamData, userId, isLoaded];
+  List<Object?> get props => [
+        searchTerm,
+        externalTeamData,
+        userId,
+        categoryInput,
+        commitmentInput,
+        interestInput,
+        skillInterestOptions,
+        isLoaded
+      ];
 
   const DiscoverState(
       {this.searchTerm = "",
       this.externalTeamData = const [],
       this.userId = "",
-      this.isLoaded = true});
+      this.categoryInput = "",
+      this.commitmentInput = "",
+      this.interestInput = const UserSkillsInterestsFieldInput.unvalidated(),
+      this.skillInterestOptions = const [],
+      this.isLoaded = false});
 
   DiscoverState copyWith({
     String? searchTerm,
     List<SearchTeamEntity>? externalTeamData,
     String? userId,
+    String? categoryInput,
+    String? commitmentInput,
+    UserSkillsInterestsFieldInput? interestInput,
+    List<SkillEntity>? skillInterestOptions,
     bool? isLoaded,
   }) {
     return DiscoverState(
       searchTerm: searchTerm ?? this.searchTerm,
       externalTeamData: externalTeamData ?? this.externalTeamData,
       userId: userId ?? this.userId,
+      categoryInput: categoryInput ?? this.categoryInput,
+      commitmentInput: commitmentInput ?? this.commitmentInput,
+      interestInput: interestInput ?? this.interestInput,
+      skillInterestOptions: skillInterestOptions ?? this.skillInterestOptions,
       isLoaded: isLoaded ?? this.isLoaded,
     );
   }
 }
 
 class DiscoverCubit extends Cubit<DiscoverState> {
-  DiscoverCubit(this._searchRepository) : super(const DiscoverState());
-
+  DiscoverCubit(this._commonRepository, this._searchRepository)
+      : super(const DiscoverState());
+  final CommonRepository _commonRepository;
   final SearchRepository _searchRepository;
-  getData(searchTerm) async {
+  getData(String searchTerm, SearchFilterEntity filterData) async {
     emit(state.copyWith(isLoaded: false));
     final GetSearchResult res =
-        await _searchRepository.getSearchData(searchTerm);
+        await _searchRepository.getSearchData(searchTerm, filterData);
     final newState = state.copyWith(
         searchTerm: searchTerm,
         externalTeamData: res.uniqueSearchedTeams(),
         userId: res.userId,
         isLoaded: true);
+    emit(newState);
+  }
+
+  getReccomendationData() async {
+    emit(state.copyWith(isLoaded: false));
+    final GetRecomendationResult res =
+        await _searchRepository.getRecomendationData();
+
+    final newState = state.copyWith(
+        searchTerm: "",
+        externalTeamData: res.getRecomendedTeams(),
+        userId: res.userId,
+        isLoaded: true);
+    emit(newState);
+  }
+
+  void onCommitmentChanged(String val) {
+    final newState = state.copyWith(commitmentInput: val);
+    emit(newState);
+  }
+
+  void onCategoryChanged(String val) {
+    final newState = state.copyWith(categoryInput: val);
+    emit(newState);
+  }
+
+  Future<void> handleGetSkillsInterests(String? filter) async {
+    try {
+      final List<SkillEntity> skillInterestOptions =
+          await _commonRepository.getSkillsInterestsFromEmsi(filter);
+      emit(state.copyWith(skillInterestOptions: skillInterestOptions));
+    } on Exception catch (error) {
+      print(error);
+    }
+  }
+
+  void onInterestChanged(List<SkillEntity> val) {
+    final newInputState = UserSkillsInterestsFieldInput.validated(val);
+    final newState = state.copyWith(interestInput: newInputState);
+    emit(newState);
+  }
+
+  void clearAll() {
+    List<SkillEntity> interest = [];
+    final newInterestInputState =
+        UserSkillsInterestsFieldInput.validated(interest);
+
+    final newState = state.copyWith(
+        commitmentInput: "",
+        categoryInput: "",
+        interestInput: newInterestInputState);
+    emit(newState);
+  }
+
+  void onFilterApply(SearchFilterEntity data) {
+    final newInterestInputState =
+        UserSkillsInterestsFieldInput.validated(data.interestInput);
+    final newState = state.copyWith(
+        categoryInput: data.categoryInput,
+        commitmentInput: data.commitmentInput,
+        interestInput: newInterestInputState);
     emit(newState);
   }
 }

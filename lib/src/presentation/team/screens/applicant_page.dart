@@ -9,6 +9,7 @@ import 'package:launchlab/src/presentation/team/cubits/applicant_cubit.dart';
 import 'package:launchlab/src/presentation/team/widgets/applicant_accomplishment.dart';
 import 'package:launchlab/src/presentation/team/widgets/applicant_confirmation.dart';
 import 'package:launchlab/src/presentation/team/widgets/applicant_experience.dart';
+import 'package:launchlab/src/utils/constants.dart';
 import 'package:launchlab/src/utils/helper.dart';
 
 class ApplicantPage extends StatelessWidget {
@@ -55,12 +56,13 @@ class _ApplicantPageContentState extends State<ApplicantPageContent> {
       }
 
       return applicantCubit.state.isLoaded
-          //? Container()
-
           ? Scaffold(
               appBar: AppBar(
                 backgroundColor: Colors.transparent,
-                iconTheme: const IconThemeData(color: blackColor),
+                leading: IconButton(
+                  icon: const Icon(Icons.arrow_back, color: blackColor),
+                  onPressed: () => navigatePop(context),
+                ),
               ),
               body: Stack(children: [
                 Column(children: [
@@ -222,8 +224,9 @@ class _ApplicantPageContentState extends State<ApplicantPageContent> {
           );
         }).then((value) {
       if (value == true) {
-        cubit.rejectApplicant(applicationID: widget.applicationID);
-        navigatePop(context);
+        cubit.rejectApplicant(applicationID: widget.applicationID).then((_) {
+          navigatePopWithData(context, "", ActionTypes.delete);
+        });
       }
     });
   }
@@ -239,9 +242,13 @@ class _ApplicantPageContentState extends State<ApplicantPageContent> {
           );
         }).then((value) {
       if (value == true) {
-        cubit.acceptApplicant(
-            applicationID: widget.applicationID, currentMember: currentMember);
-        navigatePop(context);
+        cubit
+            .acceptApplicant(
+                applicationID: widget.applicationID,
+                currentMember: currentMember)
+            .then((_) {
+          navigatePopWithData(context, "", ActionTypes.update);
+        });
       }
     });
   }
