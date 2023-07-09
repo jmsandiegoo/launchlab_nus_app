@@ -1,16 +1,62 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:launchlab/src/config/app_theme.dart';
+import 'package:launchlab/src/data/chat/chat_repository.dart';
+import 'package:launchlab/src/data/team/team_repository.dart';
+import 'package:launchlab/src/presentation/chat/cubits/team_chats_page_cubit.dart';
 import 'package:launchlab/src/presentation/chat/widgets/chat_select_modal.dart';
-import 'package:launchlab/src/presentation/chat/widgets/team_chat_list.dart';
 import 'package:launchlab/src/presentation/common/widgets/form_fields/multi_button_select.dart';
 import 'package:launchlab/src/presentation/common/widgets/form_fields/text_field.dart';
 import 'package:launchlab/src/presentation/common/widgets/useful.dart';
+import 'package:launchlab/src/utils/extensions.dart';
+import 'package:launchlab/src/utils/helper.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
-class ChatPage extends StatelessWidget {
-  const ChatPage({super.key, this.teamId});
+class TeamChatsPage extends StatelessWidget {
+  const TeamChatsPage({
+    super.key,
+    required this.teamId,
+    required this.child,
+  });
 
-  final String? teamId;
+  final String teamId;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (_) => TeamChatsPageCubit(
+          teamRepository: TeamRepository(),
+          chatRepository: ChatRepository(Supabase.instance)),
+      child: TeamChatsContent(teamId: teamId, child: child),
+    );
+  }
+}
+
+class TeamChatsContent extends StatefulWidget {
+  const TeamChatsContent({
+    super.key,
+    required this.teamId,
+    required this.child,
+  });
+
+  final String teamId;
+  final Widget child;
+
+  @override
+  State<TeamChatsContent> createState() => _TeamChatsContentState();
+}
+
+class _TeamChatsContentState extends State<TeamChatsContent> {
+  late TeamChatsPageCubit _teamChatsPageCubit;
+
+  @override
+  void initState() {
+    super.initState();
+    _teamChatsPageCubit = BlocProvider.of<TeamChatsPageCubit>(context);
+    _teamChatsPageCubit.handleInitializePage(widget.teamId);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -79,11 +125,19 @@ class ChatPage extends StatelessWidget {
           ),
           MultiButtonSingleSelectWidget<String>(
               itemRatio: (1 / .3),
-              value: "Team",
+              value: () {
+                final locationList = GoRouter.of(context).location.split('/');
+                return locationList[locationList.length - 1].toCapitalize();
+              }(),
               options: const ["Team", "Requests", "Invites"],
               colNo: 3,
-              onPressHandler: (val) {}),
-          TeamChatList(),
+              onPressHandler: (val) {
+                navigateGo(context,
+                    "/team-chats/${widget.teamId}/${val.toLowerCase()}");
+              }),
+          Expanded(
+            child: widget.child,
+          ),
         ],
       ),
     ));

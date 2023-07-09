@@ -7,7 +7,7 @@ class ChatItem extends StatelessWidget {
 
   // Team Object
 
-  // Team Chat object [messages] [users]
+  // Team Chat object with latest message.
 
   // onTap Handler
 

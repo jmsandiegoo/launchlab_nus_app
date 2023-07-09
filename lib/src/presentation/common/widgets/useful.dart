@@ -467,7 +467,8 @@ Widget memberProfile(imgDir, name, position,
   return Column(children: [
     const SizedBox(height: 7),
     Row(children: [
-      profilePicture(imgSize, imgDir, isUrl: true),
+      profilePicture(imgSize, imgDir ?? "avatar_temp.png",
+          isUrl: imgDir != null ? true : false),
       const SizedBox(width: 10),
       Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         isBold

@@ -6,11 +6,10 @@ class TeamChatList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-        child: ListView(
+    return ListView(
       children: const [
         ChatItem(),
       ],
-    ));
+    );
   }
 }

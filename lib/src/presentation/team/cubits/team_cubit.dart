@@ -2,10 +2,13 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:launchlab/src/data/team/team_repository.dart';
+import 'package:launchlab/src/data/user/user_repository.dart';
 import 'package:launchlab/src/domain/team/milestone_entity.dart';
 import 'package:launchlab/src/domain/team/responses/get_team_data.dart';
 import 'package:launchlab/src/domain/team/team_entity.dart';
 import 'package:launchlab/src/domain/team/team_user_entity.dart';
+import 'package:launchlab/src/domain/user/models/requests/download_avatar_image_request.dart';
+import 'package:launchlab/src/domain/user/models/user_avatar_entity.dart';
 
 @immutable
 class TeamState extends Equatable {
@@ -46,14 +49,34 @@ class TeamState extends Equatable {
 
 class TeamCubit extends Cubit<TeamState> {
   final TeamRepository _teamRepository;
+  final UserRepository _userRepository;
 
-  TeamCubit(this._teamRepository) : super(const TeamState());
+  TeamCubit(this._teamRepository, this._userRepository)
+      : super(const TeamState());
 
   void getData(String teamId) async {
     final GetTeamData res = await _teamRepository.getTeamData(teamId);
+    List<TeamUserEntity> teamMembers = [...res.teamMembers];
+
+    List<Future<UserAvatarEntity?>> asyncOperations = [];
+
+    for (int i = 0; i < teamMembers.length; i++) {
+      final TeamUserEntity member = teamMembers[i];
+      asyncOperations.add(_userRepository.fetchUserAvatar(
+          DownloadAvatarImageRequest(
+              userId: member.userId, isSignedUrlEnabled: true)));
+    }
+
+    List<UserAvatarEntity?> avatars = await Future.wait(asyncOperations);
+
+    for (int i = 0; i < teamMembers.length; i++) {
+      final TeamUserEntity member = teamMembers[i];
+      teamMembers[i] =
+          member.copyWith(user: member.user.copyWith(userAvatar: avatars[i]));
+    }
 
     final newState = state.copyWith(
-        memberData: res.teamMembers,
+        memberData: teamMembers,
         completedMilestone: res.getCompletedMilestone(),
         incompleteMilestone: res.getIncompleteMilestone(),
         teamData: res.team,

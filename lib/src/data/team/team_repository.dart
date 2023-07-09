@@ -11,7 +11,9 @@ import 'package:uuid/uuid.dart';
 class TeamRepository {
   final supabase = Supabase.instance.client;
 
-  //Team Home Page
+  /// realtime
+
+  ///Team Home Page
 
   getTeamHomeData() async {
     final User? user = supabase.auth.currentUser;
@@ -72,17 +74,17 @@ class TeamRepository {
   getTeamData(teamId) async {
     var teamMemberData = await supabase
         .from('team_users')
-        .select('*, users(first_name, last_name, avatar)')
+        .select('*, user:users(*)')
         .eq('team_id', teamId);
 
     List<TeamUserEntity> teamMembers = [];
     for (int i = 0; i < teamMemberData.length; i++) {
-      var avatarURL = teamMemberData[i]['users']['avatar'] == null
-          ? ''
-          : await supabase.storage
-              .from('user_avatar_bucket')
-              .createSignedUrl('${teamMemberData[i]['users']['avatar']}', 1000);
-      teamMemberData[i]['users']['avatar_url'] = avatarURL;
+      // var avatarURL = teamMemberData[i]['users']['avatar'] == null
+      //     ? ''
+      //     : await supabase.storage
+      //         .from('user_avatar_bucket')
+      //         .createSignedUrl('${teamMemberData[i]['users']['avatar']}', 1000);
+      // teamMemberData[i]['users']['avatar_url'] = avatarURL;
       teamMembers.add(TeamUserEntity.fromJson(teamMemberData[i]));
     }
 

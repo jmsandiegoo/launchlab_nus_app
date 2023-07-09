@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:launchlab/src/config/app_theme.dart';
 import 'package:launchlab/src/data/team/team_repository.dart';
+import 'package:launchlab/src/data/user/user_repository.dart';
 import 'package:launchlab/src/domain/team/team_entity.dart';
 import 'package:launchlab/src/presentation/common/widgets/useful.dart';
 import 'package:launchlab/src/presentation/team/widgets/manage_member_form.dart';
@@ -10,6 +11,7 @@ import 'package:launchlab/src/presentation/team/widgets/milestone_card.dart';
 import 'package:launchlab/src/presentation/team/widgets/team_confirmation.dart';
 import 'package:launchlab/src/utils/constants.dart';
 import 'package:launchlab/src/utils/helper.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../cubits/team_cubit.dart';
 
@@ -20,7 +22,8 @@ class TeamPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => TeamCubit(TeamRepository()),
+      create: (_) =>
+          TeamCubit(TeamRepository(), UserRepository(Supabase.instance)),
       child: TeamContent(teamIdIsOwner: teamIdIsOwner),
     );
   }

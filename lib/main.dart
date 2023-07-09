@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:launchlab/src/config/app_config.dart';
 import 'package:launchlab/src/config/app_router.dart';
 import 'package:launchlab/src/config/app_theme.dart';
