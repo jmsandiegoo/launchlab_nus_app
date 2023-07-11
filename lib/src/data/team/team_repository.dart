@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:launchlab/src/domain/team/responses/get_applicant_data.dart';
 import 'package:launchlab/src/domain/team/responses/get_manage_team_data.dart';
 import 'package:launchlab/src/domain/team/responses/get_team_data.dart';
@@ -7,41 +8,65 @@ import 'package:launchlab/src/domain/team/responses/get_team_home_data.dart';
 import 'package:launchlab/src/domain/team/team_entity.dart';
 import 'package:launchlab/src/domain/team/team_user_entity.dart';
 import 'package:launchlab/src/domain/team/user_entity.dart';
+import 'package:launchlab/src/utils/failure.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:uuid/uuid.dart';
 
 class TeamRepository {
   final supabase = Supabase.instance.client;
 
-  StreamSubscription<List<Map<String, dynamic>>>? _teamUsersSub;
+  RealtimeChannel? _teamUsersChannel;
 
   /// realtime
-  void listenToTeamUsers(
+  void subscribeToTeamUsers(
       {required String teamId,
       required FutureOr<void> Function(List<TeamUserEntity>) streamHandler}) {
-    _teamUsersSub = supabase
-        .from("team_users")
-        .stream(primaryKey: ["id"])
-        .eq("team_id", teamId)
-        .listen((List<Map<String, dynamic>> data) async {
-          /// refetch database with joins
-          final List<Map<String, dynamic>> teamUsersData = await supabase
-              .from('team_users')
-              .select<PostgrestList>('*, user:users(*)')
-              .eq('team_id', teamId);
+    _teamUsersChannel = supabase.channel('public:team_users').on(
+      RealtimeListenTypes.postgresChanges,
+      ChannelFilter(
+          event: '*',
+          schema: 'public',
+          table: 'team_users',
+          filter: 'team_id=eq.$teamId'),
+      (payload, [ref]) {
+        debugPrint('Change received: ${payload.toString()}');
+      },
+    );
 
-          List<TeamUserEntity> teamUsers = [];
-
-          for (int i = 0; i < teamUsersData.length; i++) {
-            teamUsers.add(TeamUserEntity.fromJson(teamUsersData[i]));
-          }
-
-          await streamHandler(teamUsers);
-        });
+    _teamUsersChannel?.subscribe();
   }
 
-  void stopListenToTeamUsers() {
-    _teamUsersSub?.cancel();
+  Future<void> unsubscribeToTeamUsers() async {
+    if (_teamUsersChannel == null) {
+      return;
+    }
+
+    await supabase.removeChannel(_teamUsersChannel!);
+  }
+
+  Future<List<TeamUserEntity>> getTeamUsers(String teamId) async {
+    try {
+      final List<Map<String, dynamic>> teamUsersData = await supabase
+          .from('team_users')
+          .select<PostgrestList>('*, user:users(*)')
+          .eq('team_id', teamId);
+
+      List<TeamUserEntity> teamUsers = [];
+
+      for (int i = 0; i < teamUsersData.length; i++) {
+        teamUsers.add(TeamUserEntity.fromJson(teamUsersData[i]));
+      }
+
+      return teamUsers;
+    } on Failure catch (_) {
+      rethrow;
+    } on PostgrestException catch (error) {
+      debugPrint("fetch user postgre error: $error");
+      throw Failure.request(code: error.code);
+    } on Exception catch (error) {
+      debugPrint("fetch user unexpected error occured $error");
+      throw Failure.unexpected();
+    }
   }
 
   ///Team Home Page

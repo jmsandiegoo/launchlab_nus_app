@@ -92,75 +92,95 @@ class TeamChatsPageCubit extends Cubit<TeamChatsPageState> {
       final GetTeamData response = await teamRepository.getTeamData(teamId);
       TeamEntity team = response.team;
 
-      // set up listener for team user and initialize chat rooms on updates
-      teamRepository.listenToTeamUsers(
-        teamId: team.id,
-        streamHandler: (teamUsers) async {
-          // fetch profile avatar
-          List<TeamUserEntity> teamMembers = [...teamUsers];
+      // fetch team users
+      final List<TeamUserEntity> teamUsers = await handleGetTeamUsers(team);
 
-          Map<String, UserEntity> userProfilesCache =
-              Map.of(state.userProfilesCache);
+      // fetch team chats
+      final List<TeamChatEntity> teamChats = await handleGetTeamChats(team);
 
-          for (int i = 0; i < teamMembers.length; i++) {
-            final TeamUserEntity member = teamMembers[i];
+      // setup subsciption channels
+      // --
 
-            if (userProfilesCache[member.userId] != null) {
-              // use cache
-              teamMembers[i] =
-                  member.copyWith(user: userProfilesCache[member.userId]);
-            } else {
-              // fetch and add to cache
-              UserAvatarEntity? avatar = await userRepository.fetchUserAvatar(
-                  DownloadAvatarImageRequest(
-                      userId: member.userId, isSignedUrlEnabled: true));
-
-              teamMembers[i] = member.copyWith(
-                  user: member.user.copyWith(userAvatar: avatar));
-
-              userProfilesCache[teamMembers[i].userId] = teamMembers[i].user;
-            }
-          }
-
-          // fetch teamChats
-          List<TeamChatEntity> teamChats =
-              await chatRepository.getTeamChatsByTeamId(teamId: teamId);
-
-          // filter chats to only users
-          for (int i = 0; i < teamChats.length; i++) {
-            teamChats[i] = teamChats[i].setTeam(team: team);
-
-            List<ChatUserEntity> chatUsers = [];
-
-            for (int j = 0; j < teamChats[i].chatUsers.length; j++) {
-              ChatUserEntity chatUser = teamChats[i].chatUsers[j];
-              if (userProfilesCache[chatUser.userId] != null) {
-                chatUsers.add(
-                    chatUser.setUser(user: userProfilesCache[chatUser.userId]));
-              } else {
-                final GetProfileInfoResponse res =
-                    await userRepository.getUserBasicProfileInfo(
-                        GetProfileInfoRequest(userId: chatUser.userId));
-
-                chatUsers.add(chatUser.setUser(user: res.userProfile));
-
-                userProfilesCache[chatUser.userId] = res.userProfile;
-              }
-            }
-
-            teamChats[i] = teamChats[i].setChatUsers(chatUsers: chatUsers);
-          }
-
-          emit(state.copyWith(
-            teamUsers: teamMembers,
-            teamChats: teamChats,
-            teamChatsPageStatus: TeamChatsPageStatus.success,
-          ));
-        },
-      );
-
-      emit(state.copyWith(team: team));
+      emit(state.copyWith(
+        team: team,
+        teamUsers: teamUsers,
+        teamChats: teamChats,
+        teamChatsPageStatus: TeamChatsPageStatus.success,
+      ));
     } on Exception catch (error) {}
+  }
+
+  void handleSubscribeToTeamUsers() {}
+
+  Future<List<TeamUserEntity>> handleGetTeamUsers(TeamEntity team) async {
+    Map<String, UserEntity> userProfilesCache = Map.of(state.userProfilesCache);
+
+    List<TeamUserEntity> teamMembers =
+        await teamRepository.getTeamUsers(team.id);
+
+    for (int i = 0; i < teamMembers.length; i++) {
+      final TeamUserEntity member = teamMembers[i];
+
+      if (userProfilesCache[member.userId] != null) {
+        // use cache
+        teamMembers[i] =
+            member.copyWith(user: userProfilesCache[member.userId]);
+      } else {
+        // fetch and add to cache
+        UserAvatarEntity? avatar = await userRepository.fetchUserAvatar(
+            DownloadAvatarImageRequest(
+                userId: member.userId, isSignedUrlEnabled: true));
+
+        teamMembers[i] =
+            member.copyWith(user: member.user.copyWith(userAvatar: avatar));
+
+        userProfilesCache[teamMembers[i].userId] = teamMembers[i].user;
+      }
+    }
+
+    emit(state.copyWith(
+      teamUsers: teamMembers,
+    ));
+
+    return teamMembers;
+  }
+
+  Future<List<TeamChatEntity>> handleGetTeamChats(TeamEntity team) async {
+    Map<String, UserEntity> userProfilesCache = Map.of(state.userProfilesCache);
+    // fetch teamChats
+    List<TeamChatEntity> teamChats =
+        await chatRepository.getTeamChatsByTeamId(teamId: team.id);
+
+    // filter chats to only users
+    for (int i = 0; i < teamChats.length; i++) {
+      teamChats[i] = teamChats[i].setTeam(team: team);
+
+      List<ChatUserEntity> chatUsers = [];
+
+      for (int j = 0; j < teamChats[i].chatUsers.length; j++) {
+        ChatUserEntity chatUser = teamChats[i].chatUsers[j];
+        if (userProfilesCache[chatUser.userId] != null) {
+          chatUsers
+              .add(chatUser.setUser(user: userProfilesCache[chatUser.userId]));
+        } else {
+          final GetProfileInfoResponse res =
+              await userRepository.getUserBasicProfileInfo(
+                  GetProfileInfoRequest(userId: chatUser.userId));
+
+          chatUsers.add(chatUser.setUser(user: res.userProfile));
+
+          userProfilesCache[chatUser.userId] = res.userProfile;
+        }
+      }
+
+      teamChats[i] = teamChats[i].setChatUsers(chatUsers: chatUsers);
+    }
+
+    emit(state.copyWith(
+      teamChats: teamChats,
+    ));
+
+    return teamChats;
   }
 
   void onSearchChanged(String val) {

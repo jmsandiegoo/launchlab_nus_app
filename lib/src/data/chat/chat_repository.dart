@@ -16,6 +16,8 @@ class ChatRepository implements ChatRepositoryImpl {
   /// realtime functions
   // subscibe to messages for a particular chat message only onChanges
   void subscribeToTeamChatMessages(String chatId) {
+    _supabase.client.channel('');
+
     var streamBuilder = _supabase.client
         .from("team_chat_messages")
         .stream(primaryKey: ["id"]).eq("chat_id", chatId);
