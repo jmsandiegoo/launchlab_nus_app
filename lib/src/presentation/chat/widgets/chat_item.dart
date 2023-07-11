@@ -2,8 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:launchlab/src/config/app_theme.dart';
 import 'package:launchlab/src/domain/chat/models/chat_entity.dart';
+import 'package:launchlab/src/domain/chat/models/team_chat_entity.dart';
 import 'package:launchlab/src/presentation/common/cubits/app_root_cubit.dart';
 import 'package:launchlab/src/presentation/common/widgets/useful.dart';
+
+enum ChatTypes {
+  team,
+  request,
+  invite,
+}
 
 class ChatItem extends StatelessWidget {
   const ChatItem({super.key, required this.chat});
@@ -14,6 +21,10 @@ class ChatItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     AppRootCubit appRootCubit = BlocProvider.of<AppRootCubit>(context);
+
+    ChatTypes chatType =
+        chat is TeamChatEntity ? ChatTypes.team : ChatTypes.request;
+
     return GestureDetector(
       onTap: () {},
       child: Container(
@@ -28,7 +39,10 @@ class ChatItem extends StatelessWidget {
             50.0,
             chat?.getChatAvatarUrl(
                     currUserId: appRootCubit.state.authUserProfile!.id!) ??
-                "avatar_temp.png",
+                ((chatType == ChatTypes.team &&
+                        (chat as TeamChatEntity).isGroupChat)
+                    ? "team_avatar_temp.png"
+                    : "avatar_temp.png"),
             isUrl: chat?.getChatAvatarUrl(
                         currUserId: appRootCubit.state.authUserProfile!.id!) !=
                     null

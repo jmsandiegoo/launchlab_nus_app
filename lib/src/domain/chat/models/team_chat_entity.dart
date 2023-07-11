@@ -64,7 +64,7 @@ class TeamChatEntity extends ChatEntity {
     }
 
     if (isGroupChat) {
-      return team!.avatarURL;
+      return team!.avatarURL != '' ? team!.avatarURL : null;
     } else {
       for (int i = 0; i < chatUsers.length; i++) {
         if (chatUsers[i].userId != currUserId) {
