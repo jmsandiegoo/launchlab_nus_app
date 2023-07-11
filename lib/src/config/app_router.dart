@@ -238,7 +238,8 @@ final GoRouter appRouter = GoRouter(
                   path: "/chats",
                   redirect: (context, state) {
                     // redirect logic call to fetch teams without messages
-                    return '/team-chats/123/team';
+                    // return '/team-chats/f3dc09bb-182a-45bf-aeb0-264c822666b5/team';
+                    return '/team-chats/83df8c34-0c23-441b-a1e7-926868f399ff/team';
                   },
                 ),
                 GoRoute(

@@ -5,6 +5,6 @@ class TeamInviteChatList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Text("Team Invite Chat List");
+    return Text("Invite Feature Coming Soon!");
   }
 }

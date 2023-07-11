@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:launchlab/src/domain/team/responses/get_applicant_data.dart';
 import 'package:launchlab/src/domain/team/responses/get_manage_team_data.dart';
 import 'package:launchlab/src/domain/team/responses/get_team_data.dart';
@@ -11,7 +13,36 @@ import 'package:uuid/uuid.dart';
 class TeamRepository {
   final supabase = Supabase.instance.client;
 
+  StreamSubscription<List<Map<String, dynamic>>>? _teamUsersSub;
+
   /// realtime
+  void listenToTeamUsers(
+      {required String teamId,
+      required FutureOr<void> Function(List<TeamUserEntity>) streamHandler}) {
+    _teamUsersSub = supabase
+        .from("team_users")
+        .stream(primaryKey: ["id"])
+        .eq("team_id", teamId)
+        .listen((List<Map<String, dynamic>> data) async {
+          /// refetch database with joins
+          final List<Map<String, dynamic>> teamUsersData = await supabase
+              .from('team_users')
+              .select<PostgrestList>('*, user:users(*)')
+              .eq('team_id', teamId);
+
+          List<TeamUserEntity> teamUsers = [];
+
+          for (int i = 0; i < teamUsersData.length; i++) {
+            teamUsers.add(TeamUserEntity.fromJson(teamUsersData[i]));
+          }
+
+          await streamHandler(teamUsers);
+        });
+  }
+
+  void stopListenToTeamUsers() {
+    _teamUsersSub?.cancel();
+  }
 
   ///Team Home Page
 

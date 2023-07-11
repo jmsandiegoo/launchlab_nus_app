@@ -17,9 +17,8 @@ class TeamEntity extends Equatable {
     this.avatarURL,
     this.isListed,
     this.isCurrent,
-    this.milestones, {
-    this.teamChats = const [],
-  });
+    this.milestones,
+  );
 
   @override
   List<Object?> get props => [
@@ -38,7 +37,6 @@ class TeamEntity extends Equatable {
         avatar,
         avatarURL,
         milestones,
-        teamChats,
       ];
 
   final String id;
@@ -56,7 +54,6 @@ class TeamEntity extends Equatable {
   final String? avatar;
   final String avatarURL;
   final List milestones;
-  final List<TeamChatEntity> teamChats;
 
   TeamEntity setTeamChats(
     List<TeamChatEntity> teamChats,
@@ -77,7 +74,6 @@ class TeamEntity extends Equatable {
       isListed,
       isCurrent,
       milestones,
-      teamChats: teamChats,
     );
   }
 
@@ -97,8 +93,7 @@ class TeamEntity extends Equatable {
         interest = json['interest'],
         avatar = json['avatar'],
         avatarURL = json['avatar_url'],
-        milestones = json['milestones'],
-        teamChats = [];
+        milestones = json['milestones'];
 
   TeamEntity.fromJson(Map<String, dynamic> json)
       : id = json['id'],
@@ -115,8 +110,7 @@ class TeamEntity extends Equatable {
         interest = json['interest'],
         avatar = json['avatar'],
         avatarURL = json['avatar_url'],
-        milestones = [],
-        teamChats = [];
+        milestones = [];
 
   int getMilestoneProgress() {
     int incompleteTask =

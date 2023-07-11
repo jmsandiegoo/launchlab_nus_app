@@ -72,6 +72,10 @@ class UserEntity extends Equatable {
     );
   }
 
+  String getFullName() {
+    return "$firstName $lastName";
+  }
+
   UserEntity copyWith({
     String? id,
     bool? isOnboarded,
@@ -117,7 +121,7 @@ class UserEntity extends Equatable {
   UserEntity.fromJson(Map<String, dynamic> json)
       : id = json['id'],
         isOnboarded = json['is_onboarded'],
-        username = json['username'],
+        username = json['username'] ?? '',
         firstName = json['first_name'],
         lastName = json['last_name'],
         title = json['title'],
