@@ -2,6 +2,7 @@ import 'package:launchlab/src/domain/chat/models/chat_message_entity.dart';
 import 'package:launchlab/src/domain/chat/models/chat_user_entity.dart';
 import 'package:launchlab/src/domain/chat/models/chat_entity.dart';
 import 'package:launchlab/src/domain/team/team_entity.dart';
+import 'package:launchlab/src/domain/team/team_user_entity.dart';
 
 class TeamChatEntity extends ChatEntity {
   const TeamChatEntity({
@@ -29,6 +30,36 @@ class TeamChatEntity extends ChatEntity {
   // realtional objects
   final TeamEntity? team;
 
+  bool checkIfChatForUser(String currUserId, List<TeamUserEntity> users) {
+    if (isGroupChat) {
+      return true;
+    }
+
+    bool isCurrUser = false;
+    bool isOtherUsersExist = false;
+
+    for (int i = 0; i < chatUsers.length; i++) {
+      // check if current user
+      if (chatUsers[i].checkIfCurrentUser(currUserId: currUserId)) {
+        isCurrUser = true;
+        continue;
+      }
+
+      for (int j = 0; j < users.length; j++) {
+        if (chatUsers[i].checkIfSameUserId(userId: users[j].userId)) {
+          isOtherUsersExist = true;
+          break;
+        }
+      }
+
+      if (isCurrUser && isOtherUsersExist) {
+        break;
+      }
+    }
+
+    return isCurrUser && isOtherUsersExist;
+  }
+
   @override
   ChatMessageEntity? getLatestMessage() {
     if (chatMessages.isEmpty) {
@@ -48,7 +79,7 @@ class TeamChatEntity extends ChatEntity {
       return team!.teamName;
     } else {
       for (int i = 0; i < chatUsers.length; i++) {
-        if (!chatUsers[i].isCurrentUser(currUserId: currUserId)) {
+        if (!chatUsers[i].checkIfCurrentUser(currUserId: currUserId)) {
           return chatUsers[i].user?.getFullName();
         }
       }

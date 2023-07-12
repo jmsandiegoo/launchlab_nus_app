@@ -20,7 +20,7 @@ class TeamRepository {
   /// realtime
   void subscribeToTeamUsers(
       {required String teamId,
-      required FutureOr<void> Function(List<TeamUserEntity>) streamHandler}) {
+      required FutureOr<void> Function(dynamic payload) streamHandler}) {
     _teamUsersChannel = supabase.channel('public:team_users').on(
       RealtimeListenTypes.postgresChanges,
       ChannelFilter(
@@ -29,7 +29,8 @@ class TeamRepository {
           table: 'team_users',
           filter: 'team_id=eq.$teamId'),
       (payload, [ref]) {
-        debugPrint('Change received: ${payload.toString()}');
+        debugPrint('Change received: ${payload.toString()} refs: $ref');
+        streamHandler(payload);
       },
     );
 

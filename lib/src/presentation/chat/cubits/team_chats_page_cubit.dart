@@ -60,6 +60,7 @@ class TeamChatsPageState extends Equatable {
         team,
         teamChats,
         teamUsers,
+        userProfilesCache,
         searchInput,
         teamChatsPageStatus,
         error,
@@ -86,20 +87,21 @@ class TeamChatsPageCubit extends Cubit<TeamChatsPageState> {
   final TeamRepository teamRepository;
   final UserRepository userRepository;
 
-  Future<void> handleInitializePage(String teamId) async {
+  Future<void> handleInitializePage(String teamId, String currUserId) async {
     try {
       // fetch the team data
       final GetTeamData response = await teamRepository.getTeamData(teamId);
       TeamEntity team = response.team;
 
       // fetch team users
-      final List<TeamUserEntity> teamUsers = await handleGetTeamUsers(team);
+      final List<TeamUserEntity> teamUsers = await _handleGetTeamUsers(teamId);
 
       // fetch team chats
-      final List<TeamChatEntity> teamChats = await handleGetTeamChats(team);
+      final List<TeamChatEntity> teamChats =
+          await _handleGetTeamChats(teamId, currUserId);
 
       // setup subsciption channels
-      // --
+      handleSubscribeToTeamUsers(team.id, currUserId);
 
       emit(state.copyWith(
         team: team,
@@ -110,13 +112,20 @@ class TeamChatsPageCubit extends Cubit<TeamChatsPageState> {
     } on Exception catch (error) {}
   }
 
-  void handleSubscribeToTeamUsers() {}
+  void handleSubscribeToTeamUsers(String teamId, String currUserId) {
+    teamRepository.subscribeToTeamUsers(
+        teamId: teamId,
+        streamHandler: (payload) async {
+          await _handleGetTeamUsers(teamId);
+          await _handleGetTeamChats(teamId, currUserId);
+        });
+  }
 
-  Future<List<TeamUserEntity>> handleGetTeamUsers(TeamEntity team) async {
+  Future<List<TeamUserEntity>> _handleGetTeamUsers(String teamId) async {
     Map<String, UserEntity> userProfilesCache = Map.of(state.userProfilesCache);
 
     List<TeamUserEntity> teamMembers =
-        await teamRepository.getTeamUsers(team.id);
+        await teamRepository.getTeamUsers(teamId);
 
     for (int i = 0; i < teamMembers.length; i++) {
       final TeamUserEntity member = teamMembers[i];
@@ -145,14 +154,33 @@ class TeamChatsPageCubit extends Cubit<TeamChatsPageState> {
     return teamMembers;
   }
 
-  Future<List<TeamChatEntity>> handleGetTeamChats(TeamEntity team) async {
+  Future<List<TeamChatEntity>> _handleGetTeamChats(
+    String teamId,
+    String currUserId,
+  ) async {
     Map<String, UserEntity> userProfilesCache = Map.of(state.userProfilesCache);
+
+    TeamEntity team;
+    if (state.team != null) {
+      team = state.team!;
+    } else {
+      final GetTeamData response = await teamRepository.getTeamData(teamId);
+      team = response.team;
+    }
+
     // fetch teamChats
     List<TeamChatEntity> teamChats =
-        await chatRepository.getTeamChatsByTeamId(teamId: team.id);
+        await chatRepository.getTeamChatsByTeamId(teamId: teamId);
 
-    // filter chats to only users
-    for (int i = 0; i < teamChats.length; i++) {
+    for (int i = teamChats.length - 1; i >= 0; i--) {
+      // filter the chats containing members and currUser
+      if (!teamChats[i].checkIfChatForUser(currUserId, state.teamUsers)) {
+        teamChats.removeAt(i);
+        continue;
+      }
+
+      // set the relational object(s) team & chatUsers
+
       teamChats[i] = teamChats[i].setTeam(team: team);
 
       List<ChatUserEntity> chatUsers = [];

@@ -22,8 +22,12 @@ class ChatUserEntity extends Equatable {
   // relational object
   final UserEntity? user;
 
-  bool isCurrentUser({required String currUserId}) {
+  bool checkIfCurrentUser({required String currUserId}) {
     return userId == currUserId;
+  }
+
+  bool checkIfSameUserId({required String userId}) {
+    return userId == this.userId;
   }
 
   ChatUserEntity setUser({required UserEntity? user}) {

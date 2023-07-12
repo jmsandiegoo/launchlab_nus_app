@@ -46,5 +46,6 @@ class ChatMessageEntity extends Equatable {
         updatedAt,
         userId,
         user,
+        messageSeens,
       ];
 }
