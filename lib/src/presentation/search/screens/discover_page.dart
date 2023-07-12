@@ -41,7 +41,10 @@ class _DiscoverPageContentState extends State<DiscoverPageContent> {
   void initState() {
     super.initState();
     discoverCubit = BlocProvider.of<DiscoverCubit>(context);
-    discoverCubit.getReccomendationData();
+    discoverCubit.getRecomendationData(SearchFilterEntity(
+        categoryInput: discoverCubit.state.categoryInput,
+        commitmentInput: discoverCubit.state.commitmentInput,
+        interestInput: discoverCubit.state.interestInput.value));
   }
 
   @override
@@ -58,15 +61,13 @@ class _DiscoverPageContentState extends State<DiscoverPageContent> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const SizedBox(
-                    height: 80,
+                    height: 60,
                   ),
                   Row(children: [
                     const SizedBox(width: 20),
                     headerText("Find Teams"),
                   ]),
-                  const SizedBox(
-                    height: 20,
-                  ),
+                  const SizedBox(height: 20),
                   Center(
                     child: Container(
                       height: 45,
@@ -80,7 +81,14 @@ class _DiscoverPageContentState extends State<DiscoverPageContent> {
                               cursorColor: greyColor,
                               controller: _searchController,
                               onChanged: (value) => value == ''
-                                  ? discoverCubit.getReccomendationData()
+                                  ? discoverCubit.getRecomendationData(
+                                      SearchFilterEntity(
+                                          categoryInput:
+                                              discoverCubit.state.categoryInput,
+                                          commitmentInput: discoverCubit
+                                              .state.commitmentInput,
+                                          interestInput: discoverCubit
+                                              .state.interestInput.value))
                                   : discoverCubit.getData(
                                       value,
                                       SearchFilterEntity(
@@ -103,8 +111,6 @@ class _DiscoverPageContentState extends State<DiscoverPageContent> {
                               ),
                             ),
                           ),
-                          //
-
                           InkWell(
                             onTap: () {
                               searchFilter(
@@ -135,6 +141,44 @@ class _DiscoverPageContentState extends State<DiscoverPageContent> {
                       ),
                     ),
                   ),
+                  const SizedBox(height: 5),
+                  Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                      child: Row(children: [
+                        OutlinedButton(
+                          style: OutlinedButton.styleFrom(
+                              backgroundColor: blackColor,
+                              side:
+                                  const BorderSide(width: 1, color: blackColor),
+                              minimumSize: const Size.fromRadius(15),
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 20)),
+                          onPressed: () {
+                            debugPrint('Team');
+                          },
+                          child: const Text(
+                            "Team",
+                            style: TextStyle(color: whiteColor, fontSize: 12),
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        OutlinedButton(
+                          style: OutlinedButton.styleFrom(
+                              backgroundColor: whiteColor,
+                              side:
+                                  const BorderSide(width: 1, color: blackColor),
+                              minimumSize: const Size.fromRadius(15),
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 20)),
+                          onPressed: () {
+                            navigateGo(context, '/discover_user');
+                          },
+                          child: const Text(
+                            "  User  ",
+                            style: TextStyle(color: blackColor, fontSize: 12),
+                          ),
+                        ),
+                      ]))
                 ]),
           ]),
           if (discoverCubit.state.isLoaded) ...[
@@ -148,7 +192,7 @@ class _DiscoverPageContentState extends State<DiscoverPageContent> {
                         children: [
                           discoverCubit.state.searchTerm == ''
                               ? Column(children: [
-                                  subHeaderText('Recommendation For You',
+                                  subHeaderText('Our Picks For You',
                                       color: greyColor, size: 18.0),
                                   const SizedBox(height: 10),
                                 ])
@@ -192,6 +236,17 @@ class _DiscoverPageContentState extends State<DiscoverPageContent> {
         }).then((value) {
       if (value != null) {
         cubit.onFilterApply(value);
+        cubit.state.searchTerm == ''
+            ? cubit.getRecomendationData(SearchFilterEntity(
+                categoryInput: discoverCubit.state.categoryInput,
+                commitmentInput: discoverCubit.state.commitmentInput,
+                interestInput: discoverCubit.state.interestInput.value))
+            : cubit.getData(
+                cubit.state.searchTerm,
+                SearchFilterEntity(
+                    categoryInput: discoverCubit.state.categoryInput,
+                    commitmentInput: discoverCubit.state.commitmentInput,
+                    interestInput: discoverCubit.state.interestInput.value));
       }
     });
   }

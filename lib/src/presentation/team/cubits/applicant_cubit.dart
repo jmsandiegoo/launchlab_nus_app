@@ -12,32 +12,19 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ApplicantState extends Equatable {
   @override
-  List<Object?> get props => [
-        applicantUserData,
-        applicationTeamData,
-        experienceData,
-        accomplishmentData,
-        actionTypes,
-        isLoaded
-      ];
+  List<Object?> get props => [applicationTeamData, actionTypes, isLoaded];
 
-  final UserEntity? applicantUserData;
   final TeamEntity? applicationTeamData;
-  final List<ExperienceEntity> experienceData;
-  final List<AccomplishmentEntity> accomplishmentData;
   final ActionTypes? actionTypes;
   final bool isLoaded;
 
   const ApplicantState(
-      {this.applicantUserData,
-      this.applicationTeamData,
-      this.experienceData = const [],
-      this.accomplishmentData = const [],
+      {this.applicationTeamData,
       this.actionTypes = ActionTypes.cancel,
       this.isLoaded = false});
 
   ApplicantState copyWith({
-    UserEntity? applicantUserData,
+    UserTeamEntity? applicantUserData,
     TeamEntity? applicationTeamData,
     List<ExperienceEntity>? experienceData,
     List<AccomplishmentEntity>? accomplishmentData,
@@ -45,10 +32,7 @@ class ApplicantState extends Equatable {
     bool? isLoaded,
   }) {
     return ApplicantState(
-      applicantUserData: applicantUserData ?? this.applicantUserData,
       applicationTeamData: applicationTeamData ?? this.applicationTeamData,
-      experienceData: experienceData ?? this.experienceData,
-      accomplishmentData: accomplishmentData ?? this.accomplishmentData,
       actionTypes: actionTypes ?? this.actionTypes,
       isLoaded: isLoaded ?? this.isLoaded,
     );
@@ -64,12 +48,8 @@ class ApplicantCubit extends Cubit<ApplicantState> {
   getData(applicationID) async {
     final GetApplicantData res =
         await _teamRepository.getApplicantData(applicationID);
-    final newState = state.copyWith(
-        applicantUserData: res.applicant,
-        applicationTeamData: res.team,
-        experienceData: res.getAllExperience(),
-        accomplishmentData: res.getAllAccomplishment(),
-        isLoaded: true);
+    final newState =
+        state.copyWith(applicationTeamData: res.team, isLoaded: true);
 
     debugPrint("Applicant State Emitted");
     emit(newState);

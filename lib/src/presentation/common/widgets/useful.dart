@@ -167,25 +167,6 @@ Widget teamPicture(double diameter, String address) {
           )));
 }
 
-Widget circleIcon({color, icon}) {
-  return Container(
-    decoration: BoxDecoration(color: color, shape: BoxShape.circle, boxShadow: [
-      BoxShadow(
-        color: Colors.grey.withOpacity(0.3),
-        spreadRadius: 3,
-        blurRadius: 3,
-        offset: const Offset(0, 3),
-      )
-    ]),
-    child: Padding(
-        padding: const EdgeInsets.all(15),
-        child: Icon(
-          icon,
-          size: 30,
-        )),
-  );
-}
-
 Widget searchBar() {
   return Flexible(
     flex: 1,
@@ -215,10 +196,13 @@ Widget headerText(String label, {size = 25.0, alignment = TextAlign.left}) {
 }
 
 Widget subHeaderText(String label,
-    {size = 20.0, alignment = TextAlign.left, color = blackColor}) {
+    {size = 20.0,
+    alignment = TextAlign.left,
+    color = blackColor,
+    maxLines = 2}) {
   return Text(
     label,
-    maxLines: 2,
+    maxLines: maxLines,
     softWrap: true,
     overflow: TextOverflow.ellipsis,
     textAlign: alignment,
@@ -245,11 +229,14 @@ Widget bodyText(String label,
 Widget smallText(String label,
     {size = 13.0,
     color = blackColor,
+    int? maxLines,
     weight = FontWeight.w400,
     alignment = TextAlign.left}) {
   return Text(
     label,
+    maxLines: maxLines,
     textAlign: alignment,
+    overflow: TextOverflow.ellipsis,
     style: TextStyle(
       fontSize: size,
       color: color,
@@ -385,18 +372,19 @@ Future<T?> showModalBottomSheetHandler<T>(
 }
 
 Widget boldFirstText(String text1, String text2, {size = 12.5}) {
-  return RichText(
-    text: TextSpan(
-      style: TextStyle(
-        fontSize: size,
-        color: Colors.black,
-      ),
-      children: <TextSpan>[
-        TextSpan(
-            text: text1, style: const TextStyle(fontWeight: FontWeight.bold)),
-        TextSpan(text: text2),
-      ],
-    ),
+  return Row(
+    children: [
+      Text(text1,
+          maxLines: 2,
+          softWrap: true,
+          overflow: TextOverflow.ellipsis,
+          style: TextStyle(fontSize: size, fontWeight: FontWeight.bold)),
+      Text(text2,
+          maxLines: 2,
+          softWrap: true,
+          overflow: TextOverflow.ellipsis,
+          style: TextStyle(fontSize: size)),
+    ],
   );
 }
 
@@ -463,7 +451,8 @@ Widget memberProfile(imgDir, name, position,
   return Column(children: [
     const SizedBox(height: 7),
     Row(children: [
-      profilePicture(imgSize, imgDir, isUrl: true),
+      profilePicture(imgSize, imgDir ?? "avatar_temp.png",
+          isUrl: imgDir != null ? true : false),
       const SizedBox(width: 10),
       Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         isBold

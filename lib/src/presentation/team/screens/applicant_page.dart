@@ -2,33 +2,34 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:launchlab/src/config/app_theme.dart';
 import 'package:launchlab/src/data/team/team_repository.dart';
+import 'package:launchlab/src/domain/team/team_applicant_entity.dart';
 import 'package:launchlab/src/domain/team/team_entity.dart';
-import 'package:launchlab/src/domain/team/user_entity.dart';
 import 'package:launchlab/src/presentation/common/widgets/useful.dart';
 import 'package:launchlab/src/presentation/team/cubits/applicant_cubit.dart';
 import 'package:launchlab/src/presentation/team/widgets/applicant_accomplishment.dart';
 import 'package:launchlab/src/presentation/team/widgets/applicant_confirmation.dart';
 import 'package:launchlab/src/presentation/team/widgets/applicant_experience.dart';
+import 'package:launchlab/src/presentation/team/widgets/applicant_resume.dart';
 import 'package:launchlab/src/utils/constants.dart';
 import 'package:launchlab/src/utils/helper.dart';
 
 class ApplicantPage extends StatelessWidget {
-  final String applicationID;
+  final TeamApplicantEntity applicantData;
 
-  const ApplicantPage({super.key, required this.applicationID});
+  const ApplicantPage({super.key, required this.applicantData});
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (_) => ApplicantCubit(TeamRepository()),
-      child: ApplicantPageContent(applicationID: applicationID),
+      child: ApplicantPageContent(applicantData: applicantData),
     );
   }
 }
 
 class ApplicantPageContent extends StatefulWidget {
-  final String applicationID;
-  const ApplicantPageContent({super.key, required this.applicationID});
+  final TeamApplicantEntity applicantData;
+  const ApplicantPageContent({super.key, required this.applicantData});
 
   @override
   State<ApplicantPageContent> createState() => _ApplicantPageContentState();
@@ -36,14 +37,13 @@ class ApplicantPageContent extends StatefulWidget {
 
 class _ApplicantPageContentState extends State<ApplicantPageContent> {
   late ApplicantCubit applicantCubit;
-  late UserEntity applicantUserData;
   late TeamEntity applicationTeamData;
 
   @override
   void initState() {
     super.initState();
     applicantCubit = BlocProvider.of<ApplicantCubit>(context);
-    applicantCubit.getData(widget.applicationID);
+    applicantCubit.getData(widget.applicantData.id);
   }
 
   @override
@@ -51,7 +51,6 @@ class _ApplicantPageContentState extends State<ApplicantPageContent> {
     return BlocBuilder<ApplicantCubit, ApplicantState>(
         builder: (context, state) {
       if (applicantCubit.state.isLoaded) {
-        applicantUserData = applicantCubit.state.applicantUserData!;
         applicationTeamData = applicantCubit.state.applicationTeamData!;
       }
 
@@ -95,11 +94,12 @@ class _ApplicantPageContentState extends State<ApplicantPageContent> {
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
-                                      applicantUserData.avatarURL == ''
+                                      widget.applicantData.getAvatarURL() ==
+                                              null
                                           ? Image.asset(
                                               'assets/images/avatar_temp.png')
-                                          : Image.network(
-                                              applicantUserData.avatarURL),
+                                          : Image.network(widget.applicantData
+                                              .getAvatarURL()!),
                                       Padding(
                                         padding: const EdgeInsets.all(12.0),
                                         child: Column(
@@ -107,11 +107,17 @@ class _ApplicantPageContentState extends State<ApplicantPageContent> {
                                                 CrossAxisAlignment.start,
                                             children: [
                                               headerText(
-                                                  applicantUserData
+                                                  widget.applicantData
                                                       .getFullName(),
                                                   size: 27.0),
-                                              bodyText(applicantUserData.title),
-                                              bodyText(applicantUserData.degree,
+                                              bodyText(widget
+                                                  .applicantData.user.title!),
+                                              bodyText(
+                                                  widget
+                                                      .applicantData
+                                                      .user
+                                                      .userDegreeProgramme!
+                                                      .name,
                                                   color: greyColor),
                                             ]),
                                       ),
@@ -119,43 +125,56 @@ class _ApplicantPageContentState extends State<ApplicantPageContent> {
                               ),
                               const SizedBox(height: 40),
                               subHeaderText('About Me'),
-                              bodyText(applicantUserData.about),
+                              bodyText(widget.applicantData.user.about!),
                               const SizedBox(height: 40),
-                              //subHeaderText('Resume'),
-                              //bodyText('Placeholder'),
-                              //const SizedBox(height: 40),
-                              applicantCubit.state.experienceData.isEmpty
+                              widget.applicantData.user.userResume == null
+                                  ? const SizedBox()
+                                  : Column(children: [
+                                      subHeaderText('Resume'),
+                                      ApplicantResume(
+                                          resume: widget
+                                              .applicantData.user.userResume!),
+                                      const SizedBox(height: 40)
+                                    ]),
+                              widget.applicantData.user.userExperiences.isEmpty
                                   ? const SizedBox()
                                   : Column(children: [
                                       subHeaderText('Experience'),
                                       const SizedBox(height: 10),
                                       for (int i = 0;
                                           i <
-                                              applicantCubit
-                                                  .state.experienceData.length;
+                                              widget.applicantData.user
+                                                  .userExperiences.length;
                                           i++) ...[
                                         ApplicantExperience(
-                                            experienceData: applicantCubit
-                                                .state.experienceData[i]),
+                                            experienceData: widget.applicantData
+                                                .user.userExperiences[i]),
                                       ],
                                       const SizedBox(height: 40),
                                     ]),
-                              //subHeaderText('Skills'),
-                              //bodyText('Placeholder'),
-                              //const SizedBox(height: 40),
-                              applicantCubit.state.accomplishmentData.isEmpty
+                              subHeaderText('Skills'),
+                              Container(
+                                alignment: Alignment.topLeft,
+                                child: chipsWrap(widget.applicantData.user
+                                    .userPreference!.skillsInterests),
+                              ),
+                              const SizedBox(height: 40),
+                              widget.applicantData.user.userAccomplishments
+                                      .isEmpty
                                   ? const SizedBox()
                                   : Column(children: [
                                       subHeaderText('Achievement'),
                                       const SizedBox(height: 10),
                                       for (int i = 0;
                                           i <
-                                              applicantCubit.state
-                                                  .accomplishmentData.length;
+                                              widget.applicantData.user
+                                                  .userAccomplishments.length;
                                           i++) ...[
                                         ApplicantAccomplishment(
-                                            accomplishmentData: applicantCubit
-                                                .state.accomplishmentData[i])
+                                            accomplishmentData: widget
+                                                .applicantData
+                                                .user
+                                                .userAccomplishments[i]),
                                       ],
                                       const SizedBox(height: 40)
                                     ]),
@@ -224,7 +243,7 @@ class _ApplicantPageContentState extends State<ApplicantPageContent> {
           );
         }).then((value) {
       if (value == true) {
-        cubit.rejectApplicant(applicationID: widget.applicationID).then((_) {
+        cubit.rejectApplicant(applicationID: widget.applicantData.id).then((_) {
           navigatePopWithData(context, "", ActionTypes.delete);
         });
       }
@@ -244,7 +263,7 @@ class _ApplicantPageContentState extends State<ApplicantPageContent> {
       if (value == true) {
         cubit
             .acceptApplicant(
-                applicationID: widget.applicationID,
+                applicationID: widget.applicantData.id,
                 currentMember: currentMember)
             .then((_) {
           navigatePopWithData(context, "", ActionTypes.update);

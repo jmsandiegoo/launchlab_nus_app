@@ -8,12 +8,14 @@ import 'package:launchlab/src/domain/search/responses/get_recomendation.dart';
 import 'package:launchlab/src/domain/search/responses/get_search_result.dart';
 import 'package:launchlab/src/domain/search/search_filter_entity.dart';
 import 'package:launchlab/src/domain/search/search_team_entity.dart';
+import 'package:launchlab/src/domain/user/models/user_entity.dart';
 import 'package:launchlab/src/presentation/user/widgets/form_fields/user_skills_interests_field.dart';
 
 @immutable
 class DiscoverState extends Equatable {
   final String searchTerm;
   final List<SearchTeamEntity> externalTeamData;
+  final List<UserEntity> externalUserData;
   final String userId;
   final String categoryInput;
   final String commitmentInput;
@@ -25,6 +27,7 @@ class DiscoverState extends Equatable {
   List<Object?> get props => [
         searchTerm,
         externalTeamData,
+        externalUserData,
         userId,
         categoryInput,
         commitmentInput,
@@ -36,6 +39,7 @@ class DiscoverState extends Equatable {
   const DiscoverState(
       {this.searchTerm = "",
       this.externalTeamData = const [],
+      this.externalUserData = const [],
       this.userId = "",
       this.categoryInput = "",
       this.commitmentInput = "",
@@ -46,6 +50,7 @@ class DiscoverState extends Equatable {
   DiscoverState copyWith({
     String? searchTerm,
     List<SearchTeamEntity>? externalTeamData,
+    List<UserEntity>? externalUserData,
     String? userId,
     String? categoryInput,
     String? commitmentInput,
@@ -56,6 +61,7 @@ class DiscoverState extends Equatable {
     return DiscoverState(
       searchTerm: searchTerm ?? this.searchTerm,
       externalTeamData: externalTeamData ?? this.externalTeamData,
+      externalUserData: externalUserData ?? this.externalUserData,
       userId: userId ?? this.userId,
       categoryInput: categoryInput ?? this.categoryInput,
       commitmentInput: commitmentInput ?? this.commitmentInput,
@@ -71,6 +77,7 @@ class DiscoverCubit extends Cubit<DiscoverState> {
       : super(const DiscoverState());
   final CommonRepository _commonRepository;
   final SearchRepository _searchRepository;
+
   getData(String searchTerm, SearchFilterEntity filterData) async {
     emit(state.copyWith(isLoaded: false));
     final GetSearchResult res =
@@ -83,10 +90,10 @@ class DiscoverCubit extends Cubit<DiscoverState> {
     emit(newState);
   }
 
-  getReccomendationData() async {
+  getRecomendationData(filterData) async {
     emit(state.copyWith(isLoaded: false));
     final GetRecomendationResult res =
-        await _searchRepository.getRecomendationData();
+        await _searchRepository.getRecomendationData(filterData);
 
     final newState = state.copyWith(
         searchTerm: "",

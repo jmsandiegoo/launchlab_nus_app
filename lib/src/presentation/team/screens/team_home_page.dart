@@ -4,6 +4,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:launchlab/src/config/app_theme.dart';
 import 'package:launchlab/src/data/authentication/repository/auth_repository.dart';
 import 'package:launchlab/src/data/team/team_repository.dart';
+import 'package:launchlab/src/data/user/user_repository.dart';
 import 'package:launchlab/src/presentation/common/widgets/useful.dart';
 import 'package:launchlab/src/presentation/team/cubits/team_home_cubit.dart';
 import 'package:launchlab/src/presentation/team/widgets/team_home_card.dart';
@@ -17,8 +18,8 @@ class TeamHomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) =>
-          TeamHomeCubit(AuthRepository(Supabase.instance), TeamRepository()),
+      create: (_) => TeamHomeCubit(AuthRepository(Supabase.instance),
+          TeamRepository(), UserRepository(Supabase.instance)),
       child: const TeamHomeContent(),
     );
   }
@@ -84,9 +85,14 @@ class _TeamHomeState extends State<TeamHomeContent> {
                         padding: const EdgeInsets.symmetric(horizontal: 20.0),
                         child: AppBar(
                           backgroundColor: yellowColor,
-                          leading: profilePicture(
-                              50, teamHomeCubit.state.userData!.avatarURL,
-                              isUrl: true),
+                          leading:
+                              teamHomeCubit.state.userData!.userAvatar == null
+                                  ? const SizedBox()
+                                  : profilePicture(
+                                      50,
+                                      teamHomeCubit.state.userData!.userAvatar!
+                                          .signedUrl!,
+                                      isUrl: true),
                           actions: [
                             IconButton(
                                 onPressed: () => teamHomeCubit.handleSignOut(),
