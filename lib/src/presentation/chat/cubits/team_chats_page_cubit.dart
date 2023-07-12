@@ -1,8 +1,10 @@
 import 'package:equatable/equatable.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:launchlab/src/data/chat/chat_repository.dart';
 import 'package:launchlab/src/data/team/team_repository.dart';
 import 'package:launchlab/src/data/user/user_repository.dart';
+import 'package:launchlab/src/domain/chat/models/chat_message_entity.dart';
 import 'package:launchlab/src/domain/chat/models/chat_user_entity.dart';
 import 'package:launchlab/src/domain/chat/models/team_chat_entity.dart';
 import 'package:launchlab/src/domain/team/responses/get_team_data.dart';
@@ -102,6 +104,7 @@ class TeamChatsPageCubit extends Cubit<TeamChatsPageState> {
 
       // setup subsciption channels
       handleSubscribeToTeamUsers(team.id, currUserId);
+      handleSubscribeToTeamChatMessages();
 
       emit(state.copyWith(
         team: team,
@@ -119,6 +122,44 @@ class TeamChatsPageCubit extends Cubit<TeamChatsPageState> {
           await _handleGetTeamUsers(teamId);
           await _handleGetTeamChats(teamId, currUserId);
         });
+  }
+
+  void handleSubscribeToTeamChatMessages() {
+    chatRepository.subscribeToTeamChatMessages(
+      streamHandler: (payload) async {
+        Map<String, UserEntity> userProfilesCache =
+            Map.of(state.userProfilesCache);
+        // check if inserted record is within the following chats
+        ChatMessageEntity message = ChatMessageEntity.fromJson(payload["new"]);
+
+        // load user details tied with the message
+        if (state.userProfilesCache[message.userId] == null) {
+          final GetProfileInfoResponse res =
+              await userRepository.getUserBasicProfileInfo(
+                  GetProfileInfoRequest(userId: message.userId));
+
+          userProfilesCache[message.userId] = res.userProfile;
+
+          message = message.setUser(user: res.userProfile);
+          emit(state.copyWith(userProfilesCache: userProfilesCache));
+        } else {
+          message =
+              message.setUser(user: state.userProfilesCache[message.userId]);
+        }
+
+        List<TeamChatEntity> teamChats = [...state.teamChats];
+
+        for (int i = 0; i < teamChats.length; i++) {
+          final TeamChatEntity teamChat = state.teamChats[i];
+          if (teamChat.id == message.chatId) {
+            teamChats[i] = teamChat.appendMessages(messages: [message]);
+            teamChats.sort();
+            emit(state.copyWith(teamChats: teamChats));
+            break;
+          }
+        }
+      },
+    );
   }
 
   Future<List<TeamUserEntity>> _handleGetTeamUsers(String teamId) async {
@@ -180,7 +221,6 @@ class TeamChatsPageCubit extends Cubit<TeamChatsPageState> {
       }
 
       // set the relational object(s) team & chatUsers
-
       teamChats[i] = teamChats[i].setTeam(team: team);
 
       List<ChatUserEntity> chatUsers = [];
@@ -203,6 +243,8 @@ class TeamChatsPageCubit extends Cubit<TeamChatsPageState> {
 
       teamChats[i] = teamChats[i].setChatUsers(chatUsers: chatUsers);
     }
+
+    teamChats.sort();
 
     emit(state.copyWith(
       teamChats: teamChats,

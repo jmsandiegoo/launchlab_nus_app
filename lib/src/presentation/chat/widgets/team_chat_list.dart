@@ -10,6 +10,9 @@ class TeamChatList extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<TeamChatsPageCubit, TeamChatsPageState>(
       builder: (context, state) {
+        TeamChatsPageCubit teamChatsPageCubit =
+            BlocProvider.of<TeamChatsPageCubit>(context);
+
         return ListView(
           children: [
             const SizedBox(

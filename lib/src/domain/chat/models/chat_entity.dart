@@ -26,5 +26,7 @@ abstract class ChatEntity extends Equatable {
 
   String? getChatAvatarUrl({required String currUserId});
 
+  ChatEntity setMessages({required List<ChatMessageEntity> messages});
+
   ChatEntity setChatUsers({required List<ChatUserEntity> chatUsers});
 }

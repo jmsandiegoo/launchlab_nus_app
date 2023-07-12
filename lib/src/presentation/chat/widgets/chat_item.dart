@@ -5,6 +5,7 @@ import 'package:launchlab/src/domain/chat/models/chat_entity.dart';
 import 'package:launchlab/src/domain/chat/models/team_chat_entity.dart';
 import 'package:launchlab/src/presentation/common/cubits/app_root_cubit.dart';
 import 'package:launchlab/src/presentation/common/widgets/useful.dart';
+import 'package:launchlab/src/utils/helper.dart';
 
 enum ChatTypes {
   team,
@@ -63,7 +64,18 @@ class ChatItem extends StatelessWidget {
                       size: 16.0,
                       maxLines: 1),
                 ),
-                smallText("10:00 AM"),
+                smallText(chat?.getLatestMessage()?.createdAt != null
+                    ? dateStringFormatter(
+                        DateTime.now()
+                                    .toUtc()
+                                    .difference(
+                                        chat!.getLatestMessage()!.createdAt!)
+                                    .inDays <
+                                1
+                            ? "hh:mm a"
+                            : "dd MMM yyyy",
+                        chat!.getLatestMessage()!.createdAt!)
+                    : ''),
               ]),
               const SizedBox(
                 height: 5.0,
@@ -74,10 +86,15 @@ class ChatItem extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        smallText("${chat?.getLatestMessage()?.userId ?? ''}",
-                            weight: FontWeight.bold, maxLines: 1),
                         smallText(
-                            "${chat?.getLatestMessage()?.messageContent ?? 'No messages yet'}",
+                            chat?.getLatestMessage()?.getSenderName(
+                                    appRootCubit.state.authUserProfile!.id!) ??
+                                '',
+                            weight: FontWeight.bold,
+                            maxLines: 1),
+                        smallText(
+                            chat?.getLatestMessage()?.messageContent ??
+                                'No messages yet',
                             alignment: TextAlign.left,
                             maxLines: 1),
                       ],

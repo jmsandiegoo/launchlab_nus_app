@@ -4,7 +4,7 @@ import 'package:launchlab/src/domain/chat/models/chat_entity.dart';
 import 'package:launchlab/src/domain/team/team_entity.dart';
 import 'package:launchlab/src/domain/team/team_user_entity.dart';
 
-class TeamChatEntity extends ChatEntity {
+class TeamChatEntity extends ChatEntity implements Comparable<TeamChatEntity> {
   const TeamChatEntity({
     required String id,
     int unreads = 0,
@@ -107,11 +107,83 @@ class TeamChatEntity extends ChatEntity {
     }
   }
 
+  @override
+  int compareTo(TeamChatEntity other) {
+    if (this == other) {
+      return 0;
+    }
+
+    // check if group chat
+    if (isGroupChat && !other.isGroupChat) {
+      return -1;
+    }
+
+    if (!isGroupChat && other.isGroupChat) {
+      return 1;
+    }
+
+    // compare messages
+    if (chatMessages.isNotEmpty && other.chatMessages.isEmpty) {
+      return -1;
+    }
+
+    if (chatMessages.isEmpty && other.chatMessages.isNotEmpty) {
+      return 1;
+    }
+
+    if (chatMessages.isNotEmpty && other.chatMessages.isNotEmpty) {
+      print(
+          "otherrr: ${other.getLatestMessage()} createddd: ${other.getLatestMessage()?.createdAt}");
+      print(
+          "thisssssss: ${getLatestMessage()} createddd: ${getLatestMessage()?.createdAt}");
+      int res = getLatestMessage()!
+          .createdAt!
+          .compareTo(other.getLatestMessage()!.createdAt!);
+
+      return res < 0
+          ? 1
+          : res > 0
+              ? -1
+              : 0;
+    }
+
+    return 0;
+  }
+
   TeamChatEntity setTeam({required TeamEntity team}) {
     return TeamChatEntity(
       id: id,
       isGroupChat: isGroupChat,
       teamId: teamId,
+      chatUsers: chatUsers,
+      chatMessages: chatMessages,
+      team: team,
+      createdAt: createdAt,
+      updatedAt: createdAt,
+    );
+  }
+
+  @override
+  TeamChatEntity appendMessages({required List<ChatMessageEntity> messages}) {
+    return TeamChatEntity(
+      id: id,
+      isGroupChat: isGroupChat,
+      teamId: teamId,
+      chatMessages: [...chatMessages, ...messages],
+      chatUsers: chatUsers,
+      team: team,
+      createdAt: createdAt,
+      updatedAt: createdAt,
+    );
+  }
+
+  @override
+  TeamChatEntity setMessages({required List<ChatMessageEntity> messages}) {
+    return TeamChatEntity(
+      id: id,
+      isGroupChat: isGroupChat,
+      teamId: teamId,
+      chatMessages: messages,
       chatUsers: chatUsers,
       team: team,
       createdAt: createdAt,
@@ -125,6 +197,7 @@ class TeamChatEntity extends ChatEntity {
       id: id,
       isGroupChat: isGroupChat,
       teamId: teamId,
+      chatMessages: chatMessages,
       chatUsers: chatUsers,
       team: team,
       createdAt: createdAt,

@@ -71,7 +71,6 @@ class _TeamChatsContentState extends State<TeamChatsContent> {
     return BlocConsumer<TeamChatsPageCubit, TeamChatsPageState>(
       listener: (context, state) {},
       builder: (context, state) {
-        debugPrint("ChatPage: ${state.teamChats.length}");
         return Scaffold(
           body: () {
             if (state.teamChatsPageStatus == TeamChatsPageStatus.initial) {
@@ -118,7 +117,8 @@ class _TeamChatsContentState extends State<TeamChatsContent> {
                           },
                           icon: const Icon(Icons.waving_hand_outlined)),
                       IconButton(
-                          onPressed: () {}, icon: Icon(Icons.info_outline))
+                          onPressed: () {},
+                          icon: const Icon(Icons.info_outline))
                     ],
                   ),
                   const SizedBox(
