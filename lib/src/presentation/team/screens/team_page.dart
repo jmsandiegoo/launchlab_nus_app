@@ -210,7 +210,7 @@ class _TeamState extends State<TeamContent> {
                                                               .state
                                                               .memberData
                                                               .length &&
-                                                      i < 4;
+                                                      i < 3;
                                                   i++) ...[
                                                 memberProfile(
                                                     teamCubit

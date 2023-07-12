@@ -360,7 +360,7 @@ class UserRepository implements UserRepositoryImpl {
           .from("user_avatars")
           .select<PostgrestList>("*")
           .eq("user_id", request.userId);
-      debugPrint(res.toString());
+      //debugPrint(res.toString());
 
       if (res.isEmpty) {
         return null;

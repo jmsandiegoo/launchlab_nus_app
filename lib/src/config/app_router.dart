@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:launchlab/src/domain/team/team_applicant_entity.dart';
 import 'package:launchlab/src/domain/user/models/accomplishment_entity.dart';
 import 'package:launchlab/src/domain/user/models/experience_entity.dart';
+import 'package:launchlab/src/domain/user/models/user_entity.dart';
 import 'package:launchlab/src/presentation/authentication/screens/signin_page.dart';
 import 'package:launchlab/src/presentation/chat/screens/team_chats_page.dart';
 import 'package:launchlab/src/presentation/chat/widgets/team_chat_list.dart';
@@ -15,6 +17,8 @@ import 'package:launchlab/src/presentation/common/screens/splash_screen_page.dar
 import 'package:launchlab/src/presentation/common/screens/unprotected_screen_page.dart';
 import 'package:launchlab/src/presentation/common/widgets/scaffold_with_bottom_nav.dart';
 import 'package:launchlab/src/presentation/search/screens/discover_page.dart';
+import 'package:launchlab/src/presentation/search/screens/discover_user_page.dart';
+import 'package:launchlab/src/presentation/search/screens/external_user_page.dart';
 import 'package:launchlab/src/presentation/team/screens/applicant_page.dart';
 import 'package:launchlab/src/presentation/team/screens/manage_team_page.dart';
 import 'package:launchlab/src/presentation/team/screens/team_home_page.dart';
@@ -218,11 +222,10 @@ final GoRouter appRouter = GoRouter(
                                   routes: [
                                     GoRoute(
                                       path: "applicants",
-                                      pageBuilder: (context, state) =>
-                                          NoTransitionPage(
-                                              child: ApplicantPage(
-                                                  applicationID:
-                                                      state.extra as String)),
+                                      builder: (context, state) =>
+                                          ApplicantPage(
+                                              applicantData: state.extra
+                                                  as TeamApplicantEntity),
                                     ),
                                   ]),
                             ]),
@@ -238,6 +241,7 @@ final GoRouter appRouter = GoRouter(
                   path: "/chats",
                   redirect: (context, state) {
                     // redirect logic call to fetch teams without messages
+
                     // return '/team-chats/f3dc09bb-182a-45bf-aeb0-264c822666b5/team';
                     return '/team-chats/83df8c34-0c23-441b-a1e7-926868f399ff/team';
                   },
@@ -245,6 +249,7 @@ final GoRouter appRouter = GoRouter(
                 GoRoute(
                   parentNavigatorKey: _chatShellKey,
                   path: "/test",
+
                   builder: (context, state) => TestPage(),
                 ),
                 ShellRoute(
@@ -294,6 +299,17 @@ final GoRouter appRouter = GoRouter(
                           pageBuilder: (context, state) => NoTransitionPage(
                               child: ExternalTeamPage(
                                   teamIdUserIdData: state.extra as List)),
+                        ),
+                      ]),
+                  GoRoute(
+                      path: "/discover_user",
+                      pageBuilder: (context, state) =>
+                          const NoTransitionPage(child: DiscoverUserPage()),
+                      routes: [
+                        GoRoute(
+                          path: "external_user",
+                          builder: (context, state) => ExternalUserPage(
+                              userData: state.extra as UserEntity),
                         ),
                       ]),
                 ]),

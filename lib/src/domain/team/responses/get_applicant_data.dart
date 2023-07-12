@@ -8,7 +8,7 @@ class GetApplicantData extends Equatable {
   const GetApplicantData(
       this.applicant, this.team, this.experiences, this.accomplishments);
 
-  final UserEntity applicant;
+  final UserTeamEntity applicant;
   final TeamEntity team;
   final List experiences;
   final List accomplishments;

@@ -3,14 +3,16 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:launchlab/src/config/app_theme.dart';
 import 'package:launchlab/src/data/team/team_repository.dart';
+import 'package:launchlab/src/data/user/user_repository.dart';
 import 'package:launchlab/src/domain/team/role_entity.dart';
-import 'package:launchlab/src/domain/team/user_entity.dart';
+import 'package:launchlab/src/domain/team/team_applicant_entity.dart';
 import 'package:launchlab/src/presentation/common/widgets/useful.dart';
 import 'package:launchlab/src/presentation/team/cubits/manage_team_cubit.dart';
 import 'package:launchlab/src/presentation/team/widgets/applicant_card.dart';
 import 'package:launchlab/src/presentation/team/widgets/manage_roles_form.dart';
 import 'package:launchlab/src/utils/constants.dart';
 import 'package:launchlab/src/utils/helper.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ManageTeamPage extends StatelessWidget {
   final String teamId;
@@ -20,7 +22,8 @@ class ManageTeamPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-        create: (_) => ManageTeamCubit(TeamRepository()),
+        create: (_) => ManageTeamCubit(
+            TeamRepository(), UserRepository(Supabase.instance)),
         child: ManageTeamContent(teamId: teamId));
   }
 }
@@ -36,7 +39,7 @@ class ManageTeamContent extends StatefulWidget {
 class _ManageTeamState extends State<ManageTeamContent> {
   late ManageTeamCubit manageTeamCubit;
   late List<RoleEntity> rolesData;
-  late List<UserEntity> applicantUserData;
+  late List<TeamApplicantEntity> applicantUserData;
   ActionTypes actionType = ActionTypes.cancel;
 
   @override
@@ -54,6 +57,7 @@ class _ManageTeamState extends State<ManageTeamContent> {
         rolesData = manageTeamCubit.state.rolesData;
         applicantUserData = manageTeamCubit.state.applicantUserData;
       }
+
       return RefreshIndicator(
           onRefresh: () async {
             refreshPage();
@@ -130,7 +134,6 @@ class _ManageTeamState extends State<ManageTeamContent> {
                                         ])),
                                     IconButton(
                                       onPressed: () {
-                                        print(actionType);
                                         _manageRoles(rolesData[i].title,
                                             rolesData[i].description,
                                             roleId: rolesData[i].id);
@@ -161,9 +164,7 @@ class _ManageTeamState extends State<ManageTeamContent> {
                                       navigatePushWithData(
                                               context,
                                               "/team-home/teams/manage_teams/applicants",
-                                              applicantUserData[i]
-                                                  .applicantId
-                                                  .toString())
+                                              applicantUserData[i])
                                           .then((value) {
                                         if (value?.actionType ==
                                             ActionTypes.update) {
@@ -177,7 +178,8 @@ class _ManageTeamState extends State<ManageTeamContent> {
                                       });
                                     },
                                     child: ApplicantCard(
-                                        applicantData: applicantUserData[i])),
+                                        applicantData:
+                                            applicantUserData[i].user)),
                               ]
                             ])
                           ]),

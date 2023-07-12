@@ -3,9 +3,12 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:launchlab/src/data/authentication/repository/auth_repository.dart';
 import 'package:launchlab/src/data/team/team_repository.dart';
+import 'package:launchlab/src/data/user/user_repository.dart';
 import 'package:launchlab/src/domain/team/responses/get_team_home_data.dart';
 import 'package:launchlab/src/domain/team/team_entity.dart';
-import 'package:launchlab/src/domain/team/user_entity.dart';
+import 'package:launchlab/src/domain/user/models/requests/download_avatar_image_request.dart';
+import 'package:launchlab/src/domain/user/models/user_avatar_entity.dart';
+import 'package:launchlab/src/domain/user/models/user_entity.dart';
 
 @immutable
 class TeamHomeState extends Equatable {
@@ -48,8 +51,10 @@ class TeamHomeState extends Equatable {
 class TeamHomeCubit extends Cubit<TeamHomeState> {
   final AuthRepository _authRepository;
   final TeamRepository _teamRepository;
+  final UserRepository _userRepository;
 
-  TeamHomeCubit(this._authRepository, this._teamRepository)
+  TeamHomeCubit(
+      this._authRepository, this._teamRepository, this._userRepository)
       : super(const TeamHomeState());
 
   Future<void> handleSignOut() async {
@@ -59,11 +64,18 @@ class TeamHomeCubit extends Cubit<TeamHomeState> {
 //Emit state here, no longer need future builder.
   void getData() async {
     final GetTeamHomeData res = await _teamRepository.getTeamHomeData();
+    List<Future<UserAvatarEntity?>> asyncOperations = [];
+
+    asyncOperations.add(_userRepository.fetchUserAvatar(
+        DownloadAvatarImageRequest(
+            userId: res.user.id!, isSignedUrlEnabled: true)));
+    List<UserAvatarEntity?> avatars = await Future.wait(asyncOperations);
+    final UserEntity userData = res.user.copyWith(userAvatar: avatars[0]);
 
     final newState = state.copyWith(
         memberTeamData: res.memberTeams,
         ownerTeamData: res.ownerTeams,
-        userData: res.user,
+        userData: userData,
         isLoaded: true);
     debugPrint('Home state emitted');
     emit(newState);

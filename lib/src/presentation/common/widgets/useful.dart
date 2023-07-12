@@ -167,25 +167,6 @@ Widget teamPicture(double diameter, String address) {
           )));
 }
 
-Widget circleIcon({color, icon}) {
-  return Container(
-    decoration: BoxDecoration(color: color, shape: BoxShape.circle, boxShadow: [
-      BoxShadow(
-        color: Colors.grey.withOpacity(0.3),
-        spreadRadius: 3,
-        blurRadius: 3,
-        offset: const Offset(0, 3),
-      )
-    ]),
-    child: Padding(
-        padding: const EdgeInsets.all(15),
-        child: Icon(
-          icon,
-          size: 30,
-        )),
-  );
-}
-
 Widget searchBar() {
   return Flexible(
     flex: 1,
@@ -391,18 +372,19 @@ Future<T?> showModalBottomSheetHandler<T>(
 }
 
 Widget boldFirstText(String text1, String text2, {size = 12.5}) {
-  return RichText(
-    text: TextSpan(
-      style: TextStyle(
-        fontSize: size,
-        color: Colors.black,
-      ),
-      children: <TextSpan>[
-        TextSpan(
-            text: text1, style: const TextStyle(fontWeight: FontWeight.bold)),
-        TextSpan(text: text2),
-      ],
-    ),
+  return Row(
+    children: [
+      Text(text1,
+          maxLines: 2,
+          softWrap: true,
+          overflow: TextOverflow.ellipsis,
+          style: TextStyle(fontSize: size, fontWeight: FontWeight.bold)),
+      Text(text2,
+          maxLines: 2,
+          softWrap: true,
+          overflow: TextOverflow.ellipsis,
+          style: TextStyle(fontSize: size)),
+    ],
   );
 }
 

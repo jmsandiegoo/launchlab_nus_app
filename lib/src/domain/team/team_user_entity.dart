@@ -39,6 +39,7 @@ class TeamUserEntity extends Equatable {
 
   String getFullName() {
     return '${user.firstName} ${user.lastName}';
+
   }
 
   String? getAvatarURL() {

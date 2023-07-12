@@ -1,5 +1,6 @@
 import 'dart:async';
 
+
 import 'package:flutter/material.dart';
 import 'package:launchlab/src/domain/chat/models/chat_message_entity.dart';
 import 'package:launchlab/src/domain/chat/models/team_chat_entity.dart';
@@ -9,6 +10,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 class ChatRepository implements ChatRepositoryImpl {
   final Supabase _supabase;
   ChatRepository(this._supabase);
+
 
   RealtimeChannel? _teamChatMessageSub;
 

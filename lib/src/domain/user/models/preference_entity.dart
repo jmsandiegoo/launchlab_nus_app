@@ -84,4 +84,12 @@ class PreferenceEntity extends Equatable {
         categories,
         userId,
       ];
+
+  String getSkillString() {
+    String skillStr = '';
+    for (SkillEntity skill in skillsInterests) {
+      skillStr += '${skill.name}, ';
+    }
+    return skillStr.substring(0, skillStr.length - 2);
+  }
 }

@@ -29,8 +29,10 @@ class _TeamHomeCardState extends State<TeamHomeCard> {
       padding: const EdgeInsets.symmetric(horizontal: 25),
       child: Column(children: [
         Container(
+          decoration: const BoxDecoration(
+              color: whiteColor,
+              borderRadius: BorderRadius.all(Radius.circular(10))),
           width: double.infinity,
-          color: whiteColor,
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
             child:
