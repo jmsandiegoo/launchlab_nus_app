@@ -1,5 +1,4 @@
 import 'package:launchlab/src/domain/search/external_team_entity.dart';
-import 'package:launchlab/src/domain/search/owner_entity.dart';
 import 'package:launchlab/src/domain/search/responses/get_external_team.dart';
 import 'package:launchlab/src/domain/search/responses/get_recomendation.dart';
 import 'package:launchlab/src/domain/search/responses/get_search_result.dart';
@@ -118,26 +117,17 @@ class SearchRepository {
 
     var ownerDetails = await supabase
         .from('users')
-        .select(
-            'first_name, last_name, team_users!inner(team_id ,is_owner), user_avatars(*)')
+        .select('*, team_users!inner(team_id ,is_owner)')
         .eq('team_users.is_owner', true)
         .eq('team_users.team_id', teamId)
         .single();
-
-    var teamOwnerURL = ownerDetails['user_avatars'] == null
-        ? ''
-        : await supabase.storage.from('user_avatar_bucket').createSignedUrl(
-            '${ownerDetails['user_avatars']['file_identifier']}', 60);
-    ownerDetails['avatar_url'] = teamOwnerURL;
-
-    OwnerEntity owner = OwnerEntity.fromJson(ownerDetails);
 
     var applicants = await supabase
         .from('team_applicants')
         .select('*')
         .eq('team_id', teamId);
 
-    return GetExternalTeam(team, owner, applicants);
+    return GetExternalTeam(team, ownerDetails, applicants);
   }
 
   getUserSearch(searchUsername) async {
