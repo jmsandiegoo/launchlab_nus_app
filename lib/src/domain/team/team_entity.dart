@@ -37,7 +37,6 @@ class TeamEntity extends Equatable {
         avatar,
         avatarURL,
         milestones,
-        teamChats,
       ];
 
   final String id;
@@ -55,30 +54,6 @@ class TeamEntity extends Equatable {
   final String? avatar;
   final String avatarURL;
   final List milestones;
-  final List<TeamChatEntity> teamChats;
-
-  TeamEntity setTeamChats(
-    List<TeamChatEntity> teamChats,
-  ) {
-    return TeamEntity(
-      id,
-      teamName,
-      description,
-      currentMembers,
-      maxMembers,
-      startDate,
-      endDate,
-      commitment,
-      category,
-      interest,
-      avatar,
-      avatarURL,
-      isListed,
-      isCurrent,
-      milestones,
-      teamChats: teamChats,
-    );
-  }
 
   TeamEntity setTeamChats(
     List<TeamChatEntity> teamChats,
@@ -118,8 +93,7 @@ class TeamEntity extends Equatable {
         interest = json['interest'],
         avatar = json['avatar'],
         avatarURL = json['avatar_url'],
-        milestones = json['milestones'],
-        teamChats = [];
+        milestones = json['milestones'];
 
   TeamEntity.fromJson(Map<String, dynamic> json)
       : id = json['id'],
@@ -136,8 +110,7 @@ class TeamEntity extends Equatable {
         interest = json['interest'],
         avatar = json['avatar'],
         avatarURL = json['avatar_url'],
-        milestones = [],
-        teamChats = [];
+        milestones = [];
 
   int getMilestoneProgress() {
     int incompleteTask =

@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:launchlab/src/domain/team/user_entity.dart';
+import 'package:launchlab/src/domain/user/models/user_entity.dart';
 
 class MessageSeenEntity extends Equatable {
   const MessageSeenEntity({
