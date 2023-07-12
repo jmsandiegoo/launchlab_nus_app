@@ -3,6 +3,7 @@ import 'package:launchlab/src/domain/search/owner_entity.dart';
 import 'package:launchlab/src/domain/search/responses/get_external_team.dart';
 import 'package:launchlab/src/domain/search/responses/get_recomendation.dart';
 import 'package:launchlab/src/domain/search/responses/get_search_result.dart';
+import 'package:launchlab/src/domain/search/responses/get_user_search_result.dart';
 import 'package:launchlab/src/domain/search/search_filter_entity.dart';
 import 'package:launchlab/src/domain/search/search_team_entity.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -65,11 +66,18 @@ class SearchRepository {
     return GetSearchResult(searchedTeams, user!.id);
   }
 
-  getRecomendationData() async {
+  getRecomendationData(filterData) async {
     var teamNameData = await supabase
         .from('teams')
         .select('*, roles_open(title)')
-        .eq('is_listed', true);
+        .eq('is_listed', true)
+        .filter('commitment', filterData.commitmentInput == '' ? 'neq' : 'eq',
+            filterData.commitmentInput)
+        .filter(
+            'project_category',
+            filterData.categoryInput == '' ? 'neq' : 'eq',
+            filterData.categoryInput)
+        .or(filterData.interestFilterString());
 
     List<SearchTeamEntity> searchedTeams = [];
     for (int i = 0; i < teamNameData.length; i++) {
@@ -130,6 +138,15 @@ class SearchRepository {
         .eq('team_id', teamId);
 
     return GetExternalTeam(team, owner, applicants);
+  }
+
+  getUserSearch(searchUsername) async {
+    var userData = await supabase
+        .from('users')
+        .select(
+            '*, degree_programmes(*), experiences(*), accomplishments(*),preferences(*, categories_preferences(categories(*)), skills_preferences(selected_skills(*)))')
+        .textSearch('username', searchUsername);
+    return GetSearchUserResult(userData);
   }
 
   applyToTeam({teamId, userId}) async {

@@ -1,16 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:launchlab/src/domain/team/team_applicant_entity.dart';
 import 'package:launchlab/src/domain/user/models/accomplishment_entity.dart';
 import 'package:launchlab/src/domain/user/models/experience_entity.dart';
+import 'package:launchlab/src/domain/user/models/user_entity.dart';
 import 'package:launchlab/src/presentation/authentication/screens/signin_page.dart';
-import 'package:launchlab/src/presentation/chat/screens/chat_page.dart';
+import 'package:launchlab/src/presentation/chat/screens/team_chats_page.dart';
+import 'package:launchlab/src/presentation/chat/widgets/team_chat_list.dart';
+import 'package:launchlab/src/presentation/chat/widgets/team_invite_chat_list.dart';
+import 'package:launchlab/src/presentation/chat/widgets/team_request_chat_list.dart';
+import 'package:launchlab/src/presentation/chat/widgets/test_page.dart';
 import 'package:launchlab/src/presentation/common/cubits/app_root_cubit.dart';
 import 'package:launchlab/src/presentation/common/screens/protected_screen_page.dart';
 import 'package:launchlab/src/presentation/common/screens/splash_screen_page.dart';
 import 'package:launchlab/src/presentation/common/screens/unprotected_screen_page.dart';
 import 'package:launchlab/src/presentation/common/widgets/scaffold_with_bottom_nav.dart';
 import 'package:launchlab/src/presentation/search/screens/discover_page.dart';
+import 'package:launchlab/src/presentation/search/screens/discover_user_page.dart';
+import 'package:launchlab/src/presentation/search/screens/external_user_page.dart';
 import 'package:launchlab/src/presentation/team/screens/applicant_page.dart';
 import 'package:launchlab/src/presentation/team/screens/manage_team_page.dart';
 import 'package:launchlab/src/presentation/team/screens/team_home_page.dart';
@@ -52,6 +60,8 @@ final _unprotectedShellNavigatorKey = GlobalKey<NavigatorState>();
 final _profileShellKey = GlobalKey<NavigatorState>();
 final _teamShellKey = GlobalKey<NavigatorState>();
 final _chatShellKey = GlobalKey<NavigatorState>();
+final _nestedTeamChatShellKey = GlobalKey<NavigatorState>();
+final _nestedAppChatShellKey = GlobalKey<NavigatorState>();
 final _discoverShellKey = GlobalKey<NavigatorState>();
 final _onboardingShellKey = GlobalKey<NavigatorState>();
 final _nestedOnboardingShellKey = GlobalKey<NavigatorState>();
@@ -212,11 +222,10 @@ final GoRouter appRouter = GoRouter(
                                   routes: [
                                     GoRoute(
                                       path: "applicants",
-                                      pageBuilder: (context, state) =>
-                                          NoTransitionPage(
-                                              child: ApplicantPage(
-                                                  applicationID:
-                                                      state.extra as String)),
+                                      builder: (context, state) =>
+                                          ApplicantPage(
+                                              applicantData: state.extra
+                                                  as TeamApplicantEntity),
                                     ),
                                   ]),
                             ]),
@@ -230,9 +239,45 @@ final GoRouter appRouter = GoRouter(
               routes: [
                 GoRoute(
                   path: "/chats",
-                  pageBuilder: (context, state) =>
-                      const NoTransitionPage(child: ChatPage()),
+                  redirect: (context, state) {
+                    // redirect logic call to fetch teams without messages
+                    return '/team-chats/123/team';
+                  },
                 ),
+                GoRoute(
+                  parentNavigatorKey: _chatShellKey,
+                  path: "/test",
+                  builder: (context, state) => const TestPage(),
+                ),
+                ShellRoute(
+                  navigatorKey: _nestedTeamChatShellKey,
+                  pageBuilder: (context, state, child) {
+                    return NoTransitionPage(
+                      child: TeamChatsPage(
+                          teamId: state.pathParameters['teamId']!,
+                          child: child),
+                    );
+                  },
+                  routes: [
+                    GoRoute(
+                      path: "/team-chats/:teamId/team",
+                      pageBuilder: (context, state) => const NoTransitionPage(
+                        child: TeamChatList(),
+                      ),
+                    ),
+                    GoRoute(
+                      path: "/team-chats/:teamId/requests",
+                      pageBuilder: (context, state) =>
+                          const NoTransitionPage(child: TeamRequestChatList()),
+                    ),
+                    GoRoute(
+                      path: "/team-chats/:teamId/invites",
+                      pageBuilder: (context, state) =>
+                          const NoTransitionPage(child: TeamInviteChatList()),
+                    ),
+                  ],
+                ),
+                // ShellRoute(navigatorKey: _nestedAppChatShellKey),
               ],
             ),
 
@@ -251,6 +296,17 @@ final GoRouter appRouter = GoRouter(
                           pageBuilder: (context, state) => NoTransitionPage(
                               child: ExternalTeamPage(
                                   teamIdUserIdData: state.extra as List)),
+                        ),
+                      ]),
+                  GoRoute(
+                      path: "/discover_user",
+                      pageBuilder: (context, state) =>
+                          const NoTransitionPage(child: DiscoverUserPage()),
+                      routes: [
+                        GoRoute(
+                          path: "external_user",
+                          builder: (context, state) => ExternalUserPage(
+                              userData: state.extra as UserEntity),
                         ),
                       ]),
                 ]),

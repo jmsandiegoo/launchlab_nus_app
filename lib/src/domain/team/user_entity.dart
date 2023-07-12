@@ -1,7 +1,7 @@
 import 'package:equatable/equatable.dart';
 
-class UserEntity extends Equatable {
-  const UserEntity(this.id, this.firstName, this.lastName, this.title,
+class UserTeamEntity extends Equatable {
+  const UserTeamEntity(this.id, this.firstName, this.lastName, this.title,
       this.about, this.degree, this.avatarURL, this.resume, this.applicantId);
 
   @override
@@ -27,36 +27,36 @@ class UserEntity extends Equatable {
   final String? resume;
   final String applicantId;
 
-  UserEntity.fromJson(Map<String, dynamic> json)
+  UserTeamEntity.fromJson(Map<String, dynamic> json)
       : id = json['id'],
         firstName = json['first_name'],
         lastName = json['last_name'],
         title = json['title'],
         about = json['about'],
         degree = '',
-        avatarURL = json['avatar_url'],
+        avatarURL = '',
         resume = json['resume'],
         applicantId = '';
 
-  UserEntity.fromApplicantJson(Map<String, dynamic> json)
+  UserTeamEntity.fromApplicantJson(Map<String, dynamic> json)
       : id = json['id'],
         firstName = json['first_name'],
         lastName = json['last_name'],
         title = json['title'],
         about = json['about'],
         degree = json['degree_programmes']['name'],
-        avatarURL = json['avatar_url'],
+        avatarURL = '',
         resume = json['resume'],
         applicantId = '';
 
-  UserEntity.fromManageTeamJson(Map<String, dynamic> json)
+  UserTeamEntity.fromManageTeamJson(Map<String, dynamic> json)
       : id = json['id'],
         firstName = json['first_name'],
         lastName = json['last_name'],
         title = json['title'],
         about = json['about'],
         degree = '',
-        avatarURL = json['avatar_url'],
+        avatarURL = '',
         resume = json['resume'],
         applicantId = json['team_applicants'][0]['id'];
 
