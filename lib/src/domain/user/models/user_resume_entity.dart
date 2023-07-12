@@ -6,15 +6,16 @@ import 'package:launchlab/src/utils/extensions.dart';
 class UserResumeEntity extends FileEntity {
   const UserResumeEntity({
     String? id,
-    required String userId,
+    required this.userId,
     required File file,
     String? signedUrl,
   }) : super(
           id: id,
-          userId: userId,
           file: file,
           signedUrl: signedUrl,
         );
+
+  final String userId;
 
   @override
   String get fileIdentifier => "${userId}_resume.${file.ext}";
@@ -32,5 +33,20 @@ class UserResumeEntity extends FileEntity {
       file: file ?? this.file,
       signedUrl: signedUrl ?? this.signedUrl,
     );
+  }
+
+  @override
+  Map<String, dynamic> toJson() {
+    Map<String, dynamic> json = {
+      'file_name': fileName,
+      'file_identifier': fileIdentifier,
+      'user_id': userId,
+    };
+
+    if (id != null) {
+      json['id'] = id;
+    }
+
+    return json;
   }
 }

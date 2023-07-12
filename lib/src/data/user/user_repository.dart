@@ -257,6 +257,48 @@ class UserRepository implements UserRepositoryImpl {
     }
   }
 
+  // @override
+  Future<GetProfileInfoResponse> getUserBasicProfileInfo(
+      GetProfileInfoRequest request) async {
+    try {
+      final userRes = await _supabase.client
+          .from("users")
+          .select<PostgrestList>("*")
+          .eq("id", request.userId);
+
+      if (userRes.isEmpty) {
+        debugPrint("No user found while getting profile info.");
+        throw Failure.request();
+      }
+
+      final UserEntity user = UserEntity.fromJson(userRes[0]);
+
+      // fetch the profile picture
+      UserAvatarEntity? userAvatar =
+          await fetchUserAvatar(DownloadAvatarImageRequest(
+        userId: user.id!,
+        isSignedUrlEnabled: true,
+      ));
+
+      return GetProfileInfoResponse(
+        userProfile: user.setRelations(
+          userAvatar: userAvatar,
+        ),
+      );
+    } on Failure catch (_) {
+      rethrow;
+    } on PostgrestException catch (error) {
+      debugPrint("fetch user postgre error: $error");
+      throw Failure.request(code: error.code);
+    } on StorageException catch (error) {
+      debugPrint("fetch user storage error: $error");
+      throw Failure.request(code: error.statusCode);
+    } on Exception catch (error) {
+      debugPrint("fetch user unexpected error occured $error");
+      throw Failure.unexpected();
+    }
+  }
+
   @override
   Future<GetProfileInfoResponse> getProfileInfo(
       GetProfileInfoRequest request) async {

@@ -5,6 +5,9 @@ class TeamRequestChatList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Text("Team Request Chat List");
+
+    return const Center(
+      child: Text("Team Request Chat List"),
+    );
   }
 }

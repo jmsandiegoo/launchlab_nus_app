@@ -103,16 +103,16 @@ class ProfileHeader extends StatelessWidget {
             teamStats: [
               TeamStat(
                   textLabel: "Completed",
-                  numVal: 5,
+                  numVal: 0,
                   icon: Icons.check_circle_sharp),
               TeamStat(
                 textLabel: "Leading",
-                numVal: 4,
+                numVal: 0,
                 icon: Icons.people_alt,
               ),
               TeamStat(
                 textLabel: "Participating",
-                numVal: 4,
+                numVal: 0,
                 icon: Icons.handshake_outlined,
               ),
             ],
@@ -188,9 +188,10 @@ class TeamStatsBox extends StatelessWidget {
           Row(mainAxisAlignment: MainAxisAlignment.center, children: [
             Icon(teamStat.icon, color: yellowColor, size: 12.0),
             const SizedBox(width: 2),
-            Text(
-              teamStat.numVal.toString(),
-              style: const TextStyle(
+            const Text(
+              // teamStat.numVal.toString(),
+              "-",
+              style: TextStyle(
                   fontSize: 12.0,
                   fontWeight: FontWeight.bold,
                   color: yellowColor),

@@ -1,5 +1,9 @@
 import 'dart:async';
 
+
+import 'package:flutter/material.dart';
+import 'package:launchlab/src/domain/chat/models/chat_message_entity.dart';
+import 'package:launchlab/src/domain/chat/models/team_chat_entity.dart';
 import 'package:launchlab/src/domain/chat/repositories/chat_repository_impl.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -7,40 +11,71 @@ class ChatRepository implements ChatRepositoryImpl {
   final Supabase _supabase;
   ChatRepository(this._supabase);
 
-  StreamSubscription<List<Map<String, dynamic>>>? _teamChatsSub;
-  final Map<String, StreamSubscription<List<Map<String, dynamic>>>>
-      _teamChatMessagesSubs = {};
 
-  // listen to team chats;
-  void listenToTeamChats(
-      {required String eqId, required void Function() streamHandler}) {
-    _teamChatsSub = _supabase.client
+  RealtimeChannel? _teamChatMessageSub;
+
+  /// realtime functions
+  // subscibe to messages for a particular chat message only onChanges
+  void subscribeToTeamChatMessages(
+      {required FutureOr<void> Function(dynamic payload) streamHandler}) {
+    _teamChatMessageSub = _supabase.client
+        .channel("public:team_chat_messages")
+        .on(
+            RealtimeListenTypes.postgresChanges,
+            ChannelFilter(
+                event: "INSERT",
+                schema: "*",
+                table: "team_chat_messages"), ((payload, [ref]) {
+      debugPrint('Change received: ${payload.toString()} refs: $ref');
+      streamHandler(payload);
+    }));
+
+    _teamChatMessageSub?.subscribe();
+  }
+
+  Future<void> unsubscribeToTeamChatMessages() async {
+    if (_teamChatMessageSub == null) {
+      return;
+    }
+    await _supabase.client.removeChannel(_teamChatMessageSub!);
+  }
+
+  // non-realtime functions
+  Future<List<TeamChatEntity>> getTeamChatsByTeamId(
+      {required String teamId}) async {
+    // fetch team chats
+    final List<Map<String, dynamic>> res = await _supabase.client
         .from("team_chats")
-        .stream(primaryKey: ["id"])
-        .eq("id", eqId)
-        .listen((List<Map<String, dynamic>> data) {
-          print(data);
-          streamHandler();
-        });
+        .select<PostgrestList>(
+            "*, messages:team_chat_messages(*, user:users(*)), chat_users:team_chat_users(*)")
+        .eq("team_id", teamId)
+        .order('created_at', foreignTable: "team_chat_messages")
+        .limit(1, foreignTable: 'team_chat_messages');
+
+    List<TeamChatEntity> teamChats =
+        res.map((item) => TeamChatEntity.fromJson(item)).toList();
+    return teamChats;
   }
 
-  void stopListenToTeamChats() {
-    _teamChatsSub?.cancel();
-  }
+  Future<List<ChatMessageEntity>> getTeamChatMessagesByChatId(
+      {required String chatId}) async {
+    // paginate later
+    final List<Map<String, dynamic>> res = await _supabase.client
+        .from("team_chat_messages")
+        .select("*, seens:team_message_seens(*)")
+        .eq(
+          "chat_id",
+          chatId,
+        )
+        .order("created_at");
 
-  // listen to messages for a particular chat message
-  void listenToTeamChatMessages(String eqId) {
-    var streamBuilder = _supabase.client
-        .from("team_chats")
-        .stream(primaryKey: ["id"]).eq("id", eqId);
+    List<ChatMessageEntity> teamChatMessages = [];
 
-    _teamChatMessagesSubs[eqId] =
-        streamBuilder.listen((List<Map<String, dynamic>> data) {});
-  }
+    for (int i = 0; i < res.length; i++) {
+      teamChatMessages.add(ChatMessageEntity.fromJson(res[i]));
+    }
 
-  void stopListenToTeamChatMessages({required String eqId}) {
-    _teamChatMessagesSubs[eqId]?.cancel();
-    _teamChatMessagesSubs.remove(eqId);
+    return teamChatMessages;
   }
 
   // listen to message seens for a particular message

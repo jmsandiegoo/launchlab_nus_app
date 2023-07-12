@@ -6,13 +6,11 @@ import 'package:launchlab/src/utils/extensions.dart';
 abstract class FileEntity extends Equatable {
   const FileEntity({
     this.id,
-    required this.userId,
     required this.file,
     this.signedUrl,
   });
 
   final String? id;
-  final String userId;
   final File file;
   final String? signedUrl;
 
@@ -30,7 +28,6 @@ abstract class FileEntity extends Equatable {
     Map<String, dynamic> json = {
       'file_name': fileName,
       'file_identifier': fileIdentifier,
-      'user_id': userId,
     };
 
     if (id != null) {
@@ -45,7 +42,6 @@ abstract class FileEntity extends Equatable {
         id,
         fileName,
         fileIdentifier,
-        userId,
         file,
         signedUrl,
       ];

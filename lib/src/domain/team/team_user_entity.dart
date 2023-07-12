@@ -39,9 +39,14 @@ class TeamUserEntity extends Equatable {
 
   String getFullName() {
     return '${user.firstName} ${user.lastName}';
+
   }
 
   String? getAvatarURL() {
     return user.userAvatar?.signedUrl;
+  }
+
+  bool checkIfCurrentUser({required String currUserId}) {
+    return userId == currUserId;
   }
 }

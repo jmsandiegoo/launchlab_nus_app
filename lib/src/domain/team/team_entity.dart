@@ -17,9 +17,8 @@ class TeamEntity extends Equatable {
     this.avatarURL,
     this.isListed,
     this.isCurrent,
-    this.milestones, {
-    this.teamChats = const [],
-  });
+    this.milestones,
+  );
 
   @override
   List<Object?> get props => [
@@ -78,6 +77,28 @@ class TeamEntity extends Equatable {
       isCurrent,
       milestones,
       teamChats: teamChats,
+    );
+  }
+
+  TeamEntity setTeamChats(
+    List<TeamChatEntity> teamChats,
+  ) {
+    return TeamEntity(
+      id,
+      teamName,
+      description,
+      currentMembers,
+      maxMembers,
+      startDate,
+      endDate,
+      commitment,
+      category,
+      interest,
+      avatar,
+      avatarURL,
+      isListed,
+      isCurrent,
+      milestones,
     );
   }
 

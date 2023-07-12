@@ -241,13 +241,16 @@ final GoRouter appRouter = GoRouter(
                   path: "/chats",
                   redirect: (context, state) {
                     // redirect logic call to fetch teams without messages
-                    return '/team-chats/123/team';
+
+                    // return '/team-chats/f3dc09bb-182a-45bf-aeb0-264c822666b5/team';
+                    return '/team-chats/83df8c34-0c23-441b-a1e7-926868f399ff/team';
                   },
                 ),
                 GoRoute(
                   parentNavigatorKey: _chatShellKey,
                   path: "/test",
-                  builder: (context, state) => const TestPage(),
+
+                  builder: (context, state) => TestPage(),
                 ),
                 ShellRoute(
                   navigatorKey: _nestedTeamChatShellKey,
@@ -268,12 +271,12 @@ final GoRouter appRouter = GoRouter(
                     GoRoute(
                       path: "/team-chats/:teamId/requests",
                       pageBuilder: (context, state) =>
-                          const NoTransitionPage(child: TeamRequestChatList()),
+                          NoTransitionPage(child: TeamRequestChatList()),
                     ),
                     GoRoute(
                       path: "/team-chats/:teamId/invites",
                       pageBuilder: (context, state) =>
-                          const NoTransitionPage(child: TeamInviteChatList()),
+                          NoTransitionPage(child: TeamInviteChatList()),
                     ),
                   ],
                 ),
