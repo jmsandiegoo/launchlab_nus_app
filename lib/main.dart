@@ -69,6 +69,7 @@ class _RootAppContentState extends State<RootAppContent> {
     return MaterialApp.router(
       theme: appThemeData,
       routerConfig: appRouter,
+      debugShowCheckedModeBanner: false,
       builder: (context, child) => Overlay(
         initialEntries: <OverlayEntry>[
           OverlayEntry(
