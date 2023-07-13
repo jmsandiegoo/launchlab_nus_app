@@ -9,6 +9,7 @@ import 'package:launchlab/src/presentation/team/cubits/team_cubit.dart';
 import 'package:launchlab/src/presentation/team/widgets/manage_member_form.dart';
 import 'package:launchlab/src/presentation/team/widgets/add_task.dart';
 import 'package:launchlab/src/presentation/team/widgets/milestone_card.dart';
+import 'package:launchlab/src/presentation/team/widgets/milestone_screen.dart';
 import 'package:launchlab/src/presentation/team/widgets/team_confirmation.dart';
 import 'package:launchlab/src/utils/constants.dart';
 import 'package:launchlab/src/utils/helper.dart';
@@ -71,11 +72,13 @@ class _TeamState extends State<TeamContent> {
                             navigatePopWithData(context, '', actionType),
                       ),
                       actions: [
+                        /*
                         IconButton(
                             onPressed: () {
                               debugPrint("Add");
                             },
                             icon: const Icon(Icons.person_add_alt_1)),
+                            */
                         IconButton(
                             onPressed: () {
                               debugPrint("Chat");
@@ -96,7 +99,15 @@ class _TeamState extends State<TeamContent> {
                                   }).toList();
                                 },
                               )
-                            : const SizedBox()
+                            : PopupMenuButton<String>(
+                                onSelected: _handleClick,
+                                itemBuilder: (BuildContext context) {
+                                  return {'Leave'}.map((String choice) {
+                                    return PopupMenuItem<String>(
+                                        value: choice, child: Text(choice));
+                                  }).toList();
+                                },
+                              )
                       ]),
                   body: ListView(children: [
                     Padding(
@@ -249,12 +260,18 @@ class _TeamState extends State<TeamContent> {
                                           teamCubit
                                               .state.incompleteMilestone.length;
                                       i++) ...[
-                                    MilestoneCard(
-                                        milestoneData: teamCubit
-                                            .state.incompleteMilestone[i],
-                                        isOwner: isOwner,
-                                        teamCubit: teamCubit,
-                                        teamId: teamId)
+                                    GestureDetector(
+                                      onTap: () {
+                                        _showMemberScreen(teamCubit
+                                            .state.incompleteMilestone[i]);
+                                      },
+                                      child: MilestoneCard(
+                                          milestoneData: teamCubit
+                                              .state.incompleteMilestone[i],
+                                          isOwner: isOwner,
+                                          teamCubit: teamCubit,
+                                          teamId: teamId),
+                                    )
                                   ],
                                   //Milestones
                                   for (int i = 0;
@@ -262,12 +279,17 @@ class _TeamState extends State<TeamContent> {
                                           teamCubit
                                               .state.completedMilestone.length;
                                       i++) ...[
-                                    MilestoneCard(
-                                        milestoneData: teamCubit
-                                            .state.completedMilestone[i],
-                                        isOwner: isOwner,
-                                        teamCubit: teamCubit,
-                                        teamId: teamId)
+                                    GestureDetector(
+                                        onTap: () {
+                                          _showMemberScreen(teamCubit
+                                              .state.completedMilestone[i]);
+                                        },
+                                        child: MilestoneCard(
+                                            milestoneData: teamCubit
+                                                .state.completedMilestone[i],
+                                            isOwner: isOwner,
+                                            teamCubit: teamCubit,
+                                            teamId: teamId))
                                   ],
                                   const SizedBox(height: 30),
                                 ]),
@@ -282,6 +304,16 @@ class _TeamState extends State<TeamContent> {
   void refreshPage() {
     teamCubit.loading();
     teamCubit.getData(teamData.id);
+  }
+
+  void _showMemberScreen(milestoneData) {
+    showDialog(
+        context: context,
+        builder: (context) {
+          return MilestoneScreen(
+            milestone: milestoneData,
+          );
+        });
   }
 
   void _manageMember(isOwner, memberData, teamId, currentMembers) {
@@ -312,6 +344,7 @@ class _TeamState extends State<TeamContent> {
       taskTitle = '',
       startDate = '',
       endDate = '',
+      description = '',
       actionType = ActionTypes.create}) {
     showModalBottomSheet(
         shape: const RoundedRectangleBorder(
@@ -324,6 +357,7 @@ class _TeamState extends State<TeamContent> {
               taskTitle: taskTitle,
               startDate: startDate,
               endDate: endDate,
+              description: description,
               actionType: actionType);
         }).then((output) {
       if (output != null) {
@@ -332,13 +366,16 @@ class _TeamState extends State<TeamContent> {
               title: output[0],
               startDate: output[1],
               endDate: output[2],
+              description: output[3],
               teamId: teamData.id);
         } else if (actionType == ActionTypes.update) {
           teamCubit.editMilestone(
-              taskId: id,
-              title: output[0],
-              startDate: output[1],
-              endDate: output[2]);
+            taskId: id,
+            title: output[0],
+            startDate: output[1],
+            endDate: output[2],
+            description: output[3],
+          );
         }
         teamCubit.getData(teamData.id);
       }
@@ -362,6 +399,7 @@ class _TeamState extends State<TeamContent> {
         refreshPage();
       }
       if (value == ActionTypes.delete) {
+        refreshPage();
         navigatePopWithData(context, "", ActionTypes.update);
       }
     });
@@ -407,6 +445,13 @@ class _TeamState extends State<TeamContent> {
             title: 'Are you sure?',
             message: 'Do you really want to disband this team?',
             purpose: 'Disband');
+        break;
+
+      case 'Leave':
+        _teamConfirmationBox(
+            title: 'Are you sure?',
+            message: 'Do you really want to leave this team?',
+            purpose: 'Leave');
         break;
     }
   }

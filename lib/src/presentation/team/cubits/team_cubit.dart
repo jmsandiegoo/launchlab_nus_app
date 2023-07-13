@@ -94,9 +94,13 @@ class TeamCubit extends Cubit<TeamState> {
     return _teamRepository.saveMilestoneData(val: val, taskId: taskId);
   }
 
-  void addMilestone({title, startDate, endDate, teamId}) {
+  void addMilestone({title, startDate, endDate, teamId, description}) {
     _teamRepository.addMilestone(
-        title: title, startDate: startDate, endDate: endDate, teamId: teamId);
+        title: title,
+        startDate: startDate,
+        endDate: endDate,
+        teamId: teamId,
+        description: description);
     debugPrint('Milestone Added');
   }
 
@@ -105,14 +109,23 @@ class TeamCubit extends Cubit<TeamState> {
     debugPrint('Team Listed/Unlisted');
   }
 
-  void disbandTeam({teamId}) {
-    _teamRepository.disbandTeam(teamId: teamId);
+  disbandTeam({teamId}) {
     debugPrint('Team Disbanded');
+    return _teamRepository.disbandTeam(teamId: teamId);
   }
 
-  void editMilestone({taskId, startDate, endDate, title}) {
+  leaveTeam({teamId, newCurrentMember}) {
+    debugPrint('Left Team');
+    return _teamRepository.leaveTeam(teamId: teamId);
+  }
+
+  void editMilestone({taskId, startDate, endDate, title, description}) {
     _teamRepository.editMilestone(
-        taskId: taskId, startDate: startDate, endDate: endDate, title: title);
+        taskId: taskId,
+        startDate: startDate,
+        endDate: endDate,
+        title: title,
+        description: description);
     debugPrint('Task Edited');
   }
 
