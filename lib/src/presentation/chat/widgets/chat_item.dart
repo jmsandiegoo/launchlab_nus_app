@@ -27,7 +27,9 @@ class ChatItem extends StatelessWidget {
         chat is TeamChatEntity ? ChatTypes.team : ChatTypes.request;
 
     return GestureDetector(
-      onTap: () {},
+      onTap: () {
+        navigatePush(context, "/team-chat/${chat?.id}");
+      },
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 20.0),
         margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 0),

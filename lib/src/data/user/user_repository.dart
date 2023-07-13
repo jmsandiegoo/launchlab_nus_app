@@ -377,7 +377,7 @@ class UserRepository implements UserRepositoryImpl {
       if (request.isSignedUrlEnabled) {
         signedUrl = await _supabase.client.storage
             .from("user_avatar_bucket")
-            .createSignedUrl(res[0]['file_identifier'], 60);
+            .createSignedUrl(res[0]['file_identifier'], 31000000);
       }
 
       return UserAvatarEntity(

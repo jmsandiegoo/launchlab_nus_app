@@ -53,6 +53,7 @@ class TextFieldWidget extends StatefulWidget {
     required this.value,
     required this.hint,
     this.errorText,
+    this.endSpacing = true,
     this.size = 1,
     required this.controller,
     this.keyboard = TextInputType.multiline,
@@ -67,6 +68,7 @@ class TextFieldWidget extends StatefulWidget {
   final String value;
   final String hint;
   final String? errorText;
+  final bool endSpacing;
   final int size;
   final TextEditingController controller;
   final TextInputType keyboard;
@@ -88,6 +90,7 @@ class _TextFieldWidgetState extends State<TextFieldWidget> {
   @override
   Widget build(BuildContext context) {
     return userInput(
+      endSpacing: widget.endSpacing,
       prefixWidget: widget.prefixWidget,
       suffixWidget: widget.suffixWidget,
       focusNode: widget.focusNode,

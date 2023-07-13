@@ -137,7 +137,11 @@ Widget checkBox(String label, bool? value, bool tristate,
   ]);
 }
 
-Widget profilePicture(double diameter, String address, {bool isUrl = false}) {
+Widget profilePicture(
+  double diameter,
+  String address, {
+  bool isUrl = false,
+}) {
   return Container(
       width: diameter,
       height: diameter,
@@ -153,18 +157,24 @@ Widget profilePicture(double diameter, String address, {bool isUrl = false}) {
           )));
 }
 
-Widget teamPicture(double diameter, String address) {
+Widget teamPicture(
+  double size,
+  String address, {
+  bool isUrl = false,
+}) {
   return Container(
-      width: diameter,
-      height: diameter,
+      width: size,
+      height: size,
       decoration: BoxDecoration(
-          shape: BoxShape.circle,
+          // shape: BoxShape.circle,
           image: DecorationImage(
-            image: address == ''
-                ? const ExactAssetImage("assets/images/test.jpeg")
-                : Image.network(address).image,
-            fit: BoxFit.cover,
-          )));
+        image: isUrl
+            ? address == ''
+                ? const ExactAssetImage("assets/images/avatar_temp.png")
+                : Image.network(address).image
+            : ExactAssetImage("assets/images/$address"),
+        fit: BoxFit.cover,
+      )));
 }
 
 Widget circleIcon({color, icon}) {
@@ -250,12 +260,13 @@ Widget smallText(String label,
     color = blackColor,
     int? maxLines,
     weight = FontWeight.w400,
-    alignment = TextAlign.left}) {
+    alignment = TextAlign.left,
+    overflow = TextOverflow.ellipsis}) {
   return Text(
     label,
     maxLines: maxLines,
     textAlign: alignment,
-    overflow: TextOverflow.ellipsis,
+    overflow: overflow,
     style: TextStyle(
       fontSize: size,
       color: color,
@@ -341,6 +352,45 @@ Widget secondaryButton(
               style:
                   TextStyle(color: Theme.of(context).colorScheme.onSecondary),
             ),
+  );
+}
+
+Widget secondaryIconButton(
+  BuildContext context,
+  Function() onPressedHandler,
+  IconData icon, {
+  horizontalPadding = 30.0,
+  verticalPadding = 10.0,
+  double? elevation,
+  bool isLoading = false,
+  Widget? childBuilder,
+}) {
+  return ElevatedButton(
+    style: ElevatedButton.styleFrom(
+      elevation: elevation,
+      backgroundColor: Theme.of(context).colorScheme.secondary,
+      textStyle: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
+      padding: EdgeInsets.symmetric(
+        vertical: verticalPadding,
+        horizontal: horizontalPadding,
+      ),
+    ),
+    onPressed: () {
+      if (isLoading) {
+        return;
+      }
+      onPressedHandler();
+    },
+    child: isLoading
+        ? SizedBox(
+            height: 17,
+            width: 17,
+            child: CircularProgressIndicator(
+                strokeWidth: 1,
+                color: Theme.of(context).colorScheme.onSecondary),
+          )
+        : childBuilder ??
+            Icon(icon, color: Theme.of(context).colorScheme.onSecondary),
   );
 }
 
