@@ -195,5 +195,11 @@ class UserEntity extends Equatable {
         degreeProgrammeId,
         createdAt,
         updatedAt,
+        userPreference,
+        userAvatar,
+        userResume,
+        userDegreeProgramme,
+        userExperiences,
+        userAccomplishments
       ];
 }

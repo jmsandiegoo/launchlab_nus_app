@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:launchlab/src/config/app_theme.dart';
 import 'package:launchlab/src/data/search/search_repository.dart';
+import 'package:launchlab/src/data/user/user_repository.dart';
 import 'package:launchlab/src/domain/search/external_team_entity.dart';
 import 'package:launchlab/src/presentation/common/widgets/useful.dart';
 import 'package:launchlab/src/presentation/search/cubits/external_team_cubit.dart';
 import 'package:launchlab/src/utils/helper.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ExternalTeamPage extends StatelessWidget {
   final List teamIdUserIdData;
@@ -14,7 +16,8 @@ class ExternalTeamPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => ExternalTeamCubit(SearchRepository()),
+      create: (_) => ExternalTeamCubit(
+          SearchRepository(), UserRepository(Supabase.instance)),
       child: ExternalTeamContent(teamIdUserIdData: teamIdUserIdData),
     );
   }
@@ -37,8 +40,6 @@ class _ExternalTeamContentState extends State<ExternalTeamContent> {
     super.initState();
     externalTeamPageCubit = BlocProvider.of<ExternalTeamCubit>(context);
     externalTeamPageCubit.getData(widget.teamIdUserIdData[0]);
-    //Fix the loops in the entity class in the future.
-    //And all the functions, so like full name. Fix so 1 fn cna return it.
   }
 
   @override
@@ -56,7 +57,10 @@ class _ExternalTeamContentState extends State<ExternalTeamContent> {
           ? Scaffold(
               appBar: AppBar(
                 backgroundColor: Colors.transparent,
-                iconTheme: const IconThemeData(color: blackColor),
+                leading: IconButton(
+                  icon: const Icon(Icons.arrow_back, color: blackColor),
+                  onPressed: () => navigatePop(context),
+                ),
               ),
               body: Padding(
                 padding:
@@ -76,8 +80,6 @@ class _ExternalTeamContentState extends State<ExternalTeamContent> {
                                         CrossAxisAlignment.start,
                                     children: [
                                       subHeaderText(teamData.teamName),
-                                      //subHeaderText("     Listed 5h ago", size: 11.0, color: Colors.green)
-
                                       const SizedBox(height: 2),
                                       teamData.endDate == null
                                           ? boldFirstText("Deadline: ", 'None')
@@ -115,15 +117,20 @@ class _ExternalTeamContentState extends State<ExternalTeamContent> {
                                   children: [
                                     subHeaderText("Owner: ", size: 15.0),
                                     const SizedBox(width: 5),
-                                    profilePicture(
-                                        30.0,
-                                        externalTeamPageCubit
-                                            .state.ownerData!.avatarURL,
-                                        isUrl: true),
+                                    externalTeamPageCubit.state.ownerData!.user
+                                                .userAvatar ==
+                                            null
+                                        ? const SizedBox()
+                                        : profilePicture(
+                                            30.0,
+                                            externalTeamPageCubit
+                                                .state.ownerData!
+                                                .getAvatarURL()!,
+                                            isUrl: true),
                                     const SizedBox(width: 5),
                                     bodyText(
                                         externalTeamPageCubit.state.ownerData!
-                                            .ownerFullName(),
+                                            .getFullName(),
                                         size: 13.0)
                                   ]),
                             ]),
@@ -149,7 +156,7 @@ class _ExternalTeamContentState extends State<ExternalTeamContent> {
                         const SizedBox(height: 50),
                         Center(
                           child: ElevatedButton(
-                              child: bodyText("   Apply   "),
+                              child: bodyText("    Apply    "),
                               onPressed: () {
                                 if (externalTeamPageCubit.state.currentMembers
                                     .contains(userId)) {

@@ -27,7 +27,7 @@ class ApplicantAccomplishment extends StatelessWidget {
           bodyText(accomplishmentData.issuer, size: 15.0),
           const SizedBox(height: 8),
           bodyText(accomplishmentData.description!, size: 14.0),
-          const SizedBox(height: 30),
+          const SizedBox(height: 20)
         ]),
       ),
     ]));

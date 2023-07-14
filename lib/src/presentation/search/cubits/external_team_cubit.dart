@@ -2,14 +2,17 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:launchlab/src/data/search/search_repository.dart';
+import 'package:launchlab/src/data/user/user_repository.dart';
 import 'package:launchlab/src/domain/search/external_team_entity.dart';
-import 'package:launchlab/src/domain/search/owner_entity.dart';
 import 'package:launchlab/src/domain/search/responses/get_external_team.dart';
+import 'package:launchlab/src/domain/team/team_user_entity.dart';
+import 'package:launchlab/src/domain/user/models/requests/download_avatar_image_request.dart';
+import 'package:launchlab/src/domain/user/models/user_avatar_entity.dart';
 
 @immutable
 class ExternalTeamState extends Equatable {
   final ExternalTeamEntity? teamData;
-  final OwnerEntity? ownerData;
+  final TeamUserEntity? ownerData;
   final List currentApplicants;
   final List pastApplicants;
   final List currentMembers;
@@ -28,7 +31,7 @@ class ExternalTeamState extends Equatable {
 
   ExternalTeamState copyWith({
     ExternalTeamEntity? teamData,
-    OwnerEntity? ownerData,
+    TeamUserEntity? ownerData,
     List? currentApplicants,
     List? pastApplicants,
     List? currentMembers,
@@ -46,17 +49,30 @@ class ExternalTeamState extends Equatable {
 }
 
 class ExternalTeamCubit extends Cubit<ExternalTeamState> {
-  ExternalTeamCubit(this._searchRepository) : super(const ExternalTeamState());
+  ExternalTeamCubit(this._searchRepository, this._userRepository)
+      : super(const ExternalTeamState());
 
   final SearchRepository _searchRepository;
+  final UserRepository _userRepository;
 
   void getData(teamId) async {
     final GetExternalTeam res =
         await _searchRepository.getExternalTeamData(teamId);
+    final owner = res.getOwnerData();
+
+    List<Future<UserAvatarEntity?>> asyncOperations = [];
+
+    asyncOperations.add(_userRepository.fetchUserAvatar(
+        DownloadAvatarImageRequest(
+            userId: owner.user.id!, isSignedUrlEnabled: true)));
+    List<UserAvatarEntity?> avatars = await Future.wait(asyncOperations);
+
+    final ownerData =
+        owner.copyWith(user: owner.user.copyWith(userAvatar: avatars[0]));
 
     final newState = state.copyWith(
         teamData: res.teamData,
-        ownerData: res.ownerData,
+        ownerData: ownerData,
         currentApplicants: res.getCurrentApplicants(),
         pastApplicants: res.getPastApplicants(),
         currentMembers: res.getCurrentMembers(),

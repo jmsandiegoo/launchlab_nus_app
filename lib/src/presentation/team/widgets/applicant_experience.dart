@@ -28,7 +28,7 @@ class ApplicantExperience extends StatelessWidget {
             bodyText(experienceData.companyName, size: 15.0),
             const SizedBox(height: 8),
             bodyText(experienceData.description, size: 14.0),
-            const SizedBox(height: 30),
+            const SizedBox(height: 20),
           ]),
         )
       ]),

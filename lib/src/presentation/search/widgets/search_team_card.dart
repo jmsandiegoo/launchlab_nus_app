@@ -19,7 +19,9 @@ class SearchTeamCard extends StatelessWidget {
     String avatarURL = data.avatarURL;
     return Container(
       width: double.infinity,
-      color: whiteColor,
+      decoration: const BoxDecoration(
+          color: whiteColor,
+          borderRadius: BorderRadius.all(Radius.circular(10))),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
