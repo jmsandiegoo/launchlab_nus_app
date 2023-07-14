@@ -127,7 +127,8 @@ class _CreateTeamPageState extends State<CreateTeamPage> {
                         errorText: editCreateTeamCubit
                             .state.descriptionInput.displayError
                             ?.text(),
-                        size: 10,
+                        minLines: 10,
+                        maxLines: 10,
                       ),
                       Row(children: [
                         Expanded(

@@ -5,11 +5,11 @@ import 'package:launchlab/src/domain/team/team_applicant_entity.dart';
 import 'package:launchlab/src/domain/user/models/accomplishment_entity.dart';
 import 'package:launchlab/src/domain/user/models/experience_entity.dart';
 import 'package:launchlab/src/presentation/authentication/screens/signin_page.dart';
+import 'package:launchlab/src/presentation/chat/screens/team_chat_page.dart';
 import 'package:launchlab/src/presentation/chat/screens/team_chats_page.dart';
 import 'package:launchlab/src/presentation/chat/widgets/team_chat_list.dart';
 import 'package:launchlab/src/presentation/chat/widgets/team_invite_chat_list.dart';
 import 'package:launchlab/src/presentation/chat/widgets/team_request_chat_list.dart';
-import 'package:launchlab/src/presentation/chat/widgets/test_page.dart';
 import 'package:launchlab/src/presentation/common/cubits/app_root_cubit.dart';
 import 'package:launchlab/src/presentation/common/screens/protected_screen_page.dart';
 import 'package:launchlab/src/presentation/common/screens/splash_screen_page.dart';
@@ -247,8 +247,11 @@ final GoRouter appRouter = GoRouter(
                 ),
                 GoRoute(
                   parentNavigatorKey: _chatShellKey,
-                  path: "/test",
-                  builder: (context, state) => TestPage(),
+                  path: "/team-chat/:chatId",
+                  builder: (context, state) {
+                    return TeamChatPage(
+                        chatId: state.pathParameters["chatId"]!);
+                  },
                 ),
                 ShellRoute(
                   navigatorKey: _nestedTeamChatShellKey,

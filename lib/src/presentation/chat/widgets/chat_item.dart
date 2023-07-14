@@ -6,13 +6,9 @@ import 'package:launchlab/src/domain/chat/models/chat_entity.dart';
 import 'package:launchlab/src/domain/chat/models/team_chat_entity.dart';
 import 'package:launchlab/src/presentation/common/cubits/app_root_cubit.dart';
 import 'package:launchlab/src/presentation/common/widgets/useful.dart';
+import 'package:launchlab/src/utils/constants.dart';
+import 'package:launchlab/src/utils/extensions.dart';
 import 'package:launchlab/src/utils/helper.dart';
-
-enum ChatTypes {
-  team,
-  request,
-  invite,
-}
 
 class ChatItem extends StatelessWidget {
   const ChatItem({super.key, required this.chat});
@@ -28,7 +24,9 @@ class ChatItem extends StatelessWidget {
         chat is TeamChatEntity ? ChatTypes.team : ChatTypes.request;
 
     return GestureDetector(
-      onTap: () {},
+      onTap: () {
+        navigatePush(context, "/team-chat/${chat?.id}");
+      },
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 20.0),
         margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 0),
@@ -67,12 +65,8 @@ class ChatItem extends StatelessWidget {
                 ),
                 smallText(chat?.getLatestMessage()?.createdAt != null
                     ? dateStringFormatter(
-                        DateTime.now()
-                                    .toUtc()
-                                    .difference(
-                                        chat!.getLatestMessage()!.createdAt!)
-                                    .inDays <
-                                1
+                        DateTime.now().toUtc().isSameDate(
+                                chat!.getLatestMessage()!.createdAt!)
                             ? "hh:mm a"
                             : "dd MMM yyyy",
                         chat!.getLatestMessage()!.createdAt!)

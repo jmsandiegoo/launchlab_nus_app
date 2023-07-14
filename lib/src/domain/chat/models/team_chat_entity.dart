@@ -76,7 +76,7 @@ class TeamChatEntity extends ChatEntity implements Comparable<TeamChatEntity> {
     }
 
     if (isGroupChat) {
-      return team!.teamName;
+      return "Team Chat";
     } else {
       for (int i = 0; i < chatUsers.length; i++) {
         if (!chatUsers[i].checkIfCurrentUser(currUserId: currUserId)) {
@@ -132,10 +132,6 @@ class TeamChatEntity extends ChatEntity implements Comparable<TeamChatEntity> {
     }
 
     if (chatMessages.isNotEmpty && other.chatMessages.isNotEmpty) {
-      print(
-          "otherrr: ${other.getLatestMessage()} createddd: ${other.getLatestMessage()?.createdAt}");
-      print(
-          "thisssssss: ${getLatestMessage()} createddd: ${getLatestMessage()?.createdAt}");
       int res = getLatestMessage()!
           .createdAt!
           .compareTo(other.getLatestMessage()!.createdAt!);
@@ -157,6 +153,25 @@ class TeamChatEntity extends ChatEntity implements Comparable<TeamChatEntity> {
       teamId: teamId,
       chatUsers: chatUsers,
       chatMessages: chatMessages,
+      team: team,
+      createdAt: createdAt,
+      updatedAt: createdAt,
+    );
+  }
+
+  @override
+  TeamChatEntity updateMessage(
+      {required int index, required ChatMessageEntity updatedMessage}) {
+    List<ChatMessageEntity> messages = [...chatMessages];
+
+    messages[index] = updatedMessage;
+
+    return TeamChatEntity(
+      id: id,
+      isGroupChat: isGroupChat,
+      teamId: teamId,
+      chatMessages: [...messages],
+      chatUsers: chatUsers,
       team: team,
       createdAt: createdAt,
       updatedAt: createdAt,

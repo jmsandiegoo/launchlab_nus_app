@@ -209,7 +209,8 @@ class _AccomplishmentFormState extends State<AccomplishmentForm> {
               value: state.descriptionFieldInput.value,
               hint: "Ex: Write something about the accomplishment etc.",
               errorText: state.descriptionFieldInput.displayError?.text(),
-              size: 9,
+              minLines: 9,
+              maxLines: 9,
             ),
             Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,

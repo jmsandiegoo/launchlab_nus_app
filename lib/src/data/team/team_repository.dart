@@ -16,13 +16,13 @@ import 'package:uuid/uuid.dart';
 class TeamRepository {
   final supabase = Supabase.instance.client;
 
-  RealtimeChannel? _teamUsersChannel;
 
-  /// realtime
-  void subscribeToTeamUsers(
+  /// real-time
+  RealtimeChannel subscribeToTeamUsers(
       {required String teamId,
       required FutureOr<void> Function(dynamic payload) streamHandler}) {
-    _teamUsersChannel = supabase.channel('public:team_users').on(
+    final RealtimeChannel channel =
+        supabase.channel('public:team_users_${DateTime.now()}').on(
       RealtimeListenTypes.postgresChanges,
       ChannelFilter(
           event: '*',
@@ -35,15 +35,13 @@ class TeamRepository {
       },
     );
 
-    _teamUsersChannel?.subscribe();
+    channel.subscribe();
+
+    return channel;
   }
 
-  Future<void> unsubscribeToTeamUsers() async {
-    if (_teamUsersChannel == null) {
-      return;
-    }
-
-    await supabase.removeChannel(_teamUsersChannel!);
+  Future<void> unsubscribeToTeamUsers(RealtimeChannel channel) async {
+    await supabase.removeChannel(channel);
   }
 
   Future<List<TeamUserEntity>> getTeamUsers(String teamId) async {
