@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:launchlab/src/domain/chat/models/chat_message_entity.dart';
 import 'package:launchlab/src/domain/chat/models/team_chat_entity.dart';
 import 'package:launchlab/src/domain/chat/repositories/chat_repository_impl.dart';
+import 'package:launchlab/src/utils/failure.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ChatRepository implements ChatRepositoryImpl {
@@ -55,25 +56,58 @@ class ChatRepository implements ChatRepositoryImpl {
     return teamChats;
   }
 
+  Future<TeamChatEntity> getTeamChatByChatId({required String chatId}) async {
+    try {
+      final List<Map<String, dynamic>> res = await _supabase.client
+          .from("team_chats")
+          .select<PostgrestList>("*, chat_users:team_chat_users(*)")
+          .eq('id', chatId);
+
+      if (res.isEmpty) {
+        throw Failure.request();
+      }
+
+      return TeamChatEntity.fromJson(res[0]);
+    } on Failure catch (_) {
+      rethrow;
+    } on PostgrestException catch (error) {
+      debugPrint("upload user resume postgre error: $error");
+      throw Failure.request(code: error.code);
+    } on Exception catch (error) {
+      debugPrint("Upload user resume unexpected error: $error");
+      throw Failure.unexpected();
+    }
+  }
+
   Future<List<ChatMessageEntity>> getTeamChatMessagesByChatId(
       {required String chatId}) async {
     // paginate later
-    final List<Map<String, dynamic>> res = await _supabase.client
-        .from("team_chat_messages")
-        .select("*, seens:team_message_seens(*)")
-        .eq(
-          "chat_id",
-          chatId,
-        )
-        .order("created_at");
+    try {
+      final List<Map<String, dynamic>> res = await _supabase.client
+          .from("team_chat_messages")
+          .select<PostgrestList>("*, seens:team_message_seens(*)")
+          .eq(
+            "chat_id",
+            chatId,
+          )
+          .order("created_at", ascending: true);
 
-    List<ChatMessageEntity> teamChatMessages = [];
+      List<ChatMessageEntity> teamChatMessages = [];
 
-    for (int i = 0; i < res.length; i++) {
-      teamChatMessages.add(ChatMessageEntity.fromJson(res[i]));
+      for (int i = 0; i < res.length; i++) {
+        teamChatMessages.add(ChatMessageEntity.fromJson(res[i]));
+      }
+
+      return teamChatMessages;
+    } on Failure catch (_) {
+      rethrow;
+    } on PostgrestException catch (error) {
+      debugPrint("upload user resume postgre error: $error");
+      throw Failure.request(code: error.code);
+    } on Exception catch (error) {
+      debugPrint("Upload user resume unexpected error: $error");
+      throw Failure.unexpected();
     }
-
-    return teamChatMessages;
   }
 
   // listen to message seens for a particular message

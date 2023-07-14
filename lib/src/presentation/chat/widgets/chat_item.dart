@@ -5,13 +5,8 @@ import 'package:launchlab/src/domain/chat/models/chat_entity.dart';
 import 'package:launchlab/src/domain/chat/models/team_chat_entity.dart';
 import 'package:launchlab/src/presentation/common/cubits/app_root_cubit.dart';
 import 'package:launchlab/src/presentation/common/widgets/useful.dart';
+import 'package:launchlab/src/utils/constants.dart';
 import 'package:launchlab/src/utils/helper.dart';
-
-enum ChatTypes {
-  team,
-  request,
-  invite,
-}
 
 class ChatItem extends StatelessWidget {
   const ChatItem({super.key, required this.chat});

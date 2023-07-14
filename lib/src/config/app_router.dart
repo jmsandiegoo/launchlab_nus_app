@@ -9,7 +9,6 @@ import 'package:launchlab/src/presentation/chat/screens/team_chats_page.dart';
 import 'package:launchlab/src/presentation/chat/widgets/team_chat_list.dart';
 import 'package:launchlab/src/presentation/chat/widgets/team_invite_chat_list.dart';
 import 'package:launchlab/src/presentation/chat/widgets/team_request_chat_list.dart';
-import 'package:launchlab/src/presentation/chat/widgets/test_page.dart';
 import 'package:launchlab/src/presentation/common/cubits/app_root_cubit.dart';
 import 'package:launchlab/src/presentation/common/screens/protected_screen_page.dart';
 import 'package:launchlab/src/presentation/common/screens/splash_screen_page.dart';
@@ -247,7 +246,8 @@ final GoRouter appRouter = GoRouter(
                   parentNavigatorKey: _chatShellKey,
                   path: "/team-chat/:chatId",
                   builder: (context, state) {
-                    return TeamChatPage(chatId: state.pathParameters["chatId"]);
+                    return TeamChatPage(
+                        chatId: state.pathParameters["chatId"]!);
                   },
                 ),
                 ShellRoute(

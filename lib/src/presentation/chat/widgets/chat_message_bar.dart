@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:launchlab/src/config/app_theme.dart';
 import 'package:launchlab/src/presentation/common/widgets/form_fields/text_field.dart';
 import 'package:launchlab/src/presentation/common/widgets/useful.dart';
 
@@ -8,6 +9,9 @@ class ChatMessageBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
+        decoration: const BoxDecoration(
+          color: whiteColor,
+        ),
         padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 20.0),
         child: Row(
           children: [
@@ -25,7 +29,8 @@ class ChatMessageBar extends StatelessWidget {
               width: 20.0,
             ),
             secondaryIconButton(
-                context, () => null, Icons.arrow_right_alt_outlined),
+                context, () => null, Icons.arrow_right_alt_outlined,
+                elevation: 0),
           ],
         ));
   }

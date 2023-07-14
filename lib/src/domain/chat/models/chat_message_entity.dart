@@ -54,6 +54,10 @@ class ChatMessageEntity extends Equatable {
                 [])
             .cast<MessageSeenEntity>();
 
+  bool checkIfSenderIsCurrUser(String currUserId) {
+    return currUserId == userId;
+  }
+
   String? getSenderName(String currUserId) {
     if (currUserId == userId) {
       return "Me";
