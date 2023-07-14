@@ -24,6 +24,12 @@ Future<void> main() async {
     systemNavigationBarColor: Colors.transparent,
   ));
 
+
+  SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
+
   runApp(const RootApp());
 }
 
