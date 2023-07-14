@@ -67,16 +67,24 @@ class PictureUploadPickerWidget extends StatelessWidget {
           ),
         );
       },
-      child: CircleAvatar(
-          radius: 50.0,
-          backgroundImage: image != null ? FileImage(image!) : null,
-          child: image == null
-              ? imageURL == ''
-                  ? isTeam
+      child: isTeam
+          ? Container(
+              decoration: const BoxDecoration(
+                shape: BoxShape.rectangle,
+              ),
+              child: image == null
+                  ? imageURL == ''
                       ? Image.asset("assets/images/team_avatar_temp.jpeg")
-                      : Image.asset("assets/images/avatar_temp.png")
-                  : Image.network(imageURL!)
-              : null),
+                      : Image.network(imageURL!)
+                  : Image.file(File(image!.path)))
+          : CircleAvatar(
+              radius: 50.0,
+              backgroundImage: image != null ? FileImage(image!) : null,
+              child: image == null
+                  ? imageURL == ''
+                      ? Image.asset("assets/images/avatar_temp.png")
+                      : Image.network(imageURL!)
+                  : null),
     );
   }
 }

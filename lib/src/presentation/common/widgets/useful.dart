@@ -171,7 +171,7 @@ Widget teamPicture(
           image: DecorationImage(
         image: isUrl
             ? address == ''
-                ? const ExactAssetImage("assets/images/avatar_temp.png")
+                ? const ExactAssetImage("assets/images/team_avatar_temp.png")
                 : Image.network(address).image
             : ExactAssetImage("assets/images/$address"),
         fit: BoxFit.cover,

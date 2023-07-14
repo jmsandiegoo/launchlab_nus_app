@@ -80,6 +80,7 @@ class EditCreateTeamState extends Equatable {
 
   @override
   List<Object?> get props => [
+        pictureUploadInput,
         teamNameInput,
         descriptionInput,
         startDateInput,

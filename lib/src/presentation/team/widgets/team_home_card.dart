@@ -38,7 +38,7 @@ class _TeamHomeCardState extends State<TeamHomeCard> {
             child:
                 Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Row(children: [
-                teamPicture(40, avatarURL),
+                teamPicture(40, avatarURL, isUrl: true),
                 const SizedBox(width: 10),
                 Expanded(
                   child: Column(

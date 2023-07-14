@@ -72,7 +72,7 @@ class _ExternalTeamContentState extends State<ExternalTeamContent> {
                         Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              teamPicture(70, teamData.avatarURL),
+                              teamPicture(70, teamData.avatarURL, isUrl: true),
                               const SizedBox(width: 15),
                               Expanded(
                                 child: Column(
