@@ -249,7 +249,7 @@ class TeamChatPageCubit extends Cubit<TeamChatPageState> {
       newMessageInput,
     ]);
 
-    if (!isFormValid && state.teamChat == null) {
+    if (!isFormValid || state.teamChat == null) {
       return;
     }
 

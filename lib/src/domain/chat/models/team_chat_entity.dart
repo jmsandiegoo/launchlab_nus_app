@@ -76,7 +76,7 @@ class TeamChatEntity extends ChatEntity implements Comparable<TeamChatEntity> {
     }
 
     if (isGroupChat) {
-      return team!.teamName;
+      return "Team Chat";
     } else {
       for (int i = 0; i < chatUsers.length; i++) {
         if (!chatUsers[i].checkIfCurrentUser(currUserId: currUserId)) {
