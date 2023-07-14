@@ -99,15 +99,11 @@ class _MilestoneCardState extends State<MilestoneCard> {
         break;
       case 'Edit':
         _addEditTask(
-            id: widget.milestoneData.id,
-            taskTitle: widget.milestoneData.title,
-            startDate: widget.milestoneData.startDate.toString(),
-            endDate: widget.milestoneData.endDate.toString(),
-            actionType: ActionTypes.update);
+            milestone: widget.milestoneData, actionType: ActionTypes.update);
     }
   }
 
-  void _addEditTask({id, taskTitle, startDate, endDate, actionType}) {
+  void _addEditTask({milestone, actionType}) {
     showModalBottomSheet(
         shape: const RoundedRectangleBorder(
             borderRadius: BorderRadius.only(
@@ -116,19 +112,21 @@ class _MilestoneCardState extends State<MilestoneCard> {
         context: context,
         builder: (context) {
           return AddTaskBox(
-              taskTitle: taskTitle,
-              startDate: startDate,
-              endDate: endDate,
+              taskTitle: widget.milestoneData.title,
+              startDate: widget.milestoneData.startDate.toString(),
+              endDate: widget.milestoneData.endDate.toString(),
+              description: widget.milestoneData.description,
               actionType: actionType);
         }).then((output) {
       //Add new Task here -- to database
       if (output != null) {
         if (actionType == ActionTypes.update) {
           widget.teamCubit.editMilestone(
-              taskId: id,
+              taskId: widget.milestoneData.id,
               title: output[0],
               startDate: output[1],
-              endDate: output[2]);
+              endDate: output[2],
+              description: output[3]);
         }
         widget.teamCubit.getData(widget.teamId);
       }

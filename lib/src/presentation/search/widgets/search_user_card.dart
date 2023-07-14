@@ -21,15 +21,20 @@ class SearchUserCard extends StatelessWidget {
             profilePicture(40, userData.userAvatar?.signedUrl ?? "",
                 isUrl: true),
             const SizedBox(width: 10),
-            Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              const SizedBox(height: 3),
-              boldFirstText('${userData.firstName!} ${userData.lastName!}',
-                  ' (@${userData.username})',
-                  size: 13.5),
-              bodyText(userData.title!, size: 11.5),
-              bodyText(userData.userDegreeProgramme.toString(),
-                  size: 11.5) //Need to init at backend
-            ]),
+            Expanded(
+              child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 3),
+                    boldFirstText(
+                        '${userData.firstName!} ${userData.lastName!}',
+                        ' (@${userData.username})',
+                        size: 13.5),
+                    bodyText(userData.title!, size: 11.5),
+                    bodyText(userData.userDegreeProgramme.toString(),
+                        size: 11.5) //Need to init at backend
+                  ]),
+            ),
           ]),
           const SizedBox(height: 10),
           subHeaderText("Interest: ", size: 12.0),

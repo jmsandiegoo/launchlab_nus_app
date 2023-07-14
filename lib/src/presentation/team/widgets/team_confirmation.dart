@@ -45,8 +45,13 @@ class TeamConfirmationBox extends StatelessWidget {
                       teamCubit.listTeam(teamId: teamId, isListed: false);
                       Navigator.of(context).pop(ActionTypes.update);
                     } else if (purpose == 'Disband') {
-                      teamCubit.disbandTeam(teamId: teamId);
-                      Navigator.of(context).pop(ActionTypes.delete);
+                      teamCubit.disbandTeam(teamId: teamId).then((_) {
+                        Navigator.of(context).pop(ActionTypes.delete);
+                      });
+                    } else if (purpose == 'Leave') {
+                      teamCubit.leaveTeam(teamId: teamId).then((_) {
+                        Navigator.of(context).pop(ActionTypes.delete);
+                      });
                     }
                   },
                   style: TextButton.styleFrom(textStyle: const TextStyle()),
