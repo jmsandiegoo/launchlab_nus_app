@@ -10,6 +10,7 @@ class ChatMessageEntity extends Equatable {
     this.updatedAt,
     required this.chatId,
     required this.userId,
+    required this.chatMessageStatus,
     this.user,
     this.messageSeens = const [],
   });
@@ -23,6 +24,8 @@ class ChatMessageEntity extends Equatable {
   final String chatId;
   final String userId;
 
+  final ChatMessageStatus chatMessageStatus;
+
   // relational objects
   final UserEntity? user;
   final List<MessageSeenEntity> messageSeens;
@@ -33,6 +36,7 @@ class ChatMessageEntity extends Equatable {
       messageContent: messageContent,
       chatId: chatId,
       userId: userId,
+      chatMessageStatus: chatMessageStatus,
       user: user,
       messageSeens: messageSeens,
       createdAt: createdAt,
@@ -47,6 +51,7 @@ class ChatMessageEntity extends Equatable {
         userId = json['user_id'],
         createdAt = DateTime.tryParse(json['created_at'].toString()),
         updatedAt = DateTime.tryParse(json['updated_at'].toString()),
+        chatMessageStatus = ChatMessageStatus.sent,
         user = json['user'] != null ? UserEntity.fromJson(json['user']) : null,
         messageSeens = (json['message_seens']
                     ?.map((item) => MessageSeenEntity.fromJson(item))
@@ -77,4 +82,10 @@ class ChatMessageEntity extends Equatable {
         user,
         messageSeens,
       ];
+}
+
+enum ChatMessageStatus {
+  sent,
+  sending,
+  error,
 }

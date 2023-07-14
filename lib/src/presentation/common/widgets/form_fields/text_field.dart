@@ -54,12 +54,14 @@ class TextFieldWidget extends StatefulWidget {
     required this.hint,
     this.errorText,
     this.endSpacing = true,
-    this.size = 1,
+    this.minLines = 1,
+    this.maxLines = 1,
     required this.controller,
     this.keyboard = TextInputType.multiline,
     this.inputFormatter = const [],
     this.prefixWidget,
     this.suffixWidget,
+    this.isEnabled = true,
   });
 
   final FocusNode focusNode;
@@ -69,12 +71,14 @@ class TextFieldWidget extends StatefulWidget {
   final String hint;
   final String? errorText;
   final bool endSpacing;
-  final int size;
+  final int minLines;
+  final int maxLines;
   final TextEditingController controller;
   final TextInputType keyboard;
   final List<TextInputFormatter> inputFormatter;
   final Widget? prefixWidget;
   final Widget? suffixWidget;
+  final bool isEnabled;
 
   @override
   State<TextFieldWidget> createState() => _TextFieldWidgetState();
@@ -90,6 +94,7 @@ class _TextFieldWidgetState extends State<TextFieldWidget> {
   @override
   Widget build(BuildContext context) {
     return userInput(
+      isEnabled: widget.isEnabled,
       endSpacing: widget.endSpacing,
       prefixWidget: widget.prefixWidget,
       suffixWidget: widget.suffixWidget,
@@ -99,7 +104,8 @@ class _TextFieldWidgetState extends State<TextFieldWidget> {
       label: widget.label,
       hint: widget.hint,
       errorText: widget.errorText,
-      size: widget.size,
+      minLines: widget.minLines,
+      maxLines: widget.maxLines,
       keyboard: widget.keyboard,
       inputFormatter: widget.inputFormatter,
     );

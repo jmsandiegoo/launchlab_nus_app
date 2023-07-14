@@ -200,7 +200,8 @@ class _OnboardingStep1ContentState extends State<OnboardingStep1Content> {
           label: "",
           value: _onboardingCubit.state.aboutInput.value,
           hint: "",
-          size: 10,
+          minLines: 10,
+          maxLines: 10,
         )
       ],
     );

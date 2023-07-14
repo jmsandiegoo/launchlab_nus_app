@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:formz/formz.dart';
 import 'package:launchlab/src/data/chat/chat_repository.dart';
 import 'package:launchlab/src/data/team/team_repository.dart';
 import 'package:launchlab/src/data/user/user_repository.dart';
@@ -13,6 +14,7 @@ import 'package:launchlab/src/domain/user/models/responses/get_profile_info_resp
 import 'package:launchlab/src/domain/user/models/user_entity.dart';
 import 'package:launchlab/src/presentation/common/widgets/form_fields/text_field.dart';
 import 'package:launchlab/src/utils/failure.dart';
+import 'package:uuid/uuid.dart';
 
 class TeamChatPageState extends Equatable {
   const TeamChatPageState({
@@ -166,5 +168,70 @@ class TeamChatPageCubit extends Cubit<TeamChatPageState> {
     emit(state.copyWith(userProfilesCache: userProfilesCache));
 
     return chatMessages;
+  }
+
+  void onNewMessageChanged(String val) {
+    final prevState = state;
+    final prevNewMessageInputState = prevState.newMessageInput;
+
+    final shouldValidate = prevNewMessageInputState.isNotValid;
+
+    final newNewMessageInputState = shouldValidate
+        ? TextFieldInput.validated(val)
+        : TextFieldInput.unvalidated(val);
+
+    final newState = state.copyWith(
+      newMessageInput: newNewMessageInputState,
+    );
+
+    emit(newState);
+  }
+
+  void onNewMessageUnfocused() {
+    final prevState = state;
+    final prevNewMessageInputState = prevState.newMessageInput;
+    final prevNewMessageInputVal = prevNewMessageInputState.value;
+
+    final newNewMessageInputState =
+        TextFieldInput.validated(prevNewMessageInputVal);
+
+    final newState = prevState.copyWith(
+      newMessageInput: newNewMessageInputState,
+    );
+
+    emit(newState);
+  }
+
+  Future<void> handleSubmitMessage(String senderId) async {
+    final newMessageInput =
+        TextFieldInput.validated(state.newMessageInput.value);
+
+    // check if empty
+    final isFormValid = Formz.validate([
+      newMessageInput,
+    ]);
+
+    if (!isFormValid && state.teamChat == null) {
+      return;
+    }
+
+    ChatMessageEntity newMessage = ChatMessageEntity(
+      id: const Uuid().v4(),
+      messageContent: newMessageInput.value,
+      chatId: state.teamChat!.id,
+      userId: senderId,
+      chatMessageStatus: ChatMessageStatus.sending,
+      createdAt: DateTime.now(),
+      updatedAt: DateTime.now(),
+    );
+
+    TeamChatEntity newTeamChat =
+        state.teamChat!.appendMessages(messages: [newMessage]);
+
+    emit(state.copyWith(teamChat: newTeamChat));
+
+    try {
+      // submit the message by appending first
+    } on Failure catch (_) {}
   }
 }

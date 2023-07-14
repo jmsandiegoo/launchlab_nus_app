@@ -7,6 +7,7 @@ import 'package:launchlab/src/presentation/chat/cubits/team_chat_page_cubit.dart
 import 'package:launchlab/src/presentation/chat/widgets/chat_body.dart';
 import 'package:launchlab/src/presentation/chat/widgets/chat_message_bar.dart';
 import 'package:launchlab/src/presentation/chat/widgets/chat_page_header.dart';
+import 'package:launchlab/src/presentation/common/cubits/app_root_cubit.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class TeamChatPage extends StatelessWidget {
@@ -41,11 +42,13 @@ class TeamChatContent extends StatefulWidget {
 }
 
 class _TeamChatContentState extends State<TeamChatContent> {
+  late AppRootCubit _appRootCubit;
   late TeamChatPageCubit _teamChatPageCubit;
 
   @override
   void initState() {
     super.initState();
+    _appRootCubit = BlocProvider.of<AppRootCubit>(context);
     _teamChatPageCubit = BlocProvider.of<TeamChatPageCubit>(context);
     _teamChatPageCubit.handleInitializePage(widget.chatId);
   }
@@ -72,7 +75,13 @@ class _TeamChatContentState extends State<TeamChatContent> {
                   chatMessages: state.teamChat?.chatMessages ?? [],
                 ),
               ),
-              ChatMessageBar(),
+              ChatMessageBar(
+                messageDraft: state.newMessageInput.value,
+                onChangedHandler: (val) =>
+                    _teamChatPageCubit.onNewMessageChanged(val),
+                onSubmitHandler: () => _teamChatPageCubit.handleSubmitMessage(
+                    _appRootCubit.state.authUserProfile!.id!),
+              ),
             ]);
           }(),
         );

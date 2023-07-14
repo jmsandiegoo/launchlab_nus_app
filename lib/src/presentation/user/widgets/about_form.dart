@@ -93,7 +93,8 @@ class _AboutFormState extends State<AboutForm> {
               value: state.aboutInput.value,
               hint: "",
               errorText: state.aboutInput.displayError?.text(),
-              size: 9,
+              minLines: 9,
+              maxLines: 9,
             ),
             primaryButton(
               context,

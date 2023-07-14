@@ -208,6 +208,21 @@ class ChatBubble extends StatelessWidget {
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.end,
                                 children: [
+                                  ...() {
+                                    if (!isSenderCurrUser ||
+                                        message.chatMessageStatus ==
+                                            ChatMessageStatus.error) {
+                                      return [];
+                                    }
+
+                                    return [
+                                      Image.asset(
+                                          width: 16.0,
+                                          height: 16.0,
+                                          "assets/images/${message.chatMessageStatus == ChatMessageStatus.sending ? "message_sending.png" : "message_sent.png"}")
+                                    ];
+                                  }(),
+                                  const SizedBox(width: 2.0),
                                   smallText(
                                       dateStringFormatter(
                                           "hh:mm a", message.createdAt!),

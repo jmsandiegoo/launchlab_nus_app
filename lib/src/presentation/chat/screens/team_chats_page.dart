@@ -135,6 +135,7 @@ class _TeamChatsContentState extends State<TeamChatsContent> {
                     height: 20.0,
                   ),
                   TextFieldWidget(
+                      isEnabled: false,
                       focusNode: FocusNode(),
                       onChangedHandler: (val) {},
                       label: "",
