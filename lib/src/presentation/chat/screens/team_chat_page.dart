@@ -50,7 +50,8 @@ class _TeamChatContentState extends State<TeamChatContent> {
     super.initState();
     _appRootCubit = BlocProvider.of<AppRootCubit>(context);
     _teamChatPageCubit = BlocProvider.of<TeamChatPageCubit>(context);
-    _teamChatPageCubit.handleInitializePage(widget.chatId);
+    _teamChatPageCubit.handleInitializePage(
+        widget.chatId, _appRootCubit.state.authUserProfile!.id!);
   }
 
   @override

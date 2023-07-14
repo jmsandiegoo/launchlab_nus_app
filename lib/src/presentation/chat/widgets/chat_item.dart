@@ -6,6 +6,7 @@ import 'package:launchlab/src/domain/chat/models/team_chat_entity.dart';
 import 'package:launchlab/src/presentation/common/cubits/app_root_cubit.dart';
 import 'package:launchlab/src/presentation/common/widgets/useful.dart';
 import 'package:launchlab/src/utils/constants.dart';
+import 'package:launchlab/src/utils/extensions.dart';
 import 'package:launchlab/src/utils/helper.dart';
 
 class ChatItem extends StatelessWidget {
@@ -63,12 +64,8 @@ class ChatItem extends StatelessWidget {
                 ),
                 smallText(chat?.getLatestMessage()?.createdAt != null
                     ? dateStringFormatter(
-                        DateTime.now()
-                                    .toUtc()
-                                    .difference(
-                                        chat!.getLatestMessage()!.createdAt!)
-                                    .inDays <
-                                1
+                        DateTime.now().toUtc().isSameDate(
+                                chat!.getLatestMessage()!.createdAt!)
                             ? "hh:mm a"
                             : "dd MMM yyyy",
                         chat!.getLatestMessage()!.createdAt!)

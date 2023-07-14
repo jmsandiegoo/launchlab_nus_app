@@ -11,14 +11,12 @@ class ChatRepository implements ChatRepositoryImpl {
   final Supabase _supabase;
   ChatRepository(this._supabase);
 
-  RealtimeChannel? _teamChatMessageSub;
-
   /// realtime functions
   // subscibe to messages for a particular chat message only onChanges
-  void subscribeToTeamChatMessages(
+  RealtimeChannel subscribeToTeamChatMessages(
       {required FutureOr<void> Function(dynamic payload) streamHandler}) {
-    _teamChatMessageSub = _supabase.client
-        .channel("public:team_chat_messages")
+    RealtimeChannel channel = _supabase.client
+        .channel("public:team_chat_messages_${DateTime.now()}")
         .on(
             RealtimeListenTypes.postgresChanges,
             ChannelFilter(
@@ -29,14 +27,13 @@ class ChatRepository implements ChatRepositoryImpl {
       streamHandler(payload);
     }));
 
-    _teamChatMessageSub?.subscribe();
+    channel.subscribe();
+
+    return channel;
   }
 
-  Future<void> unsubscribeToTeamChatMessages() async {
-    if (_teamChatMessageSub == null) {
-      return;
-    }
-    await _supabase.client.removeChannel(_teamChatMessageSub!);
+  Future<void> unsubscribeToTeamChatMessages(RealtimeChannel channel) async {
+    await _supabase.client.removeChannel(channel);
   }
 
   // non-realtime functions

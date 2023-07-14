@@ -76,7 +76,7 @@ class TeamChatPageCubit extends Cubit<TeamChatPageState> {
   final TeamRepository teamRepository;
   final UserRepository userRepository;
 
-  Future<void> handleInitializePage(String chatId) async {
+  Future<void> handleInitializePage(String chatId, String currUserId) async {
     // fetch team-chat with team
     TeamChatEntity teamChat = await _handleGetTeamChat(chatId);
 
@@ -88,11 +88,49 @@ class TeamChatPageCubit extends Cubit<TeamChatPageState> {
     teamChat = teamChat.setMessages(messages: chatMessages);
 
     // setup message subscription
+    handleSubscribeToTeamChatMessages(currUserId);
 
     emit(state.copyWith(
       teamChat: teamChat,
       teamChatPageStatus: TeamChatPageStatus.success,
     ));
+  }
+
+  void handleSubscribeToTeamChatMessages(String currUserId) {
+    chatRepository.subscribeToTeamChatMessages(streamHandler: (payload) async {
+      print("insert detected");
+      Map<String, UserEntity> userProfilesCache =
+          Map.of(state.userProfilesCache);
+      if (state.teamChat == null) {
+        return;
+      }
+
+      ChatMessageEntity message = ChatMessageEntity.fromJson(payload["new"]);
+
+      if (message.chatId != state.teamChat!.id ||
+          message.userId == currUserId) {
+        return;
+      }
+
+      print("goes here");
+
+      if (state.userProfilesCache[message.userId] == null) {
+        final GetProfileInfoResponse res =
+            await userRepository.getUserBasicProfileInfo(
+                GetProfileInfoRequest(userId: message.userId));
+
+        userProfilesCache[message.userId] = res.userProfile;
+
+        message = message.setUser(user: res.userProfile);
+        emit(state.copyWith(userProfilesCache: userProfilesCache));
+      } else {
+        message =
+            message.setUser(user: state.userProfilesCache[message.userId]);
+      }
+
+      emit(state.copyWith(
+          teamChat: state.teamChat!.appendMessages(messages: [message])));
+    });
   }
 
   Future<TeamChatEntity> _handleGetTeamChat(String chatId) async {
