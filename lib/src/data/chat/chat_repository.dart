@@ -110,6 +110,20 @@ class ChatRepository implements ChatRepositoryImpl {
     }
   }
 
+  Future<void> submitMessage(ChatMessageEntity newMessage) async {
+    try {
+      await _supabase.client
+          .from("team_chat_messages")
+          .insert(newMessage.toJson());
+    } on PostgrestException catch (error) {
+      debugPrint("upload user resume postgre error: $error");
+      throw Failure.request(code: error.code);
+    } on Exception catch (error) {
+      debugPrint("Upload user resume unexpected error: $error");
+      throw Failure.unexpected();
+    }
+  }
+
   // listen to message seens for a particular message
 
   // listen to team users if not there remove the direct chat

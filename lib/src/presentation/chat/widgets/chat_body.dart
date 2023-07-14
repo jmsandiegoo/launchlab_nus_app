@@ -233,6 +233,18 @@ class ChatBubble extends StatelessWidget {
                           ),
                         ),
                       ),
+                      ...() {
+                        if (!isSenderCurrUser ||
+                            message.chatMessageStatus !=
+                                ChatMessageStatus.error) {
+                          return [];
+                        }
+
+                        return [
+                          const SizedBox(width: 3.0),
+                          const Icon(Icons.error_outline, color: errorColor),
+                        ];
+                      }(),
                     ],
                   )),
               Expanded(flex: isSenderCurrUser ? 4 : 1, child: Container()),

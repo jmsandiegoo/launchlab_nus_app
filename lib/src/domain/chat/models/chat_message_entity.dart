@@ -30,6 +30,20 @@ class ChatMessageEntity extends Equatable {
   final UserEntity? user;
   final List<MessageSeenEntity> messageSeens;
 
+  ChatMessageEntity setStatus({required ChatMessageStatus newStatus}) {
+    return ChatMessageEntity(
+      id: id,
+      messageContent: messageContent,
+      chatId: chatId,
+      userId: userId,
+      chatMessageStatus: newStatus,
+      user: user,
+      messageSeens: messageSeens,
+      createdAt: createdAt,
+      updatedAt: updatedAt,
+    );
+  }
+
   ChatMessageEntity setUser({required UserEntity? user}) {
     return ChatMessageEntity(
       id: id,
@@ -59,6 +73,17 @@ class ChatMessageEntity extends Equatable {
                 [])
             .cast<MessageSeenEntity>();
 
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'message_content': messageContent,
+      'chat_id': chatId,
+      'user_id': userId,
+      'created_at': createdAt?.toIso8601String(),
+      'updated_at': updatedAt?.toIso8601String(),
+    };
+  }
+
   bool checkIfSenderIsCurrUser(String currUserId) {
     return currUserId == userId;
   }
@@ -79,6 +104,7 @@ class ChatMessageEntity extends Equatable {
         updatedAt,
         chatId,
         userId,
+        chatMessageStatus,
         user,
         messageSeens,
       ];

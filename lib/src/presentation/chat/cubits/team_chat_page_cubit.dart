@@ -215,14 +215,17 @@ class TeamChatPageCubit extends Cubit<TeamChatPageState> {
       return;
     }
 
+    // clear input field
+    emit(state.copyWith(newMessageInput: const TextFieldInput.unvalidated()));
+
     ChatMessageEntity newMessage = ChatMessageEntity(
       id: const Uuid().v4(),
       messageContent: newMessageInput.value,
       chatId: state.teamChat!.id,
       userId: senderId,
       chatMessageStatus: ChatMessageStatus.sending,
-      createdAt: DateTime.now(),
-      updatedAt: DateTime.now(),
+      createdAt: DateTime.now().toUtc(),
+      updatedAt: DateTime.now().toUtc(),
     );
 
     TeamChatEntity newTeamChat =
@@ -232,6 +235,26 @@ class TeamChatPageCubit extends Cubit<TeamChatPageState> {
 
     try {
       // submit the message by appending first
-    } on Failure catch (_) {}
+      await chatRepository.submitMessage(newMessage);
+
+      // update status and emit again;
+
+      newTeamChat = state.teamChat!.updateMessage(
+          index: state.teamChat!.chatMessages.indexOf(newMessage),
+          updatedMessage: newMessage.setStatus(
+            newStatus: ChatMessageStatus.sent,
+          ));
+
+      emit(state.copyWith(teamChat: newTeamChat));
+    } on Failure catch (_) {
+      // update the chat object with error;
+      newTeamChat = state.teamChat!.updateMessage(
+          index: state.teamChat!.chatMessages.indexOf(newMessage),
+          updatedMessage: newMessage.setStatus(
+            newStatus: ChatMessageStatus.error,
+          ));
+
+      emit(state.copyWith(teamChat: newTeamChat));
+    }
   }
 }
