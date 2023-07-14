@@ -59,9 +59,10 @@ class _ChatMessageBarState extends State<ChatMessageBar> {
             const SizedBox(
               width: 20.0,
             ),
-            secondaryIconButton(
-                context, widget.onSubmitHandler, Icons.arrow_right_alt_outlined,
-                elevation: 0),
+            secondaryIconButton(context, () {
+              widget.onSubmitHandler();
+              _newMessageController.clear();
+            }, Icons.arrow_right_alt_outlined, elevation: 0),
           ],
         ));
   }
