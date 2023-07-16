@@ -5,6 +5,8 @@ import 'package:launchlab/src/config/app_theme.dart';
 import 'package:launchlab/src/data/chat/chat_repository.dart';
 import 'package:launchlab/src/data/team/team_repository.dart';
 import 'package:launchlab/src/data/user/user_repository.dart';
+import 'package:launchlab/src/domain/team/team_user_entity.dart';
+import 'package:launchlab/src/presentation/chat/cubits/chat_select_modal_cubit.dart';
 import 'package:launchlab/src/presentation/chat/cubits/team_chats_page_cubit.dart';
 import 'package:launchlab/src/presentation/chat/widgets/chat_select_modal.dart';
 import 'package:launchlab/src/presentation/common/cubits/app_root_cubit.dart';
@@ -92,6 +94,22 @@ class _TeamChatsContentState extends State<TeamChatsContent> {
                           context: context,
                           builder: (context) {
                             return ChatSelectModal(
+                              selectedTeam: state.team!,
+                              chatSelectedModalTab: () {
+                                TeamUserEntity user = state.teamUsers
+                                    .firstWhere((element) =>
+                                        element.userId ==
+                                        _appRootCubit
+                                            .state.authUserProfile!.id!);
+
+                                return user.isOwner
+                                    ? ChatSelectModalTab.leading
+                                    : ChatSelectModalTab.participating;
+                              }(),
+                              onNavigate: (String teamId) {
+                                Navigator.pop(context);
+                                navigateGo(context, "/team-chats/$teamId/team");
+                              },
                               onClose: () => Navigator.pop(context),
                             );
                           }),
@@ -109,17 +127,15 @@ class _TeamChatsContentState extends State<TeamChatsContent> {
                             )
                           ])),
                     ),
-                    actions: [
-                      IconButton(
-                          onPressed: () {
-                            context.push(
-                                "/profile/209b2b56-6156-42bc-91ee-4b20d5632ce3");
-                          },
-                          icon: const Icon(Icons.waving_hand_outlined)),
-                      IconButton(
-                          onPressed: () {},
-                          icon: const Icon(Icons.info_outline))
-                    ],
+                    // actions: [
+                    //   IconButton(
+                    //       onPressed: () {
+                    //       },
+                    //       icon: const Icon(Icons.waving_hand_outlined)),
+                    //   IconButton(
+                    //       onPressed: () {},
+                    //       icon: const Icon(Icons.info_outline))
+                    // ],
                   ),
                   const SizedBox(
                     height: 50.0,

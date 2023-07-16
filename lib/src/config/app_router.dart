@@ -259,6 +259,7 @@ final GoRouter appRouter = GoRouter(
                   pageBuilder: (context, state, child) {
                     return NoTransitionPage(
                       child: TeamChatsPage(
+                          key: Key(state.pathParameters['teamId']!),
                           teamId: state.pathParameters['teamId']!,
                           child: child),
                     );

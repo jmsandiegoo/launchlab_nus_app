@@ -68,6 +68,82 @@ class TeamRepository {
     }
   }
 
+  Future<List<TeamEntity>> getLeadingTeams() async {
+    try {
+      final User? user = supabase.auth.currentUser;
+
+      final List<Map<String, dynamic>> leadingTeamsRes = await supabase
+          .from('teams')
+          .select<PostgrestList>('*, team_users!inner(user_id, is_owner)')
+          .eq('team_users.is_owner', true)
+          .eq('team_users.user_id', user!.id)
+          .eq('is_current', true);
+
+      List<TeamEntity> leadingTeams = [];
+
+      for (int i = 0; i < leadingTeamsRes.length; i++) {
+        var avatarURL = leadingTeamsRes[i]['avatar'] == null
+            ? ''
+            : await supabase.storage
+                .from('team_avatar_bucket')
+                .createSignedUrl('${leadingTeamsRes[i]['avatar']}', 1000);
+        leadingTeamsRes[i]['avatar_url'] = avatarURL;
+        leadingTeams.add(TeamEntity.fromJson(leadingTeamsRes[i]));
+      }
+
+      return leadingTeams;
+    } on Failure catch (_) {
+      rethrow;
+    } on PostgrestException catch (error) {
+      debugPrint("fetch leading teams postgre error: $error");
+      throw Failure.request(code: error.code);
+    } on StorageException catch (error) {
+      debugPrint("fetch leading teams storage error: $error");
+      throw Failure.request(code: error.statusCode);
+    } on Exception catch (error) {
+      debugPrint("fetch leading teams unexpected error occured $error");
+      throw Failure.unexpected();
+    }
+  }
+
+  Future<List<TeamEntity>> getParticipatingTeams() async {
+    try {
+      final User? user = supabase.auth.currentUser;
+
+      final List<Map<String, dynamic>> participatingTeamsRes = await supabase
+          .from('teams')
+          .select<PostgrestList>('*, team_users!inner(user_id, is_owner)')
+          .eq('team_users.is_owner', false)
+          .eq('team_users.user_id', user!.id)
+          .eq('is_current', true);
+
+      List<TeamEntity> participatingTeams = [];
+
+      for (int i = 0; i < participatingTeamsRes.length; i++) {
+        var avatarURL = participatingTeamsRes[i]['avatar'] == null
+            ? ''
+            : await supabase.storage
+                .from('team_avatar_bucket')
+                .createSignedUrl('${participatingTeamsRes[i]['avatar']}', 1000);
+        participatingTeamsRes[i]['avatar_url'] = avatarURL;
+        participatingTeams.add(TeamEntity.fromJson(participatingTeamsRes[i]));
+      }
+
+      return participatingTeams;
+    } on Failure catch (_) {
+      rethrow;
+    } on PostgrestException catch (error) {
+      debugPrint("fetch leading teams postgre error: $error");
+      throw Failure.request(code: error.code);
+    } on StorageException catch (error) {
+      debugPrint("fetch leading teams storage error: $error");
+      throw Failure.request(code: error.statusCode);
+    } on Exception catch (error) {
+      debugPrint("fetch leading teams unexpected error occured $error");
+      throw Failure.unexpected();
+    }
+  }
+
   ///Team Home Page
 
   getTeamHomeData() async {
@@ -308,7 +384,7 @@ class TeamRepository {
     });
 
     avatar.toString() == 'null'
-        ? print('No Picture Uploaded')
+        ? debugPrint('No Picture Uploaded')
         : await supabase.storage.from('team_avatar_bucket').upload(
             '${teamId}_avatar${avatar.toString().substring(avatar.toString().indexOf('.'))}',
             avatar,
