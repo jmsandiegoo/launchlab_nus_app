@@ -8,7 +8,7 @@ import 'package:launchlab/src/presentation/common/widgets/form_fields/multi_butt
 import 'package:launchlab/src/presentation/common/widgets/form_fields/text_field.dart';
 import 'package:launchlab/src/presentation/common/widgets/useful.dart';
 
-class ChatSelectModal extends StatelessWidget {
+class ChatSelectModal extends StatefulWidget {
   const ChatSelectModal({
     super.key,
     required this.selectedTeam,
@@ -23,15 +23,30 @@ class ChatSelectModal extends StatelessWidget {
   final void Function() onClose;
 
   @override
+  State<ChatSelectModal> createState() => _ChatSelectModalState();
+}
+
+class _ChatSelectModalState extends State<ChatSelectModal> {
+  final _searchFocusNode = FocusNode();
+  final _searchController = TextEditingController();
+
+  @override
+  dispose() {
+    _searchFocusNode.dispose();
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (_) {
         final ChatSelectModalCubit chatSelectModalCubit = ChatSelectModalCubit(
-            selectedTeam: selectedTeam,
+            selectedTeam: widget.selectedTeam,
             teamRepository: TeamRepository(),
-            chatSelectModalTab: chatSelectedModalTab);
+            chatSelectModalTab: widget.chatSelectedModalTab);
 
-        if (chatSelectedModalTab == ChatSelectModalTab.leading) {
+        if (widget.chatSelectedModalTab == ChatSelectModalTab.leading) {
           // call fetch leading teams
           chatSelectModalCubit.handleFetchLeadingTeams();
         } else {
@@ -89,12 +104,15 @@ class ChatSelectModal extends StatelessWidget {
                         ],
                       ),
                       TextFieldWidget(
-                          focusNode: FocusNode(),
-                          onChangedHandler: (val) {},
-                          label: "",
-                          value: "",
-                          hint: "Search a Team",
-                          controller: TextEditingController()),
+                        focusNode: _searchFocusNode,
+                        onChangedHandler: (value) => context
+                            .read<ChatSelectModalCubit>()
+                            .onSearchChanged(value),
+                        label: "",
+                        value: state.searchInput.value,
+                        hint: "Search a Team",
+                        controller: _searchController,
+                      ),
                       MultiButtonSingleSelectWidget<String>(
                           itemRatio: (1 / .3),
                           value: state.chatSelectModalTab.text(),
@@ -129,7 +147,7 @@ class ChatSelectModal extends StatelessWidget {
                             if (state.leadingTeams.isEmpty) {
                               return Center(
                                 child: bodyText(
-                                  "No leading teams",
+                                  "No leading teams found",
                                   size: 15.0,
                                   color: blackColor,
                                 ),
@@ -142,9 +160,9 @@ class ChatSelectModal extends StatelessWidget {
                                     (team) => TeamChatCard(
                                       team: team,
                                       isCurrentlySelected:
-                                          team.id == selectedTeam.id,
-                                      onNavigate: onNavigate,
-                                      onClose: onClose,
+                                          team.id == widget.selectedTeam.id,
+                                      onNavigate: widget.onNavigate,
+                                      onClose: widget.onClose,
                                     ),
                                   )
                                   .toList(),
@@ -153,7 +171,7 @@ class ChatSelectModal extends StatelessWidget {
                             if (state.participatingTeams.isEmpty) {
                               return Center(
                                 child: bodyText(
-                                  "No participating teams",
+                                  "No participating teams found",
                                   size: 15.0,
                                   color: blackColor,
                                 ),
@@ -166,9 +184,9 @@ class ChatSelectModal extends StatelessWidget {
                                     (team) => TeamChatCard(
                                       team: team,
                                       isCurrentlySelected:
-                                          team.id == selectedTeam.id,
-                                      onNavigate: onNavigate,
-                                      onClose: onClose,
+                                          team.id == widget.selectedTeam.id,
+                                      onNavigate: widget.onNavigate,
+                                      onClose: widget.onClose,
                                     ),
                                   )
                                   .toList(),
@@ -180,7 +198,7 @@ class ChatSelectModal extends StatelessWidget {
                         width: 150,
                         child: outlinedButton(
                             label: "Close",
-                            onPressedHandler: onClose,
+                            onPressedHandler: widget.onClose,
                             color: blackColor),
                       )
                     ],

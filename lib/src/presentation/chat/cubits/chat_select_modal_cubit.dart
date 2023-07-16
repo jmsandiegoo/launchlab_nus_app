@@ -2,10 +2,12 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:launchlab/src/data/team/team_repository.dart';
 import 'package:launchlab/src/domain/team/team_entity.dart';
+import 'package:launchlab/src/presentation/common/widgets/form_fields/text_field.dart';
 import 'package:launchlab/src/utils/extensions.dart';
 
 class ChatSelectModalState extends Equatable {
   const ChatSelectModalState({
+    this.searchInput = const TextFieldInput.unvalidated(),
     required this.selectedTeam,
     this.leadingTeams = const [],
     this.participatingTeams = const [],
@@ -13,6 +15,7 @@ class ChatSelectModalState extends Equatable {
     required this.chatSelectModalStatus,
   });
 
+  final TextFieldInput searchInput;
   final TeamEntity selectedTeam;
   final List<TeamEntity> leadingTeams;
   final List<TeamEntity> participatingTeams;
@@ -20,6 +23,7 @@ class ChatSelectModalState extends Equatable {
   final ChatSelectModalStatus chatSelectModalStatus;
 
   ChatSelectModalState copyWith({
+    TextFieldInput? searchInput,
     TeamEntity? selectedTeam,
     List<TeamEntity>? leadingTeams,
     List<TeamEntity>? participatingTeams,
@@ -27,6 +31,7 @@ class ChatSelectModalState extends Equatable {
     ChatSelectModalStatus? chatSelectModalStatus,
   }) {
     return ChatSelectModalState(
+      searchInput: searchInput ?? this.searchInput,
       selectedTeam: selectedTeam ?? this.selectedTeam,
       leadingTeams: leadingTeams ?? this.leadingTeams,
       participatingTeams: participatingTeams ?? this.participatingTeams,
@@ -38,6 +43,7 @@ class ChatSelectModalState extends Equatable {
 
   @override
   List<Object?> get props => [
+        searchInput,
         selectedTeam,
         leadingTeams,
         participatingTeams,
@@ -82,7 +88,7 @@ class ChatSelectModalCubit extends Cubit<ChatSelectModalState> {
     emit(state.copyWith(chatSelectModalStatus: ChatSelectModalStatus.loading));
     // call the team api repository
     final List<TeamEntity> leadingTeams =
-        await teamRepository.getLeadingTeams();
+        await teamRepository.getLeadingTeams(state.searchInput.value);
 
     // sort it according to the current Selected team;
     int index =
@@ -103,7 +109,7 @@ class ChatSelectModalCubit extends Cubit<ChatSelectModalState> {
 
     // call the tea, api repository
     final List<TeamEntity> participatingTeams =
-        await teamRepository.getParticipatingTeams();
+        await teamRepository.getParticipatingTeams(state.searchInput.value);
 
     // sort it according to the current participating team
     int index = participatingTeams
@@ -117,5 +123,42 @@ class ChatSelectModalCubit extends Cubit<ChatSelectModalState> {
     emit(state.copyWith(
         participatingTeams: participatingTeams,
         chatSelectModalStatus: ChatSelectModalStatus.success));
+  }
+
+  void onSearchChanged(String val) {
+    final prevState = state;
+    final prevSearchInputState = prevState.searchInput;
+
+    final shouldValidate = prevSearchInputState.isNotValid;
+
+    final newSearchInputState = shouldValidate
+        ? TextFieldInput.validated(val)
+        : TextFieldInput.unvalidated(val);
+
+    final newState = state.copyWith(
+      searchInput: newSearchInputState,
+    );
+
+    emit(newState);
+
+    if (state.chatSelectModalTab == ChatSelectModalTab.leading) {
+      handleFetchLeadingTeams();
+    } else {
+      handleFetchParticipatingTeams();
+    }
+  }
+
+  void onSearchUnfocused() {
+    final prevState = state;
+    final prevSearchInputState = prevState.searchInput;
+    final prevSearchInputVal = prevSearchInputState.value;
+
+    final newSearchInputState = TextFieldInput.validated(prevSearchInputVal);
+
+    final newState = prevState.copyWith(
+      searchInput: newSearchInputState,
+    );
+
+    emit(newState);
   }
 }

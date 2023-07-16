@@ -68,13 +68,14 @@ class TeamRepository {
     }
   }
 
-  Future<List<TeamEntity>> getLeadingTeams() async {
+  Future<List<TeamEntity>> getLeadingTeams(String searchName) async {
     try {
       final User? user = supabase.auth.currentUser;
 
       final List<Map<String, dynamic>> leadingTeamsRes = await supabase
           .from('teams')
           .select<PostgrestList>('*, team_users!inner(user_id, is_owner)')
+          .ilike('team_name', '%$searchName%')
           .eq('team_users.is_owner', true)
           .eq('team_users.user_id', user!.id)
           .eq('is_current', true);
@@ -106,13 +107,14 @@ class TeamRepository {
     }
   }
 
-  Future<List<TeamEntity>> getParticipatingTeams() async {
+  Future<List<TeamEntity>> getParticipatingTeams(String searchName) async {
     try {
       final User? user = supabase.auth.currentUser;
 
       final List<Map<String, dynamic>> participatingTeamsRes = await supabase
           .from('teams')
           .select<PostgrestList>('*, team_users!inner(user_id, is_owner)')
+          .ilike('team_name', '%$searchName%')
           .eq('team_users.is_owner', false)
           .eq('team_users.user_id', user!.id)
           .eq('is_current', true);
