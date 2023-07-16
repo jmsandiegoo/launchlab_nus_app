@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:launchlab/src/config/app_theme.dart';
 import 'package:launchlab/src/data/search/search_repository.dart';
 import 'package:launchlab/src/data/user/user_repository.dart';
@@ -164,10 +165,12 @@ class _DiscoverUserContentState extends State<DiscoverUserContent> {
                             GestureDetector(
                               onTap: () {
                                 searchFocusNode.unfocus();
-                                navigatePushWithData(
-                                    context,
-                                    "/discover_user/external_user",
-                                    discoverCubit.state.externalUserData[i]);
+                                Supabase.instance.client.auth.currentUser!.id ==
+                                        discoverCubit
+                                            .state.externalUserData[i].id
+                                    ? navigateGo(context, '/profile')
+                                    : context.push(
+                                        "/profile/${discoverCubit.state.externalUserData[i].id}");
                               },
                               child: SearchUserCard(
                                   userData:

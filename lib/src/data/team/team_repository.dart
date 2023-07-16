@@ -16,6 +16,7 @@ import 'package:uuid/uuid.dart';
 class TeamRepository {
   final supabase = Supabase.instance.client;
 
+
   /// real-time
   RealtimeChannel subscribeToTeamUsers(
       {required String teamId,
@@ -205,7 +206,8 @@ class TeamRepository {
     var teamMemberData = await supabase
         .from('team_users')
         .select('*, user:users(*)')
-        .eq('team_id', teamId);
+        .eq('team_id', teamId)
+        .order('is_owner');
 
     List<TeamUserEntity> teamMembers = [];
     for (int i = 0; i < teamMemberData.length; i++) {
@@ -237,12 +239,13 @@ class TeamRepository {
     }).eq('id', taskId);
   }
 
-  void addMilestone({title, startDate, endDate, teamId}) async {
+  void addMilestone({title, startDate, endDate, teamId, description}) async {
     await supabase.from('milestones').insert({
       'title': title,
       'start_date': startDate,
       'end_date': endDate,
-      'team_id': teamId
+      'team_id': teamId,
+      'description': description,
     });
   }
 
@@ -261,11 +264,26 @@ class TeamRepository {
     }).eq('id', teamId);
   }
 
-  void editMilestone({taskId, title, startDate, endDate}) async {
+  void leaveTeam({teamId}) async {
+    final User? user = supabase.auth.currentUser;
+    var teamData =
+        await supabase.from('teams').select().eq('id', teamId).single();
+
+    await supabase.from('teams').update(
+        {'current_members': teamData['current_members'] - 1}).eq('id', teamId);
+
+    await supabase
+        .from('team_users')
+        .delete()
+        .match({'user_id': user!.id, 'team_id': teamId});
+  }
+
+  void editMilestone({taskId, title, startDate, endDate, description}) async {
     await supabase.from('milestones').update({
       'title': title,
       'start_date': startDate,
       'end_date': endDate,
+      'description': description,
     }).eq('id', taskId);
   }
 

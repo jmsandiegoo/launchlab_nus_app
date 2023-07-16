@@ -24,6 +24,12 @@ Future<void> main() async {
     systemNavigationBarColor: Colors.transparent,
   ));
 
+
+  SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
+
   runApp(const RootApp());
 }
 
@@ -69,6 +75,7 @@ class _RootAppContentState extends State<RootAppContent> {
     return MaterialApp.router(
       theme: appThemeData,
       routerConfig: appRouter,
+      debugShowCheckedModeBanner: false,
       builder: (context, child) => Overlay(
         initialEntries: <OverlayEntry>[
           OverlayEntry(

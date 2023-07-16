@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:go_router/go_router.dart';
 import 'package:launchlab/src/config/app_theme.dart';
 import 'package:launchlab/src/domain/team/team_user_entity.dart';
 import 'package:launchlab/src/presentation/common/widgets/useful.dart';
+import 'package:launchlab/src/utils/constants.dart';
+import 'package:launchlab/src/utils/helper.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ManageMemberBox extends StatelessWidget {
   final bool isOwner;
@@ -43,12 +47,21 @@ class ManageMemberBox extends StatelessWidget {
                                     'assets/images/add_member.svg'))
                           ]),
                       for (int i = 0; i < memberData.length; i++) ...[
-                        manageMemberBar(
-                            memberData[i].getAvatarURL(),
-                            memberData[i].getFullName(),
-                            memberData[i].positon,
-                            memberData[i].id,
-                            context)
+                        GestureDetector(
+                            onTap: () {
+                              Navigator.of(context).pop();
+                              Supabase.instance.client.auth.currentUser!.id ==
+                                      memberData[i].user.id
+                                  ? navigateGo(context, '/profile')
+                                  : context.push(
+                                      "/profile/${memberData[i].user.id}");
+                            },
+                            child: manageMemberBar(
+                                memberData[i].getAvatarURL(),
+                                memberData[i].getFullName(),
+                                memberData[i].positon,
+                                memberData[i].id,
+                                context))
                       ]
                     ]),
                   ),
@@ -65,7 +78,11 @@ class ManageMemberBox extends StatelessWidget {
     void manageMember(String value) {
       switch (value) {
         case 'Remove':
-          Navigator.of(context).pop(['Delete', memberId]);
+          Navigator.of(context).pop([ActionTypes.delete, memberId]);
+          break;
+
+        case 'Edit':
+          Navigator.of(context).pop([ActionTypes.update, memberId]);
           break;
       }
     }

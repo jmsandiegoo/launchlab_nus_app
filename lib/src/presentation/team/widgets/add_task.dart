@@ -10,6 +10,7 @@ class AddTaskBox extends StatefulWidget {
   final String taskTitle;
   final String startDate;
   final String endDate;
+  final String description;
   final ActionTypes actionType;
 
   const AddTaskBox({
@@ -18,6 +19,7 @@ class AddTaskBox extends StatefulWidget {
     required this.startDate,
     required this.endDate,
     this.actionType = ActionTypes.create,
+    required this.description,
   });
 
   @override
@@ -28,7 +30,7 @@ class _AddTaskBoxState extends State<AddTaskBox> {
   final TextEditingController _taskTitle = TextEditingController();
   final TextEditingController _startDateController = TextEditingController();
   final TextEditingController _endDateController = TextEditingController();
-
+  final TextEditingController _descriptionController = TextEditingController();
   final FocusNode _startDateFocusNode = FocusNode();
   final FocusNode _endDateFocusNode = FocusNode();
   final FocusNode _taskFocusNode = FocusNode();
@@ -39,17 +41,18 @@ class _AddTaskBoxState extends State<AddTaskBox> {
     _taskTitle.text = widget.taskTitle;
     _startDateController.text = widget.startDate;
     _endDateController.text = widget.endDate;
+    _descriptionController.text = widget.description;
   }
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 400,
+      height: 600,
       child: Padding(
         padding: const EdgeInsets.all(20.0),
         child: ListView(children: [
           Center(child: subHeaderText("Add Task")),
-          const SizedBox(height: 25),
+          const SizedBox(height: 15),
           userInput_2(
             label: "Task Title",
             focusNode: _taskFocusNode,
@@ -59,7 +62,9 @@ class _AddTaskBoxState extends State<AddTaskBox> {
             Expanded(
               child: GestureDetector(
                   onTap: () {
-                    _taskFocusNode.unfocus();
+                    setState(() {
+                      _taskFocusNode.unfocus();
+                    });
                   },
                   child: DatePickerWidget(
                     controller: _startDateController,
@@ -85,7 +90,9 @@ class _AddTaskBoxState extends State<AddTaskBox> {
             Expanded(
               child: GestureDetector(
                   onTap: () {
-                    _taskFocusNode.unfocus();
+                    setState(() {
+                      _taskFocusNode.unfocus();
+                    });
                   },
                   child: DatePickerWidget(
                     controller: _endDateController,
@@ -105,7 +112,10 @@ class _AddTaskBoxState extends State<AddTaskBox> {
                   )),
             )
           ]),
-          const SizedBox(height: 10),
+          userInput_2(
+              label: "Description",
+              controller: _descriptionController,
+              size: 4),
           Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
             ElevatedButton(
                 child: bodyText(
@@ -114,12 +124,24 @@ class _AddTaskBoxState extends State<AddTaskBox> {
                         : "   Update   ",
                     weight: FontWeight.w500),
                 onPressed: () {
-                  context.pop([
-                    _taskTitle.text,
-                    _startDateController.text,
-                    _endDateController.text,
-                    widget.actionType
-                  ]);
+                  DateTime startDate =
+                      DateTime.parse(_startDateController.text);
+                  DateTime endDate = DateTime.parse(_endDateController.text);
+
+                  if (_taskTitle.text == '') {
+                    confirmationBox(
+                        context, "Failure", "Task title cannot be empty");
+                  } else if (startDate.isAfter(endDate)) {
+                    confirmationBox(context, "Failure",
+                        "Start date cannot be after end date");
+                  } else {
+                    context.pop([
+                      _taskTitle.text,
+                      _startDateController.text,
+                      _endDateController.text,
+                      _descriptionController.text,
+                    ]);
+                  }
                 }),
             OutlinedButton(
               child: bodyText("  Close  ", weight: FontWeight.w500),
