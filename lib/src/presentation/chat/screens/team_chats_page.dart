@@ -7,6 +7,7 @@ import 'package:launchlab/src/data/team/team_repository.dart';
 import 'package:launchlab/src/data/user/user_repository.dart';
 import 'package:launchlab/src/domain/team/team_user_entity.dart';
 import 'package:launchlab/src/presentation/chat/cubits/chat_select_modal_cubit.dart';
+import 'package:launchlab/src/presentation/chat/cubits/chats_container_cubit.dart';
 import 'package:launchlab/src/presentation/chat/cubits/team_chats_page_cubit.dart';
 import 'package:launchlab/src/presentation/chat/widgets/chat_select_modal.dart';
 import 'package:launchlab/src/presentation/common/cubits/app_root_cubit.dart';
@@ -56,16 +57,21 @@ class TeamChatsContent extends StatefulWidget {
 class _TeamChatsContentState extends State<TeamChatsContent> {
   late AppRootCubit _appRootCubit;
   late TeamChatsPageCubit _teamChatsPageCubit;
+  late ChatsContainerCubit _chatsContainerCubit;
 
   @override
   void initState() {
     super.initState();
     _appRootCubit = BlocProvider.of<AppRootCubit>(context);
     _teamChatsPageCubit = BlocProvider.of<TeamChatsPageCubit>(context);
+    _chatsContainerCubit = BlocProvider.of<ChatsContainerCubit>(context);
     _teamChatsPageCubit.handleInitializePage(
       widget.teamId,
       _appRootCubit.state.authUserProfile!.id!,
     );
+
+    _chatsContainerCubit.setTeamId(widget.teamId);
+    print(_chatsContainerCubit.state.teamId);
   }
 
   @override

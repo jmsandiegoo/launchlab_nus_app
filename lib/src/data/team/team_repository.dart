@@ -16,7 +16,6 @@ import 'package:uuid/uuid.dart';
 class TeamRepository {
   final supabase = Supabase.instance.client;
 
-
   /// real-time
   RealtimeChannel subscribeToTeamUsers(
       {required String teamId,
