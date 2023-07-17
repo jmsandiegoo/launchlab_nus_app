@@ -133,15 +133,17 @@ class _TeamChatsContentState extends State<TeamChatsContent> {
                             )
                           ])),
                     ),
-                    // actions: [
-                    //   IconButton(
-                    //       onPressed: () {
-                    //       },
-                    //       icon: const Icon(Icons.waving_hand_outlined)),
-                    //   IconButton(
-                    //       onPressed: () {},
-                    //       icon: const Icon(Icons.info_outline))
-                    // ],
+                    actions: [
+                      IconButton(
+                          onPressed: () {},
+                          icon: const Icon(Icons.waving_hand_outlined)),
+                      IconButton(
+                          onPressed: () {
+                            navigatePush(context,
+                                "/profile/45af9161-2117-42bc-bb5f-b01f8af27880");
+                          },
+                          icon: const Icon(Icons.info_outline))
+                    ],
                   ),
                   const SizedBox(
                     height: 50.0,
