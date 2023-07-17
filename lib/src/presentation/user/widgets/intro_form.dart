@@ -100,10 +100,13 @@ class _IntroFormState extends State<IntroForm> {
           const SizedBox(
             height: 30,
           ),
-          PictureUploadPickerWidget(
-            onPictureUploadChangedHandler: (image) =>
-                _introFormCubit.onPictureUploadChanged(image),
-            image: state.pictureUploadPickerInput.value,
+          Align(
+            alignment: Alignment.center,
+            child: PictureUploadPickerWidget(
+              onPictureUploadChangedHandler: (image) =>
+                  _introFormCubit.onPictureUploadChanged(image),
+              image: state.pictureUploadPickerInput.value,
+            ),
           ),
           const SizedBox(
             height: 30,

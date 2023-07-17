@@ -25,12 +25,14 @@ class PictureUploadPickerWidget extends StatelessWidget {
       required this.onPictureUploadChangedHandler,
       this.image,
       this.imageURL = '',
+      this.size = 110.0,
       this.isTeam = false});
 
   final void Function(File?) onPictureUploadChangedHandler;
   final File? image;
   final String? imageURL;
   final bool isTeam;
+  final double size;
 
   Future pickImage(ImagePicker picker, ImageSource source) async {
     XFile? pickedImageXFile = await picker.pickImage(source: source);
@@ -67,16 +69,22 @@ class PictureUploadPickerWidget extends StatelessWidget {
           ),
         );
       },
-      child: CircleAvatar(
-          radius: 50.0,
-          backgroundImage: image != null ? FileImage(image!) : null,
-          child: image == null
-              ? imageURL == ''
-                  ? isTeam
-                      ? Image.asset("assets/images/team_avatar_temp.jpeg")
-                      : Image.asset("assets/images/avatar_temp.png")
-                  : Image.network(imageURL!)
-              : null),
+      child: Container(
+        width: size,
+        height: size,
+        decoration: BoxDecoration(
+          shape: isTeam ? BoxShape.rectangle : BoxShape.circle,
+          image: DecorationImage(
+            image: image != null
+                ? FileImage(image!) as ImageProvider<Object>
+                : isTeam
+                    ? const ExactAssetImage(
+                        "assets/images/team_avatar_temp.png")
+                    : const ExactAssetImage("assets/images/avatar_temp.png"),
+            fit: image != null ? BoxFit.cover : BoxFit.contain,
+          ),
+        ),
+      ),
     );
   }
 }

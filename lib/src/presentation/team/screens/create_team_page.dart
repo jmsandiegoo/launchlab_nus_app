@@ -85,6 +85,7 @@ class _CreateTeamPageState extends State<CreateTeamPage> {
                                 const SizedBox(height: 10),
                                 SizedBox(
                                   height: 50,
+                                  width: 50,
                                   child: PictureUploadPickerWidget(
                                     onPictureUploadChangedHandler: (image) =>
                                         editCreateTeamCubit
