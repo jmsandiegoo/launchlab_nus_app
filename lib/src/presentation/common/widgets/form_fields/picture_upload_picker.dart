@@ -69,18 +69,25 @@ class PictureUploadPickerWidget extends StatelessWidget {
           ),
         );
       },
-      child: Container(
+      child: isTeam
+          ? Container(
+              decoration: const BoxDecoration(
+                shape: BoxShape.rectangle,
+              ),
+              child: image == null
+                  ? imageURL == ''
+                      ? Image.asset("assets/images/team_avatar_temp.jpeg")
+                      : Image.network(imageURL!)
+                  : Image.file(File(image!.path)))
+          : Container(
         width: size,
         height: size,
         decoration: BoxDecoration(
-          shape: isTeam ? BoxShape.rectangle : BoxShape.circle,
+          shape: BoxShape.circle,
           image: DecorationImage(
             image: image != null
                 ? FileImage(image!) as ImageProvider<Object>
-                : isTeam
-                    ? const ExactAssetImage(
-                        "assets/images/team_avatar_temp.png")
-                    : const ExactAssetImage("assets/images/avatar_temp.png"),
+                : const ExactAssetImage("assets/images/avatar_temp.png"),
             fit: image != null ? BoxFit.cover : BoxFit.contain,
           ),
         ),

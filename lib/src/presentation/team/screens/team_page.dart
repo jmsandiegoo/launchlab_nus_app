@@ -55,14 +55,14 @@ class _TeamState extends State<TeamContent> {
     final bool isOwner = widget.teamIdIsOwner[1];
     return BlocBuilder<TeamCubit, TeamState>(builder: (context, state) {
       final teamCubit = BlocProvider.of<TeamCubit>(context);
-      if (teamCubit.state.isLoaded) {
+      if (teamCubit.state.status == TeamStatus.success) {
         teamData = teamCubit.state.teamData!;
       }
       return RefreshIndicator(
           onRefresh: () async {
             refreshPage();
           },
-          child: teamCubit.state.isLoaded
+          child: teamCubit.state.status == TeamStatus.success
               ? Scaffold(
                   appBar: AppBar(
                       backgroundColor: Colors.transparent,
@@ -117,7 +117,7 @@ class _TeamState extends State<TeamContent> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Row(children: [
-                              teamPicture(70, teamData.avatarURL),
+                              teamPicture(70, teamData.avatarURL, isUrl: true),
                               const SizedBox(width: 15),
                               Expanded(
                                 child: Column(

@@ -181,7 +181,7 @@ class _DiscoverPageContentState extends State<DiscoverPageContent> {
                       ]))
                 ]),
           ]),
-          if (discoverCubit.state.isLoaded) ...[
+          if (discoverCubit.state.status == DiscoverStatus.success) ...[
             Expanded(
               child: Padding(
                   padding:
@@ -228,8 +228,10 @@ class _DiscoverPageContentState extends State<DiscoverPageContent> {
 
   void searchFilter(DiscoverCubit cubit, SearchFilterEntity filter) {
     showModalBottomSheet(
-        shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(15.0)),
+        shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(15.0),
+                topRight: Radius.circular(15.0))),
         context: context,
         builder: (context) {
           return SearchFilterBox(filterData: filter);
