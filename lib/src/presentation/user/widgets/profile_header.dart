@@ -1,10 +1,6 @@
-import 'dart:io';
-
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:launchlab/src/config/app_theme.dart';
-import 'package:launchlab/src/domain/user/models/degree_programme_entity.dart';
-import 'package:launchlab/src/domain/user/models/user_avatar_entity.dart';
 import 'package:launchlab/src/domain/user/models/user_entity.dart';
 import 'package:launchlab/src/presentation/common/widgets/useful.dart';
 import 'package:launchlab/src/presentation/user/screens/profile_edit_intro_page.dart';
@@ -16,28 +12,20 @@ class ProfileHeader extends StatelessWidget {
     super.key,
     this.isAuthProfile = false,
     required this.userProfile,
-    required this.userDegreeProgramme,
-    this.userAvatar,
     required this.onUpdateHandler,
   });
 
   final bool isAuthProfile;
   final UserEntity userProfile;
-  final DegreeProgrammeEntity userDegreeProgramme;
-  final UserAvatarEntity? userAvatar;
   final void Function() onUpdateHandler;
 
   Future<void> editProfileIntro(
       BuildContext context, ProfileEditIntroPageProps props) async {
     final NavigationData<Object?>? returnData =
         await navigatePushWithData<Object?>(
-            context, "/profile/${userProfile.id}/edit-intro", props);
-
-    if (returnData == null) {
-      return;
-    }
-
-    if (returnData.actionType == ActionTypes.update) {
+            context, "/profile/edit-intro", props);
+    print("pop");
+    if (returnData == null || returnData.actionType == ActionTypes.update) {
       onUpdateHandler();
     }
   }
@@ -73,8 +61,9 @@ class ProfileHeader extends StatelessWidget {
                               context,
                               ProfileEditIntroPageProps(
                                 userProfile: userProfile,
-                                userDegreeProgramme: userDegreeProgramme,
-                                userAvatar: userAvatar,
+                                userDegreeProgramme:
+                                    userProfile.userDegreeProgramme!,
+                                userAvatar: userProfile.userAvatar,
                               ));
                         },
                         icon:
@@ -85,9 +74,11 @@ class ProfileHeader extends StatelessWidget {
                 ];
               }(),
               Center(
-                  child: profilePicture(
-                      100, userAvatar?.signedUrl ?? "avatar_temp.png",
-                      isUrl: userAvatar?.signedUrl != null ? true : false)),
+                  child: profilePicture(100,
+                      userProfile.userAvatar?.signedUrl ?? "avatar_temp.png",
+                      isUrl: userProfile.userAvatar?.signedUrl != null
+                          ? true
+                          : false)),
             ],
           ),
           ConstrainedBox(
@@ -99,10 +90,10 @@ class ProfileHeader extends StatelessWidget {
                 const SizedBox(height: 15),
                 headerText("${userProfile.firstName} ${userProfile.lastName}",
                     alignment: TextAlign.center),
-                smallText("@ ${userProfile.username}"),
+                smallText("@${userProfile.username}"),
                 const SizedBox(height: 5),
                 bodyText(userProfile.title!, alignment: TextAlign.center),
-                bodyText(userDegreeProgramme.name,
+                bodyText(userProfile.userDegreeProgramme!.name,
                     color: darkGreyColor, alignment: TextAlign.center),
                 const SizedBox(height: 35),
               ],
@@ -112,16 +103,16 @@ class ProfileHeader extends StatelessWidget {
             teamStats: [
               TeamStat(
                   textLabel: "Completed",
-                  numVal: 5,
+                  numVal: 0,
                   icon: Icons.check_circle_sharp),
               TeamStat(
                 textLabel: "Leading",
-                numVal: 4,
+                numVal: 0,
                 icon: Icons.people_alt,
               ),
               TeamStat(
                 textLabel: "Participating",
-                numVal: 4,
+                numVal: 0,
                 icon: Icons.handshake_outlined,
               ),
             ],
@@ -197,9 +188,10 @@ class TeamStatsBox extends StatelessWidget {
           Row(mainAxisAlignment: MainAxisAlignment.center, children: [
             Icon(teamStat.icon, color: yellowColor, size: 12.0),
             const SizedBox(width: 2),
-            Text(
-              teamStat.numVal.toString(),
-              style: const TextStyle(
+            const Text(
+              // teamStat.numVal.toString(),
+              "-",
+              style: TextStyle(
                   fontSize: 12.0,
                   fontWeight: FontWeight.bold,
                   color: yellowColor),

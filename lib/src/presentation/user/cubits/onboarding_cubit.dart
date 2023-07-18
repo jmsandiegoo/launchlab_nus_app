@@ -12,6 +12,7 @@ import 'package:launchlab/src/domain/common/models/skill_entity.dart';
 import 'package:launchlab/src/domain/user/models/accomplishment_entity.dart';
 import 'package:launchlab/src/domain/user/models/degree_programme_entity.dart';
 import 'package:launchlab/src/domain/user/models/experience_entity.dart';
+import 'package:launchlab/src/domain/user/models/preference_entity.dart';
 import 'package:launchlab/src/domain/user/models/requests/onboard_user_request.dart';
 import 'package:launchlab/src/domain/user/models/requests/update_user_request.dart';
 import 'package:launchlab/src/domain/user/models/user_avatar_entity.dart';
@@ -672,25 +673,27 @@ class OnboardingCubit extends Cubit<OnboardingState> {
       onboardingStatus: OnboardingStatus.submissionInProgress,
     ));
     final OnboardUserRequest request = OnboardUserRequest(
-      userAvatar: state.pictureUploadPickerInput.value != null
-          ? UserAvatarEntity(
-              userId: user.id!, file: state.pictureUploadPickerInput.value!)
-          : null,
-      userResume: state.userResumeInput.value != null
-          ? UserResumeEntity(
-              userId: user.id!, file: state.userResumeInput.value!)
-          : null,
       user: user.copyWith(
+        userAvatar: state.pictureUploadPickerInput.value != null
+            ? UserAvatarEntity(
+                userId: user.id!, file: state.pictureUploadPickerInput.value!)
+            : null,
+        userResume: state.userResumeInput.value != null
+            ? UserResumeEntity(
+                userId: user.id!, file: state.userResumeInput.value!)
+            : null,
         firstName: state.firstNameInput.value,
         lastName: state.lastNameInput.value,
         title: state.titleInput.value,
         degreeProgrammeId: state.degreeProgrammeInput.value?.id,
         about: state.aboutInput.value,
+        userPreference: PreferenceEntity(
+          skillsInterests: state.userSkillsInterestsInput.value,
+          categories: state.userPreferredCategoryInput.value,
+        ),
+        userExperiences: state.experienceListInput.value,
+        userAccomplishments: state.accomplishmentListInput.value,
       ),
-      selectedSkills: state.userSkillsInterestsInput.value,
-      selectedCategories: state.userPreferredCategoryInput.value,
-      experiences: state.experienceListInput.value,
-      accomplishments: state.accomplishmentListInput.value,
     );
     try {
       debugPrint("request: $request");

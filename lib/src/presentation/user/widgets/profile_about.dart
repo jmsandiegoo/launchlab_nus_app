@@ -22,7 +22,7 @@ class ProfileAbout extends StatelessWidget {
       BuildContext context, ProfileEditAboutPageProps props) async {
     final NavigationData<Object?>? returnData =
         await navigatePushWithData<Object?>(
-            context, "/profile/${userProfile.id}/edit-about", props);
+            context, "/profile/edit-about", props);
 
     if (returnData == null) {
       return;

@@ -29,7 +29,7 @@ class ProfilePage extends StatelessWidget {
       ProfileEditPreferencePageProps props,
       void Function() onUpdateHandler) async {
     final returnData = await navigatePushWithData<Object?>(
-        context, "/profile/$userId/edit-settings", props);
+        context, "/profile/edit-settings", props);
 
     if (returnData == null || returnData.actionType == ActionTypes.cancel) {
       return;
@@ -117,8 +117,8 @@ class ProfilePage extends StatelessWidget {
                                       editPreference(
                                           context,
                                           ProfileEditPreferencePageProps(
-                                            userPreference:
-                                                state.userPreference!,
+                                            userPreference: state
+                                                .userProfile!.userPreference!,
                                           ),
                                           () => profileCubit
                                               .handleGetProfileInfo(userId));
@@ -138,8 +138,6 @@ class ProfilePage extends StatelessWidget {
                           ProfileHeader(
                             isAuthProfile: isAuthProfile,
                             userProfile: state.userProfile!,
-                            userDegreeProgramme: state.userDegreeProgramme!,
-                            userAvatar: state.userAvatar,
                             onUpdateHandler: () => profileCubit
                                 .handleGetProfileInfo(state.userProfile!.id!),
                           ),
@@ -169,8 +167,8 @@ class ProfilePage extends StatelessWidget {
                                 const SizedBox(height: 20),
                                 ProfileExperienceList(
                                   isAuthProfile: isAuthProfile,
-                                  userProfile: state.userProfile!,
-                                  experiences: state.userExperiences,
+                                  experiences:
+                                      state.userProfile!.userExperiences,
                                   onUpdateHandler: () =>
                                       profileCubit.handleGetProfileInfo(
                                           state.userProfile!.id!),
@@ -178,8 +176,8 @@ class ProfilePage extends StatelessWidget {
                                 const SizedBox(height: 20),
                                 ProfileSkills(
                                   isAuthProfile: isAuthProfile,
-                                  userProfile: state.userProfile!,
-                                  userPreference: state.userPreference!,
+                                  userPreference:
+                                      state.userProfile!.userPreference!,
                                   onUpdateHandler: () =>
                                       profileCubit.handleGetProfileInfo(
                                           state.userProfile!.id!),
@@ -187,8 +185,8 @@ class ProfilePage extends StatelessWidget {
                                 const SizedBox(height: 20),
                                 ProfileAccomplishmentList(
                                   isAuthProfile: isAuthProfile,
-                                  userProfile: state.userProfile!,
-                                  accomplishments: state.userAccomplishments,
+                                  accomplishments:
+                                      state.userProfile!.userAccomplishments,
                                   onUpdateHandler: () =>
                                       profileCubit.handleGetProfileInfo(
                                           state.userProfile!.id!),

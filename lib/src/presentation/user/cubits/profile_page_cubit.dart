@@ -4,15 +4,10 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:launchlab/src/data/user/user_repository.dart';
-import 'package:launchlab/src/domain/user/models/accomplishment_entity.dart';
-import 'package:launchlab/src/domain/user/models/degree_programme_entity.dart';
-import 'package:launchlab/src/domain/user/models/experience_entity.dart';
-import 'package:launchlab/src/domain/user/models/preference_entity.dart';
 import 'package:launchlab/src/domain/user/models/requests/delete_user_avatar_resume_request.dart';
 import 'package:launchlab/src/domain/user/models/requests/get_profile_info_request.dart';
 import 'package:launchlab/src/domain/user/models/requests/upload_user_resume_request.dart';
 import 'package:launchlab/src/domain/user/models/responses/get_profile_info_response.dart';
-import 'package:launchlab/src/domain/user/models/user_avatar_entity.dart';
 import 'package:launchlab/src/domain/user/models/user_entity.dart';
 import 'package:launchlab/src/domain/user/models/user_resume_entity.dart';
 import 'package:launchlab/src/presentation/user/widgets/form_fields/user_resume_field.dart';
@@ -22,52 +17,24 @@ import 'package:launchlab/src/utils/failure.dart';
 class ProfilePageState extends Equatable {
   const ProfilePageState({
     this.userProfile,
-    this.userAvatarUrl,
-    this.userAvatar,
-    this.userResume,
-    this.userDegreeProgramme,
-    this.userExperiences = const [],
-    this.userAccomplishments = const [],
-    this.userPreference,
     required this.profilePageStatus,
     this.userResumeInput = const UserResumeFieldInput.unvalidated(),
     this.error,
   });
 
   final UserEntity? userProfile;
-  final String? userAvatarUrl;
-  final UserAvatarEntity? userAvatar;
-  final UserResumeEntity? userResume;
-  final DegreeProgrammeEntity? userDegreeProgramme;
-  final List<ExperienceEntity> userExperiences;
-  final List<AccomplishmentEntity> userAccomplishments;
-  final PreferenceEntity? userPreference;
   final ProfilePageStatus profilePageStatus;
   final UserResumeFieldInput userResumeInput;
   final Failure? error;
 
   ProfilePageState copyWith({
     UserEntity? userProfile,
-    String? userAvatarUrl,
-    UserAvatarEntity? userAvatar,
-    UserResumeEntity? userResume,
-    DegreeProgrammeEntity? userDegreeProgramme,
-    List<ExperienceEntity>? userExperiences,
-    List<AccomplishmentEntity>? userAccomplishments,
-    PreferenceEntity? userPreference,
     ProfilePageStatus? profilePageStatus,
     UserResumeFieldInput? userResumeInput,
     Failure? error,
   }) {
     return ProfilePageState(
       userProfile: userProfile ?? this.userProfile,
-      userAvatarUrl: userAvatarUrl ?? this.userAvatarUrl,
-      userAvatar: userAvatar ?? this.userAvatar,
-      userResume: userResume ?? this.userResume,
-      userDegreeProgramme: userDegreeProgramme ?? this.userDegreeProgramme,
-      userExperiences: userExperiences ?? this.userExperiences,
-      userAccomplishments: userAccomplishments ?? this.userAccomplishments,
-      userPreference: userPreference ?? this.userPreference,
       profilePageStatus: profilePageStatus ?? this.profilePageStatus,
       userResumeInput: userResumeInput ?? this.userResumeInput,
       error: error,
@@ -77,13 +44,6 @@ class ProfilePageState extends Equatable {
   @override
   List<Object?> get props => [
         userProfile,
-        userAvatarUrl,
-        userAvatar,
-        userResume,
-        userDegreeProgramme,
-        userExperiences,
-        userAccomplishments,
-        userPreference,
         profilePageStatus,
         userResumeInput,
         error,
@@ -115,15 +75,9 @@ class ProfilePageCubit extends Cubit<ProfilePageState> {
           .getProfileInfo(GetProfileInfoRequest(userId: userId));
       emit(state.copyWith(
           userProfile: res.userProfile,
-          userAvatar: res.userAvatar,
-          userResume: res.userResume,
-          userDegreeProgramme: res.userDegreeProgramme,
-          userExperiences: res.userExperiences,
-          userAccomplishments: res.userAccomplishments,
-          userPreference: res.userPreference,
           profilePageStatus: ProfilePageStatus.success,
-          userResumeInput:
-              UserResumeFieldInput.unvalidated(res.userResume?.file)));
+          userResumeInput: UserResumeFieldInput.unvalidated(
+              res.userProfile.userResume?.file)));
     } on Failure catch (error) {
       emit(state.copyWith(
           profilePageStatus: ProfilePageStatus.error, error: error));

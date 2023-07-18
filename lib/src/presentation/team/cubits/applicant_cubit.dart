@@ -1,74 +1,91 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:launchlab/src/data/team/team_repository.dart';
+import 'package:launchlab/src/domain/team/responses/get_applicant_data.dart';
+import 'package:launchlab/src/domain/team/team_entity.dart';
+import 'package:launchlab/src/domain/team/user_entity.dart';
+import 'package:launchlab/src/domain/user/models/accomplishment_entity.dart';
+import 'package:launchlab/src/domain/user/models/experience_entity.dart';
+import 'package:launchlab/src/utils/constants.dart';
+import 'package:launchlab/src/utils/failure.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ApplicantState extends Equatable {
   @override
-  List<Object?> get props => [];
+  List<Object?> get props => [applicationTeamData, actionTypes, status, error];
 
-  const ApplicantState();
+  final TeamEntity? applicationTeamData;
+  final ActionTypes? actionTypes;
+  final ApplicantStatus status;
+  final Failure? error;
+
+  const ApplicantState(
+      {this.applicationTeamData,
+      this.actionTypes = ActionTypes.cancel,
+      this.status = ApplicantStatus.loading,
+      this.error});
+
+  ApplicantState copyWith({
+    UserTeamEntity? applicantUserData,
+    TeamEntity? applicationTeamData,
+    List<ExperienceEntity>? experienceData,
+    List<AccomplishmentEntity>? accomplishmentData,
+    ActionTypes? actionTypes,
+    ApplicantStatus? status,
+    Failure? error,
+  }) {
+    return ApplicantState(
+      applicationTeamData: applicationTeamData ?? this.applicationTeamData,
+      actionTypes: actionTypes ?? this.actionTypes,
+      status: status ?? this.status,
+      error: error,
+    );
+  }
+}
+
+enum ApplicantStatus {
+  loading,
+  success,
+  error,
 }
 
 class ApplicantCubit extends Cubit<ApplicantState> {
-  ApplicantCubit() : super(const ApplicantState());
+  ApplicantCubit(this._teamRepository) : super(const ApplicantState());
+
+  final TeamRepository _teamRepository;
   final supabase = Supabase.instance.client;
 
   getData(applicationID) async {
-    var applicantUserData = await supabase
-        .from('users')
-        .select('*, team_applicants!inner(id), degree_programmes(name)')
-        .eq('team_applicants.id', applicationID);
+    try {
+      final GetApplicantData res =
+          await _teamRepository.getApplicantData(applicationID);
+      final newState = state.copyWith(
+          applicationTeamData: res.team, status: ApplicantStatus.success);
 
-    var avatarURL = applicantUserData[0]['avatar'] == null
-        ? ''
-        : await supabase.storage
-            .from('user_avatar_bucket')
-            .createSignedUrl('${applicantUserData[0]['avatar']}', 60);
+      debugPrint("Applicant State Emitted");
+      emit(newState);
+    } on Failure catch (error) {
+      emit(state.copyWith(status: ApplicantStatus.error, error: error));
+    }
+  }
 
-    applicantUserData[0]['avatar_url'] = avatarURL;
-
-    var teamData = await supabase
-        .from('teams')
-        .select('current_members, max_members, team_applicants!inner(id)')
-        .eq('team_applicants.id', applicationID);
-
-    var experienceData = await supabase
-        .from('experiences')
-        .select()
-        .eq('user_id', applicantUserData[0]['id'])
-        .order('start_date');
-
-    var accomplishmentData = await supabase
-        .from('accomplishments')
-        .select()
-        .eq('user_id', applicantUserData[0]['id'])
-        .order('start_date');
-
-    return [applicantUserData, teamData, experienceData, accomplishmentData];
+  void loading() {
+    emit(state.copyWith(status: ApplicantStatus.loading));
   }
 
   acceptApplicant({applicationID, currentMember}) async {
-    var applicationData =
-        await supabase.from('team_applicants').select().eq('id', applicationID);
-
-    await supabase.from('team_users').insert({
-      'team_id': applicationData[0]['team_id'],
-      'user_id': applicationData[0]['user_id'],
-      'position': 'Member',
-    });
-
-    await supabase.from('teams').update({
-      'current_members': currentMember + 1,
-    }).eq('id', applicationData[0]['team_id']);
-
-    await supabase.from('team_applicants').delete().eq('id', applicationID);
-
     debugPrint('Applicant Accepted');
+    loading();
+    emit(state.copyWith(actionTypes: ActionTypes.update));
+    return _teamRepository.acceptApplicant(
+        applicationID: applicationID, currentMember: currentMember);
   }
 
   rejectApplicant({applicationID}) async {
-    await supabase.from('team_applicants').delete().eq('id', applicationID);
     debugPrint('Applicant Rejected');
+    loading();
+    emit(state.copyWith(actionTypes: ActionTypes.update));
+    return _teamRepository.rejectApplicant(applicationID: applicationID);
   }
 }

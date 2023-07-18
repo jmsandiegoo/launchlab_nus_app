@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:launchlab/src/domain/user/models/accomplishment_entity.dart';
 import 'package:launchlab/src/domain/user/models/degree_programme_entity.dart';
 import 'package:launchlab/src/domain/user/models/experience_entity.dart';
-import 'package:launchlab/src/domain/user/models/preference_entity.dart';
 import 'package:launchlab/src/domain/user/models/requests/check_if_username_exists_request.dart';
 import 'package:launchlab/src/domain/user/models/requests/create_user_accomplishment_request.dart';
 import 'package:launchlab/src/domain/user/models/requests/create_user_experience_request.dart';
@@ -99,14 +98,14 @@ class UserRepository implements UserRepositoryImpl {
   Future<void> onboardUser({required OnboardUserRequest request}) async {
     // upload the file and avatar
     try {
-      if (request.userAvatar != null) {
+      if (request.user.userAvatar != null) {
         uploadUserAvatar(
-            UploadUserAvatarRequest(userAvatar: request.userAvatar!));
+            UploadUserAvatarRequest(userAvatar: request.user.userAvatar!));
       }
 
-      if (request.userResume != null) {
+      if (request.user.userResume != null) {
         uploadUserResume(
-            UploadUserResumeRequest(userResume: request.userResume!));
+            UploadUserResumeRequest(userResume: request.user.userResume!));
       }
 
       await _supabase.client.rpc(
@@ -164,7 +163,7 @@ class UserRepository implements UserRepositoryImpl {
 
       await uploadFile(
         supabase: _supabase,
-        bucket: "user_resume_buckett",
+        bucket: "user_resume_bucket",
         uploadFile: request.userResume,
       );
 
@@ -258,6 +257,48 @@ class UserRepository implements UserRepositoryImpl {
     }
   }
 
+  // @override
+  Future<GetProfileInfoResponse> getUserBasicProfileInfo(
+      GetProfileInfoRequest request) async {
+    try {
+      final userRes = await _supabase.client
+          .from("users")
+          .select<PostgrestList>("*")
+          .eq("id", request.userId);
+
+      if (userRes.isEmpty) {
+        debugPrint("No user found while getting profile info.");
+        throw Failure.request();
+      }
+
+      final UserEntity user = UserEntity.fromJson(userRes[0]);
+
+      // fetch the profile picture
+      UserAvatarEntity? userAvatar =
+          await fetchUserAvatar(DownloadAvatarImageRequest(
+        userId: user.id!,
+        isSignedUrlEnabled: true,
+      ));
+
+      return GetProfileInfoResponse(
+        userProfile: user.setRelations(
+          userAvatar: userAvatar,
+        ),
+      );
+    } on Failure catch (_) {
+      rethrow;
+    } on PostgrestException catch (error) {
+      debugPrint("fetch user postgre error: $error");
+      throw Failure.request(code: error.code);
+    } on StorageException catch (error) {
+      debugPrint("fetch user storage error: $error");
+      throw Failure.request(code: error.statusCode);
+    } on Exception catch (error) {
+      debugPrint("fetch user unexpected error occured $error");
+      throw Failure.unexpected();
+    }
+  }
+
   @override
   Future<GetProfileInfoResponse> getProfileInfo(
       GetProfileInfoRequest request) async {
@@ -265,7 +306,8 @@ class UserRepository implements UserRepositoryImpl {
       // fetch the user profile
       final userRes = await _supabase.client
           .from("users")
-          .select<PostgrestList>("*")
+          .select<PostgrestList>(
+              "*, accomplishments(*), experiences(*), degree_programme:degree_programmes(*), preference:preferences(*, skills_interests:skills_preferences(selected_skills(*)), categories:categories_preferences(categories(*)))")
           .eq("id", request.userId);
 
       if (userRes.isEmpty) {
@@ -286,71 +328,16 @@ class UserRepository implements UserRepositoryImpl {
       UserResumeEntity? userResume =
           await fetchUserResume(DownloadUserResumeRequest(userId: user.id!));
 
-      // fetch the profile degree
-      final degRes = await _supabase.client
-          .from("degree_programmes")
-          .select<PostgrestList>("*")
-          .eq(
-            'id',
-            user.degreeProgrammeId,
-          );
-
-      if (degRes.isEmpty) {
-        debugPrint("No deg found while getting profile info.");
-        throw Failure.request();
-      }
-
-      DegreeProgrammeEntity deg = DegreeProgrammeEntity.fromJson(degRes[0]);
-
-      // fetch the experiences
-      final expRes = await _supabase.client
-          .from("experiences")
-          .select<PostgrestList>("*")
-          .eq("user_id", request.userId);
-
-      List<ExperienceEntity> experienceList = [];
-
-      for (int i = 0; i < expRes.length; i++) {
-        experienceList.add(ExperienceEntity.fromJson(expRes[i]));
-      }
-
-      // fetch the accomplishments
-      final accRes = await _supabase.client
-          .from("accomplishments")
-          .select<PostgrestList>("*")
-          .eq("user_id", request.userId);
-
-      List<AccomplishmentEntity> accomplishmentList = [];
-
-      for (int i = 0; i < accRes.length; i++) {
-        accomplishmentList.add(AccomplishmentEntity.fromJson(accRes[i]));
-      }
-
-      // fetch prefernce with interests & skills and category
-      final prefRes = await _supabase.client
-          .from("preferences")
-          .select<PostgrestList>(
-              "*, skills_interests:skills_preferences(selected_skills(*)), categories:categories_preferences(categories(*))")
-          .eq(
-            'user_id',
-            request.userId,
-          );
-
-      if (prefRes.isEmpty) {
-        debugPrint("No user preference found while getting profile info.");
-        throw Failure.request();
-      }
-
-      final PreferenceEntity pref = PreferenceEntity.fromJson(prefRes[0]);
-
       return GetProfileInfoResponse(
-          userProfile: user,
+        userProfile: user.setRelations(
           userAvatar: userAvatar,
           userResume: userResume,
-          userDegreeProgramme: deg,
-          userExperiences: experienceList,
-          userAccomplishments: accomplishmentList,
-          userPreference: pref);
+          userPreference: user.userPreference,
+          userDegreeProgramme: user.userDegreeProgramme,
+          userExperiences: user.userExperiences,
+          userAccomplishments: user.userAccomplishments,
+        ),
+      );
     } on Failure catch (_) {
       rethrow;
     } on PostgrestException catch (error) {
@@ -373,7 +360,7 @@ class UserRepository implements UserRepositoryImpl {
           .from("user_avatars")
           .select<PostgrestList>("*")
           .eq("user_id", request.userId);
-      debugPrint(res.toString());
+      //debugPrint(res.toString());
 
       if (res.isEmpty) {
         return null;
@@ -390,7 +377,7 @@ class UserRepository implements UserRepositoryImpl {
       if (request.isSignedUrlEnabled) {
         signedUrl = await _supabase.client.storage
             .from("user_avatar_bucket")
-            .createSignedUrl(res[0]['file_identifier'], 60);
+            .createSignedUrl(res[0]['file_identifier'], 31000000);
       }
 
       return UserAvatarEntity(
@@ -426,7 +413,7 @@ class UserRepository implements UserRepositoryImpl {
 
       final file = await downloadFile(
           supabase: _supabase,
-          bucket: 'user_avatar_bucket',
+          bucket: 'user_resume_bucket',
           fileIdentifier: res[0]['file_identifier'],
           fileName: res[0]['file_name']);
 

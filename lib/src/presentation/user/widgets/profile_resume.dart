@@ -38,6 +38,7 @@ class ProfileResume extends StatelessWidget {
           height: 15.0,
         ),
         FileUploadWidget(
+          isReadOnly: !isAuthProfile,
           selectedFile: userResume,
           onFileUploadChangedHandler: onChangedHandler,
           isLoading: isLoading,

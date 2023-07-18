@@ -1,116 +1,162 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:launchlab/src/data/team/team_repository.dart';
+import 'package:launchlab/src/data/user/user_repository.dart';
+import 'package:launchlab/src/domain/team/milestone_entity.dart';
+import 'package:launchlab/src/domain/team/responses/get_team_data.dart';
+import 'package:launchlab/src/domain/team/team_entity.dart';
+import 'package:launchlab/src/domain/team/team_user_entity.dart';
+import 'package:launchlab/src/domain/user/models/requests/download_avatar_image_request.dart';
+import 'package:launchlab/src/domain/user/models/user_avatar_entity.dart';
+import 'package:launchlab/src/utils/failure.dart';
 
 @immutable
 class TeamState extends Equatable {
-  @override
-  List<Object?> get props => [];
+  final List<TeamUserEntity> memberData;
+  final List<MilestoneEntity> completedMilestone;
+  final List<MilestoneEntity> incompleteMilestone;
+  final TeamEntity? teamData;
+  final TeamStatus status;
+  final Failure? error;
 
-  const TeamState();
+  const TeamState(
+      {this.memberData = const [],
+      this.completedMilestone = const [],
+      this.incompleteMilestone = const [],
+      this.teamData,
+      this.status = TeamStatus.loading,
+      this.error});
+
+  TeamState copyWith({
+    List<TeamUserEntity>? memberData,
+    List<MilestoneEntity>? completedMilestone,
+    List<MilestoneEntity>? incompleteMilestone,
+    TeamEntity? teamData,
+    TeamStatus? status,
+    Failure? error,
+  }) {
+    return TeamState(
+      memberData: memberData ?? this.memberData,
+      completedMilestone: completedMilestone ?? this.completedMilestone,
+      incompleteMilestone: incompleteMilestone ?? this.incompleteMilestone,
+      teamData: teamData ?? this.teamData,
+      status: status ?? this.status,
+      error: error,
+    );
+  }
+
+  @override
+  List<Object?> get props => [
+        memberData,
+        completedMilestone,
+        incompleteMilestone,
+        teamData,
+        status,
+        error
+      ];
+}
+
+enum TeamStatus {
+  loading,
+  success,
+  error,
 }
 
 class TeamCubit extends Cubit<TeamState> {
-  TeamCubit() : super(const TeamState());
-  final supabase = Supabase.instance.client;
-  getData(teamId) async {
-    var teamMemberData = await supabase
-        .from('team_users')
-        .select('*, users(first_name, last_name, avatar)')
-        .eq('team_id', teamId);
+  final TeamRepository _teamRepository;
+  final UserRepository _userRepository;
 
-    for (int i = 0; i < teamMemberData.length; i++) {
-      var avatarURL = teamMemberData[i]['users']['avatar'] == null
-          ? ''
-          : await supabase.storage.from('user_avatar_bucket').createSignedUrl(
-              '${teamMemberData[i]['users']['avatar']}', 10000);
-      teamMemberData[i]['users']['avatar_url'] = avatarURL;
+  TeamCubit(this._teamRepository, this._userRepository)
+      : super(const TeamState());
+
+  void getData(String teamId) async {
+    try {
+      final GetTeamData res = await _teamRepository.getTeamData(teamId);
+      List<TeamUserEntity> teamMembers = [...res.teamMembers];
+
+      List<Future<UserAvatarEntity?>> asyncOperations = [];
+
+      for (int i = 0; i < teamMembers.length; i++) {
+        final TeamUserEntity member = teamMembers[i];
+        asyncOperations.add(_userRepository.fetchUserAvatar(
+            DownloadAvatarImageRequest(
+                userId: member.userId, isSignedUrlEnabled: true)));
+      }
+
+      List<UserAvatarEntity?> avatars = await Future.wait(asyncOperations);
+
+      for (int i = 0; i < teamMembers.length; i++) {
+        final TeamUserEntity member = teamMembers[i];
+        teamMembers[i] =
+            member.copyWith(user: member.user.copyWith(userAvatar: avatars[i]));
+      }
+
+      final newState = state.copyWith(
+          memberData: teamMembers,
+          completedMilestone: res.getCompletedMilestone(),
+          incompleteMilestone: res.getIncompleteMilestone(),
+          teamData: res.team,
+          status: TeamStatus.success);
+      debugPrint('Team state emitted');
+      emit(newState);
+    } on Failure catch (error) {
+      emit(state.copyWith(status: TeamStatus.error, error: error));
     }
-
-    var completedMilestones = await supabase
-        .from('milestones')
-        .select()
-        .eq('team_id', teamId)
-        .eq('is_completed', true);
-    var incompleteMilestone = await supabase
-        .from('milestones')
-        .select()
-        .eq('team_id', teamId)
-        .eq('is_completed', false);
-
-    var teamData = await supabase.from('teams').select().eq('id', teamId);
-
-    var teamAvatarURL = teamData[0]['avatar'] == null
-        ? ''
-        : await supabase.storage
-            .from('team_avatar_bucket')
-            .createSignedUrl('${teamData[0]['avatar']}', 30);
-
-    teamData[0]['avatar_url'] = teamAvatarURL;
-    print("Team Loaded");
-    return [
-      teamMemberData,
-      completedMilestones,
-      incompleteMilestone,
-      teamData,
-    ];
   }
 
-  void saveMilestoneCheckData({val, taskId}) async {
-    await supabase.from('milestones').update({
-      'is_completed': val,
-      'updated_at': DateTime.now().toString()
-    }).eq('id', taskId);
-    debugPrint("Check Updated");
+  void loading() {
+    emit(state.copyWith(status: TeamStatus.loading));
   }
 
-  void addMilestone({title, startDate, endDate, teamData}) async {
-    await supabase.from('milestones').insert({
-      'title': title,
-      'start_date': startDate,
-      'end_date': endDate,
-      'team_id': teamData['id']
-    });
-    debugPrint("Milestone Added");
+  saveMilestoneData({val, taskId}) async {
+    debugPrint('Milestone Saved');
+    return _teamRepository.saveMilestoneData(val: val, taskId: taskId);
   }
 
-  void listTeam({teamId}) async {
-    await supabase.from('teams').update({
-      'is_listed': true,
-      'updated_at': DateTime.now().toString()
-    }).eq('id', teamId);
-    debugPrint("Listed");
+  void addMilestone({title, startDate, endDate, teamId, description}) {
+    _teamRepository.addMilestone(
+        title: title,
+        startDate: startDate,
+        endDate: endDate,
+        teamId: teamId,
+        description: description);
+    debugPrint('Milestone Added');
   }
 
-  void unlistTeam({teamId}) async {
-    await supabase.from('teams').update({
-      'is_listed': false,
-      'updated_at': DateTime.now().toString()
-    }).eq('id', teamId);
-    debugPrint("Unlisted");
+  void listTeam({teamId, isListed}) {
+    _teamRepository.listTeam(teamId: teamId, isListed: isListed);
+    debugPrint('Team Listed/Unlisted');
   }
 
-  void disbandTeam({teamId}) async {
-    debugPrint(teamId);
-    await supabase.from('teams').update({
-      'is_current': false,
-      'is_listed': false,
-      'updated_at': DateTime.now().toString()
-    }).eq('id', teamId);
-    debugPrint("Team Disbanded");
+  disbandTeam({teamId}) {
+    debugPrint('Team Disbanded');
+    return _teamRepository.disbandTeam(teamId: teamId);
   }
 
-  void deleteTask({taskId}) async {
-    await supabase.from('milestones').delete().match({'id': taskId});
-    debugPrint("Deleted Task");
+  leaveTeam({teamId, newCurrentMember}) {
+    debugPrint('Left Team');
+    return _teamRepository.leaveTeam(teamId: teamId);
   }
 
-  void deleteMember({memberId, teamId, newCurrentMember}) async {
-    await supabase
-        .from('teams')
-        .update({'current_members': newCurrentMember}).eq('id', teamId);
-    await supabase.from('team_users').delete().match({'id': memberId});
-    debugPrint("Deleted Member");
+  void editMilestone({taskId, startDate, endDate, title, description}) {
+    _teamRepository.editMilestone(
+        taskId: taskId,
+        startDate: startDate,
+        endDate: endDate,
+        title: title,
+        description: description);
+    debugPrint('Task Edited');
+  }
+
+  void deleteMilestone({taskId}) {
+    _teamRepository.deleteMilestone(taskId: taskId);
+    debugPrint('Task Deleted');
+  }
+
+  deleteMember({memberId, teamId, newCurrentMember}) {
+    debugPrint('Member Removed');
+    return _teamRepository.deleteMember(
+        memberId: memberId, teamId: teamId, newCurrentMember: newCurrentMember);
   }
 }

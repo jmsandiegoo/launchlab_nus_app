@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:launchlab/src/config/app_config.dart';
 import 'package:launchlab/src/config/app_router.dart';
 import 'package:launchlab/src/config/app_theme.dart';
@@ -24,6 +23,11 @@ Future<void> main() async {
     statusBarIconBrightness: Brightness.dark,
     systemNavigationBarColor: Colors.transparent,
   ));
+
+  SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
 
   runApp(const RootApp());
 }
@@ -70,6 +74,7 @@ class _RootAppContentState extends State<RootAppContent> {
     return MaterialApp.router(
       theme: appThemeData,
       routerConfig: appRouter,
+      debugShowCheckedModeBanner: false,
       builder: (context, child) => Overlay(
         initialEntries: <OverlayEntry>[
           OverlayEntry(

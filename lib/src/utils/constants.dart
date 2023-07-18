@@ -5,6 +5,12 @@ enum ActionTypes {
   delete,
 }
 
+enum ChatTypes {
+  team,
+  request,
+  invite,
+}
+
 class NavigationData<T> {
   NavigationData({
     this.data,

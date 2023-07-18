@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:launchlab/src/data/team/team_repository.dart';
+import 'package:launchlab/src/data/user/user_repository.dart';
 import 'package:launchlab/src/presentation/common/widgets/useful.dart';
 import 'package:launchlab/src/presentation/team/cubits/team_cubit.dart';
-import 'package:launchlab/src/utils/helper.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:launchlab/src/utils/constants.dart';
 
 class TeamConfirmationBox extends StatelessWidget {
   final VoidCallback onClose;
@@ -25,7 +28,8 @@ class TeamConfirmationBox extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-        create: (_) => TeamCubit(),
+        create: (_) =>
+            TeamCubit(TeamRepository(), UserRepository(Supabase.instance)),
         child: BlocBuilder<TeamCubit, TeamState>(builder: (context, state) {
           final teamCubit = BlocProvider.of<TeamCubit>(context);
           return AlertDialog(
@@ -35,14 +39,20 @@ class TeamConfirmationBox extends StatelessWidget {
               TextButton(
                   onPressed: () async {
                     if (purpose == 'List') {
-                      teamCubit.listTeam(teamId: teamId);
+                      teamCubit.listTeam(teamId: teamId, isListed: true);
+                      Navigator.of(context).pop(ActionTypes.update);
                     } else if (purpose == 'Unlist') {
-                      teamCubit.unlistTeam(teamId: teamId);
+                      teamCubit.listTeam(teamId: teamId, isListed: false);
+                      Navigator.of(context).pop(ActionTypes.update);
                     } else if (purpose == 'Disband') {
-                      teamCubit.disbandTeam(teamId: teamId);
-                      navigateGo(context, '/team-home');
+                      teamCubit.disbandTeam(teamId: teamId).then((_) {
+                        Navigator.of(context).pop(ActionTypes.delete);
+                      });
+                    } else if (purpose == 'Leave') {
+                      teamCubit.leaveTeam(teamId: teamId).then((_) {
+                        Navigator.of(context).pop(ActionTypes.delete);
+                      });
                     }
-                    Navigator.pop(context);
                   },
                   style: TextButton.styleFrom(textStyle: const TextStyle()),
                   child: bodyText('Yes',

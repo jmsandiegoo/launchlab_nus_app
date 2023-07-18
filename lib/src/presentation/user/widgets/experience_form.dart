@@ -203,7 +203,8 @@ class _ExperienceFormState extends State<ExperienceForm> {
             value: state.descriptionFieldInput.value,
             hint: "Ex: Write something about the team etc.",
             errorText: state.descriptionFieldInput.displayError?.text(),
-            size: 9,
+            minLines: 9,
+            maxLines: 9,
           ),
           Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,

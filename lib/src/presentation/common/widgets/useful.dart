@@ -9,7 +9,8 @@ Widget userInput({
   required void Function(String) onChangedHandler,
   required String label,
   bool obscureText = false,
-  int size = 1,
+  int minLines = 1,
+  int maxLines = 1,
   String hint = "",
   bool isEnabled = true,
   bool isReadOnly = false,
@@ -49,9 +50,9 @@ Widget userInput({
         controller: controller,
         onChanged: onChangedHandler,
         onTap: onTapHandler,
-        keyboardType: size > 1 ? keyboard : null,
-        minLines: size,
-        maxLines: size,
+        keyboardType: maxLines > 1 ? keyboard : null,
+        minLines: minLines,
+        maxLines: maxLines,
         inputFormatters: inputFormatter,
         obscureText: obscureText,
         decoration: InputDecoration(
@@ -77,6 +78,7 @@ Widget userInput({
 
 Widget userInput_2({
   label,
+  focusNode,
   obsureText = false,
   controller,
   size = 1,
@@ -93,6 +95,7 @@ Widget userInput_2({
       ),
       const SizedBox(height: 5),
       TextField(
+        focusNode: focusNode,
         keyboardType: keyboard,
         minLines: size, //Normal textInputField will be displayed
         maxLines: size,
@@ -135,7 +138,11 @@ Widget checkBox(String label, bool? value, bool tristate,
   ]);
 }
 
-Widget profilePicture(double diameter, String address, {bool isUrl = false}) {
+Widget profilePicture(
+  double diameter,
+  String address, {
+  bool isUrl = false,
+}) {
   return Container(
       width: diameter,
       height: diameter,
@@ -151,37 +158,24 @@ Widget profilePicture(double diameter, String address, {bool isUrl = false}) {
           )));
 }
 
-Widget teamPicture(double diameter, String address) {
+Widget teamPicture(
+  double size,
+  String address, {
+  bool isUrl = false,
+}) {
   return Container(
-      width: diameter,
-      height: diameter,
+      width: size,
+      height: size,
       decoration: BoxDecoration(
-          shape: BoxShape.circle,
+          // shape: BoxShape.circle,
           image: DecorationImage(
-            image: address == ''
-                ? const ExactAssetImage("assets/images/test.jpeg")
-                : Image.network(address).image,
-            fit: BoxFit.cover,
-          )));
-}
-
-Widget circleIcon({color, icon}) {
-  return Container(
-    decoration: BoxDecoration(color: color, shape: BoxShape.circle, boxShadow: [
-      BoxShadow(
-        color: Colors.grey.withOpacity(0.3),
-        spreadRadius: 3,
-        blurRadius: 3,
-        offset: const Offset(0, 3),
-      )
-    ]),
-    child: Padding(
-        padding: const EdgeInsets.all(15),
-        child: Icon(
-          icon,
-          size: 30,
-        )),
-  );
+        image: isUrl
+            ? address == ''
+                ? const ExactAssetImage("assets/images/team_avatar_temp.png")
+                : Image.network(address).image
+            : ExactAssetImage("assets/images/$address"),
+        fit: BoxFit.cover,
+      )));
 }
 
 Widget searchBar() {
@@ -213,13 +207,18 @@ Widget headerText(String label, {size = 25.0, alignment = TextAlign.left}) {
 }
 
 Widget subHeaderText(String label,
-    {size = 20.0, alignment = TextAlign.left, color = blackColor}) {
+    {size = 20.0,
+    alignment = TextAlign.left,
+    color = blackColor,
+    maxLines = 2,
+    weight: FontWeight.bold}) {
   return Text(
     label,
-    maxLines: 2,
+    maxLines: maxLines,
+    softWrap: true,
     overflow: TextOverflow.ellipsis,
     textAlign: alignment,
-    style: TextStyle(fontSize: size, fontWeight: FontWeight.bold, color: color),
+    style: TextStyle(fontSize: size, fontWeight: weight, color: color),
   );
 }
 
@@ -242,11 +241,15 @@ Widget bodyText(String label,
 Widget smallText(String label,
     {size = 13.0,
     color = blackColor,
+    int? maxLines,
     weight = FontWeight.w400,
-    alignment = TextAlign.left}) {
+    alignment = TextAlign.left,
+    overflow = TextOverflow.ellipsis}) {
   return Text(
     label,
+    maxLines: maxLines,
     textAlign: alignment,
+    overflow: overflow,
     style: TextStyle(
       fontSize: size,
       color: color,
@@ -335,6 +338,45 @@ Widget secondaryButton(
   );
 }
 
+Widget secondaryIconButton(
+  BuildContext context,
+  Function() onPressedHandler,
+  IconData icon, {
+  horizontalPadding = 30.0,
+  verticalPadding = 10.0,
+  double? elevation,
+  bool isLoading = false,
+  Widget? childBuilder,
+}) {
+  return ElevatedButton(
+    style: ElevatedButton.styleFrom(
+      elevation: elevation,
+      backgroundColor: Theme.of(context).colorScheme.secondary,
+      textStyle: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
+      padding: EdgeInsets.symmetric(
+        vertical: verticalPadding,
+        horizontal: horizontalPadding,
+      ),
+    ),
+    onPressed: () {
+      if (isLoading) {
+        return;
+      }
+      onPressedHandler();
+    },
+    child: isLoading
+        ? SizedBox(
+            height: 17,
+            width: 17,
+            child: CircularProgressIndicator(
+                strokeWidth: 1,
+                color: Theme.of(context).colorScheme.onSecondary),
+          )
+        : childBuilder ??
+            Icon(icon, color: Theme.of(context).colorScheme.onSecondary),
+  );
+}
+
 Widget outlinedButton({
   required String label,
   required void Function() onPressedHandler,
@@ -382,18 +424,19 @@ Future<T?> showModalBottomSheetHandler<T>(
 }
 
 Widget boldFirstText(String text1, String text2, {size = 12.5}) {
-  return RichText(
-    text: TextSpan(
-      style: TextStyle(
-        fontSize: size,
-        color: Colors.black,
-      ),
-      children: <TextSpan>[
-        TextSpan(
-            text: text1, style: const TextStyle(fontWeight: FontWeight.bold)),
-        TextSpan(text: text2),
-      ],
-    ),
+  return Row(
+    children: [
+      Text(text1,
+          maxLines: 2,
+          softWrap: true,
+          overflow: TextOverflow.ellipsis,
+          style: TextStyle(fontSize: size, fontWeight: FontWeight.bold)),
+      Text(text2,
+          maxLines: 2,
+          softWrap: true,
+          overflow: TextOverflow.ellipsis,
+          style: TextStyle(fontSize: size)),
+    ],
   );
 }
 
@@ -460,7 +503,8 @@ Widget memberProfile(imgDir, name, position,
   return Column(children: [
     const SizedBox(height: 7),
     Row(children: [
-      profilePicture(imgSize, imgDir, isUrl: true),
+      profilePicture(imgSize, imgDir ?? "avatar_temp.png",
+          isUrl: imgDir != null ? true : false),
       const SizedBox(width: 10),
       Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         isBold
@@ -519,8 +563,10 @@ String stringToDateFormatter(date, {noDate = false}) {
   return formatter.format(DateTime.parse(date));
 }
 
-String dateToDateFormatter(date) {
-  String formattedDate = DateFormat('dd MMM yyyy').format(date);
+String dateToDateFormatter(date, {noDate = false}) {
+  String formattedDate = noDate
+      ? DateFormat('MMM yyyy').format(date)
+      : DateFormat('dd MMM yyyy').format(date);
   return formattedDate;
 }
 

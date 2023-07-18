@@ -38,7 +38,7 @@ void navigatePopWithData<T>(
 File? convertToFile(XFile? xFile) => xFile != null ? File(xFile.path) : null;
 
 String dateStringFormatter(String pattern, DateTime date) {
-  return DateFormat(pattern).format(date);
+  return DateFormat(pattern).format(date.toLocal());
 }
 
 /// throws StorageException

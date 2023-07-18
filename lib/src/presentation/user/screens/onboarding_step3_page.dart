@@ -42,6 +42,7 @@ class _OnboardingStep3ContentState extends State<OnboardingStep3Content> {
     return ListView(
       children: [
         headerText("Upload Resume"),
+        bodyText("Uploaded resume will be viewed publicly by other users *"),
         const SizedBox(
           height: 20.0,
         ),
