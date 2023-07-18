@@ -327,7 +327,7 @@ class _TeamState extends State<TeamContent> {
             onClose: () => Navigator.pop(context),
           );
         }).then((value) async {
-      if (value != null && value[0] == 'Delete') {
+      if (value != null && value[0] == ActionTypes.delete) {
         teamCubit
             .deleteMember(
                 memberId: value[1],
