@@ -9,6 +9,7 @@ import 'package:launchlab/src/domain/chat/models/chat_user_entity.dart';
 import 'package:launchlab/src/domain/chat/models/team_chat_entity.dart';
 import 'package:launchlab/src/domain/team/responses/get_team_data.dart';
 import 'package:launchlab/src/domain/team/team_entity.dart';
+import 'package:launchlab/src/domain/team/team_user_entity.dart';
 import 'package:launchlab/src/domain/user/models/requests/get_profile_info_request.dart';
 import 'package:launchlab/src/domain/user/models/responses/get_profile_info_response.dart';
 import 'package:launchlab/src/domain/user/models/user_entity.dart';
@@ -19,6 +20,7 @@ import 'package:uuid/uuid.dart';
 class TeamChatPageState extends Equatable {
   const TeamChatPageState({
     this.teamChat,
+    this.teamUsers = const [],
     this.userProfilesCache = const {},
     this.newMessageInput = const TextFieldInput.unvalidated(),
     this.teamChatPageStatus,
@@ -26,6 +28,7 @@ class TeamChatPageState extends Equatable {
   });
 
   final TeamChatEntity? teamChat;
+  final List<TeamUserEntity> teamUsers;
   final Map<String, UserEntity> userProfilesCache;
   final TextFieldInput newMessageInput;
   final TeamChatPageStatus? teamChatPageStatus;
@@ -33,6 +36,7 @@ class TeamChatPageState extends Equatable {
 
   TeamChatPageState copyWith({
     TeamChatEntity? teamChat,
+    List<TeamUserEntity>? teamUsers,
     Map<String, UserEntity>? userProfilesCache,
     TextFieldInput? newMessageInput,
     TeamChatPageStatus? teamChatPageStatus,
@@ -40,6 +44,7 @@ class TeamChatPageState extends Equatable {
   }) {
     return TeamChatPageState(
       teamChat: teamChat ?? this.teamChat,
+      teamUsers: teamUsers ?? this.teamUsers,
       userProfilesCache: userProfilesCache ?? this.userProfilesCache,
       newMessageInput: newMessageInput ?? this.newMessageInput,
       teamChatPageStatus: teamChatPageStatus ?? this.teamChatPageStatus,
@@ -50,6 +55,7 @@ class TeamChatPageState extends Equatable {
   @override
   List<Object?> get props => [
         teamChat,
+        teamUsers,
         userProfilesCache,
         newMessageInput,
         teamChatPageStatus,
@@ -80,6 +86,9 @@ class TeamChatPageCubit extends Cubit<TeamChatPageState> {
     // fetch team-chat with team
     TeamChatEntity teamChat = await _handleGetTeamChat(chatId);
 
+    // fetch team users
+    List<TeamUserEntity> teamUsers = await _handleGetTeamUsers(teamChat.teamId);
+
     // fetch messages
     List<ChatMessageEntity> chatMessages =
         await _handleGetTeamChatMessages(chatId);
@@ -92,13 +101,13 @@ class TeamChatPageCubit extends Cubit<TeamChatPageState> {
 
     emit(state.copyWith(
       teamChat: teamChat,
+      teamUsers: teamUsers,
       teamChatPageStatus: TeamChatPageStatus.success,
     ));
   }
 
   void handleSubscribeToTeamChatMessages(String currUserId) {
     chatRepository.subscribeToTeamChatMessages(streamHandler: (payload) async {
-      print("insert detected");
       Map<String, UserEntity> userProfilesCache =
           Map.of(state.userProfilesCache);
       if (state.teamChat == null) {
@@ -111,8 +120,6 @@ class TeamChatPageCubit extends Cubit<TeamChatPageState> {
           message.userId == currUserId) {
         return;
       }
-
-      print("goes here");
 
       if (state.userProfilesCache[message.userId] == null) {
         final GetProfileInfoResponse res =
@@ -131,6 +138,14 @@ class TeamChatPageCubit extends Cubit<TeamChatPageState> {
       emit(state.copyWith(
           teamChat: state.teamChat!.appendMessages(messages: [message])));
     });
+  }
+
+  Future<List<TeamUserEntity>> _handleGetTeamUsers(String teamId) async {
+    final GetTeamData res = await teamRepository.getTeamData(teamId);
+
+    emit(state.copyWith(teamUsers: res.teamMembers));
+
+    return res.teamMembers;
   }
 
   Future<TeamChatEntity> _handleGetTeamChat(String chatId) async {
@@ -276,7 +291,6 @@ class TeamChatPageCubit extends Cubit<TeamChatPageState> {
       await chatRepository.submitMessage(newMessage);
 
       // update status and emit again;
-
       newTeamChat = state.teamChat!.updateMessage(
           index: state.teamChat!.chatMessages.indexOf(newMessage),
           updatedMessage: newMessage.setStatus(

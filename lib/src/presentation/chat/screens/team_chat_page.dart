@@ -6,7 +6,7 @@ import 'package:launchlab/src/data/user/user_repository.dart';
 import 'package:launchlab/src/presentation/chat/cubits/team_chat_page_cubit.dart';
 import 'package:launchlab/src/presentation/chat/widgets/chat_body.dart';
 import 'package:launchlab/src/presentation/chat/widgets/chat_message_bar.dart';
-import 'package:launchlab/src/presentation/chat/widgets/chat_page_header.dart';
+import 'package:launchlab/src/presentation/chat/widgets/team_chat_page_header.dart';
 import 'package:launchlab/src/presentation/common/cubits/app_root_cubit.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -68,8 +68,9 @@ class _TeamChatContentState extends State<TeamChatContent> {
             }
 
             return Column(children: [
-              ChatPageHeader(
+              TeamChatPageHeader(
                 chat: state.teamChat,
+                teamUsers: state.teamUsers,
               ),
               Expanded(
                 child: ChatBody(

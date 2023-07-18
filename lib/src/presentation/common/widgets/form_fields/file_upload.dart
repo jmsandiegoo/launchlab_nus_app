@@ -10,12 +10,14 @@ class FileUploadWidget extends StatelessWidget {
       {super.key,
       required this.selectedFile,
       required this.onFileUploadChangedHandler,
+      this.isReadOnly = false,
       this.isLoading = false,
       this.allowedExtensions = const ["pdf"]});
 
   final File? selectedFile;
   final void Function(File?) onFileUploadChangedHandler;
   final bool isLoading;
+  final bool isReadOnly;
   final List<String> allowedExtensions;
 
   Future pickFile([bool isReplace = false]) async {
@@ -88,6 +90,10 @@ class FileUploadWidget extends StatelessWidget {
                 Row(
                   children: [
                     ...() {
+                      if (isReadOnly) {
+                        return [];
+                      }
+
                       if (isLoading) {
                         return [
                           const SizedBox(
@@ -98,6 +104,7 @@ class FileUploadWidget extends StatelessWidget {
                           )
                         ];
                       }
+
                       return [
                         GestureDetector(
                             onTap: () {

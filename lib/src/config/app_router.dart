@@ -5,8 +5,10 @@ import 'package:launchlab/src/domain/team/team_applicant_entity.dart';
 import 'package:launchlab/src/domain/user/models/accomplishment_entity.dart';
 import 'package:launchlab/src/domain/user/models/experience_entity.dart';
 import 'package:launchlab/src/presentation/authentication/screens/signin_page.dart';
+import 'package:launchlab/src/presentation/chat/screens/chats_initial_page.dart';
 import 'package:launchlab/src/presentation/chat/screens/team_chat_page.dart';
 import 'package:launchlab/src/presentation/chat/screens/team_chats_page.dart';
+import 'package:launchlab/src/presentation/chat/widgets/chats_container.dart';
 import 'package:launchlab/src/presentation/chat/widgets/team_chat_list.dart';
 import 'package:launchlab/src/presentation/chat/widgets/team_invite_chat_list.dart';
 import 'package:launchlab/src/presentation/chat/widgets/team_request_chat_list.dart';
@@ -59,7 +61,7 @@ final _profileShellKey = GlobalKey<NavigatorState>();
 final _teamShellKey = GlobalKey<NavigatorState>();
 final _chatShellKey = GlobalKey<NavigatorState>();
 final _nestedTeamChatShellKey = GlobalKey<NavigatorState>();
-final _nestedAppChatShellKey = GlobalKey<NavigatorState>();
+final _nestedChatShellKey = GlobalKey<NavigatorState>();
 final _discoverShellKey = GlobalKey<NavigatorState>();
 final _onboardingShellKey = GlobalKey<NavigatorState>();
 final _nestedOnboardingShellKey = GlobalKey<NavigatorState>();
@@ -236,52 +238,67 @@ final GoRouter appRouter = GoRouter(
               initialLocation: "/chats",
               navigatorKey: _chatShellKey,
               routes: [
-                GoRoute(
-                  path: "/chats",
-                  redirect: (context, state) {
-                    // redirect logic call to fetch teams without messages
-
-                    // return '/team-chats/f3dc09bb-182a-45bf-aeb0-264c822666b5/team';
-                    return '/team-chats/83df8c34-0c23-441b-a1e7-926868f399ff/team';
-                  },
-                ),
-                GoRoute(
-                  parentNavigatorKey: _chatShellKey,
-                  path: "/team-chat/:chatId",
-                  builder: (context, state) {
-                    return TeamChatPage(
-                        chatId: state.pathParameters["chatId"]!);
-                  },
-                ),
                 ShellRoute(
-                  navigatorKey: _nestedTeamChatShellKey,
-                  pageBuilder: (context, state, child) {
-                    return NoTransitionPage(
-                      child: TeamChatsPage(
-                          teamId: state.pathParameters['teamId']!,
-                          child: child),
-                    );
-                  },
-                  routes: [
-                    GoRoute(
-                      path: "/team-chats/:teamId/team",
-                      pageBuilder: (context, state) => const NoTransitionPage(
-                        child: TeamChatList(),
+                    navigatorKey: _nestedChatShellKey,
+                    pageBuilder: (context, state, child) {
+                      return NoTransitionPage(
+                        child: ChatsContainer(child: child),
+                      );
+                    },
+                    routes: [
+                      GoRoute(
+                        parentNavigatorKey: _nestedChatShellKey,
+                        path: "/chats",
+                        pageBuilder: (context, state) => NoTransitionPage(
+                          child: ChatsInitialPage(
+                            key: UniqueKey(),
+                          ),
+                        ),
                       ),
-                    ),
-                    GoRoute(
-                      path: "/team-chats/:teamId/requests",
-                      pageBuilder: (context, state) =>
-                          NoTransitionPage(child: TeamRequestChatList()),
-                    ),
-                    GoRoute(
-                      path: "/team-chats/:teamId/invites",
-                      pageBuilder: (context, state) =>
-                          NoTransitionPage(child: TeamInviteChatList()),
-                    ),
-                  ],
-                ),
-                // ShellRoute(navigatorKey: _nestedAppChatShellKey),
+                      GoRoute(
+                        parentNavigatorKey: _nestedChatShellKey,
+                        path: "/team-chat/:chatId",
+                        builder: (context, state) {
+                          return TeamChatPage(
+                              chatId: state.pathParameters["chatId"]!);
+                        },
+                      ),
+                      ShellRoute(
+                        navigatorKey: _nestedTeamChatShellKey,
+                        pageBuilder: (context, state, child) {
+                          return NoTransitionPage(
+                            child: TeamChatsPage(
+                                key: Key(state.pathParameters['teamId']!),
+                                teamId: state.pathParameters['teamId']!,
+                                child: child),
+                          );
+                        },
+                        routes: [
+                          GoRoute(
+                            parentNavigatorKey: _nestedTeamChatShellKey,
+                            path: "/team-chats/:teamId/team",
+                            pageBuilder: (context, state) =>
+                                const NoTransitionPage(
+                              child: TeamChatList(),
+                            ),
+                          ),
+                          GoRoute(
+                            parentNavigatorKey: _nestedTeamChatShellKey,
+                            path: "/team-chats/:teamId/requests",
+                            pageBuilder: (context, state) =>
+                                const NoTransitionPage(
+                                    child: TeamRequestChatList()),
+                          ),
+                          GoRoute(
+                            parentNavigatorKey: _nestedTeamChatShellKey,
+                            path: "/team-chats/:teamId/invites",
+                            pageBuilder: (context, state) =>
+                                const NoTransitionPage(
+                                    child: TeamInviteChatList()),
+                          ),
+                        ],
+                      ),
+                    ]),
               ],
             ),
 

@@ -81,7 +81,8 @@ class _TeamState extends State<TeamContent> {
                             */
                         IconButton(
                             onPressed: () {
-                              debugPrint("Chat");
+                              navigateGo(context,
+                                  "/team-chats/${state.teamData!.id}/team");
                             },
                             icon: const Icon(Icons.chat_bubble_outline)),
                         isOwner

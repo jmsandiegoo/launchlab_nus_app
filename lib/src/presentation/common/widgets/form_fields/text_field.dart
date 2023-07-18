@@ -43,7 +43,6 @@ extension TextFieldErrorExt on TextFieldError {
 }
 
 /// Widget
-
 class TextFieldWidget extends StatefulWidget {
   const TextFieldWidget({
     super.key,
