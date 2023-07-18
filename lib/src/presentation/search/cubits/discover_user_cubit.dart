@@ -22,7 +22,7 @@ class DiscoverUserState extends Equatable {
   const DiscoverUserState(
       {this.searchTerm = '',
       this.externalUserData = const [],
-      this.status = DiscoverUserStatus.loading,
+      this.status = DiscoverUserStatus.success,
       this.error});
 
   DiscoverUserState copyWith({
