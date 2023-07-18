@@ -49,11 +49,11 @@ class _ExternalTeamContentState extends State<ExternalTeamContent> {
 
     return BlocBuilder<ExternalTeamCubit, ExternalTeamState>(
         builder: (context, state) {
-      if (externalTeamPageCubit.state.isLoaded) {
+      if (externalTeamPageCubit.state.status == ExternalTeamStatus.success) {
         teamData = externalTeamPageCubit.state.teamData!;
       }
 
-      return externalTeamPageCubit.state.isLoaded
+      return externalTeamPageCubit.state.status == ExternalTeamStatus.success
           ? Scaffold(
               appBar: AppBar(
                 backgroundColor: Colors.transparent,

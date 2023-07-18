@@ -150,7 +150,7 @@ class _DiscoverUserContentState extends State<DiscoverUserContent> {
                       ]))
                 ]),
           ]),
-          if (discoverCubit.state.isLoaded) ...[
+          if (discoverCubit.state.status == DiscoverUserStatus.success) ...[
             Expanded(
               child: Padding(
                   padding:

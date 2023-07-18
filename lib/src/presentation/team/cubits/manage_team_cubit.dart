@@ -10,33 +10,43 @@ import 'package:launchlab/src/domain/user/models/requests/download_avatar_image_
 import 'package:launchlab/src/domain/user/models/requests/download_user_resume_request.dart';
 import 'package:launchlab/src/domain/user/models/user_avatar_entity.dart';
 import 'package:launchlab/src/domain/user/models/user_resume_entity.dart';
+import 'package:launchlab/src/utils/failure.dart';
 
 @immutable
 class ManageTeamState extends Equatable {
   final List<TeamApplicantEntity> applicantUserData;
   final List<RoleEntity> rolesData;
-  final bool isLoaded;
+  final ManageTeamStatus status;
+  final Failure? error;
 
   @override
-  List<Object?> get props => [applicantUserData, rolesData, isLoaded];
+  List<Object?> get props => [applicantUserData, rolesData, status, error];
 
-  const ManageTeamState({
-    this.applicantUserData = const [],
-    this.rolesData = const [],
-    this.isLoaded = false,
-  });
+  const ManageTeamState(
+      {this.applicantUserData = const [],
+      this.rolesData = const [],
+      this.status = ManageTeamStatus.loading,
+      this.error});
 
   ManageTeamState copyWith({
     List<TeamApplicantEntity>? applicantUserData,
     List<RoleEntity>? rolesData,
-    bool? isLoaded,
+    ManageTeamStatus? status,
+    Failure? error,
   }) {
     return ManageTeamState(
       applicantUserData: applicantUserData ?? this.applicantUserData,
       rolesData: rolesData ?? this.rolesData,
-      isLoaded: isLoaded ?? this.isLoaded,
+      status: status ?? this.status,
+      error: error,
     );
   }
+}
+
+enum ManageTeamStatus {
+  loading,
+  success,
+  error,
 }
 
 class ManageTeamCubit extends Cubit<ManageTeamState> {
@@ -47,45 +57,50 @@ class ManageTeamCubit extends Cubit<ManageTeamState> {
       : super(const ManageTeamState());
 
   void getData(teamId) async {
-    final GetManageTeamData res =
-        await _teamRepository.getManageTeamData(teamId);
+    try {
+      final GetManageTeamData res =
+          await _teamRepository.getManageTeamData(teamId);
 
-    List<TeamApplicantEntity> applicants = res.getAllApplicant();
+      List<TeamApplicantEntity> applicants = res.getAllApplicant();
 
-    List<Future<UserAvatarEntity?>> asyncOperations = [];
-    List<Future<UserResumeEntity?>> asyncOperationsResume = [];
+      List<Future<UserAvatarEntity?>> asyncOperations = [];
+      List<Future<UserResumeEntity?>> asyncOperationsResume = [];
 
-    for (int i = 0; i < applicants.length; i++) {
-      asyncOperations.add(_userRepository.fetchUserAvatar(
-          DownloadAvatarImageRequest(
-              userId: applicants[i].user.id!, isSignedUrlEnabled: true)));
-      asyncOperationsResume.add(_userRepository.fetchUserResume(
-          DownloadUserResumeRequest(userId: applicants[i].user.id!)));
+      for (int i = 0; i < applicants.length; i++) {
+        asyncOperations.add(_userRepository.fetchUserAvatar(
+            DownloadAvatarImageRequest(
+                userId: applicants[i].user.id!, isSignedUrlEnabled: true)));
+        asyncOperationsResume.add(_userRepository.fetchUserResume(
+            DownloadUserResumeRequest(userId: applicants[i].user.id!)));
+      }
+      List<UserAvatarEntity?> avatars = await Future.wait(asyncOperations);
+      List<UserResumeEntity?> resumes =
+          await Future.wait(asyncOperationsResume);
+
+      for (int i = 0; i < applicants.length; i++) {
+        applicants[i] = applicants[i].copyWith(
+            user: applicants[i].user.copyWith(
+                userAvatar: avatars[i],
+                userResume: resumes[i],
+                userDegreeProgramme: applicants[i].user.userDegreeProgramme,
+                userPreference: applicants[i].user.userPreference,
+                userAccomplishments: applicants[i].user.userAccomplishments,
+                userExperiences: applicants[i].user.userExperiences));
+      }
+
+      final newState = state.copyWith(
+          applicantUserData: applicants,
+          rolesData: res.getAllRoles(),
+          status: ManageTeamStatus.success);
+      debugPrint("Manage Team State Emitted");
+      emit(newState);
+    } on Failure catch (error) {
+      emit(state.copyWith(status: ManageTeamStatus.error, error: error));
     }
-    List<UserAvatarEntity?> avatars = await Future.wait(asyncOperations);
-    List<UserResumeEntity?> resumes = await Future.wait(asyncOperationsResume);
-
-    for (int i = 0; i < applicants.length; i++) {
-      applicants[i] = applicants[i].copyWith(
-          user: applicants[i].user.copyWith(
-              userAvatar: avatars[i],
-              userResume: resumes[i],
-              userDegreeProgramme: applicants[i].user.userDegreeProgramme,
-              userPreference: applicants[i].user.userPreference,
-              userAccomplishments: applicants[i].user.userAccomplishments,
-              userExperiences: applicants[i].user.userExperiences));
-    }
-
-    final newState = state.copyWith(
-        applicantUserData: applicants,
-        rolesData: res.getAllRoles(),
-        isLoaded: true);
-    debugPrint("Manage Team State Emitted");
-    emit(newState);
   }
 
   void loading() {
-    emit(state.copyWith(isLoaded: false));
+    emit(state.copyWith(status: ManageTeamStatus.loading));
   }
 
   void addRoles({title, description, teamId}) {

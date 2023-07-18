@@ -49,10 +49,10 @@ class _TeamHomeState extends State<TeamHomeContent> {
           onRefresh: () async {
             refreshPage();
           },
-          child: teamHomeCubit.state.isLoaded == true
+          child: teamHomeCubit.state.status == TeamHomeStatus.success
               ? Scaffold(
                   backgroundColor: lightGreyColor,
-                  body: ListView(children: [
+                  body: ListView(padding: EdgeInsets.zero, children: [
                     Column(children: [
                       Stack(
                         children: <Widget>[

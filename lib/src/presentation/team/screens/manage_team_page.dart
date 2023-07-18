@@ -53,7 +53,7 @@ class _ManageTeamState extends State<ManageTeamContent> {
   Widget build(BuildContext context) {
     return BlocBuilder<ManageTeamCubit, ManageTeamState>(
         builder: (context, state) {
-      if (manageTeamCubit.state.isLoaded) {
+      if (manageTeamCubit.state.status == ManageTeamStatus.success) {
         rolesData = manageTeamCubit.state.rolesData;
         applicantUserData = manageTeamCubit.state.applicantUserData;
       }
@@ -62,7 +62,7 @@ class _ManageTeamState extends State<ManageTeamContent> {
           onRefresh: () async {
             refreshPage();
           },
-          child: manageTeamCubit.state.isLoaded
+          child: manageTeamCubit.state.status == ManageTeamStatus.success
               ? Scaffold(
                   appBar: AppBar(
                     backgroundColor: Colors.transparent,
