@@ -46,6 +46,10 @@ class ChatsInitialPageCubit extends Cubit<ChatsInitialPageState> {
   final TeamRepository teamRepository;
 
   Future<void> handleInitialPage() async {
+    emit(state.copyWith(
+        chatsInitialPageStatus: ChatsInitialPageStatus.initial,
+        teamId: state.teamId));
+
     if (state.teamId != null) {
       emit(state.copyWith(
           chatsInitialPageStatus: ChatsInitialPageStatus.redirect,

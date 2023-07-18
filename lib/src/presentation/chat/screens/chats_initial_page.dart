@@ -79,6 +79,21 @@ class _ChatsInitialContentState extends State<ChatsInitialContent> {
                         ? "Uh oh.... It seems that you don’t \n belong to any teams yet"
                         : "An error occured",
                     alignment: TextAlign.center),
+                const SizedBox(height: 15.0),
+                Center(
+                  child: Container(
+                    constraints: const BoxConstraints(maxWidth: 170.0),
+                    width: double.infinity,
+                    child: secondaryButton(
+                      context,
+                      () {
+                        _chatsInitialPageCubit.handleInitialPage();
+                      },
+                      "Reload",
+                      elevation: 0,
+                    ),
+                  ),
+                ),
               ],
             );
           }(),
