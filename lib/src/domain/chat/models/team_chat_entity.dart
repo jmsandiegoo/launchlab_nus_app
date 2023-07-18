@@ -69,6 +69,24 @@ class TeamChatEntity extends ChatEntity implements Comparable<TeamChatEntity> {
     return chatMessages[chatMessages.length - 1];
   }
 
+  String? getDirectChatUserId({required String currUserId}) {
+    if (team == null || chatUsers.isEmpty) {
+      return null;
+    }
+
+    if (isGroupChat) {
+      return null;
+    } else {
+      for (int i = 0; i < chatUsers.length; i++) {
+        if (!chatUsers[i].checkIfCurrentUser(currUserId: currUserId)) {
+          return chatUsers[i].userId;
+        }
+      }
+
+      return null;
+    }
+  }
+
   @override
   String? getChatName({required String currUserId}) {
     if (team == null || chatUsers.isEmpty) {

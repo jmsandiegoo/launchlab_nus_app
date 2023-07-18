@@ -210,14 +210,15 @@ Widget subHeaderText(String label,
     {size = 20.0,
     alignment = TextAlign.left,
     color = blackColor,
-    maxLines = 2}) {
+    maxLines = 2,
+    weight: FontWeight.bold}) {
   return Text(
     label,
     maxLines: maxLines,
     softWrap: true,
     overflow: TextOverflow.ellipsis,
     textAlign: alignment,
-    style: TextStyle(fontSize: size, fontWeight: FontWeight.bold, color: color),
+    style: TextStyle(fontSize: size, fontWeight: weight, color: color),
   );
 }
 
