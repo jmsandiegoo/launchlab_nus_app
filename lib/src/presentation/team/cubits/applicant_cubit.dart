@@ -8,20 +8,23 @@ import 'package:launchlab/src/domain/team/user_entity.dart';
 import 'package:launchlab/src/domain/user/models/accomplishment_entity.dart';
 import 'package:launchlab/src/domain/user/models/experience_entity.dart';
 import 'package:launchlab/src/utils/constants.dart';
+import 'package:launchlab/src/utils/failure.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ApplicantState extends Equatable {
   @override
-  List<Object?> get props => [applicationTeamData, actionTypes, isLoaded];
+  List<Object?> get props => [applicationTeamData, actionTypes, status, error];
 
   final TeamEntity? applicationTeamData;
   final ActionTypes? actionTypes;
-  final bool isLoaded;
+  final ApplicantStatus status;
+  final Failure? error;
 
   const ApplicantState(
       {this.applicationTeamData,
       this.actionTypes = ActionTypes.cancel,
-      this.isLoaded = false});
+      this.status = ApplicantStatus.loading,
+      this.error});
 
   ApplicantState copyWith({
     UserTeamEntity? applicantUserData,
@@ -29,14 +32,22 @@ class ApplicantState extends Equatable {
     List<ExperienceEntity>? experienceData,
     List<AccomplishmentEntity>? accomplishmentData,
     ActionTypes? actionTypes,
-    bool? isLoaded,
+    ApplicantStatus? status,
+    Failure? error,
   }) {
     return ApplicantState(
       applicationTeamData: applicationTeamData ?? this.applicationTeamData,
       actionTypes: actionTypes ?? this.actionTypes,
-      isLoaded: isLoaded ?? this.isLoaded,
+      status: status ?? this.status,
+      error: error,
     );
   }
+}
+
+enum ApplicantStatus {
+  loading,
+  success,
+  error,
 }
 
 class ApplicantCubit extends Cubit<ApplicantState> {
@@ -46,17 +57,21 @@ class ApplicantCubit extends Cubit<ApplicantState> {
   final supabase = Supabase.instance.client;
 
   getData(applicationID) async {
-    final GetApplicantData res =
-        await _teamRepository.getApplicantData(applicationID);
-    final newState =
-        state.copyWith(applicationTeamData: res.team, isLoaded: true);
+    try {
+      final GetApplicantData res =
+          await _teamRepository.getApplicantData(applicationID);
+      final newState = state.copyWith(
+          applicationTeamData: res.team, status: ApplicantStatus.success);
 
-    debugPrint("Applicant State Emitted");
-    emit(newState);
+      debugPrint("Applicant State Emitted");
+      emit(newState);
+    } on Failure catch (error) {
+      emit(state.copyWith(status: ApplicantStatus.error, error: error));
+    }
   }
 
   void loading() {
-    emit(state.copyWith(isLoaded: false));
+    emit(state.copyWith(status: ApplicantStatus.loading));
   }
 
   acceptApplicant({applicationID, currentMember}) async {

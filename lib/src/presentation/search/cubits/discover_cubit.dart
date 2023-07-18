@@ -10,6 +10,7 @@ import 'package:launchlab/src/domain/search/search_filter_entity.dart';
 import 'package:launchlab/src/domain/search/search_team_entity.dart';
 import 'package:launchlab/src/domain/user/models/user_entity.dart';
 import 'package:launchlab/src/presentation/user/widgets/form_fields/user_skills_interests_field.dart';
+import 'package:launchlab/src/utils/failure.dart';
 
 @immutable
 class DiscoverState extends Equatable {
@@ -21,7 +22,8 @@ class DiscoverState extends Equatable {
   final String commitmentInput;
   final UserSkillsInterestsFieldInput interestInput;
   final List<SkillEntity> skillInterestOptions;
-  final bool isLoaded;
+  final DiscoverStatus status;
+  final Failure? error;
 
   @override
   List<Object?> get props => [
@@ -33,7 +35,8 @@ class DiscoverState extends Equatable {
         commitmentInput,
         interestInput,
         skillInterestOptions,
-        isLoaded
+        status,
+        error
       ];
 
   const DiscoverState(
@@ -45,7 +48,8 @@ class DiscoverState extends Equatable {
       this.commitmentInput = "",
       this.interestInput = const UserSkillsInterestsFieldInput.unvalidated(),
       this.skillInterestOptions = const [],
-      this.isLoaded = false});
+      this.status = DiscoverStatus.loading,
+      this.error});
 
   DiscoverState copyWith({
     String? searchTerm,
@@ -56,20 +60,27 @@ class DiscoverState extends Equatable {
     String? commitmentInput,
     UserSkillsInterestsFieldInput? interestInput,
     List<SkillEntity>? skillInterestOptions,
-    bool? isLoaded,
+    DiscoverStatus? status,
+    Failure? error,
   }) {
     return DiscoverState(
-      searchTerm: searchTerm ?? this.searchTerm,
-      externalTeamData: externalTeamData ?? this.externalTeamData,
-      externalUserData: externalUserData ?? this.externalUserData,
-      userId: userId ?? this.userId,
-      categoryInput: categoryInput ?? this.categoryInput,
-      commitmentInput: commitmentInput ?? this.commitmentInput,
-      interestInput: interestInput ?? this.interestInput,
-      skillInterestOptions: skillInterestOptions ?? this.skillInterestOptions,
-      isLoaded: isLoaded ?? this.isLoaded,
-    );
+        searchTerm: searchTerm ?? this.searchTerm,
+        externalTeamData: externalTeamData ?? this.externalTeamData,
+        externalUserData: externalUserData ?? this.externalUserData,
+        userId: userId ?? this.userId,
+        categoryInput: categoryInput ?? this.categoryInput,
+        commitmentInput: commitmentInput ?? this.commitmentInput,
+        interestInput: interestInput ?? this.interestInput,
+        skillInterestOptions: skillInterestOptions ?? this.skillInterestOptions,
+        status: status ?? this.status,
+        error: error);
   }
+}
+
+enum DiscoverStatus {
+  loading,
+  success,
+  error,
 }
 
 class DiscoverCubit extends Cubit<DiscoverState> {
@@ -79,28 +90,36 @@ class DiscoverCubit extends Cubit<DiscoverState> {
   final SearchRepository _searchRepository;
 
   getData(String searchTerm, SearchFilterEntity filterData) async {
-    emit(state.copyWith(isLoaded: false));
-    final GetSearchResult res =
-        await _searchRepository.getSearchData(searchTerm, filterData);
-    final newState = state.copyWith(
-        searchTerm: searchTerm,
-        externalTeamData: res.uniqueSearchedTeams(),
-        userId: res.userId,
-        isLoaded: true);
-    emit(newState);
+    try {
+      emit(state.copyWith(status: DiscoverStatus.loading));
+      final GetSearchResult res =
+          await _searchRepository.getSearchData(searchTerm, filterData);
+      final newState = state.copyWith(
+          searchTerm: searchTerm,
+          externalTeamData: res.uniqueSearchedTeams(),
+          userId: res.userId,
+          status: DiscoverStatus.success);
+      emit(newState);
+    } on Failure catch (error) {
+      emit(state.copyWith(status: DiscoverStatus.error, error: error));
+    }
   }
 
   getRecomendationData(filterData) async {
-    emit(state.copyWith(isLoaded: false));
-    final GetRecomendationResult res =
-        await _searchRepository.getRecomendationData(filterData);
+    try {
+      emit(state.copyWith(status: DiscoverStatus.loading));
+      final GetRecomendationResult res =
+          await _searchRepository.getRecomendationData(filterData);
 
-    final newState = state.copyWith(
-        searchTerm: "",
-        externalTeamData: res.getRecomendedTeams(),
-        userId: res.userId,
-        isLoaded: true);
-    emit(newState);
+      final newState = state.copyWith(
+          searchTerm: "",
+          externalTeamData: res.getRecomendedTeams(),
+          userId: res.userId,
+          status: DiscoverStatus.success);
+      emit(newState);
+    } on Failure catch (error) {
+      emit(state.copyWith(status: DiscoverStatus.error, error: error));
+    }
   }
 
   void onCommitmentChanged(String val) {
@@ -118,8 +137,8 @@ class DiscoverCubit extends Cubit<DiscoverState> {
       final List<SkillEntity> skillInterestOptions =
           await _commonRepository.getSkillsInterestsFromEmsi(filter);
       emit(state.copyWith(skillInterestOptions: skillInterestOptions));
-    } on Exception catch (error) {
-      print(error);
+    } on Failure catch (error) {
+      emit(state.copyWith(status: DiscoverStatus.error, error: error));
     }
   }
 

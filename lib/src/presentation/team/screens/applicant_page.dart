@@ -50,11 +50,11 @@ class _ApplicantPageContentState extends State<ApplicantPageContent> {
   Widget build(BuildContext context) {
     return BlocBuilder<ApplicantCubit, ApplicantState>(
         builder: (context, state) {
-      if (applicantCubit.state.isLoaded) {
+      if (applicantCubit.state.status == ApplicantStatus.success) {
         applicationTeamData = applicantCubit.state.applicationTeamData!;
       }
 
-      return applicantCubit.state.isLoaded
+      return applicantCubit.state.status == ApplicantStatus.success
           ? Scaffold(
               appBar: AppBar(
                 backgroundColor: Colors.transparent,

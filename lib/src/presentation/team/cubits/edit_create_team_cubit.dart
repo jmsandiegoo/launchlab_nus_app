@@ -14,6 +14,7 @@ import 'package:launchlab/src/presentation/common/widgets/form_fields/text_field
 import 'package:launchlab/src/presentation/user/widgets/form_fields/end_date_field.dart';
 import 'package:launchlab/src/presentation/user/widgets/form_fields/start_date_field.dart';
 import 'package:launchlab/src/presentation/user/widgets/form_fields/user_skills_interests_field.dart';
+import 'package:launchlab/src/utils/failure.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 @immutable
@@ -31,7 +32,8 @@ class EditCreateTeamState extends Equatable {
     this.interestInput = const UserSkillsInterestsFieldInput.unvalidated(),
     this.skillInterestOptions = const [],
     this.avatarURL = '',
-    this.isLoaded = false,
+    this.status = EditCreateStatus.loading,
+    this.error,
   });
 
   final PictureUploadPickerInput pictureUploadInput;
@@ -46,7 +48,8 @@ class EditCreateTeamState extends Equatable {
   final UserSkillsInterestsFieldInput interestInput;
   final List<SkillEntity> skillInterestOptions;
   final String avatarURL;
-  final bool isLoaded;
+  final EditCreateStatus status;
+  final Failure? error;
 
   EditCreateTeamState copyWith(
       {PictureUploadPickerInput? pictureUploadInput,
@@ -61,25 +64,29 @@ class EditCreateTeamState extends Equatable {
       UserSkillsInterestsFieldInput? interestInput,
       List<SkillEntity>? skillInterestOptions,
       String? avatarURL,
-      bool? isLoaded}) {
+      EditCreateStatus? status,
+      Failure? error}) {
     return EditCreateTeamState(
-        pictureUploadInput: pictureUploadInput ?? this.pictureUploadInput,
-        teamNameInput: teamNameInput ?? this.teamNameInput,
-        descriptionInput: descriptionInput ?? this.descriptionInput,
-        startDateInput: startDateInput ?? this.startDateInput,
-        endDateInput: endDateInput ?? this.endDateInput,
-        isChecked: isChecked ?? this.isChecked,
-        categoryInput: categoryInput ?? this.categoryInput,
-        commitmentInput: commitmentInput ?? this.commitmentInput,
-        maxMemberInput: maxMemberInput ?? this.maxMemberInput,
-        interestInput: interestInput ?? this.interestInput,
-        skillInterestOptions: skillInterestOptions ?? this.skillInterestOptions,
-        avatarURL: avatarURL ?? this.avatarURL,
-        isLoaded: isLoaded ?? this.isLoaded);
+      pictureUploadInput: pictureUploadInput ?? this.pictureUploadInput,
+      teamNameInput: teamNameInput ?? this.teamNameInput,
+      descriptionInput: descriptionInput ?? this.descriptionInput,
+      startDateInput: startDateInput ?? this.startDateInput,
+      endDateInput: endDateInput ?? this.endDateInput,
+      isChecked: isChecked ?? this.isChecked,
+      categoryInput: categoryInput ?? this.categoryInput,
+      commitmentInput: commitmentInput ?? this.commitmentInput,
+      maxMemberInput: maxMemberInput ?? this.maxMemberInput,
+      interestInput: interestInput ?? this.interestInput,
+      skillInterestOptions: skillInterestOptions ?? this.skillInterestOptions,
+      avatarURL: avatarURL ?? this.avatarURL,
+      status: status ?? this.status,
+      error: error,
+    );
   }
 
   @override
   List<Object?> get props => [
+        pictureUploadInput,
         teamNameInput,
         descriptionInput,
         startDateInput,
@@ -90,8 +97,16 @@ class EditCreateTeamState extends Equatable {
         maxMemberInput,
         interestInput,
         skillInterestOptions,
-        avatarURL
+        avatarURL,
+        status,
+        error,
       ];
+}
+
+enum EditCreateStatus {
+  loading,
+  success,
+  error,
 }
 
 class EditCreateTeamCubit extends Cubit<EditCreateTeamState> {
@@ -285,35 +300,40 @@ class EditCreateTeamCubit extends Cubit<EditCreateTeamState> {
 
   final supabase = Supabase.instance.client;
   getData(teamId) async {
-    final TeamEntity res = await _teamRepository.getEditCreateTeamData(teamId);
-    final newTeamNameState = TextFieldInput.validated(res.teamName);
-    final newDescriptionState = TextFieldInput.validated(res.description);
-    final newStartDateState = StartDateFieldInput.validated(res.startDate);
-    final newMaxMemberState =
-        TextFieldInput.validated(res.maxMembers.toString());
-    List<SkillEntity> allInterest = [];
-    res.interest.forEach((interest) {
-      allInterest.add(
-          SkillEntity(emsiId: interest['emsi_id'], name: interest['name']));
-    });
-    final newInterestInput =
-        UserSkillsInterestsFieldInput.validated(allInterest);
+    try {
+      final TeamEntity res =
+          await _teamRepository.getEditCreateTeamData(teamId);
+      final newTeamNameState = TextFieldInput.validated(res.teamName);
+      final newDescriptionState = TextFieldInput.validated(res.description);
+      final newStartDateState = StartDateFieldInput.validated(res.startDate);
+      final newMaxMemberState =
+          TextFieldInput.validated(res.maxMembers.toString());
+      List<SkillEntity> allInterest = [];
+      for (var interest in res.interest) {
+        allInterest.add(
+            SkillEntity(emsiId: interest['emsi_id'], name: interest['name']));
+      }
+      final newInterestInput =
+          UserSkillsInterestsFieldInput.validated(allInterest);
 
-    res.endDate == null
-        ? onIsCheckedChanged(true)
-        : onEndDateChanged(res.endDate);
+      res.endDate == null
+          ? onIsCheckedChanged(true)
+          : onEndDateChanged(res.endDate);
 
-    final newState = state.copyWith(
-        teamNameInput: newTeamNameState,
-        descriptionInput: newDescriptionState,
-        startDateInput: newStartDateState,
-        categoryInput: res.category,
-        commitmentInput: res.commitment,
-        maxMemberInput: newMaxMemberState,
-        interestInput: newInterestInput,
-        avatarURL: res.avatarURL,
-        isLoaded: true);
-    emit(newState);
+      final newState = state.copyWith(
+          teamNameInput: newTeamNameState,
+          descriptionInput: newDescriptionState,
+          startDateInput: newStartDateState,
+          categoryInput: res.category,
+          commitmentInput: res.commitment,
+          maxMemberInput: newMaxMemberState,
+          interestInput: newInterestInput,
+          avatarURL: res.avatarURL,
+          status: EditCreateStatus.success);
+      emit(newState);
+    } on Failure catch (error) {
+      emit(state.copyWith(status: EditCreateStatus.error, error: error));
+    }
   }
 
   updateTeamData({

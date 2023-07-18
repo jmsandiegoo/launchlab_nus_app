@@ -76,7 +76,7 @@ class _EditTeamContentState extends State<EditTeamContent> {
   Widget build(BuildContext context) {
     return BlocBuilder<EditCreateTeamCubit, EditCreateTeamState>(
         builder: (context, state) {
-      return editCreateTeamCubit.state.isLoaded
+      return editCreateTeamCubit.state.status == EditCreateStatus.success
           ? Scaffold(
               appBar: AppBar(
                 backgroundColor: Colors.transparent,

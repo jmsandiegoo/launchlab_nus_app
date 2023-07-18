@@ -9,6 +9,7 @@ import 'package:launchlab/src/domain/team/team_entity.dart';
 import 'package:launchlab/src/domain/user/models/requests/download_avatar_image_request.dart';
 import 'package:launchlab/src/domain/user/models/user_avatar_entity.dart';
 import 'package:launchlab/src/domain/user/models/user_entity.dart';
+import 'package:launchlab/src/utils/failure.dart';
 
 @immutable
 class TeamHomeState extends Equatable {
@@ -16,14 +17,16 @@ class TeamHomeState extends Equatable {
   final List<TeamEntity> ownerTeamData;
   final UserEntity? userData;
   final bool isLeading;
-  final bool isLoaded;
+  final TeamHomeStatus status;
+  final Failure? error;
 
   const TeamHomeState({
     this.memberTeamData = const [],
     this.ownerTeamData = const [],
     this.userData,
     this.isLeading = true,
-    this.isLoaded = false,
+    this.status = TeamHomeStatus.loading,
+    this.error,
   });
 
   TeamHomeState copyWith({
@@ -32,20 +35,28 @@ class TeamHomeState extends Equatable {
     UserEntity? userData,
     List? userAvatarURL,
     bool? isLeading,
-    bool? isLoaded,
+    TeamHomeStatus? status,
+    Failure? error,
   }) {
     return TeamHomeState(
       memberTeamData: memberTeamData ?? this.memberTeamData,
       ownerTeamData: ownerTeamData ?? this.ownerTeamData,
       userData: userData ?? this.userData,
       isLeading: isLeading ?? this.isLeading,
-      isLoaded: isLoaded ?? this.isLoaded,
+      status: status ?? this.status,
+      error: error,
     );
   }
 
   @override
   List<Object?> get props =>
-      [memberTeamData, ownerTeamData, userData, isLeading, isLoaded];
+      [memberTeamData, ownerTeamData, userData, isLeading, status, error];
+}
+
+enum TeamHomeStatus {
+  loading,
+  success,
+  error,
 }
 
 class TeamHomeCubit extends Cubit<TeamHomeState> {
@@ -63,26 +74,30 @@ class TeamHomeCubit extends Cubit<TeamHomeState> {
 
 //Emit state here, no longer need future builder.
   void getData() async {
-    final GetTeamHomeData res = await _teamRepository.getTeamHomeData();
-    List<Future<UserAvatarEntity?>> asyncOperations = [];
+    try {
+      final GetTeamHomeData res = await _teamRepository.getTeamHomeData();
+      List<Future<UserAvatarEntity?>> asyncOperations = [];
 
-    asyncOperations.add(_userRepository.fetchUserAvatar(
-        DownloadAvatarImageRequest(
-            userId: res.user.id!, isSignedUrlEnabled: true)));
-    List<UserAvatarEntity?> avatars = await Future.wait(asyncOperations);
-    final UserEntity userData = res.user.copyWith(userAvatar: avatars[0]);
+      asyncOperations.add(_userRepository.fetchUserAvatar(
+          DownloadAvatarImageRequest(
+              userId: res.user.id!, isSignedUrlEnabled: true)));
+      List<UserAvatarEntity?> avatars = await Future.wait(asyncOperations);
+      final UserEntity userData = res.user.copyWith(userAvatar: avatars[0]);
 
-    final newState = state.copyWith(
-        memberTeamData: res.memberTeams,
-        ownerTeamData: res.ownerTeams,
-        userData: userData,
-        isLoaded: true);
-    debugPrint('Home state emitted');
-    emit(newState);
+      final newState = state.copyWith(
+          memberTeamData: res.memberTeams,
+          ownerTeamData: res.ownerTeams,
+          userData: userData,
+          status: TeamHomeStatus.success);
+      debugPrint('Home state emitted');
+      emit(newState);
+    } on Failure catch (error) {
+      emit(state.copyWith(status: TeamHomeStatus.error, error: error));
+    }
   }
 
   void loading() {
-    emit(state.copyWith(isLoaded: false));
+    emit(state.copyWith(status: TeamHomeStatus.loading));
   }
 
   void setIsLeadingState(bool value) {

@@ -26,7 +26,7 @@ class SearchTeamCard extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
-            teamPicture(40, avatarURL),
+            teamPicture(40, avatarURL, isUrl: true),
             const SizedBox(width: 10),
             Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               subHeaderText(teamName),
