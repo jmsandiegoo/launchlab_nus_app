@@ -741,4 +741,6 @@ class OnboardingCubit extends Cubit<OnboardingState> {
       currStep: state.currStep - 1,
     ));
   }
+
+  onboardUser() {}
 }
