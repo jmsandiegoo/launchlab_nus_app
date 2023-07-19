@@ -250,7 +250,7 @@ class OnboardingCubit extends Cubit<OnboardingState> {
     final newUsernameInputState = shouldValidate
         ? UsernameFieldInput.validated(val)
         : UsernameFieldInput.unvalidated(val);
-    print(newUsernameInputState.displayError);
+
     final newState = state.copyWith(
       usernameInput: newUsernameInputState,
       onboardingStatus: null,
