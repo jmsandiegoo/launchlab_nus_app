@@ -36,7 +36,7 @@ class DatePickerWidget extends StatelessWidget {
         : "";
 
     return SizedBox(
-      height: 115,
+      height: 100,
       child: userInput(
         isEnabled: isEnabled,
         focusNode: FocusNode(),
@@ -46,6 +46,7 @@ class DatePickerWidget extends StatelessWidget {
         hint: hint,
         label: label,
         errorText: errorText,
+        endSpacing: false,
         onTapHandler: () => showDatePicker(
           context: context,
           initialDate: initialDate ?? DateTime.now(),

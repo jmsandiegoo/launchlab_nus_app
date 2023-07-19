@@ -1,22 +1,27 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:launchlab/src/config/app_theme.dart';
+import 'package:launchlab/src/presentation/common/widgets/confirmation_box.dart';
 
 Widget userInput({
   required FocusNode focusNode,
   required void Function(String) onChangedHandler,
   required String label,
   bool obscureText = false,
-  int size = 1,
+  int minLines = 1,
+  int maxLines = 1,
   String hint = "",
   bool isEnabled = true,
   bool isReadOnly = false,
   void Function()? onTapHandler,
+  Widget? prefixWidget,
   Widget? suffixWidget,
   TextEditingController? controller,
   String? errorText,
   TextInputType keyboard = TextInputType.multiline,
   bool endSpacing = true,
+  List<TextInputFormatter>? inputFormatter,
 }) {
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
@@ -45,12 +50,14 @@ Widget userInput({
         controller: controller,
         onChanged: onChangedHandler,
         onTap: onTapHandler,
-        keyboardType: size > 1 ? keyboard : null,
-        minLines: size,
-        maxLines: size,
+        keyboardType: maxLines > 1 ? keyboard : null,
+        minLines: minLines,
+        maxLines: maxLines,
+        inputFormatters: inputFormatter,
         obscureText: obscureText,
         decoration: InputDecoration(
           errorText: errorText,
+          prefixIcon: prefixWidget,
           suffixIcon: suffixWidget,
           hintText: hint,
           fillColor: isEnabled ? whiteColor : greyColor.shade300,
@@ -71,6 +78,7 @@ Widget userInput({
 
 Widget userInput_2({
   label,
+  focusNode,
   obsureText = false,
   controller,
   size = 1,
@@ -87,6 +95,7 @@ Widget userInput_2({
       ),
       const SizedBox(height: 5),
       TextField(
+        focusNode: focusNode,
         keyboardType: keyboard,
         minLines: size, //Normal textInputField will be displayed
         maxLines: size,
@@ -129,16 +138,44 @@ Widget checkBox(String label, bool? value, bool tristate,
   ]);
 }
 
-Widget profilePicture(double diameter, String address) {
+Widget profilePicture(
+  double diameter,
+  String address, {
+  bool isUrl = false,
+}) {
   return Container(
       width: diameter,
       height: diameter,
       decoration: BoxDecoration(
           shape: BoxShape.circle,
           image: DecorationImage(
-            image: ExactAssetImage("assets/images/$address"),
-            fit: BoxFit.fitHeight,
+            image: isUrl
+                ? address == ''
+                    ? const ExactAssetImage("assets/images/avatar_temp.png")
+                    : Image.network(address).image
+                : ExactAssetImage("assets/images/$address"),
+            fit: BoxFit.cover,
           )));
+}
+
+Widget teamPicture(
+  double size,
+  String address, {
+  bool isUrl = false,
+}) {
+  return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+          // shape: BoxShape.circle,
+          image: DecorationImage(
+        image: isUrl
+            ? address == ''
+                ? const ExactAssetImage("assets/images/team_avatar_temp.png")
+                : Image.network(address).image
+            : ExactAssetImage("assets/images/$address"),
+        fit: BoxFit.cover,
+      )));
 }
 
 Widget searchBar() {
@@ -170,13 +207,18 @@ Widget headerText(String label, {size = 25.0, alignment = TextAlign.left}) {
 }
 
 Widget subHeaderText(String label,
-    {size = 20.0, alignment = TextAlign.left, color = blackColor}) {
+    {size = 20.0,
+    alignment = TextAlign.left,
+    color = blackColor,
+    maxLines = 2,
+    weight: FontWeight.bold}) {
   return Text(
     label,
-    maxLines: 2,
+    maxLines: maxLines,
+    softWrap: true,
     overflow: TextOverflow.ellipsis,
     textAlign: alignment,
-    style: TextStyle(fontSize: size, fontWeight: FontWeight.bold, color: color),
+    style: TextStyle(fontSize: size, fontWeight: weight, color: color),
   );
 }
 
@@ -199,11 +241,15 @@ Widget bodyText(String label,
 Widget smallText(String label,
     {size = 13.0,
     color = blackColor,
+    int? maxLines,
     weight = FontWeight.w400,
-    alignment = TextAlign.left}) {
+    alignment = TextAlign.left,
+    overflow = TextOverflow.ellipsis}) {
   return Text(
     label,
+    maxLines: maxLines,
     textAlign: alignment,
+    overflow: overflow,
     style: TextStyle(
       fontSize: size,
       color: color,
@@ -292,10 +338,75 @@ Widget secondaryButton(
   );
 }
 
-Widget descriptionText(String label, {size = 15.0, color = blackColor}) {
+Widget secondaryIconButton(
+  BuildContext context,
+  Function() onPressedHandler,
+  IconData icon, {
+  horizontalPadding = 30.0,
+  verticalPadding = 10.0,
+  double? elevation,
+  bool isLoading = false,
+  Widget? childBuilder,
+}) {
+  return ElevatedButton(
+    style: ElevatedButton.styleFrom(
+      elevation: elevation,
+      backgroundColor: Theme.of(context).colorScheme.secondary,
+      textStyle: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
+      padding: EdgeInsets.symmetric(
+        vertical: verticalPadding,
+        horizontal: horizontalPadding,
+      ),
+    ),
+    onPressed: () {
+      if (isLoading) {
+        return;
+      }
+      onPressedHandler();
+    },
+    child: isLoading
+        ? SizedBox(
+            height: 17,
+            width: 17,
+            child: CircularProgressIndicator(
+                strokeWidth: 1,
+                color: Theme.of(context).colorScheme.onSecondary),
+          )
+        : childBuilder ??
+            Icon(icon, color: Theme.of(context).colorScheme.onSecondary),
+  );
+}
+
+Widget outlinedButton({
+  required String label,
+  required void Function() onPressedHandler,
+  required Color color,
+  bool isLoading = false,
+}) {
+  return OutlinedButton(
+      onPressed: () {
+        if (isLoading) {
+          return;
+        }
+
+        onPressedHandler();
+      },
+      style: OutlinedButton.styleFrom(side: BorderSide(color: color)),
+      child: isLoading
+          ? SizedBox(
+              height: 17,
+              width: 17,
+              child: CircularProgressIndicator(strokeWidth: 1, color: color),
+            )
+          : bodyText(label, color: color));
+}
+
+Widget overflowText(String label,
+    {size = 15.0, color = blackColor, maxLines = 3}) {
   return Text(
     label,
-    maxLines: 3,
+    maxLines: maxLines,
+    softWrap: true,
     overflow: TextOverflow.ellipsis,
     style: TextStyle(fontSize: size, color: color),
   );
@@ -313,18 +424,19 @@ Future<T?> showModalBottomSheetHandler<T>(
 }
 
 Widget boldFirstText(String text1, String text2, {size = 12.5}) {
-  return RichText(
-    text: TextSpan(
-      style: TextStyle(
-        fontSize: size,
-        color: Colors.black,
-      ),
-      children: <TextSpan>[
-        TextSpan(
-            text: text1, style: const TextStyle(fontWeight: FontWeight.bold)),
-        TextSpan(text: text2),
-      ],
-    ),
+  return Row(
+    children: [
+      Text(text1,
+          maxLines: 2,
+          softWrap: true,
+          overflow: TextOverflow.ellipsis,
+          style: TextStyle(fontSize: size, fontWeight: FontWeight.bold)),
+      Text(text2,
+          maxLines: 2,
+          softWrap: true,
+          overflow: TextOverflow.ellipsis,
+          style: TextStyle(fontSize: size)),
+    ],
   );
 }
 
@@ -391,7 +503,8 @@ Widget memberProfile(imgDir, name, position,
   return Column(children: [
     const SizedBox(height: 7),
     Row(children: [
-      profilePicture(imgSize, imgDir),
+      profilePicture(imgSize, imgDir ?? "avatar_temp.png",
+          isUrl: imgDir != null ? true : false),
       const SizedBox(width: 10),
       Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         isBold
@@ -400,33 +513,6 @@ Widget memberProfile(imgDir, name, position,
         bodyText(position, color: darkGreyColor, size: textSize)
       ])
     ])
-  ]);
-}
-
-Widget manageMemberBar(imgDir, name, position) {
-  return Column(children: [
-    const SizedBox(height: 20),
-    Container(
-      width: double.infinity,
-      decoration: BoxDecoration(
-          color: whiteColor,
-          borderRadius: BorderRadius.circular(12),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withOpacity(0.3),
-              spreadRadius: 3,
-              blurRadius: 3,
-              offset: const Offset(0, 3),
-            )
-          ]),
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Column(children: [
-          memberProfile(imgDir, name, position, imgSize: 35.0, isBold: true),
-          const SizedBox(height: 7),
-        ]),
-      ),
-    ),
   ]);
 }
 
@@ -459,25 +545,46 @@ Widget taskBar(taskName, isChecked, checkBox) {
   );
 }
 
-String stringToDateFormatter(date) {
-  final formatter = DateFormat('dd MMM yyyy');
+void confirmationBox(context, title, message, {onAccept}) {
+  showDialog(
+    context: context,
+    builder: (context) {
+      return ConfirmationBox(
+        title: title,
+        message: message,
+        onClose: () => Navigator.pop(context),
+      );
+    },
+  );
+}
+
+String stringToDateFormatter(date, {noDate = false}) {
+  final formatter = noDate ? DateFormat('MMM yyyy') : DateFormat('dd MMM yyyy');
   return formatter.format(DateTime.parse(date));
 }
 
-String dateToDateFormatter(date) {
-  String formattedDate = DateFormat('dd MMM yyyy').format(date);
+String dateToDateFormatter(date, {noDate = false}) {
+  String formattedDate = noDate
+      ? DateFormat('MMM yyyy').format(date)
+      : DateFormat('dd MMM yyyy').format(date);
   return formattedDate;
 }
 
-Widget futureBuilderFail() {
-  return Center(
-      child: bodyText('Please ensure that you have internet connection'));
+Widget futureBuilderFail(onReload) {
+  return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Center(
+            child: bodyText('Please ensure that you have internet connection')),
+        ElevatedButton(onPressed: onReload, child: bodyText("Reload"))
+      ]);
 }
 
 Widget chip<T>(label, T value, {void Function(T value)? onDeleteHandler}) {
   return Chip(
       labelPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 5.0),
-      label: bodyText(label),
+      label: smallText(label, size: 11.5),
       backgroundColor: Colors.transparent,
       deleteIcon: const Icon(
         Icons.close_outlined,
@@ -493,7 +600,6 @@ Widget chip<T>(label, T value, {void Function(T value)? onDeleteHandler}) {
 
 Widget chipsWrap<T>(List<T> items, {void Function(T value)? onDeleteHandler}) {
   return Wrap(
-    runSpacing: 5.0,
     spacing: 5.0,
     children: items
         .map((item) =>

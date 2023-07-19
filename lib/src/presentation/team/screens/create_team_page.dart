@@ -1,13 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:launchlab/src/config/app_theme.dart';
+import 'package:launchlab/src/data/common/common_repository.dart';
+import 'package:launchlab/src/data/team/team_repository.dart';
 import 'package:launchlab/src/domain/common/models/skill_entity.dart';
 import 'package:launchlab/src/presentation/common/widgets/form_fields/date_picker.dart';
 import 'package:launchlab/src/presentation/common/widgets/form_fields/dropwdown_search_field.dart';
+import 'package:launchlab/src/presentation/common/widgets/form_fields/picture_upload_picker.dart';
 import 'package:launchlab/src/presentation/common/widgets/useful.dart';
 import 'package:launchlab/src/presentation/team/cubits/edit_create_team_cubit.dart';
+import 'package:launchlab/src/presentation/team/widgets/commitment_button.dart';
+import 'package:launchlab/src/utils/constants.dart';
 import 'package:launchlab/src/utils/helper.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../common/widgets/form_fields/text_field.dart';
 
 class CreateTeamPage extends StatefulWidget {
@@ -16,12 +23,11 @@ class CreateTeamPage extends StatefulWidget {
   const CreateTeamPage({super.key, required this.userId});
 
   @override
-  State<CreateTeamPage> createState() => _CreateTeamPageState(userId);
+  State<CreateTeamPage> createState() => _CreateTeamPageState();
 }
 
 class _CreateTeamPageState extends State<CreateTeamPage> {
-  _CreateTeamPageState(this.userId);
-  String userId;
+  _CreateTeamPageState();
   final _teamNameFocusNode = FocusNode();
   final _descriptionFocusNode = FocusNode();
   final _startDateFocusNode = FocusNode();
@@ -31,7 +37,7 @@ class _CreateTeamPageState extends State<CreateTeamPage> {
     "Personal",
     "Competition",
     "Startup / Company",
-    "Volunteer Work",
+    "Volunteer",
     "Others"
   ];
   final _maxMemberFocusNode = FocusNode();
@@ -45,7 +51,8 @@ class _CreateTeamPageState extends State<CreateTeamPage> {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-        create: (_) => EditCreateTeamCubit(),
+        create: (_) => EditCreateTeamCubit(
+            CommonRepository(Supabase.instance), TeamRepository()),
         child: BlocBuilder<EditCreateTeamCubit, EditCreateTeamState>(
             builder: (context, state) {
           final editCreateTeamCubit =
@@ -54,7 +61,10 @@ class _CreateTeamPageState extends State<CreateTeamPage> {
           return Scaffold(
             appBar: AppBar(
               backgroundColor: Colors.transparent,
-              iconTheme: const IconThemeData(color: blackColor),
+              leading: IconButton(
+                icon: const Icon(Icons.arrow_back, color: blackColor),
+                onPressed: () => navigatePop(context),
+              ),
             ),
             body: SingleChildScrollView(
               child: Padding(
@@ -71,11 +81,24 @@ class _CreateTeamPageState extends State<CreateTeamPage> {
                               children: [
                                 const SizedBox(height: 20),
                                 headerText("Create Team"),
-                                bodyText("Let's create your new \nteam!")
+                                bodyText("Let's create your new \nteam!"),
+                                const SizedBox(height: 10),
+                                SizedBox(
+                                  height: 50,
+                                  width: 50,
+                                  child: PictureUploadPickerWidget(
+                                    onPictureUploadChangedHandler: (image) =>
+                                        editCreateTeamCubit
+                                            .onPictureUploadChanged(image),
+                                    image: editCreateTeamCubit
+                                        .state.pictureUploadInput.value,
+                                    isTeam: true,
+                                  ),
+                                )
                               ],
                             ),
                             SizedBox(
-                                height: 150,
+                                height: 100,
                                 child: SvgPicture.asset(
                                     'assets/images/create_team.svg'))
                           ]),
@@ -105,7 +128,8 @@ class _CreateTeamPageState extends State<CreateTeamPage> {
                         errorText: editCreateTeamCubit
                             .state.descriptionInput.displayError
                             ?.text(),
-                        size: 10,
+                        minLines: 10,
+                        maxLines: 10,
                       ),
                       Row(children: [
                         Expanded(
@@ -125,7 +149,7 @@ class _CreateTeamPageState extends State<CreateTeamPage> {
                         Container(
                           height: 30,
                           padding: const EdgeInsets.symmetric(horizontal: 5.0),
-                          child: const Text("\n—"),
+                          child: const Text("-"),
                         ),
                         Expanded(
                           child: state.isChecked.value
@@ -205,7 +229,8 @@ class _CreateTeamPageState extends State<CreateTeamPage> {
                                   );
                                 }).toList(),
                                 onChanged: (String? newValue) {
-                                  debugPrint(newValue);
+                                  editCreateTeamCubit
+                                      .onCategoryChanged(newValue!);
                                 },
                               ),
                             ),
@@ -215,12 +240,18 @@ class _CreateTeamPageState extends State<CreateTeamPage> {
                       Row(
                           mainAxisAlignment: MainAxisAlignment.spaceAround,
                           children: [
-                            commitmentButton(
-                                "    Low    ", 'Low', editCreateTeamCubit),
-                            commitmentButton(
-                                "  Medium  ", 'Medium', editCreateTeamCubit),
-                            commitmentButton(
-                                "    High    ", 'High', editCreateTeamCubit),
+                            CommitmentButton(
+                                text: "    Low    ",
+                                newLevel: 'Low',
+                                cubit: editCreateTeamCubit),
+                            CommitmentButton(
+                                text: "  Medium  ",
+                                newLevel: 'Medium',
+                                cubit: editCreateTeamCubit),
+                            CommitmentButton(
+                                text: "    High    ",
+                                newLevel: 'High',
+                                cubit: editCreateTeamCubit),
                           ]),
                       const SizedBox(height: 20),
                       TextFieldWidget(
@@ -233,6 +264,9 @@ class _CreateTeamPageState extends State<CreateTeamPage> {
                         hint: 'Input a number',
                         value: editCreateTeamCubit.state.maxMemberInput.value,
                         keyboard: TextInputType.number,
+                        inputFormatter: [
+                          FilteringTextInputFormatter.digitsOnly
+                        ],
                         errorText: editCreateTeamCubit
                             .state.maxMemberInput.displayError
                             ?.text(),
@@ -246,10 +280,15 @@ class _CreateTeamPageState extends State<CreateTeamPage> {
                       DropdownSearchFieldMultiWidget<SkillEntity>(
                         focusNode: FocusNode(),
                         label: "",
-                        getItems: (String filter) async => [],
+                        getItems: (String filter) async {
+                          await editCreateTeamCubit
+                              .handleGetSkillsInterests(filter);
+                          return editCreateTeamCubit.state.skillInterestOptions;
+                        },
                         selectedItems:
                             editCreateTeamCubit.state.interestInput.value,
                         isChipsOutside: true,
+                        isFilterOnline: true,
                         onChangedHandler: (values) =>
                             editCreateTeamCubit.onInterestChanged(values),
                         compareFnHandler: (p0, p1) => p0.emsiId == p1.emsiId,
@@ -258,11 +297,10 @@ class _CreateTeamPageState extends State<CreateTeamPage> {
                       Center(
                           child: ElevatedButton(
                               onPressed: () {
-                                print(state.interestInput.value);
                                 editCreateTeamCubit.finish()
                                     ? editCreateTeamCubit
                                         .createNewTeam(
-                                            userId: userId,
+                                            userId: widget.userId,
                                             teamName: _teamNameController.text,
                                             description:
                                                 _descriptionController.text,
@@ -272,11 +310,15 @@ class _CreateTeamPageState extends State<CreateTeamPage> {
                                             category: state.categoryInput,
                                             commitment: state.commitmentInput,
                                             maxMember:
-                                                _maxMemberController.text)
+                                                _maxMemberController.text,
+                                            interest: state.interestInput.value,
+                                            avatar:
+                                                state.pictureUploadInput.value)
                                         .then((val) {
-                                        navigatePop(context);
+                                        navigatePopWithData(
+                                            context, "", ActionTypes.create);
                                       })
-                                    : debugPrint("Not Validated");
+                                    : debugPrint("Not Valridated");
                               },
                               child: bodyText("   Create   "))),
                       const SizedBox(height: 50),
@@ -285,21 +327,5 @@ class _CreateTeamPageState extends State<CreateTeamPage> {
             ),
           );
         }));
-  }
-
-  Widget commitmentButton(text, newLevel, cubit) {
-    return OutlinedButton(
-        style: OutlinedButton.styleFrom(
-            backgroundColor: cubit.state.commitmentInput == newLevel
-                ? blackColor
-                : lightGreyColor),
-        onPressed: () {
-          cubit.onCommitmentChanged(newLevel);
-        },
-        child: bodyText(text,
-            size: 12.0,
-            color: cubit.state.commitmentInput == newLevel
-                ? whiteColor
-                : blackColor));
   }
 }

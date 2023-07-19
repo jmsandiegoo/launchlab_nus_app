@@ -19,8 +19,18 @@ class DegreeProgrammeEntity implements Equatable {
       : id = json['id'],
         type = json['type'],
         name = json['name'],
-        createdAt = DateTime.tryParse(json['created_at']),
-        updatedAt = DateTime.tryParse(json['updated_at']);
+        createdAt = DateTime.tryParse(json['created_at'].toString()),
+        updatedAt = DateTime.tryParse(json['updated_at'].toString());
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'type': type,
+      'name': name,
+      'created_at': createdAt?.toIso8601String(),
+      'updated_at': updatedAt?.toIso8601String(),
+    };
+  }
 
   @override
   String toString() {

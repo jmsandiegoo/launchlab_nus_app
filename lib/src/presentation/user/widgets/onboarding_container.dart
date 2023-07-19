@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:launchlab/src/data/common/common_repository.dart';
 import 'package:launchlab/src/data/user/user_repository.dart';
 import 'package:launchlab/src/presentation/common/cubits/app_root_cubit.dart';
-import 'package:launchlab/src/presentation/user/cubits/onboarding_container_cubit.dart';
 import 'package:launchlab/src/presentation/user/cubits/onboarding_cubit.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 

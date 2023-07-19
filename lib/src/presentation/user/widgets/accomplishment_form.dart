@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:launchlab/src/config/app_theme.dart';
+import 'package:launchlab/src/presentation/common/widgets/feedback_toast.dart';
 import 'package:launchlab/src/presentation/common/widgets/form_fields/date_picker.dart';
 import 'package:launchlab/src/presentation/common/widgets/form_fields/text_field.dart';
 import 'package:launchlab/src/presentation/common/widgets/useful.dart';
 import 'package:launchlab/src/presentation/user/cubits/accomplishment_form_cubit.dart';
 import 'package:launchlab/src/presentation/user/widgets/form_fields/end_date_field.dart';
 import 'package:launchlab/src/presentation/user/widgets/form_fields/start_date_field.dart';
+import 'package:launchlab/src/utils/toast_manager.dart';
 
 class AccomplishmentForm extends StatefulWidget {
   const AccomplishmentForm({
@@ -82,7 +84,20 @@ class _AccomplishmentFormState extends State<AccomplishmentForm> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<AccomplishmentFormCubit, AccomplishmentFormState>(
+    return BlocConsumer<AccomplishmentFormCubit, AccomplishmentFormState>(
+      listener: (context, state) {
+        if (state.accomplishmentFormStatus == AccomplishmentFormStatus.error &&
+            state.error != null) {
+          ToastManager().showFToast(
+              child: ErrorFeedback(
+            msg: state.error!.errorMessage,
+          ));
+        }
+      },
+      listenWhen: (previous, current) {
+        return previous.accomplishmentFormStatus !=
+            current.accomplishmentFormStatus;
+      },
       builder: ((context, state) {
         return ListView(
           children: [
@@ -159,7 +174,9 @@ class _AccomplishmentFormState extends State<AccomplishmentForm> {
                 ),
                 Container(
                   height: 30,
-                  padding: const EdgeInsets.symmetric(horizontal: 5.0),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 5.0,
+                  ),
                   child: const Text("—"),
                 ),
                 Expanded(
@@ -192,7 +209,8 @@ class _AccomplishmentFormState extends State<AccomplishmentForm> {
               value: state.descriptionFieldInput.value,
               hint: "Ex: Write something about the accomplishment etc.",
               errorText: state.descriptionFieldInput.displayError?.text(),
-              size: 9,
+              minLines: 9,
+              maxLines: 9,
             ),
             Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -201,16 +219,21 @@ class _AccomplishmentFormState extends State<AccomplishmentForm> {
                     context,
                     () => widget.onSubmitHandler(context, state),
                     widget.isEditMode ? "Edit" : "Create",
-                    elevation: 0),
+                    elevation: 0,
+                    isLoading: state.accomplishmentFormStatus ==
+                            AccomplishmentFormStatus.createLoading ||
+                        state.accomplishmentFormStatus ==
+                            AccomplishmentFormStatus.updateLoading),
                 ...() {
                   return widget.isEditMode
                       ? [
-                          OutlinedButton(
-                            onPressed: () =>
+                          outlinedButton(
+                            label: "Delete",
+                            onPressedHandler: () =>
                                 widget.onDeleteHandler!(context, state),
-                            style: OutlinedButton.styleFrom(
-                                side: const BorderSide(color: errorColor)),
-                            child: bodyText("Delete", color: errorColor),
+                            color: errorColor,
+                            isLoading: state.accomplishmentFormStatus ==
+                                AccomplishmentFormStatus.deleteLoading,
                           ),
                         ]
                       : [];

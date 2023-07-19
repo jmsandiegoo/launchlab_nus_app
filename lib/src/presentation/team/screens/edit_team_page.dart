@@ -1,27 +1,50 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:launchlab/src/data/common/common_repository.dart';
+import 'package:launchlab/src/data/team/team_repository.dart';
 import 'package:launchlab/src/domain/common/models/skill_entity.dart';
 import 'package:launchlab/src/presentation/common/widgets/form_fields/date_picker.dart';
 import 'package:launchlab/src/presentation/common/widgets/form_fields/dropwdown_search_field.dart';
+import 'package:launchlab/src/presentation/common/widgets/form_fields/picture_upload_picker.dart';
 import 'package:launchlab/src/presentation/common/widgets/form_fields/text_field.dart';
 import 'package:launchlab/src/presentation/common/widgets/useful.dart';
 import 'package:launchlab/src/presentation/team/cubits/edit_create_team_cubit.dart';
+import 'package:launchlab/src/presentation/team/widgets/commitment_button.dart';
+import 'package:launchlab/src/utils/constants.dart';
 import 'package:launchlab/src/utils/helper.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../config/app_theme.dart';
 
-class EditTeamPage extends StatefulWidget {
+class EditTeamPage extends StatelessWidget {
   final String teamId;
 
   const EditTeamPage({super.key, required this.teamId});
 
   @override
-  State<EditTeamPage> createState() => _EditTeamPageState(teamId);
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (_) => EditCreateTeamCubit(
+          CommonRepository(Supabase.instance), TeamRepository()),
+      child: EditTeamContent(teamId: teamId),
+    );
+  }
 }
 
-class _EditTeamPageState extends State<EditTeamPage> {
-  _EditTeamPageState(this.teamId);
-  String teamId;
+class EditTeamContent extends StatefulWidget {
+  final String teamId;
+
+  const EditTeamContent({super.key, required this.teamId});
+
+  @override
+  State<EditTeamContent> createState() => _EditTeamContentState();
+}
+
+class _EditTeamContentState extends State<EditTeamContent> {
+  late EditCreateTeamCubit editCreateTeamCubit;
+
+  _EditTeamContentState();
   final _teamNameFocusNode = FocusNode();
   final _descriptionFocusNode = FocusNode();
   final _startDateFocusNode = FocusNode();
@@ -29,9 +52,9 @@ class _EditTeamPageState extends State<EditTeamPage> {
   final _categories = [
     "School",
     "Personal",
-    "Competition",
     "Startup / Company",
-    "Volunteer Work",
+    "Startup",
+    "Volunteer",
     "Others"
   ];
   final _maxMemberFocusNode = FocusNode();
@@ -43,289 +66,297 @@ class _EditTeamPageState extends State<EditTeamPage> {
   final TextEditingController _maxMemberController = TextEditingController();
 
   @override
-  Widget build(BuildContext context) {
-    return BlocProvider(
-        create: (_) => EditCreateTeamCubit(),
-        child: BlocBuilder<EditCreateTeamCubit, EditCreateTeamState>(
-            builder: (context, state) {
-          final editCreateTeamCubit =
-              BlocProvider.of<EditCreateTeamCubit>(context);
-          if (_teamNameController.text == '' &&
-              _descriptionController.text == '' &&
-              _startDateController.text == '' &&
-              _endDateController.text == '' &&
-              _maxMemberController.text == '') {
-            editCreateTeamCubit.getData(teamId).then((data) {
-              editCreateTeamCubit.initState(
-                teamName: data[0]['team_name'],
-                description: data[0]['description'],
-                startDate: data[0]['start_date'],
-                commitment: data[0]['commitment'],
-                category: data[0]['project_category'],
-                maxMember: data[0]['max_members'],
-              );
-
-              data[0]['end_date'] == null
-                  ? editCreateTeamCubit.onIsCheckedChanged(true)
-                  : editCreateTeamCubit
-                      .onEndDateChanged(DateTime.parse(data[0]['end_date']));
-              _teamNameController.text = data[0]['team_name'];
-              _descriptionController.text = data[0]['description'];
-              _maxMemberController.text = data[0]['max_members'].toString();
-
-              debugPrint("Data Loaded");
-            });
-          }
-
-          return Scaffold(
-            appBar: AppBar(
-              backgroundColor: Colors.transparent,
-              iconTheme: const IconThemeData(color: blackColor),
-            ),
-            body: SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const SizedBox(height: 20),
-                                headerText("Edit Team"),
-                                bodyText("Need Some Changes?")
-                              ],
-                            ),
-                            SizedBox(
-                                height: 150,
-                                child: SvgPicture.asset(
-                                    'assets/images/create_team.svg'))
-                          ]),
-                      const SizedBox(height: 20),
-                      TextFieldWidget(
-                        focusNode: _teamNameFocusNode,
-                        controller: _teamNameController,
-                        onChangedHandler: (val) {
-                          editCreateTeamCubit.onTeamNameChanged(val);
-                        },
-                        label: "Team Name",
-                        hint: "Team Name",
-                        value: editCreateTeamCubit.state.teamNameInput.value,
-                        errorText: editCreateTeamCubit
-                            .state.teamNameInput.displayError
-                            ?.text(),
-                      ),
-                      TextFieldWidget(
-                        focusNode: _descriptionFocusNode,
-                        controller: _descriptionController,
-                        onChangedHandler: (val) {
-                          editCreateTeamCubit.onDescriptionChanged(val);
-                        },
-                        label: "Description",
-                        hint: "\n\n\n\nDescription",
-                        value: editCreateTeamCubit.state.descriptionInput.value,
-                        errorText: editCreateTeamCubit
-                            .state.descriptionInput.displayError
-                            ?.text(),
-                        size: 10,
-                      ),
-                      Row(children: [
-                        Expanded(
-                          child: DatePickerWidget(
-                            controller: _startDateController,
-                            focusNode: _startDateFocusNode,
-                            label: "Start Date",
-                            hint: '',
-                            onChangedHandler: (value) =>
-                                editCreateTeamCubit.onStartDateChanged(value),
-                            initialDate: state.startDateInput.value,
-                            lastDate: DateTime(2050),
-
-                            //errorText: state.startDateInput.displayError?.text(),
-                          ),
-                        ),
-                        Container(
-                          height: 30,
-                          padding: const EdgeInsets.symmetric(horizontal: 5.0),
-                          child: const Text("\n—"),
-                        ),
-                        Expanded(
-                          child: state.isChecked.value
-                              ? DatePickerWidget(
-                                  isEnabled: false,
-                                  controller: _endDateController,
-                                  focusNode: _endDateFocusNode,
-                                  label: "End Date",
-                                  hint: '',
-                                  onChangedHandler: (value) =>
-                                      editCreateTeamCubit
-                                          .onEndDateChanged(value),
-                                  initialDate: state.endDateInput.value,
-                                  lastDate: DateTime(2100),
-                                  //errorText:state.endDateInput.displayError?.text(),
-                                )
-                              : DatePickerWidget(
-                                  isEnabled: state.startDateInput.value != null,
-                                  controller: _endDateController,
-                                  focusNode: _endDateFocusNode,
-                                  label: "End Date",
-                                  hint: '',
-                                  onChangedHandler: (value) =>
-                                      editCreateTeamCubit
-                                          .onEndDateChanged(value),
-                                  initialDate: state.endDateInput.value,
-                                  lastDate: DateTime(2100),
-                                  //errorText:state.endDateInput.displayError?.text(),
-                                ),
-                        ),
-                      ]),
-                      Row(mainAxisAlignment: MainAxisAlignment.end, children: [
-                        checkBox(
-                          "No End Date",
-                          state.isChecked.value,
-                          false,
-                          (value) =>
-                              editCreateTeamCubit.onIsCheckedChanged(value!),
-                        )
-                      ]),
-                      Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text("Category",
-                                style: TextStyle(
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.bold,
-                                    color: blackColor)),
-                            const SizedBox(height: 5),
-                            SizedBox(
-                              height: 50.0,
-                              child: DropdownButtonFormField(
-                                isDense: true,
-                                decoration: const InputDecoration(
-                                  contentPadding:
-                                      EdgeInsets.fromLTRB(10, 20, 10, 14),
-                                  fillColor: whiteColor,
-                                  filled: true,
-                                  enabledBorder: OutlineInputBorder(
-                                    borderSide: BorderSide(
-                                        color: lightGreyColor, width: 1),
-                                  ),
-                                  focusedBorder: OutlineInputBorder(
-                                    borderSide: BorderSide(
-                                        color: lightGreyColor, width: 1),
-                                  ),
-                                ),
-                                isExpanded: true,
-                                value: editCreateTeamCubit.state.categoryInput,
-                                style: const TextStyle(
-                                    color: blackColor, fontSize: 15),
-                                icon: const Icon(Icons.keyboard_arrow_down),
-                                items: _categories.map((String items) {
-                                  return DropdownMenuItem(
-                                    value: items,
-                                    child: Text(items),
-                                  );
-                                }).toList(),
-                                onChanged: (String? newValue) {
-                                  debugPrint(newValue);
-                                },
-                              ),
-                            ),
-                          ]),
-                      const SizedBox(height: 20),
-                      subHeaderText("Commitment Level", size: 15.0),
-                      Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          children: [
-                            commitmentButton(
-                                "    Low    ", 'Low', editCreateTeamCubit),
-                            commitmentButton(
-                                "  Medium  ", 'Medium', editCreateTeamCubit),
-                            commitmentButton(
-                                "    High    ", 'High', editCreateTeamCubit),
-                          ]),
-                      const SizedBox(height: 20),
-                      TextFieldWidget(
-                        focusNode: _maxMemberFocusNode,
-                        controller: _maxMemberController,
-                        onChangedHandler: (val) {
-                          editCreateTeamCubit.onMaxMemberChanged(val);
-                        },
-                        label: 'Total Member',
-                        hint: 'Input a number',
-                        value: editCreateTeamCubit.state.maxMemberInput.value,
-                        keyboard: TextInputType.number,
-                        errorText: editCreateTeamCubit
-                            .state.maxMemberInput.displayError
-                            ?.text(),
-                      ),
-                      const Text("Interest Areas",
-                          style: TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.bold,
-                              color: blackColor)),
-                      const SizedBox(height: 5),
-                      DropdownSearchFieldMultiWidget<SkillEntity>(
-                        focusNode: FocusNode(),
-                        label: "",
-                        getItems: (String filter) async => [],
-                        selectedItems:
-                            editCreateTeamCubit.state.interestInput.value,
-                        isChipsOutside: true,
-                        onChangedHandler: (values) =>
-                            editCreateTeamCubit.onInterestChanged(values),
-                        compareFnHandler: (p0, p1) => p0.emsiId == p1.emsiId,
-                      ),
-                      const SizedBox(height: 20),
-                      Center(
-                          child: ElevatedButton(
-                              onPressed: () {
-                                print(state.interestInput.value);
-                                editCreateTeamCubit.finish()
-                                    ? editCreateTeamCubit
-                                        .updateTeamData(
-                                            teamId: teamId,
-                                            teamName: _teamNameController.text,
-                                            description:
-                                                _descriptionController.text,
-                                            startDate:
-                                                _startDateController.text,
-                                            endDate: _endDateController.text,
-                                            category: state.categoryInput,
-                                            commitment: state.commitmentInput,
-                                            maxMember:
-                                                _maxMemberController.text)
-                                        .then((val) {
-                                        navigatePop(context);
-                                      })
-                                    : debugPrint("Not Validated");
-                              },
-                              child: bodyText("   Update   "))),
-                      const SizedBox(height: 50),
-                    ]),
-              ),
-            ),
-          );
-        }));
+  void initState() {
+    super.initState();
+    editCreateTeamCubit = BlocProvider.of<EditCreateTeamCubit>(context);
+    editCreateTeamCubit.getData(widget.teamId);
   }
 
-  Widget commitmentButton(text, newLevel, cubit) {
-    return OutlinedButton(
-        style: OutlinedButton.styleFrom(
-            backgroundColor: cubit.state.commitmentInput == newLevel
-                ? blackColor
-                : lightGreyColor),
-        onPressed: () {
-          cubit.onCommitmentChanged(newLevel);
-        },
-        child: bodyText(text,
-            size: 12.0,
-            color: cubit.state.commitmentInput == newLevel
-                ? whiteColor
-                : blackColor));
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<EditCreateTeamCubit, EditCreateTeamState>(
+        builder: (context, state) {
+      return editCreateTeamCubit.state.status == EditCreateStatus.success
+          ? Scaffold(
+              appBar: AppBar(
+                backgroundColor: Colors.transparent,
+                leading: IconButton(
+                  icon: const Icon(Icons.arrow_back, color: blackColor),
+                  onPressed: () => navigatePop(context),
+                ),
+              ),
+              body: SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const SizedBox(height: 20),
+                                  headerText("Edit Team"),
+                                  bodyText("Need Some Changes?"),
+                                  const SizedBox(height: 10),
+                                  SizedBox(
+                                    height: 50,
+                                    width: 50,
+                                    child: PictureUploadPickerWidget(
+                                      onPictureUploadChangedHandler: (image) =>
+                                          editCreateTeamCubit
+                                              .onPictureUploadChanged(image),
+                                      image: editCreateTeamCubit
+                                          .state.pictureUploadInput.value,
+                                      isTeam: true,
+                                      imageURL: editCreateTeamCubit
+                                          .state.avatarURL
+                                          .toString(),
+                                    ),
+                                  )
+                                ],
+                              ),
+                              SizedBox(
+                                  height: 100,
+                                  child: SvgPicture.asset(
+                                      'assets/images/create_team.svg'))
+                            ]),
+                        const SizedBox(height: 20),
+                        TextFieldWidget(
+                          focusNode: _teamNameFocusNode,
+                          controller: _teamNameController,
+                          onChangedHandler: (val) {
+                            editCreateTeamCubit.onTeamNameChanged(val);
+                          },
+                          label: "Team Name",
+                          hint: "Team Name",
+                          value: editCreateTeamCubit.state.teamNameInput.value,
+                          errorText: editCreateTeamCubit
+                              .state.teamNameInput.displayError
+                              ?.text(),
+                        ),
+                        TextFieldWidget(
+                          focusNode: _descriptionFocusNode,
+                          controller: _descriptionController,
+                          onChangedHandler: (val) {
+                            editCreateTeamCubit.onDescriptionChanged(val);
+                          },
+                          label: "Description",
+                          hint: "\n\n\n\nDescription",
+                          value:
+                              editCreateTeamCubit.state.descriptionInput.value,
+                          errorText: editCreateTeamCubit
+                              .state.descriptionInput.displayError
+                              ?.text(),
+                          minLines: 10,
+                          maxLines: 10,
+                        ),
+                        Row(children: [
+                          Expanded(
+                            child: DatePickerWidget(
+                              controller: _startDateController,
+                              focusNode: _startDateFocusNode,
+                              label: "Start Date",
+                              hint: '',
+                              onChangedHandler: (value) =>
+                                  editCreateTeamCubit.onStartDateChanged(value),
+                              initialDate: state.startDateInput.value,
+                              lastDate: DateTime(2050),
+
+                              //errorText: state.startDateInput.displayError?.text(),
+                            ),
+                          ),
+                          Container(
+                            height: 30,
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 5.0),
+                            child: const Text("—"),
+                          ),
+                          Expanded(
+                            child: state.isChecked.value
+                                ? DatePickerWidget(
+                                    isEnabled: false,
+                                    controller: _endDateController,
+                                    focusNode: _endDateFocusNode,
+                                    label: "End Date",
+                                    hint: '',
+                                    onChangedHandler: (value) =>
+                                        editCreateTeamCubit
+                                            .onEndDateChanged(value),
+                                    initialDate: state.endDateInput.value,
+                                    lastDate: DateTime(2100),
+                                    //errorText:state.endDateInput.displayError?.text(),
+                                  )
+                                : DatePickerWidget(
+                                    isEnabled:
+                                        state.startDateInput.value != null,
+                                    controller: _endDateController,
+                                    focusNode: _endDateFocusNode,
+                                    label: "End Date",
+                                    hint: '',
+                                    onChangedHandler: (value) =>
+                                        editCreateTeamCubit
+                                            .onEndDateChanged(value),
+                                    initialDate: state.endDateInput.value,
+                                    lastDate: DateTime(2100),
+                                    //errorText:state.endDateInput.displayError?.text(),
+                                  ),
+                          ),
+                        ]),
+                        Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              checkBox(
+                                "No End Date",
+                                state.isChecked.value,
+                                false,
+                                (value) => editCreateTeamCubit
+                                    .onIsCheckedChanged(value!),
+                              )
+                            ]),
+                        Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text("Category",
+                                  style: TextStyle(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.bold,
+                                      color: blackColor)),
+                              const SizedBox(height: 5),
+                              SizedBox(
+                                height: 50.0,
+                                child: DropdownButtonFormField(
+                                  isDense: true,
+                                  decoration: const InputDecoration(
+                                    contentPadding:
+                                        EdgeInsets.fromLTRB(10, 20, 10, 14),
+                                    fillColor: whiteColor,
+                                    filled: true,
+                                    enabledBorder: OutlineInputBorder(
+                                      borderSide: BorderSide(
+                                          color: lightGreyColor, width: 1),
+                                    ),
+                                    focusedBorder: OutlineInputBorder(
+                                      borderSide: BorderSide(
+                                          color: lightGreyColor, width: 1),
+                                    ),
+                                  ),
+                                  isExpanded: true,
+                                  value:
+                                      editCreateTeamCubit.state.categoryInput,
+                                  style: const TextStyle(
+                                      color: blackColor, fontSize: 15),
+                                  icon: const Icon(Icons.keyboard_arrow_down),
+                                  items: _categories.map((String items) {
+                                    return DropdownMenuItem(
+                                      value: items,
+                                      child: Text(items),
+                                    );
+                                  }).toList(),
+                                  onChanged: (String? newValue) {
+                                    editCreateTeamCubit
+                                        .onCategoryChanged(newValue!);
+                                  },
+                                ),
+                              ),
+                            ]),
+                        const SizedBox(height: 20),
+                        subHeaderText("Commitment Level", size: 15.0),
+                        Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: [
+                              CommitmentButton(
+                                  text: "    Low    ",
+                                  newLevel: 'Low',
+                                  cubit: editCreateTeamCubit),
+                              CommitmentButton(
+                                  text: "  Medium  ",
+                                  newLevel: 'Medium',
+                                  cubit: editCreateTeamCubit),
+                              CommitmentButton(
+                                  text: "    High    ",
+                                  newLevel: 'High',
+                                  cubit: editCreateTeamCubit),
+                            ]),
+                        const SizedBox(height: 20),
+                        TextFieldWidget(
+                          focusNode: _maxMemberFocusNode,
+                          controller: _maxMemberController,
+                          onChangedHandler: (val) {
+                            editCreateTeamCubit.onMaxMemberChanged(val);
+                          },
+                          label: 'Total Member',
+                          hint: 'Input a number',
+                          value: editCreateTeamCubit.state.maxMemberInput.value,
+                          keyboard: TextInputType.number,
+                          inputFormatter: [
+                            FilteringTextInputFormatter.digitsOnly
+                          ],
+                          errorText: editCreateTeamCubit
+                              .state.maxMemberInput.displayError
+                              ?.text(),
+                        ),
+                        const Text("Interest Areas",
+                            style: TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.bold,
+                                color: blackColor)),
+                        const SizedBox(height: 5),
+                        DropdownSearchFieldMultiWidget<SkillEntity>(
+                          focusNode: FocusNode(),
+                          label: "",
+                          getItems: (String filter) async {
+                            await editCreateTeamCubit
+                                .handleGetSkillsInterests(filter);
+                            return editCreateTeamCubit
+                                .state.skillInterestOptions;
+                          },
+                          selectedItems:
+                              editCreateTeamCubit.state.interestInput.value,
+                          isChipsOutside: true,
+                          isFilterOnline: true,
+                          onChangedHandler: (values) {
+                            editCreateTeamCubit.onInterestChanged(values);
+                          },
+                          compareFnHandler: (p0, p1) => p0.emsiId == p1.emsiId,
+                        ),
+                        const SizedBox(height: 20),
+                        Center(
+                            child: ElevatedButton(
+                                onPressed: () {
+                                  editCreateTeamCubit.finish()
+                                      ? editCreateTeamCubit
+                                          .updateTeamData(
+                                              teamId: widget.teamId,
+                                              teamName:
+                                                  _teamNameController.text,
+                                              description:
+                                                  _descriptionController.text,
+                                              startDate:
+                                                  _startDateController.text,
+                                              endDate: _endDateController.text,
+                                              category: state.categoryInput,
+                                              commitment: state.commitmentInput,
+                                              maxMember:
+                                                  _maxMemberController.text,
+                                              interest:
+                                                  state.interestInput.value)
+                                          .then((val) {
+                                          navigatePopWithData(context, true,
+                                              ActionTypes.update);
+                                        })
+                                      : debugPrint("Not Validated");
+                                },
+                                child: bodyText("   Update   "))),
+                        const SizedBox(height: 50),
+                      ]),
+                ),
+              ),
+            )
+          : const Center(child: CircularProgressIndicator());
+    });
   }
 }

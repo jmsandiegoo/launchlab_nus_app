@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:launchlab/src/domain/common/models/category_entity.dart';
 import 'package:launchlab/src/domain/common/models/skill_entity.dart';
@@ -18,7 +19,6 @@ class CommonRepository implements CommonRepositoryImpl {
     try {
       final res =
           await _supabase.client.from('categories').select<PostgrestList>('*');
-      print("res ${res}");
       List<CategoryEntity> categoryList = [];
 
       for (int i = 0; i < res.length; i++) {
@@ -26,12 +26,16 @@ class CommonRepository implements CommonRepositoryImpl {
       }
 
       return categoryList;
+    } on PostgrestException catch (error) {
+      debugPrint("get Categories postgre error: ${error}");
+      throw Failure.request(code: error.code);
     } on Exception catch (error) {
-      print("get Categories error: ${error}");
-      throw const Failure.badRequest();
+      debugPrint("get Categories unexpected error: ${error}");
+      throw Failure.unexpected();
     }
   }
 
+  @override
   Future<List<SkillEntity>> getSkillsInterestsFromEmsi(String? filter) async {
     // check current token
     try {
@@ -71,13 +75,19 @@ class CommonRepository implements CommonRepositoryImpl {
 
         return skillInterestList;
       } else {
-        throw const Failure.badRequest();
+        throw Failure.request(
+            code: response.statusCode.toString(),
+            message: "Error fetching skills");
       }
-    } on Exception catch (_) {
+    } on Failure catch (_) {
       rethrow;
+    } on Exception catch (error) {
+      debugPrint("Emsi skills fetch unexpcted error: $error");
+      throw Failure.unexpected();
     }
   }
 
+  @override
   Future<String> getNewEmsiToken() async {
     final url = Uri.parse('https://auth.emsicloud.com/connect/token');
 
@@ -102,7 +112,7 @@ class CommonRepository implements CommonRepositoryImpl {
 
       return accessToken;
     } else {
-      throw const Failure.badRequest();
+      throw Failure.request(code: response.statusCode.toString());
     }
   }
 }

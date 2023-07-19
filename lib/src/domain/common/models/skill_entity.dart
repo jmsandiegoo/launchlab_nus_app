@@ -26,8 +26,8 @@ class SkillEntity implements Equatable {
       : id = json['id'],
         emsiId = json['emsi_id'],
         name = json['name'],
-        createdAt = DateTime.tryParse(json['created_at']),
-        updatedAt = DateTime.tryParse(json['updated_at']);
+        createdAt = DateTime.tryParse(json['created_at'].toString()),
+        updatedAt = DateTime.tryParse(json['updated_at'].toString());
 
   Map<String, dynamic> toJson() {
     return {

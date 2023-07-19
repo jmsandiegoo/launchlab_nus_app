@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:launchlab/src/config/app_theme.dart';
+import 'package:launchlab/src/data/search/search_repository.dart';
+import 'package:launchlab/src/data/user/user_repository.dart';
+import 'package:launchlab/src/domain/search/external_team_entity.dart';
 import 'package:launchlab/src/presentation/common/widgets/useful.dart';
 import 'package:launchlab/src/presentation/search/cubits/external_team_cubit.dart';
-import 'package:launchlab/src/presentation/common/widgets/confirmation_box.dart';
 import 'package:launchlab/src/utils/helper.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ExternalTeamPage extends StatelessWidget {
   final List teamIdUserIdData;
@@ -12,163 +15,180 @@ class ExternalTeamPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final String teamId = teamIdUserIdData[0];
-    final String userId = teamIdUserIdData[1];
-
     return BlocProvider(
-        create: (_) => ExternalTeamCubit(),
-        child: BlocBuilder<ExternalTeamCubit, ExternalTeamState>(
-            builder: (context, state) {
-          final externalTeamPageCubit =
-              BlocProvider.of<ExternalTeamCubit>(context);
-          return FutureBuilder(
-              future: externalTeamPageCubit.getData(teamId),
-              builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
-                }
+      create: (_) => ExternalTeamCubit(
+          SearchRepository(), UserRepository(Supabase.instance)),
+      child: ExternalTeamContent(teamIdUserIdData: teamIdUserIdData),
+    );
+  }
+}
 
-                if (snapshot.hasData) {
-                  final Map teamData = snapshot.data[0][0];
-                  final String ownerName =
-                      "${snapshot.data[1][0]['first_name']} ${snapshot.data[1][0]['last_name']}";
-                  final List currentApplicants = [];
-                  final List currentMembers = [];
-                  teamData['team_users'].forEach((user) {
-                    currentMembers.add(user['user_id']);
-                  });
-                  snapshot.data[2].forEach((user) {
-                    currentApplicants.add(user['user_id']);
-                  });
+class ExternalTeamContent extends StatefulWidget {
+  final List teamIdUserIdData;
+  const ExternalTeamContent({super.key, required this.teamIdUserIdData});
 
-                  return Scaffold(
-                    appBar: AppBar(
-                      backgroundColor: Colors.transparent,
-                      iconTheme: const IconThemeData(color: blackColor),
-                    ),
-                    body: Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 40, vertical: 10),
-                      child: SingleChildScrollView(
-                        child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    profilePicture(70, "test.jpeg"),
-                                    const SizedBox(width: 15),
-                                    Expanded(
-                                      child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            subHeaderText(
-                                                teamData['team_name']),
-                                            //subHeaderText("     Listed 5h ago", size: 11.0, color: Colors.green)
+  @override
+  State<ExternalTeamContent> createState() => _ExternalTeamContentState();
+}
 
-                                            const SizedBox(height: 2),
-                                            boldFirstText(
-                                                "Deadline: ", "31 May 2023"),
-                                            boldFirstText("Category: ",
-                                                teamData['project_category']),
-                                            boldFirstText("Commitment: ",
-                                                teamData['commitment']),
-                                            boldFirstText(
-                                                "Interest & Skills Involved: ",
-                                                ""),
-                                            boldFirstText(
-                                                "Interest ", "Placeholder")
-                                          ]),
-                                    ),
-                                  ]),
-                              const SizedBox(height: 20),
-                              subHeaderText("Description"),
-                              const SizedBox(height: 5),
-                              bodyText(teamData['description']),
-                              const SizedBox(height: 20),
-                              Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    boldFirstText("Members: ",
-                                        "${teamData['current_members']} / ${teamData['max_members']}",
-                                        size: 15.0),
-                                    Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.end,
-                                        children: [
-                                          subHeaderText("Owner: ", size: 15.0),
-                                          const SizedBox(width: 5),
-                                          profilePicture(
-                                              30.0, "circle_profile_pic.png"),
-                                          const SizedBox(width: 5),
-                                          bodyText(ownerName, size: 13.0)
-                                        ]),
-                                  ]),
-                              const SizedBox(height: 40),
-                              subHeaderText("Roles Needed"),
-                              const SizedBox(height: 10),
-                              const SizedBox(height: 10),
-                              subHeaderText("Frontend Developer", size: 15.0),
-                              bodyText(
-                                  "Lorem ipsum dolor sit amet, consectetur adipiscing"),
-                              const SizedBox(height: 10),
-                              subHeaderText("App Developer", size: 15.0),
-                              bodyText(
-                                  "Lorem ipsum dolor sit amet, consectetur adipiscing"),
-                              const SizedBox(height: 10),
-                              subHeaderText("Analyst", size: 15.0),
-                              bodyText(
-                                  "Lorem ipsum dolor sit amet, consectetur adipiscing"),
-                              const SizedBox(height: 40),
-                              Center(
-                                child: ElevatedButton(
-                                    child: bodyText("   Apply   "),
-                                    onPressed: () {
-                                      if (currentMembers.contains(userId)) {
-                                        applicationConfirmationBox(
-                                            context,
-                                            "Failure",
-                                            "You cannot apply to the team that you are already in!");
-                                      } else if (currentApplicants
-                                          .contains(userId)) {
-                                        applicationConfirmationBox(
-                                            context,
-                                            "Failure",
-                                            "You have already applied to this team. \n\nPlease wait for the team owner to review your application.");
-                                      } else {
-                                        externalTeamPageCubit.applyToTeam(
-                                            teamId: teamId, userId: userId);
-                                        navigatePop(context);
-                                        applicationConfirmationBox(
-                                            context,
-                                            "Success",
-                                            "You have successfully applied to the team!");
-                                      }
-                                    }),
-                              ),
-                            ]),
-                      ),
-                    ),
-                  );
-                } else {
-                  return futureBuilderFail();
-                }
-              });
-        }));
+class _ExternalTeamContentState extends State<ExternalTeamContent> {
+  late ExternalTeamCubit externalTeamPageCubit;
+  late ExternalTeamEntity teamData;
+
+  @override
+  void initState() {
+    super.initState();
+    externalTeamPageCubit = BlocProvider.of<ExternalTeamCubit>(context);
+    externalTeamPageCubit.getData(widget.teamIdUserIdData[0]);
   }
 
-  void applicationConfirmationBox(context, title, message) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return ConfirmationBox(
-          title: title,
-          message: message,
-          onClose: () => navigatePop(context),
-        );
-      },
-    );
+  @override
+  Widget build(BuildContext context) {
+    final String teamId = widget.teamIdUserIdData[0];
+    final String userId = widget.teamIdUserIdData[1];
+
+    return BlocBuilder<ExternalTeamCubit, ExternalTeamState>(
+        builder: (context, state) {
+      if (externalTeamPageCubit.state.status == ExternalTeamStatus.success) {
+        teamData = externalTeamPageCubit.state.teamData!;
+      }
+
+      return externalTeamPageCubit.state.status == ExternalTeamStatus.success
+          ? Scaffold(
+              appBar: AppBar(
+                backgroundColor: Colors.transparent,
+                leading: IconButton(
+                  icon: const Icon(Icons.arrow_back, color: blackColor),
+                  onPressed: () => navigatePop(context),
+                ),
+              ),
+              body: Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                child: SingleChildScrollView(
+                  child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              teamPicture(70, teamData.avatarURL, isUrl: true),
+                              const SizedBox(width: 15),
+                              Expanded(
+                                child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      subHeaderText(teamData.teamName),
+                                      const SizedBox(height: 2),
+                                      teamData.endDate == null
+                                          ? boldFirstText("Deadline: ", 'None')
+                                          : boldFirstText(
+                                              "Deadline: ",
+                                              dateToDateFormatter(
+                                                  teamData.endDate)),
+                                      boldFirstText(
+                                          "Category: ", teamData.category),
+                                      boldFirstText(
+                                          "Commitment: ", teamData.commitment),
+                                      boldFirstText("Interest Areas: ", ""),
+                                      for (int i = 0;
+                                          i < teamData.interest.length;
+                                          i++) ...[
+                                        smallText(teamData.interest[i]['name'])
+                                      ]
+                                    ]),
+                              ),
+                            ]),
+                        const SizedBox(height: 20),
+                        subHeaderText("Description"),
+                        const SizedBox(height: 5),
+                        bodyText(teamData.description),
+                        const SizedBox(height: 20),
+                        Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              boldFirstText("Members: ",
+                                  "${teamData.currentMembers} / ${teamData.maxMembers}",
+                                  size: 15.0),
+                              const SizedBox(width: 20),
+                              Row(
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  children: [
+                                    subHeaderText("Owner: ", size: 15.0),
+                                    const SizedBox(width: 5),
+                                    externalTeamPageCubit.state.ownerData!.user
+                                                .userAvatar ==
+                                            null
+                                        ? const SizedBox()
+                                        : profilePicture(
+                                            30.0,
+                                            externalTeamPageCubit
+                                                .state.ownerData!
+                                                .getAvatarURL()!,
+                                            isUrl: true),
+                                    const SizedBox(width: 5),
+                                    bodyText(
+                                        externalTeamPageCubit.state.ownerData!
+                                            .getFullName(),
+                                        size: 13.0)
+                                  ]),
+                            ]),
+                        const SizedBox(height: 40),
+                        teamData.rolesOpen.isEmpty
+                            ? const SizedBox()
+                            : Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                    subHeaderText("Roles Needed"),
+                                    const SizedBox(height: 10),
+                                    for (int i = 0;
+                                        i < teamData.rolesOpen.length;
+                                        i++) ...[
+                                      const SizedBox(height: 10),
+                                      subHeaderText(
+                                          teamData.rolesOpen[i]['title'],
+                                          size: 15.0),
+                                      bodyText(
+                                          teamData.rolesOpen[i]['description']),
+                                    ]
+                                  ]),
+                        const SizedBox(height: 50),
+                        Center(
+                          child: ElevatedButton(
+                              child: bodyText("    Apply    "),
+                              onPressed: () {
+                                if (externalTeamPageCubit.state.currentMembers
+                                    .contains(userId)) {
+                                  confirmationBox(context, "Failure",
+                                      "You cannot apply to the team that you are already in!");
+                                } else if (externalTeamPageCubit
+                                    .state.currentApplicants
+                                    .contains(userId)) {
+                                  confirmationBox(context, "Failure",
+                                      "You have already applied to this team. \n\nPlease wait for the team owner to review your application.");
+                                } else if (externalTeamPageCubit
+                                    .state.pastApplicants
+                                    .contains(userId)) {
+                                  confirmationBox(context, "Success",
+                                      "You have successfully applied to the team!");
+                                  externalTeamPageCubit.reapplyToTeam(
+                                      teamId: teamId, userId: userId);
+                                  navigatePop(context);
+                                } else {
+                                  confirmationBox(context, "Success",
+                                      "You have successfully applied to the team!");
+                                  externalTeamPageCubit.applyToTeam(
+                                      teamId: teamId, userId: userId);
+                                  navigatePop(context);
+                                }
+                              }),
+                        ),
+                      ]),
+                ),
+              ),
+            )
+          : const Center(child: CircularProgressIndicator());
+    });
   }
 }
