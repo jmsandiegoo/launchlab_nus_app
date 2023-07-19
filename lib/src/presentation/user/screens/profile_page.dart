@@ -1,80 +1,195 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:launchlab/src/config/app_theme.dart';
+import 'package:launchlab/src/data/user/user_repository.dart';
+import 'package:launchlab/src/presentation/common/cubits/app_root_cubit.dart';
+import 'package:launchlab/src/presentation/common/widgets/feedback_toast.dart';
 import 'package:launchlab/src/presentation/common/widgets/useful.dart';
+import 'package:launchlab/src/presentation/user/cubits/profile_page_cubit.dart';
+import 'package:launchlab/src/presentation/user/screens/profile_edit_preference_page.dart';
+import 'package:launchlab/src/presentation/user/widgets/profile_about.dart';
+import 'package:launchlab/src/presentation/user/widgets/profile_accomplishment_list.dart';
+import 'package:launchlab/src/presentation/user/widgets/profile_experience_list.dart';
+import 'package:launchlab/src/presentation/user/widgets/profile_header.dart';
+import 'package:launchlab/src/presentation/user/widgets/profile_resume.dart';
+import 'package:launchlab/src/presentation/user/widgets/profile_skills.dart';
+import 'package:launchlab/src/utils/constants.dart';
+import 'package:launchlab/src/utils/helper.dart';
+import 'package:launchlab/src/utils/toast_manager.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
+// own cubit for profile
 class ProfilePage extends StatelessWidget {
-  const ProfilePage({Key? key}) : super(key: key);
+  const ProfilePage({Key? key, required this.userId}) : super(key: key);
+
+  final String userId;
+
+  Future<void> editPreference(
+      BuildContext context,
+      ProfileEditPreferencePageProps props,
+      void Function() onUpdateHandler) async {
+    final returnData = await navigatePushWithData<Object?>(
+        context, "/profile/edit-settings", props);
+
+    if (returnData == null || returnData.actionType == ActionTypes.cancel) {
+      return;
+    }
+
+    if (returnData.actionType == ActionTypes.update) {
+      onUpdateHandler();
+    }
+  }
+
+  bool checkIsAuthProfile(BuildContext context, String userId) {
+    AppRootCubit appRootCubit = BlocProvider.of<AppRootCubit>(context);
+
+    if (appRootCubit.state.authUserProfile?.id == null) {
+      return false;
+    }
+
+    return appRootCubit.state.authUserProfile!.id == userId;
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SingleChildScrollView(
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Container(
-            height: 300,
-            width: double.infinity,
-            decoration: const BoxDecoration(
-                color: yellowColor,
-                borderRadius: BorderRadius.only(
-                  bottomRight: Radius.circular(50),
-                  bottomLeft: Radius.circular(50),
-                )),
-            child: Column(children: [
-              const SizedBox(height: 70),
-              Row(
-                children: [headerText("    My Profile")],
-              ),
-              const SizedBox(height: 10),
-              profilePicture(110, 'assets/images/circle_profile_pic.png'),
-              headerText("John Doe"),
-              const SizedBox(height: 5),
-              bodyText("Web 3.0 Enthusiast"),
-              bodyText("Computer Science", color: darkGreyColor),
-            ]),
-          ),
-          Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 30),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  subHeaderText("About me"),
-                  const SizedBox(height: 5),
-                  bodyText("Lorem ipsum dolor sit amet, consectetur adipiscing "
-                      "elit, sed do eiusmod tempor incididunt ut labore et "
-                      "dolore magna aliqua. Ut enim ad minim veniam, quis "
-                      "nostrud exercitation ullamco laboris nisi ut aliquip ex "
-                      "ea commodo consequat. Duis aute irure dolor in "
-                      "reprehenderit in voluptate velit esse cillum dolore eu "
-                      "fugiat nulla pariatur. Excepteur sint occaecat cupidatat "
-                      "non proident, sunt in culpa qui officia deserunt mollit "
-                      "anim id est laborum."),
-                  const SizedBox(height: 20),
-                  subHeaderText("Work Experience"),
-                  const SizedBox(height: 5),
-                  bodyText("Lorem ipsum dolor sit amet, consectetur adipiscing "
-                      "elit, sed do eiusmod tempor incididunt ut labore et "
-                      "dolore magna aliqua. Ut enim ad minim veniam, quis "
-                      "nostrud exercitation ullamco laboris nisi ut aliquip ex "
-                      "ea commodo consequat. Duis aute irure dolor in "
-                      "reprehenderit in voluptate velit esse cillum dolore eu "
-                      "fugiat nulla pariatur. Excepteur sint occaecat cupidatat "
-                      "non proident, sunt in culpa qui officia deserunt mollit "
-                      "anim id est laborum."),
-                  const SizedBox(height: 20),
-                  subHeaderText("Accomplishment"),
-                  const SizedBox(height: 5),
-                  bodyText("Lorem ipsum dolor sit amet, consectetur adipiscing "
-                      "elit, sed do eiusmod tempor incididunt ut labore et "
-                      "dolore magna aliqua. Ut enim ad minim veniam, quis "
-                      "nostrud exercitation ullamco laboris nisi ut aliquip ex "
-                      "ea commodo consequat. Duis aute irure dolor in "
-                      "reprehenderit in voluptate velit esse cillum dolore eu "
-                      "fugiat nulla pariatur. Excepteur sint occaecat cupidatat "
-                      "non proident, sunt in culpa qui officia deserunt mollit "
-                      "anim id est laborum."),
-                ],
-              )),
-        ]),
+    final bool isAuthProfile = checkIsAuthProfile(context, userId);
+
+    return BlocProvider(
+      create: (_) => ProfilePageCubit(UserRepository(Supabase.instance))
+        ..handleGetProfileInfo(userId),
+      child: BlocConsumer<ProfilePageCubit, ProfilePageState>(
+        listener: (context, state) {
+          if (state.profilePageStatus == ProfilePageStatus.uploadError &&
+              state.error != null) {
+            ToastManager().showFToast(
+                // gravity: ToastGravity.BOTTOM,
+                child: ErrorFeedback(msg: state.error!.errorMessage));
+          }
+        },
+        builder: (context, state) {
+          ProfilePageCubit profileCubit =
+              BlocProvider.of<ProfilePageCubit>(context);
+
+          if (state.profilePageStatus == ProfilePageStatus.initial ||
+              state.profilePageStatus == ProfilePageStatus.loading ||
+              state.profilePageStatus == ProfilePageStatus.error) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          return Scaffold(
+              body: RefreshIndicator(
+            onRefresh: () async {
+              profileCubit.handleGetProfileInfo(userId);
+            },
+            child: SingleChildScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              child: () {
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    AppBar(
+                      leading: () {
+                        if (!isAuthProfile) {
+                          return GestureDetector(
+                            onTap: () {
+                              navigatePop(context);
+                            },
+                            child:
+                                const Icon(Icons.keyboard_backspace_outlined),
+                          );
+                        }
+                        return null;
+                      }(),
+                      backgroundColor: yellowColor,
+                      centerTitle: false,
+                      title: headerText("${isAuthProfile ? 'My ' : ''}Profile"),
+                      actions: () {
+                        if (!isAuthProfile) {
+                          return null;
+                        }
+
+                        return [
+                          IconButton(
+                              onPressed: () {
+                                editPreference(
+                                    context,
+                                    ProfileEditPreferencePageProps(
+                                      userPreference:
+                                          state.userProfile!.userPreference!,
+                                    ),
+                                    () => profileCubit
+                                        .handleGetProfileInfo(userId));
+                              },
+                              icon: const Icon(Icons.settings_outlined)),
+                          IconButton(
+                            onPressed: () {
+                              BlocProvider.of<AppRootCubit>(context)
+                                  .handleSignOut();
+                            },
+                            icon: const Icon(Icons.logout_outlined,
+                                color: blackColor),
+                          ),
+                        ];
+                      }(),
+                    ),
+                    ProfileHeader(
+                      isAuthProfile: isAuthProfile,
+                      userProfile: state.userProfile!,
+                      onUpdateHandler: () => profileCubit
+                          .handleGetProfileInfo(state.userProfile!.id!),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 30, vertical: 30),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          ProfileAbout(
+                            isAuthProfile: isAuthProfile,
+                            userProfile: state.userProfile!,
+                            onUpdateHandler: () => profileCubit
+                                .handleGetProfileInfo(state.userProfile!.id!),
+                          ),
+                          const SizedBox(height: 20),
+                          ProfileResume(
+                            isAuthProfile: isAuthProfile,
+                            userResume: state.userResumeInput.value,
+                            onChangedHandler: (file) {
+                              profileCubit.onUserResumeChanged(file);
+                            },
+                            isLoading: state.profilePageStatus ==
+                                ProfilePageStatus.uploadLoading,
+                          ),
+                          const SizedBox(height: 20),
+                          ProfileExperienceList(
+                            isAuthProfile: isAuthProfile,
+                            experiences: state.userProfile!.userExperiences,
+                            onUpdateHandler: () => profileCubit
+                                .handleGetProfileInfo(state.userProfile!.id!),
+                          ),
+                          const SizedBox(height: 20),
+                          ProfileSkills(
+                            isAuthProfile: isAuthProfile,
+                            userPreference: state.userProfile!.userPreference!,
+                            onUpdateHandler: () => profileCubit
+                                .handleGetProfileInfo(state.userProfile!.id!),
+                          ),
+                          const SizedBox(height: 20),
+                          ProfileAccomplishmentList(
+                            isAuthProfile: isAuthProfile,
+                            accomplishments:
+                                state.userProfile!.userAccomplishments,
+                            onUpdateHandler: () => profileCubit
+                                .handleGetProfileInfo(state.userProfile!.id!),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                );
+              }(),
+            ),
+          ));
+        },
       ),
     );
   }
