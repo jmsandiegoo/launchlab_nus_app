@@ -394,8 +394,13 @@ class AccomplishmentFormCubit extends Cubit<AccomplishmentFormState> {
           emit(state.copyWith(
               accomplishmentFormStatus:
                   AccomplishmentFormStatus.updateLoading));
-          await userRepository.updateUserAccomplishment(
-              UpdateUserAccomplishmentRequest(accomplishment: accomplishment));
+          await userRepository
+              .updateUserAccomplishment(UpdateUserAccomplishmentRequest(
+                  accomplishment: accomplishment.copyWith(
+            endDate: accomplishment.endDate,
+            createdAt: accomplishment.createdAt ?? DateTime.now().toUtc(),
+            updatedAt: DateTime.now().toUtc(),
+          )));
         } else {
           emit(state.copyWith(
               accomplishmentFormStatus:
@@ -404,6 +409,9 @@ class AccomplishmentFormCubit extends Cubit<AccomplishmentFormState> {
               .createUserAccomplishment(CreateUserAccomplishmentRequest(
                   accomplishment: accomplishment.copyWith(
             userId: createUserId,
+            endDate: accomplishment.endDate,
+            createdAt: DateTime.now().toUtc(),
+            updatedAt: DateTime.now().toUtc(),
           )));
           accomplishment = res.accomplishment;
         }
