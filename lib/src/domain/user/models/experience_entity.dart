@@ -44,7 +44,7 @@ class ExperienceEntity extends Equatable {
       companyName: companyName ?? this.companyName,
       isCurrent: isCurrent ?? this.isCurrent,
       startDate: startDate ?? this.startDate,
-      endDate: endDate ?? this.endDate,
+      endDate: endDate,
       description: description ?? this.description,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,

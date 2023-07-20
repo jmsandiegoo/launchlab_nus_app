@@ -44,7 +44,7 @@ class AccomplishmentEntity extends Equatable {
       issuer: issuer ?? this.issuer,
       isActive: isActive ?? this.isActive,
       startDate: startDate ?? this.startDate,
-      endDate: endDate ?? this.endDate,
+      endDate: endDate,
       description: description ?? this.description,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
