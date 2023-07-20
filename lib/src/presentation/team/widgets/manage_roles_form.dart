@@ -19,41 +19,42 @@ class ManageRolesBox extends StatelessWidget {
     _descriptionController.text = description;
 
     return SizedBox(
-      height: 400,
       child: Padding(
         padding: const EdgeInsets.all(20.0),
-        child: Column(children: [
-          _taskTitle.text == ''
-              ? subHeaderText("Add Role")
-              : subHeaderText("Edit Role"),
-          const SizedBox(height: 30),
-          userInput_2(label: "Role Title", controller: _taskTitle),
-          userInput_2(
-              label: "Role Description",
-              controller: _descriptionController,
-              size: 4),
-          Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
-            ElevatedButton(
-                child: _taskTitle.text == ''
-                    ? bodyText("  Add  ", weight: FontWeight.w500)
-                    : bodyText("  Update  ", weight: FontWeight.w500),
+        child: ListView(children: [
+          Column(children: [
+            _taskTitle.text == ''
+                ? Center(child: subHeaderText("Add Role"))
+                : Center(child: subHeaderText("Edit Role")),
+            const SizedBox(height: 30),
+            userInput_2(label: "Role Title", controller: _taskTitle),
+            userInput_2(
+                label: "Role Description",
+                controller: _descriptionController,
+                size: 4),
+            Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
+              ElevatedButton(
+                  child: _taskTitle.text == ''
+                      ? bodyText("  Add  ", weight: FontWeight.w500)
+                      : bodyText("  Update  ", weight: FontWeight.w500),
+                  onPressed: () {
+                    if (_taskTitle.text == '') {
+                      confirmationBox(context, "Try again",
+                          "The Role Title field cannot be blank!");
+                    } else {
+                      context.pop([
+                        _taskTitle.text,
+                        _descriptionController.text,
+                      ]);
+                    }
+                  }),
+              OutlinedButton(
+                child: bodyText("  Close  ", weight: FontWeight.w500),
                 onPressed: () {
-                  if (_taskTitle.text == '') {
-                    confirmationBox(context, "Try again",
-                        "The Role Title field cannot be blank!");
-                  } else {
-                    context.pop([
-                      _taskTitle.text,
-                      _descriptionController.text,
-                    ]);
-                  }
-                }),
-            OutlinedButton(
-              child: bodyText("  Close  ", weight: FontWeight.w500),
-              onPressed: () {
-                navigatePop(context);
-              },
-            ),
+                  navigatePop(context);
+                },
+              ),
+            ]),
           ]),
         ]),
       ),

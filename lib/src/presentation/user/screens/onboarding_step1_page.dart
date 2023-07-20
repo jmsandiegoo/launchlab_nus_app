@@ -106,11 +106,15 @@ class _OnboardingStep1ContentState extends State<OnboardingStep1Content> {
         const SizedBox(
           height: 30,
         ),
-        PictureUploadPickerWidget(
-          onPictureUploadChangedHandler: (image) =>
-              _onboardingCubit.onPictureUploadChanged(image),
-          image: _onboardingCubit.state.pictureUploadPickerInput.value,
+        Align(
+          alignment: Alignment.center,
+          child: PictureUploadPickerWidget(
+            onPictureUploadChangedHandler: (image) =>
+                _onboardingCubit.onPictureUploadChanged(image),
+            image: _onboardingCubit.state.pictureUploadPickerInput.value,
+          ),
         ),
+
         const SizedBox(
           height: 30,
         ),
@@ -200,7 +204,8 @@ class _OnboardingStep1ContentState extends State<OnboardingStep1Content> {
           label: "",
           value: _onboardingCubit.state.aboutInput.value,
           hint: "",
-          size: 10,
+          minLines: 10,
+          maxLines: 10,
         )
       ],
     );

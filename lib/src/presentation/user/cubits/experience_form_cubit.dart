@@ -352,8 +352,12 @@ class ExperienceFormCubit extends Cubit<ExperienceFormState> {
         if (isEditMode) {
           emit(state.copyWith(
               experienceFormStatus: ExperienceFormStatus.updateLoading));
-          await userRepository.updateUserExperience(
-              UpdateUserExperienceRequest(experience: experience));
+          await userRepository.updateUserExperience(UpdateUserExperienceRequest(
+              experience: experience.copyWith(
+            endDate: experience.endDate,
+            createdAt: experience.createdAt ?? DateTime.now().toUtc(),
+            updatedAt: DateTime.now().toUtc(),
+          )));
         } else {
           emit(state.copyWith(
               experienceFormStatus: ExperienceFormStatus.createLoading));
@@ -361,6 +365,9 @@ class ExperienceFormCubit extends Cubit<ExperienceFormState> {
               .createUserExperience(CreateUserExperienceRequest(
                   experience: experience.copyWith(
             userId: createUserId,
+            endDate: experience.endDate,
+            createdAt: DateTime.now().toUtc(),
+            updatedAt: DateTime.now().toUtc(),
           )));
           experience = res.experience;
         }

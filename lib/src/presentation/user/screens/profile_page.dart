@@ -29,7 +29,7 @@ class ProfilePage extends StatelessWidget {
       ProfileEditPreferencePageProps props,
       void Function() onUpdateHandler) async {
     final returnData = await navigatePushWithData<Object?>(
-        context, "/profile/$userId/edit-settings", props);
+        context, "/profile/edit-settings", props);
 
     if (returnData == null || returnData.actionType == ActionTypes.cancel) {
       return;
@@ -69,141 +69,126 @@ class ProfilePage extends StatelessWidget {
         builder: (context, state) {
           ProfilePageCubit profileCubit =
               BlocProvider.of<ProfilePageCubit>(context);
+
+          if (state.profilePageStatus == ProfilePageStatus.initial ||
+              state.profilePageStatus == ProfilePageStatus.loading ||
+              state.profilePageStatus == ProfilePageStatus.error) {
+            return const Center(child: CircularProgressIndicator());
+          }
           return Scaffold(
-            body: SafeArea(
+              body: RefreshIndicator(
+            onRefresh: () async {
+              profileCubit.handleGetProfileInfo(userId);
+            },
+            child: SingleChildScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
               child: () {
-                if (state.profilePageStatus == ProfilePageStatus.initial ||
-                    state.profilePageStatus == ProfilePageStatus.loading ||
-                    state.profilePageStatus == ProfilePageStatus.error) {
-                  return const Center(
-                    child: CircularProgressIndicator(),
-                  );
-                }
-                return RefreshIndicator(
-                  onRefresh: () async {
-                    profileCubit.handleGetProfileInfo(userId);
-                  },
-                  child: SingleChildScrollView(
-                    physics: const AlwaysScrollableScrollPhysics(),
-                    child: () {
-                      return Column(
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    AppBar(
+                      leading: () {
+                        if (!isAuthProfile) {
+                          return GestureDetector(
+                            onTap: () {
+                              navigatePop(context);
+                            },
+                            child:
+                                const Icon(Icons.keyboard_backspace_outlined),
+                          );
+                        }
+                        return null;
+                      }(),
+                      backgroundColor: yellowColor,
+                      centerTitle: false,
+                      title: headerText("${isAuthProfile ? 'My ' : ''}Profile"),
+                      actions: () {
+                        if (!isAuthProfile) {
+                          return null;
+                        }
+
+                        return [
+                          IconButton(
+                              onPressed: () {
+                                editPreference(
+                                    context,
+                                    ProfileEditPreferencePageProps(
+                                      userPreference:
+                                          state.userProfile!.userPreference!,
+                                    ),
+                                    () => profileCubit
+                                        .handleGetProfileInfo(userId));
+                              },
+                              icon: const Icon(Icons.settings_outlined)),
+                          IconButton(
+                            onPressed: () {
+                              BlocProvider.of<AppRootCubit>(context)
+                                  .handleSignOut();
+                            },
+                            icon: const Icon(Icons.logout_outlined,
+                                color: blackColor),
+                          ),
+                        ];
+                      }(),
+                    ),
+                    ProfileHeader(
+                      isAuthProfile: isAuthProfile,
+                      userProfile: state.userProfile!,
+                      onUpdateHandler: () => profileCubit
+                          .handleGetProfileInfo(state.userProfile!.id!),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 30, vertical: 30),
+                      child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          AppBar(
-                            leading: () {
-                              if (!isAuthProfile) {
-                                return GestureDetector(
-                                  onTap: () {
-                                    navigatePop(context);
-                                  },
-                                  child: const Icon(
-                                      Icons.keyboard_backspace_outlined),
-                                );
-                              }
-                              return null;
-                            }(),
-                            backgroundColor: yellowColor,
-                            centerTitle: false,
-                            title: headerText(
-                                "${isAuthProfile ? 'My ' : ''}Profile"),
-                            actions: () {
-                              if (!isAuthProfile) {
-                                return null;
-                              }
-
-                              return [
-                                IconButton(
-                                    onPressed: () {
-                                      editPreference(
-                                          context,
-                                          ProfileEditPreferencePageProps(
-                                            userPreference:
-                                                state.userPreference!,
-                                          ),
-                                          () => profileCubit
-                                              .handleGetProfileInfo(userId));
-                                    },
-                                    icon: const Icon(Icons.settings_outlined)),
-                                IconButton(
-                                  onPressed: () {
-                                    BlocProvider.of<AppRootCubit>(context)
-                                        .handleSignOut();
-                                  },
-                                  icon: const Icon(Icons.logout_outlined,
-                                      color: blackColor),
-                                ),
-                              ];
-                            }(),
-                          ),
-                          ProfileHeader(
+                          ProfileAbout(
                             isAuthProfile: isAuthProfile,
                             userProfile: state.userProfile!,
-                            userDegreeProgramme: state.userDegreeProgramme!,
-                            userAvatar: state.userAvatar,
                             onUpdateHandler: () => profileCubit
                                 .handleGetProfileInfo(state.userProfile!.id!),
                           ),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 30, vertical: 30),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                ProfileAbout(
-                                  isAuthProfile: isAuthProfile,
-                                  userProfile: state.userProfile!,
-                                  onUpdateHandler: () =>
-                                      profileCubit.handleGetProfileInfo(
-                                          state.userProfile!.id!),
-                                ),
-                                const SizedBox(height: 20),
-                                ProfileResume(
-                                  isAuthProfile: isAuthProfile,
-                                  userResume: state.userResumeInput.value,
-                                  onChangedHandler: (file) {
-                                    profileCubit.onUserResumeChanged(file);
-                                  },
-                                  isLoading: state.profilePageStatus ==
-                                      ProfilePageStatus.uploadLoading,
-                                ),
-                                const SizedBox(height: 20),
-                                ProfileExperienceList(
-                                  isAuthProfile: isAuthProfile,
-                                  userProfile: state.userProfile!,
-                                  experiences: state.userExperiences,
-                                  onUpdateHandler: () =>
-                                      profileCubit.handleGetProfileInfo(
-                                          state.userProfile!.id!),
-                                ),
-                                const SizedBox(height: 20),
-                                ProfileSkills(
-                                  isAuthProfile: isAuthProfile,
-                                  userProfile: state.userProfile!,
-                                  userPreference: state.userPreference!,
-                                  onUpdateHandler: () =>
-                                      profileCubit.handleGetProfileInfo(
-                                          state.userProfile!.id!),
-                                ),
-                                const SizedBox(height: 20),
-                                ProfileAccomplishmentList(
-                                  isAuthProfile: isAuthProfile,
-                                  userProfile: state.userProfile!,
-                                  accomplishments: state.userAccomplishments,
-                                  onUpdateHandler: () =>
-                                      profileCubit.handleGetProfileInfo(
-                                          state.userProfile!.id!),
-                                ),
-                              ],
-                            ),
+                          const SizedBox(height: 20),
+                          ProfileResume(
+                            isAuthProfile: isAuthProfile,
+                            userResume: state.userResumeInput.value,
+                            onChangedHandler: (file) {
+                              profileCubit.onUserResumeChanged(file);
+                            },
+                            isLoading: state.profilePageStatus ==
+                                ProfilePageStatus.uploadLoading,
+                          ),
+                          const SizedBox(height: 20),
+                          ProfileExperienceList(
+                            isAuthProfile: isAuthProfile,
+                            experiences: state.userProfile!.userExperiences,
+                            onUpdateHandler: () => profileCubit
+                                .handleGetProfileInfo(state.userProfile!.id!),
+                          ),
+                          const SizedBox(height: 20),
+                          ProfileSkills(
+                            isAuthProfile: isAuthProfile,
+                            userPreference: state.userProfile!.userPreference!,
+                            onUpdateHandler: () => profileCubit
+                                .handleGetProfileInfo(state.userProfile!.id!),
+                          ),
+                          const SizedBox(height: 20),
+                          ProfileAccomplishmentList(
+                            isAuthProfile: isAuthProfile,
+                            accomplishments:
+                                state.userProfile!.userAccomplishments,
+                            onUpdateHandler: () => profileCubit
+                                .handleGetProfileInfo(state.userProfile!.id!),
                           ),
                         ],
-                      );
-                    }(),
-                  ),
+                      ),
+                    ),
+                  ],
                 );
               }(),
             ),
-          );
+          ));
         },
       ),
     );

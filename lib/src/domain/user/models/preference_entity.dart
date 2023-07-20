@@ -6,21 +6,21 @@ import 'package:launchlab/src/domain/common/models/skill_entity.dart';
 @immutable
 class PreferenceEntity extends Equatable {
   const PreferenceEntity({
-    required this.id,
+    this.id,
     required this.skillsInterests,
     required this.categories,
     this.createdAt,
     this.updatedAt,
-    required this.userId,
+    this.userId,
   });
 
-  final String id;
+  final String? id;
   final List<SkillEntity> skillsInterests;
   final List<CategoryEntity> categories;
   final DateTime? createdAt;
   final DateTime? updatedAt;
 
-  final String userId;
+  final String? userId;
 
   PreferenceEntity copyWith({
     String? id,
@@ -63,13 +63,18 @@ class PreferenceEntity extends Equatable {
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      'id': id,
+    Map<String, dynamic> json = {
       'skills_interests': skillsInterests.map((item) => item.toJson()).toList(),
       'categories': categories.map((item) => item.toJson()).toList(),
       'created_at': createdAt?.toIso8601String(),
       'updated_at': updatedAt?.toIso8601String(),
     };
+
+    if (id != null) {
+      json['id'] = id;
+    }
+
+    return json;
   }
 
   @override
@@ -79,4 +84,12 @@ class PreferenceEntity extends Equatable {
         categories,
         userId,
       ];
+
+  String getSkillString() {
+    String skillStr = '';
+    for (SkillEntity skill in skillsInterests) {
+      skillStr += '${skill.name}, ';
+    }
+    return skillStr.substring(0, skillStr.length - 2);
+  }
 }

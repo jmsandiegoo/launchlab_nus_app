@@ -4,12 +4,15 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:launchlab/src/config/app_theme.dart';
 import 'package:launchlab/src/data/common/common_repository.dart';
+import 'package:launchlab/src/data/team/team_repository.dart';
 import 'package:launchlab/src/domain/common/models/skill_entity.dart';
 import 'package:launchlab/src/presentation/common/widgets/form_fields/date_picker.dart';
 import 'package:launchlab/src/presentation/common/widgets/form_fields/dropwdown_search_field.dart';
 import 'package:launchlab/src/presentation/common/widgets/form_fields/picture_upload_picker.dart';
 import 'package:launchlab/src/presentation/common/widgets/useful.dart';
 import 'package:launchlab/src/presentation/team/cubits/edit_create_team_cubit.dart';
+import 'package:launchlab/src/presentation/team/widgets/commitment_button.dart';
+import 'package:launchlab/src/utils/constants.dart';
 import 'package:launchlab/src/utils/helper.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../common/widgets/form_fields/text_field.dart';
@@ -34,7 +37,7 @@ class _CreateTeamPageState extends State<CreateTeamPage> {
     "Personal",
     "Competition",
     "Startup / Company",
-    "Volunteer Work",
+    "Volunteer",
     "Others"
   ];
   final _maxMemberFocusNode = FocusNode();
@@ -48,7 +51,8 @@ class _CreateTeamPageState extends State<CreateTeamPage> {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-        create: (_) => EditCreateTeamCubit(CommonRepository(Supabase.instance)),
+        create: (_) => EditCreateTeamCubit(
+            CommonRepository(Supabase.instance), TeamRepository()),
         child: BlocBuilder<EditCreateTeamCubit, EditCreateTeamState>(
             builder: (context, state) {
           final editCreateTeamCubit =
@@ -57,7 +61,10 @@ class _CreateTeamPageState extends State<CreateTeamPage> {
           return Scaffold(
             appBar: AppBar(
               backgroundColor: Colors.transparent,
-              iconTheme: const IconThemeData(color: blackColor),
+              leading: IconButton(
+                icon: const Icon(Icons.arrow_back, color: blackColor),
+                onPressed: () => navigatePop(context),
+              ),
             ),
             body: SingleChildScrollView(
               child: Padding(
@@ -78,6 +85,7 @@ class _CreateTeamPageState extends State<CreateTeamPage> {
                                 const SizedBox(height: 10),
                                 SizedBox(
                                   height: 50,
+                                  width: 50,
                                   child: PictureUploadPickerWidget(
                                     onPictureUploadChangedHandler: (image) =>
                                         editCreateTeamCubit
@@ -120,7 +128,8 @@ class _CreateTeamPageState extends State<CreateTeamPage> {
                         errorText: editCreateTeamCubit
                             .state.descriptionInput.displayError
                             ?.text(),
-                        size: 10,
+                        minLines: 10,
+                        maxLines: 10,
                       ),
                       Row(children: [
                         Expanded(
@@ -140,7 +149,7 @@ class _CreateTeamPageState extends State<CreateTeamPage> {
                         Container(
                           height: 30,
                           padding: const EdgeInsets.symmetric(horizontal: 5.0),
-                          child: const Text("\n—"),
+                          child: const Text("-"),
                         ),
                         Expanded(
                           child: state.isChecked.value
@@ -219,7 +228,10 @@ class _CreateTeamPageState extends State<CreateTeamPage> {
                                     child: Text(items),
                                   );
                                 }).toList(),
-                                onChanged: (String? newValue) {},
+                                onChanged: (String? newValue) {
+                                  editCreateTeamCubit
+                                      .onCategoryChanged(newValue!);
+                                },
                               ),
                             ),
                           ]),
@@ -228,12 +240,18 @@ class _CreateTeamPageState extends State<CreateTeamPage> {
                       Row(
                           mainAxisAlignment: MainAxisAlignment.spaceAround,
                           children: [
-                            _commitmentButton(
-                                "    Low    ", 'Low', editCreateTeamCubit),
-                            _commitmentButton(
-                                "  Medium  ", 'Medium', editCreateTeamCubit),
-                            _commitmentButton(
-                                "    High    ", 'High', editCreateTeamCubit),
+                            CommitmentButton(
+                                text: "    Low    ",
+                                newLevel: 'Low',
+                                cubit: editCreateTeamCubit),
+                            CommitmentButton(
+                                text: "  Medium  ",
+                                newLevel: 'Medium',
+                                cubit: editCreateTeamCubit),
+                            CommitmentButton(
+                                text: "    High    ",
+                                newLevel: 'High',
+                                cubit: editCreateTeamCubit),
                           ]),
                       const SizedBox(height: 20),
                       TextFieldWidget(
@@ -297,9 +315,10 @@ class _CreateTeamPageState extends State<CreateTeamPage> {
                                             avatar:
                                                 state.pictureUploadInput.value)
                                         .then((val) {
-                                        navigatePop(context);
+                                        navigatePopWithData(
+                                            context, "", ActionTypes.create);
                                       })
-                                    : debugPrint("Not Validated");
+                                    : debugPrint("Not Valridated");
                               },
                               child: bodyText("   Create   "))),
                       const SizedBox(height: 50),
@@ -308,21 +327,5 @@ class _CreateTeamPageState extends State<CreateTeamPage> {
             ),
           );
         }));
-  }
-
-  Widget _commitmentButton(text, newLevel, cubit) {
-    return OutlinedButton(
-        style: OutlinedButton.styleFrom(
-            backgroundColor: cubit.state.commitmentInput == newLevel
-                ? blackColor
-                : lightGreyColor),
-        onPressed: () {
-          cubit.onCommitmentChanged(newLevel);
-        },
-        child: bodyText(text,
-            size: 12.0,
-            color: cubit.state.commitmentInput == newLevel
-                ? whiteColor
-                : blackColor));
   }
 }

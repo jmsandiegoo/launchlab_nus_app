@@ -13,7 +13,6 @@ class OnboardingFinishPage extends StatelessWidget {
     return BlocConsumer<AppRootCubit, AppRootState>(
       listener: (context, state) {
         if (state.appRootStateStatus == AppRootStateStatus.success) {
-          print('success detected');
           navigateGo(context, "/team-home");
         }
       },

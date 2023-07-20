@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:launchlab/src/config/app_theme.dart';
 import 'package:launchlab/src/domain/user/models/accomplishment_entity.dart';
-import 'package:launchlab/src/domain/user/models/user_entity.dart';
 import 'package:launchlab/src/presentation/common/widgets/useful.dart';
 import 'package:launchlab/src/presentation/user/screens/profile_manage_accomplishment_page.dart';
 import 'package:launchlab/src/utils/constants.dart';
@@ -11,13 +10,11 @@ class ProfileAccomplishmentList extends StatelessWidget {
   const ProfileAccomplishmentList({
     super.key,
     this.isAuthProfile = false,
-    required this.userProfile,
     required this.accomplishments,
     required this.onUpdateHandler,
   });
 
   final bool isAuthProfile;
-  final UserEntity userProfile;
   final List<AccomplishmentEntity> accomplishments;
   final void Function() onUpdateHandler;
 
@@ -26,7 +23,7 @@ class ProfileAccomplishmentList extends StatelessWidget {
     final NavigationData<Object?>? returnData =
         await navigatePushWithData<Object?>(
       context,
-      "/profile/${userProfile.id}/manage-accomplishment",
+      "/profile/manage-accomplishment",
       props,
     );
 
@@ -78,13 +75,13 @@ class ProfileAccomplishmentList extends StatelessWidget {
                   const SizedBox(height: 45.0),
                 ];
               }
+
               return [
                 IconButton(
                   onPressed: () {
                     manageAccomplishment(
                         context,
                         ProfileManageAccomplishmentPageProps(
-                            userProfile: userProfile,
                             userAccomplishments: accomplishments));
                   },
                   icon: const Icon(Icons.edit_outlined, color: blackColor),
