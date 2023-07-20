@@ -186,6 +186,9 @@ class _TeamChatsContentState extends State<TeamChatsContent> {
                         navigateGo(context,
                             "/team-chats/${widget.teamId}/${val.toLowerCase()}");
                       }),
+                  const SizedBox(
+                    height: 10.0,
+                  ),
                   Expanded(
                     child: widget.child,
                   ),
