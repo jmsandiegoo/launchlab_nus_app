@@ -14,10 +14,8 @@ class TeamChatList extends StatelessWidget {
             BlocProvider.of<TeamChatsPageCubit>(context);
 
         return ListView(
+          padding: EdgeInsets.zero,
           children: [
-            const SizedBox(
-              height: 15.0,
-            ),
             ...state.teamChats.map((chat) => ChatItem(chat: chat)).toList()
           ],
         );

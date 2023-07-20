@@ -76,7 +76,22 @@ class _TeamChatsContentState extends State<TeamChatsContent> {
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<TeamChatsPageCubit, TeamChatsPageState>(
-      listener: (context, state) {},
+      listener: (context, state) {
+        bool isUserInTeam = false;
+
+        for (int i = 0; i < state.teamUsers.length; i++) {
+          if (state.teamUsers[i].userId ==
+              _appRootCubit.state.authUserProfile!.id!) {
+            isUserInTeam = true;
+            break;
+          }
+        }
+
+        if (!isUserInTeam) {
+          _chatsContainerCubit.setTeamId(null);
+          navigateGo(context, "/chats");
+        }
+      },
       builder: (context, state) {
         return Scaffold(
           body: () {
@@ -132,17 +147,6 @@ class _TeamChatsContentState extends State<TeamChatsContent> {
                             )
                           ])),
                     ),
-                    // actions: [
-                    //   IconButton(
-                    //       onPressed: () {},
-                    //       icon: const Icon(Icons.waving_hand_outlined)),
-                    //   IconButton(
-                    //       onPressed: () {
-                    //         navigatePush(context,
-                    //             "/profile/45af9161-2117-42bc-bb5f-b01f8af27880");
-                    //       },
-                    //       icon: const Icon(Icons.info_outline))
-                    // ],
                   ),
                   const SizedBox(
                     height: 50.0,
@@ -182,6 +186,9 @@ class _TeamChatsContentState extends State<TeamChatsContent> {
                         navigateGo(context,
                             "/team-chats/${widget.teamId}/${val.toLowerCase()}");
                       }),
+                  const SizedBox(
+                    height: 10.0,
+                  ),
                   Expanded(
                     child: widget.child,
                   ),

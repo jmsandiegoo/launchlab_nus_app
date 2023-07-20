@@ -36,10 +36,13 @@ class MultiButtonSingleSelectWidget<T> extends StatelessWidget {
     List<SelectButton> buttons = renderButtons();
 
     return Row(
+      mainAxisSize: MainAxisSize.min,
       children: [
         Expanded(
           child: GridView.count(
+            padding: EdgeInsets.zero,
             crossAxisSpacing: 20.0,
+            mainAxisSpacing: 20.0,
             childAspectRatio: itemRatio,
             shrinkWrap: true,
             crossAxisCount: colNo,
@@ -136,6 +139,6 @@ class SelectButton<T> extends StatelessWidget {
           backgroundColor: isSelected ? blackColor : whiteColor,
         ),
         child: bodyText(label,
-            size: 12.0, color: isSelected ? whiteColor : blackColor));
+            size: 10.0, color: isSelected ? whiteColor : blackColor));
   }
 }

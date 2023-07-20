@@ -97,6 +97,7 @@ class TeamChatPageCubit extends Cubit<TeamChatPageState> {
     teamChat = teamChat.setMessages(messages: chatMessages);
 
     // setup message subscription
+    handleSubscribeToTeamUsers(teamChat.teamId, currUserId);
     handleSubscribeToTeamChatMessages(currUserId);
 
     emit(state.copyWith(
@@ -104,6 +105,14 @@ class TeamChatPageCubit extends Cubit<TeamChatPageState> {
       teamUsers: teamUsers,
       teamChatPageStatus: TeamChatPageStatus.success,
     ));
+  }
+
+  void handleSubscribeToTeamUsers(String teamId, String currUserId) {
+    teamRepository.subscribeToTeamUsers(
+        teamId: teamId,
+        streamHandler: (payload) async {
+          await _handleGetTeamUsers(teamId);
+        });
   }
 
   void handleSubscribeToTeamChatMessages(String currUserId) {
