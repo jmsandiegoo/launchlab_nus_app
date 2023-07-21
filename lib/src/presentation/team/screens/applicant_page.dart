@@ -200,7 +200,9 @@ class _ApplicantPageContentState extends State<ApplicantPageContent> {
                             ),
                             const SizedBox(width: 25),
                             FloatingActionButton(
-                              onPressed: () {},
+                              onPressed: () {
+                                confirmationBox(context, '', "Coming Soon!");
+                              },
                               backgroundColor: yellowColor,
                               child: const Icon(Icons.chat_bubble_outline,
                                   color: blackColor),
