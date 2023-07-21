@@ -1,22 +1,25 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/foundation.dart';
+import 'package:launchlab/src/domain/common/models/skill_entity.dart';
+import 'package:launchlab/src/domain/team/repository/team_repository_impl.dart';
 import 'package:launchlab/src/domain/team/responses/get_applicant_data.dart';
 import 'package:launchlab/src/domain/team/responses/get_manage_team_data.dart';
 import 'package:launchlab/src/domain/team/responses/get_team_data.dart';
 import 'package:launchlab/src/domain/team/responses/get_team_home_data.dart';
 import 'package:launchlab/src/domain/team/team_entity.dart';
 import 'package:launchlab/src/domain/team/team_user_entity.dart';
-import 'package:launchlab/src/domain/team/user_entity.dart';
 import 'package:launchlab/src/domain/user/models/user_entity.dart';
 import 'package:launchlab/src/utils/failure.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:uuid/uuid.dart';
 
-class TeamRepository {
+class TeamRepository implements TeamRepositoryImpl {
   final supabase = Supabase.instance.client;
 
   /// real-time
+  @override
   RealtimeChannel subscribeToTeamUsers(
       {required String teamId,
       required FutureOr<void> Function(dynamic payload) streamHandler}) {
@@ -39,10 +42,12 @@ class TeamRepository {
     return channel;
   }
 
+  @override
   Future<void> unsubscribeToTeamUsers(RealtimeChannel channel) async {
     await supabase.removeChannel(channel);
   }
 
+  @override
   Future<List<TeamUserEntity>> getTeamUsers(String teamId) async {
     try {
       final List<Map<String, dynamic>> teamUsersData = await supabase
@@ -68,6 +73,7 @@ class TeamRepository {
     }
   }
 
+  @override
   Future<List<TeamEntity>> getLeadingTeams(String searchName) async {
     try {
       final User? user = supabase.auth.currentUser;
@@ -107,6 +113,7 @@ class TeamRepository {
     }
   }
 
+  @override
   Future<List<TeamEntity>> getParticipatingTeams(String searchName) async {
     try {
       final User? user = supabase.auth.currentUser;
@@ -148,7 +155,8 @@ class TeamRepository {
 
   ///Team Home Page
 
-  getTeamHomeData() async {
+  @override
+  Future<GetTeamHomeData> getTeamHomeData() async {
     final User? user = supabase.auth.currentUser;
     var userData = await supabase
         .from('users')
@@ -201,7 +209,8 @@ class TeamRepository {
 
   //Team Page
 
-  getTeamData(teamId) async {
+  @override
+  Future<GetTeamData> getTeamData(String teamId) async {
     var teamMemberData = await supabase
         .from('team_users')
         .select('*, user:users(*)')
@@ -231,14 +240,21 @@ class TeamRepository {
     return GetTeamData(teamMembers, team, milestone);
   }
 
-  void saveMilestoneData({val, taskId}) async {
+  @override
+  void saveMilestoneData({required bool val, required String taskId}) async {
     await supabase.from('milestones').update({
       'is_completed': val,
       'updated_at': DateTime.now().toString()
     }).eq('id', taskId);
   }
 
-  void addMilestone({title, startDate, endDate, teamId, description}) async {
+  @override
+  void addMilestone(
+      {required String title,
+      required String startDate,
+      required String endDate,
+      required String teamId,
+      required String description}) async {
     await supabase.from('milestones').insert({
       'title': title,
       'start_date': startDate,
@@ -248,14 +264,16 @@ class TeamRepository {
     });
   }
 
-  void listTeam({teamId, isListed}) async {
+  @override
+  void listTeam({required String teamId, required bool isListed}) async {
     await supabase.from('teams').update({
       'is_listed': isListed,
       'updated_at': DateTime.now().toString()
     }).eq('id', teamId);
   }
 
-  void disbandTeam({teamId}) async {
+  @override
+  void disbandTeam({required String teamId}) async {
     await supabase.from('teams').update({
       'is_current': false,
       'is_listed': false,
@@ -263,7 +281,8 @@ class TeamRepository {
     }).eq('id', teamId);
   }
 
-  void leaveTeam({teamId}) async {
+  @override
+  void leaveTeam({required String teamId}) async {
     final User? user = supabase.auth.currentUser;
     var teamData =
         await supabase.from('teams').select().eq('id', teamId).single();
@@ -277,7 +296,13 @@ class TeamRepository {
         .match({'user_id': user!.id, 'team_id': teamId});
   }
 
-  void editMilestone({taskId, title, startDate, endDate, description}) async {
+  @override
+  void editMilestone(
+      {required String taskId,
+      required String title,
+      required String startDate,
+      required String endDate,
+      required String description}) async {
     await supabase.from('milestones').update({
       'title': title,
       'start_date': startDate,
@@ -286,11 +311,16 @@ class TeamRepository {
     }).eq('id', taskId);
   }
 
-  void deleteMilestone({taskId}) async {
+  @override
+  void deleteMilestone({required String taskId}) async {
     await supabase.from('milestones').delete().match({'id': taskId});
   }
 
-  void deleteMember({memberId, teamId, newCurrentMember}) async {
+  @override
+  void deleteMember(
+      {required String memberId,
+      required String teamId,
+      required int newCurrentMember}) async {
     await supabase
         .from('teams')
         .update({'current_members': newCurrentMember}).eq('id', teamId);
@@ -299,7 +329,8 @@ class TeamRepository {
 
   //Manage Team Page
 
-  getManageTeamData(teamId) async {
+  @override
+  Future<GetManageTeamData> getManageTeamData(String teamId) async {
     var applicantUserData = await supabase
         .from('users')
         .select(
@@ -313,12 +344,20 @@ class TeamRepository {
     return GetManageTeamData(applicantUserData, rolesData);
   }
 
-  void addRoles({title, description, teamId}) async {
+  @override
+  void addRoles(
+      {required String title,
+      required String description,
+      required String teamId}) async {
     await supabase.from('roles_open').insert(
         {'title': title, 'description': description, 'team_id': teamId});
   }
 
-  void updateRoles({title, description, roleId}) async {
+  @override
+  void updateRoles(
+      {required String title,
+      required String description,
+      required String roleId}) async {
     await supabase.from('roles_open').update({
       'title': title,
       'description': description,
@@ -326,13 +365,15 @@ class TeamRepository {
     }).eq('id', roleId);
   }
 
-  void deleteRoles({roleId}) async {
+  @override
+  void deleteRoles({required String roleId}) async {
     await supabase.from('roles_open').delete().eq('id', roleId);
   }
 
   //Create & Edit Team Page
 
-  getEditCreateTeamData(teamId) async {
+  @override
+  Future<TeamEntity> getEditCreateTeamData(String teamId) async {
     var teamData = await supabase.from('teams').select().eq('id', teamId);
 
     var avatarURL = teamData[0]['avatar'] == null
@@ -346,43 +387,73 @@ class TeamRepository {
     return team;
   }
 
-  updateTeamData({
-    teamId,
-    teamName,
-    description,
-    startDate,
-    endDate,
-    category,
-    commitment,
-    maxMember,
-    interest,
-    avatar,
+  @override
+  void updateTeamData({
+    required String teamId,
+    required String teamName,
+    required String description,
+    required String startDate,
+    required String endDate,
+    required String category,
+    required String commitment,
+    required String maxMember,
+    required List<SkillEntity> interest,
+    required File? avatar,
   }) async {
-    await supabase.from('teams').update({
-      'team_name': teamName,
-      'description': description,
-      'start_date': startDate,
-      'end_date': endDate == '' ? null : endDate,
-      'project_category': category,
-      'commitment': commitment,
-      'max_members': maxMember,
-      'interest': interest,
-      'updated_at': DateTime.now().toString()
-    }).eq('id', teamId);
+    final previousAvatar =
+        await supabase.from('teams').select('avatar').eq('id', teamId).single();
+    if (avatar.toString() == 'null') {
+      await supabase.from('teams').update({
+        'team_name': teamName,
+        'description': description,
+        'start_date': startDate,
+        'end_date': endDate == '' ? null : endDate,
+        'project_category': category,
+        'commitment': commitment,
+        'max_members': maxMember,
+        'interest': interest,
+        'updated_at': DateTime.now().toString()
+      }).eq('id', teamId);
+    } else {
+      await supabase.from('teams').update({
+        'team_name': teamName,
+        'description': description,
+        'start_date': startDate,
+        'end_date': endDate == '' ? null : endDate,
+        'project_category': category,
+        'commitment': commitment,
+        'max_members': maxMember,
+        'interest': interest,
+        'avatar': '${teamId}_avatar',
+        'updated_at': DateTime.now().toString()
+      }).eq('id', teamId);
+      if (previousAvatar['avatar'] == null) {
+        await supabase.storage.from('team_avatar_bucket').upload(
+            '${teamId}_avatar', avatar!,
+            fileOptions:
+                const FileOptions(cacheControl: '3600', upsert: false));
+      } else {
+        await supabase.storage.from('team_avatar_bucket').update(
+            '${teamId}_avatar', avatar!,
+            fileOptions:
+                const FileOptions(cacheControl: '3600', upsert: false));
+      }
+    }
   }
 
-  createNewTeam(
-      {userId,
-      teamName,
-      description,
-      startDate,
-      endDate,
-      category,
-      commitment,
-      maxMember,
-      interest,
-      interestName,
-      avatar}) async {
+  @override
+  void createNewTeam(
+      {required String userId,
+      required String teamName,
+      required String description,
+      required String startDate,
+      required String endDate,
+      required String category,
+      required String commitment,
+      required String maxMember,
+      required List<SkillEntity> interest,
+      required List<String> interestName,
+      required File? avatar}) async {
     var teamId = const Uuid().v4();
 
     await supabase.from('teams').insert({
@@ -397,16 +468,14 @@ class TeamRepository {
       'max_members': maxMember,
       'interest': interest,
       'interest_name': interestName,
-      'avatar': avatar.toString() == 'null'
-          ? null
-          : '${teamId}_avatar${avatar.toString().substring(avatar.toString().indexOf('.'))}',
+      'avatar': avatar.toString() == 'null' ? null : '${teamId}_avatar'
+      //: '${teamId}_avatar${avatar.toString().substring(0, avatar.toString().length - 1).substring(avatar.toString().length - (5 - avatar.toString().substring(avatar.toString().length - 5).indexOf('.')))}',
     });
 
     avatar.toString() == 'null'
         ? debugPrint('No Picture Uploaded')
         : await supabase.storage.from('team_avatar_bucket').upload(
-            '${teamId}_avatar${avatar.toString().substring(avatar.toString().indexOf('.'))}',
-            avatar,
+            '${teamId}_avatar', avatar!,
             fileOptions:
                 const FileOptions(cacheControl: '3600', upsert: false));
 
@@ -420,7 +489,8 @@ class TeamRepository {
 
   //Applicant Page
 
-  getApplicantData(applicationID) async {
+  @override
+  Future<GetApplicantData> getApplicantData(String applicationID) async {
     var applicantUserData = await supabase
         .from('users')
         .select(
@@ -434,7 +504,6 @@ class TeamRepository {
             '${applicantUserData['user_avatars']['file_identifier']}', 60);
     applicantUserData['avatar_url'] = avatarURL;
 
-    UserTeamEntity user = UserTeamEntity.fromApplicantJson(applicantUserData);
     var teamData = await supabase
         .from('teams')
         .select('*, team_applicants!inner(id)')
@@ -461,10 +530,12 @@ class TeamRepository {
         .eq('user_id', applicantUserData['id'])
         .order('start_date');
 
-    return GetApplicantData(user, team, experienceData, accomplishmentData);
+    return GetApplicantData(team, experienceData, accomplishmentData);
   }
 
-  acceptApplicant({applicationID, currentMember}) async {
+  @override
+  void acceptApplicant(
+      {required String applicationID, required int currentMember}) async {
     var applicationData =
         await supabase.from('team_applicants').select().eq('id', applicationID);
 
@@ -483,7 +554,8 @@ class TeamRepository {
         .update({'status': 'accepted'}).eq('id', applicationID);
   }
 
-  rejectApplicant({applicationID}) async {
+  @override
+  void rejectApplicant({required String applicationID}) async {
     await supabase
         .from('team_applicants')
         .update({'status': 'rejected'}).eq('id', applicationID);

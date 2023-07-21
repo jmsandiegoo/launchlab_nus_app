@@ -1,16 +1,21 @@
 import 'package:launchlab/src/domain/search/external_team_entity.dart';
+import 'package:launchlab/src/domain/search/repository/search_repository_impl.dart';
 import 'package:launchlab/src/domain/search/responses/get_external_team.dart';
 import 'package:launchlab/src/domain/search/responses/get_recomendation.dart';
 import 'package:launchlab/src/domain/search/responses/get_search_result.dart';
 import 'package:launchlab/src/domain/search/responses/get_user_search_result.dart';
 import 'package:launchlab/src/domain/search/search_filter_entity.dart';
 import 'package:launchlab/src/domain/search/search_team_entity.dart';
+import 'package:launchlab/src/domain/team/team_user_entity.dart';
+import 'package:launchlab/src/domain/user/models/user_entity.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-class SearchRepository {
+class SearchRepository implements SearchRepositoryImpl {
   final supabase = Supabase.instance.client;
 
-  getSearchData(String searchTerm, SearchFilterEntity filterData) async {
+  @override
+  Future<GetSearchResult> getSearchData(
+      String searchTerm, SearchFilterEntity filterData) async {
     var teamNameData = await supabase
         .from('teams')
         .select('*, roles_open(title)')
@@ -65,7 +70,9 @@ class SearchRepository {
     return GetSearchResult(searchedTeams, user!.id);
   }
 
-  getRecomendationData(filterData) async {
+  @override
+  Future<GetRecomendationResult> getRecomendationData(
+      SearchFilterEntity filterData) async {
     var teamNameData = await supabase
         .from('teams')
         .select('*, roles_open(title)')
@@ -100,7 +107,8 @@ class SearchRepository {
     return GetRecomendationResult(searchedTeams, user!.id, preference);
   }
 
-  getExternalTeamData(teamId) async {
+  @override
+  Future<GetExternalTeam> getExternalTeamData(String teamId) async {
     var teamData = await supabase
         .from('teams')
         .select('*, team_users(user_id), roles_open(title, description)')
@@ -127,10 +135,14 @@ class SearchRepository {
         .select('*')
         .eq('team_id', teamId);
 
-    return GetExternalTeam(team, ownerDetails, applicants);
+    TeamUserEntity owner = TeamUserEntity(
+        '', "Owner", true, '', UserEntity.fromJson(ownerDetails));
+
+    return GetExternalTeam(team, owner, applicants);
   }
 
-  getUserSearch(searchUsername) async {
+  @override
+  Future<GetSearchUserResult> getUserSearch(String searchUsername) async {
     var userData = await supabase
         .from('users')
         .select(
@@ -139,7 +151,8 @@ class SearchRepository {
     return GetSearchUserResult(userData);
   }
 
-  applyToTeam({teamId, userId}) async {
+  @override
+  void applyToTeam({required String teamId, required String userId}) async {
     await supabase.from('team_applicants').insert({
       'user_id': userId,
       'team_id': teamId,
@@ -148,7 +161,8 @@ class SearchRepository {
     });
   }
 
-  reapplyToTeam({teamId, userId}) async {
+  @override
+  void reapplyToTeam({required String teamId, required String userId}) async {
     await supabase
         .from('team_applicants')
         .update({'status': 'pending', 'applied_at': DateTime.now().toString()})
