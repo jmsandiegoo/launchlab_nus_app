@@ -1,14 +1,20 @@
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:launchlab/src/data/user/user_repository.dart';
-import 'package:launchlab/src/domain/user/models/experience_entity.dart';
+import 'package:launchlab/src/domain/user/models/accomplishment_entity.dart';
+import 'package:launchlab/src/domain/user/models/requests/create_user_accomplishment_request.dart';
 import 'package:launchlab/src/domain/user/models/requests/create_user_experience_request.dart';
+import 'package:launchlab/src/domain/user/models/requests/delete_user_accomplishment_request.dart';
 import 'package:launchlab/src/domain/user/models/requests/delete_user_experience_request.dart';
+import 'package:launchlab/src/domain/user/models/requests/update_user_accomplishment_request.dart';
 import 'package:launchlab/src/domain/user/models/requests/update_user_experience_request.dart';
+import 'package:launchlab/src/domain/user/models/responses/create_user_accomplishment_response.dart';
 import 'package:launchlab/src/domain/user/models/responses/create_user_experiences_response.dart';
+import 'package:launchlab/src/domain/user/models/responses/update_user_accomplishment_response.dart';
 import 'package:launchlab/src/domain/user/models/responses/update_user_experience_response.dart';
 import 'package:launchlab/src/presentation/common/widgets/form_fields/checkbox_field.dart';
 import 'package:launchlab/src/presentation/common/widgets/form_fields/text_field.dart';
+import 'package:launchlab/src/presentation/user/cubits/accomplishment_form_cubit.dart';
 import 'package:launchlab/src/presentation/user/cubits/experience_form_cubit.dart';
 import 'package:launchlab/src/presentation/user/widgets/form_fields/end_date_field.dart';
 import 'package:launchlab/src/presentation/user/widgets/form_fields/start_date_field.dart';
@@ -23,44 +29,46 @@ void main() {
     mockUserRepository = MockUserRepository();
   });
 
-  group("[Profile] ExperienceFormCubit Test:", () {
-    final ExperienceEntity experience = ExperienceEntity(
-      title: "test",
-      companyName: 'test',
-      description: 'test',
-      isCurrent: false,
-      startDate: DateTime.now().subtract(const Duration(days: 1)),
-      endDate: DateTime.now(),
-      userId: "123",
+  group("[Profile] AccomplishmentFormCubit Test:", () {
+    final AccomplishmentEntity accomplishment = AccomplishmentEntity(
+        title: "test",
+        issuer: "test",
+        isActive: false,
+        startDate: DateTime.now().subtract(const Duration(days: 1)),
+        endDate: DateTime.now(),
+        description: "test",
+        userId: "123");
+
+    final AccomplishmentFormState initialState = AccomplishmentFormState(
+      accomplishmentFormStatus: AccomplishmentFormStatus.initial,
+      accomplishment: accomplishment,
+      titleNameFieldInput: TextFieldInput.unvalidated(accomplishment.title),
+      issuerFieldInput: TextFieldInput.unvalidated(accomplishment.issuer),
+      descriptionFieldInput:
+          TextFieldInput.unvalidated(accomplishment.description ?? ""),
+      isActiveFieldInput:
+          CheckboxFieldInput.unvalidated(accomplishment.isActive),
+      startDateFieldInput:
+          StartDateFieldInput.unvalidated(accomplishment.startDate),
+      endDateFieldInput: EndDateFieldInput.unvalidated(
+          isPresent: accomplishment.isActive, value: accomplishment.endDate),
     );
 
-    final ExperienceFormState initialState = ExperienceFormState(
-      experienceFormStatus: ExperienceFormStatus.initial,
-      experience: experience,
-      titleNameFieldInput: TextFieldInput.unvalidated(experience.title),
-      companyNameFieldInput: TextFieldInput.unvalidated(experience.companyName),
-      descriptionFieldInput: TextFieldInput.unvalidated(experience.description),
-      isCurrentFieldInput: CheckboxFieldInput.unvalidated(experience.isCurrent),
-      startDateFieldInput:
-          StartDateFieldInput.unvalidated(experience.startDate),
-      endDateFieldInput: EndDateFieldInput.unvalidated(
-          isPresent: experience.isCurrent, value: experience.endDate),
-    );
-    blocTest<ExperienceFormCubit, ExperienceFormState>(
+    blocTest<AccomplishmentFormCubit, AccomplishmentFormState>(
         // description including a list of emitted states and the cubit method
         // called, as well as the exptected output
-        "emits [ExperienceFormStatus.createSuccess, experience] when create experience succesful",
+        "emits [AccomplishmentFormStatus.createSuccess, accomplishment] when create accomplishment succesful",
         // define mock behavior for this test case
         setUp: () {
           registerFallbackValue(
-              CreateUserExperienceRequest(experience: experience));
-          when(() => mockUserRepository.createUserExperience(any()))
-              .thenAnswer((_) async => CreateUserExperienceResponse(
-                    experience: experience,
+              CreateUserAccomplishmentRequest(accomplishment: accomplishment));
+          when(() => mockUserRepository.createUserAccomplishment(any()))
+              .thenAnswer((_) async => CreateUserAccomplishmentResponse(
+                    accomplishment: accomplishment,
                   ));
         },
         // building the cubit including mock behaviors
-        build: () => ExperienceFormCubit(
+        build: () => AccomplishmentFormCubit(
               userRepository: mockUserRepository,
             ),
         // what the cubit should do
@@ -70,25 +78,27 @@ void main() {
         // after calling method what is the expected state
         expect: () => [
               initialState.copyWith(
-                  experienceFormStatus: ExperienceFormStatus.createLoading,
-                  experience: experience),
+                  accomplishmentFormStatus:
+                      AccomplishmentFormStatus.createLoading,
+                  accomplishment: accomplishment),
               initialState.copyWith(
-                  experienceFormStatus: ExperienceFormStatus.createSuccess,
-                  experience: experience),
+                  accomplishmentFormStatus:
+                      AccomplishmentFormStatus.createSuccess,
+                  accomplishment: accomplishment),
             ],
         verify: (_) async {
-          verify(() => mockUserRepository.createUserExperience(any()))
+          verify(() => mockUserRepository.createUserAccomplishment(any()))
               .called(1);
         });
 
-    blocTest<ExperienceFormCubit, ExperienceFormState>(
+    blocTest<AccomplishmentFormCubit, AccomplishmentFormState>(
       // description including a list of emitted states and the cubit method
       // called, as well as the exptected output
-      "emits [ExperienceFormStatus.createSuccess, experience] when create experience locally succesful",
+      "emits [AccomplishmentFormStatus.createSuccess, accomplishment] when create accomplishment locally succesful",
       // define mock behavior for this test case
       setUp: () {},
       // building the cubit including mock behaviors
-      build: () => ExperienceFormCubit(
+      build: () => AccomplishmentFormCubit(
         userRepository: mockUserRepository,
       ),
       // what the cubit should do
@@ -97,27 +107,27 @@ void main() {
       // after calling method what is the expected state
       expect: () => [
         initialState.copyWith(
-          experience: experience,
-          experienceFormStatus: ExperienceFormStatus.createSuccess,
+          accomplishment: accomplishment,
+          accomplishmentFormStatus: AccomplishmentFormStatus.createSuccess,
         ),
       ],
     );
 
-    blocTest<ExperienceFormCubit, ExperienceFormState>(
+    blocTest<AccomplishmentFormCubit, AccomplishmentFormState>(
         // description including a list of emitted states and the cubit method
         // called, as well as the exptected output
-        "emits [ExperienceFormStatus.updateSuccess, experience] when update experience succesful",
+        "emits [AccomplishmentFormStatus.updateSuccess, accomplishment] when update accomplishment succesful",
         // define mock behavior for this test case
         setUp: () {
           registerFallbackValue(
-              UpdateUserExperienceRequest(experience: experience));
-          when(() => mockUserRepository.updateUserExperience(any()))
-              .thenAnswer((_) async => UpdateUserExperienceResponse(
-                    experience: experience,
+              UpdateUserAccomplishmentRequest(accomplishment: accomplishment));
+          when(() => mockUserRepository.updateUserAccomplishment(any()))
+              .thenAnswer((_) async => UpdateUserAccomplishmentResponse(
+                    accomplishment: accomplishment,
                   ));
         },
         // building the cubit including mock behaviors
-        build: () => ExperienceFormCubit(
+        build: () => AccomplishmentFormCubit(
               userRepository: mockUserRepository,
             ),
         // what the cubit should do
@@ -126,25 +136,27 @@ void main() {
         // after calling method what is the expected state
         expect: () => [
               initialState.copyWith(
-                  experienceFormStatus: ExperienceFormStatus.updateLoading,
-                  experience: experience),
+                  accomplishmentFormStatus:
+                      AccomplishmentFormStatus.updateLoading,
+                  accomplishment: accomplishment),
               initialState.copyWith(
-                  experienceFormStatus: ExperienceFormStatus.updateSuccess,
-                  experience: experience),
+                  accomplishmentFormStatus:
+                      AccomplishmentFormStatus.updateSuccess,
+                  accomplishment: accomplishment),
             ],
         verify: (_) async {
-          verify(() => mockUserRepository.updateUserExperience(any()))
+          verify(() => mockUserRepository.updateUserAccomplishment(any()))
               .called(1);
         });
 
-    blocTest<ExperienceFormCubit, ExperienceFormState>(
+    blocTest<AccomplishmentFormCubit, AccomplishmentFormState>(
       // description including a list of emitted states and the cubit method
       // called, as well as the exptected output
-      "emits [ExperienceFormStatus.updateSuccess, experience] when update experience locally succesful",
+      "emits [AccomplishmentFormStatus.updateSuccess, accomplishment] when update experience locally succesful",
       // define mock behavior for this test case
       setUp: () {},
       // building the cubit including mock behaviors
-      build: () => ExperienceFormCubit(
+      build: () => AccomplishmentFormCubit(
         userRepository: mockUserRepository,
       ),
       // what the cubit should do
@@ -153,24 +165,24 @@ void main() {
       // after calling method what is the expected state
       expect: () => [
         initialState.copyWith(
-            experienceFormStatus: ExperienceFormStatus.updateSuccess,
-            experience: experience),
+            accomplishmentFormStatus: AccomplishmentFormStatus.updateSuccess,
+            accomplishment: accomplishment),
       ],
     );
 
-    blocTest<ExperienceFormCubit, ExperienceFormState>(
+    blocTest<AccomplishmentFormCubit, AccomplishmentFormState>(
       // description including a list of emitted states and the cubit method
       // called, as well as the exptected output
-      "emits [ExperienceFormStatus.deleteSuccess] when delete experience succesful",
+      "emits [AccomplishmentFormStatus.deleteSuccess] when delete accomplishment succesful",
       // define mock behavior for this test case
       setUp: () {
         registerFallbackValue(
-            DeleteUserExperienceRequest(experience: experience));
-        when(() => mockUserRepository.deleteUserExperience(any()))
+            DeleteUserAccomplishmentRequest(accomplishment: accomplishment));
+        when(() => mockUserRepository.deleteUserAccomplishment(any()))
             .thenAnswer((_) async {});
       },
       // building the cubit including mock behaviors
-      build: () => ExperienceFormCubit(
+      build: () => AccomplishmentFormCubit(
         userRepository: mockUserRepository,
       ),
       // what the cubit should do
@@ -179,22 +191,22 @@ void main() {
       // after calling method what is the expected state
       expect: () => [
         initialState.copyWith(
-          experienceFormStatus: ExperienceFormStatus.deleteLoading,
+          accomplishmentFormStatus: AccomplishmentFormStatus.deleteLoading,
         ),
         initialState.copyWith(
-          experienceFormStatus: ExperienceFormStatus.deleteSuccess,
+          accomplishmentFormStatus: AccomplishmentFormStatus.deleteSuccess,
         ),
       ],
     );
 
-    blocTest<ExperienceFormCubit, ExperienceFormState>(
+    blocTest<AccomplishmentFormCubit, AccomplishmentFormState>(
       // description including a list of emitted states and the cubit method
       // called, as well as the exptected output
-      "emits [ExperienceFormStatus.deleteSuccess] when delete experience locally succesful",
+      "emits [AccomplishmentFormStatus.deleteSuccess] when delete accomplishment locally succesful",
       // define mock behavior for this test case
       setUp: () {},
       // building the cubit including mock behaviors
-      build: () => ExperienceFormCubit(
+      build: () => AccomplishmentFormCubit(
         userRepository: mockUserRepository,
       ),
       // what the cubit should do
@@ -203,7 +215,7 @@ void main() {
       // after calling method what is the expected state
       expect: () => [
         initialState.copyWith(
-          experienceFormStatus: ExperienceFormStatus.deleteSuccess,
+          accomplishmentFormStatus: AccomplishmentFormStatus.deleteSuccess,
         ),
       ],
     );
