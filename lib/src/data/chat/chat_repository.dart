@@ -13,7 +13,6 @@ class ChatRepository implements ChatRepositoryImpl {
 
   /// realtime functions
   // subscibe to messages for a particular chat message only onChanges
-  @override
   RealtimeChannel subscribeToTeamChatMessages(
       {required FutureOr<void> Function(dynamic payload) streamHandler}) {
     RealtimeChannel channel = _supabase.client
@@ -33,13 +32,11 @@ class ChatRepository implements ChatRepositoryImpl {
     return channel;
   }
 
-  @override
   Future<void> unsubscribeToTeamChatMessages(RealtimeChannel channel) async {
     await _supabase.client.removeChannel(channel);
   }
 
   // non-realtime functions
-  @override
   Future<List<TeamChatEntity>> getTeamChatsByTeamId(
       {required String teamId}) async {
     // fetch team chats
@@ -56,7 +53,6 @@ class ChatRepository implements ChatRepositoryImpl {
     return teamChats;
   }
 
-  @override
   Future<TeamChatEntity> getTeamChatByChatId({required String chatId}) async {
     try {
       final List<Map<String, dynamic>> res = await _supabase.client
@@ -80,7 +76,6 @@ class ChatRepository implements ChatRepositoryImpl {
     }
   }
 
-  @override
   Future<List<ChatMessageEntity>> getTeamChatMessagesByChatId(
       {required String chatId}) async {
     // paginate later
@@ -112,7 +107,6 @@ class ChatRepository implements ChatRepositoryImpl {
     }
   }
 
-  @override
   Future<void> submitMessage(ChatMessageEntity newMessage) async {
     try {
       await _supabase.client
@@ -126,4 +120,12 @@ class ChatRepository implements ChatRepositoryImpl {
       throw Failure.unexpected();
     }
   }
+
+  // listen to message seens for a particular message
+
+  // listen to team users if not there remove the direct chat
+
+  // listen to events
+
+  // listen to message seens
 }

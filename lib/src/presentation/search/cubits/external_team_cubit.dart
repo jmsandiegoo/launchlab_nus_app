@@ -76,7 +76,7 @@ class ExternalTeamCubit extends Cubit<ExternalTeamState> {
     try {
       final GetExternalTeam res =
           await _searchRepository.getExternalTeamData(teamId);
-      final owner = res.getOwnerData();
+      final owner = res.ownerData;
 
       List<Future<UserAvatarEntity?>> asyncOperations = [];
 
@@ -101,13 +101,13 @@ class ExternalTeamCubit extends Cubit<ExternalTeamState> {
     }
   }
 
-  applyToTeam({teamId, userId}) async {
-    await _searchRepository.applyToTeam(teamId: teamId, userId: userId);
+  void applyToTeam({teamId, userId}) async {
+    _searchRepository.applyToTeam(teamId: teamId, userId: userId);
     debugPrint("Applied to Team");
   }
 
-  reapplyToTeam({teamId, userId}) async {
-    await _searchRepository.reapplyToTeam(teamId: teamId, userId: userId);
+  void reapplyToTeam({teamId, userId}) async {
+    _searchRepository.reapplyToTeam(teamId: teamId, userId: userId);
     debugPrint("Reapplied to Team");
   }
 }

@@ -1,20 +1,17 @@
 import 'package:equatable/equatable.dart';
 import 'package:launchlab/src/domain/team/team_entity.dart';
-import 'package:launchlab/src/domain/team/user_entity.dart';
 import 'package:launchlab/src/domain/user/models/accomplishment_entity.dart';
 import 'package:launchlab/src/domain/user/models/experience_entity.dart';
 
 class GetApplicantData extends Equatable {
-  const GetApplicantData(
-      this.applicant, this.team, this.experiences, this.accomplishments);
+  const GetApplicantData(this.team, this.experiences, this.accomplishments);
 
-  final UserTeamEntity applicant;
   final TeamEntity team;
   final List experiences;
   final List accomplishments;
 
   @override
-  List<Object?> get props => [applicant, team, experiences, accomplishments];
+  List<Object?> get props => [team, experiences, accomplishments];
 
   List<ExperienceEntity> getAllExperience() {
     List<ExperienceEntity> allExperiences = [];

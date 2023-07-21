@@ -270,7 +270,8 @@ class OnboardingCubit extends Cubit<OnboardingState> {
     emit(state.copyWith(
         onboardingStatus: OnboardingStatus.usernameCheckInProgress));
 
-    final error = await prevUsernameInputState.validatorAsync(null);
+    final error =
+        await prevUsernameInputState.validatorAsync(null, _userRepository);
 
     final newUsernameInputState =
         UsernameFieldInput.validated(prevUsernameInputVal);
@@ -561,7 +562,8 @@ class OnboardingCubit extends Cubit<OnboardingState> {
       emit(state.copyWith(
           onboardingStatus: OnboardingStatus.submissionInProgress));
       // check username async validation again
-      final error = await state.usernameInput.validatorAsync(null);
+      final error =
+          await state.usernameInput.validatorAsync(null, _userRepository);
 
       final isFormValid = Formz.validate([
         pictureUploadPickerInput,

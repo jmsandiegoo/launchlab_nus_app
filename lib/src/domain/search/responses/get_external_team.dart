@@ -7,7 +7,7 @@ class GetExternalTeam extends Equatable {
   const GetExternalTeam(this.teamData, this.ownerData, this.applicantsData);
 
   final ExternalTeamEntity teamData;
-  final Map<String, dynamic> ownerData;
+  final TeamUserEntity ownerData;
   final List applicantsData;
 
   @override
@@ -39,11 +39,5 @@ class GetExternalTeam extends Equatable {
       }
     }
     return pastApplicants;
-  }
-
-  TeamUserEntity getOwnerData() {
-    TeamUserEntity owner =
-        TeamUserEntity('', "Owner", true, '', UserEntity.fromJson(ownerData));
-    return owner;
   }
 }

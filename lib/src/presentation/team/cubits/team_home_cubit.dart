@@ -73,7 +73,7 @@ class TeamHomeCubit extends Cubit<TeamHomeState> {
   }
 
 //Emit state here, no longer need future builder.
-  void getData() async {
+  getData() async {
     try {
       final GetTeamHomeData res = await _teamRepository.getTeamHomeData();
       List<Future<UserAvatarEntity?>> asyncOperations = [];

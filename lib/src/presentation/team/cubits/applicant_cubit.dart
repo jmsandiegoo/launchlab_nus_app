@@ -4,12 +4,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:launchlab/src/data/team/team_repository.dart';
 import 'package:launchlab/src/domain/team/responses/get_applicant_data.dart';
 import 'package:launchlab/src/domain/team/team_entity.dart';
-import 'package:launchlab/src/domain/team/user_entity.dart';
-import 'package:launchlab/src/domain/user/models/accomplishment_entity.dart';
-import 'package:launchlab/src/domain/user/models/experience_entity.dart';
 import 'package:launchlab/src/utils/constants.dart';
 import 'package:launchlab/src/utils/failure.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ApplicantState extends Equatable {
   @override
@@ -27,10 +23,7 @@ class ApplicantState extends Equatable {
       this.error});
 
   ApplicantState copyWith({
-    UserTeamEntity? applicantUserData,
     TeamEntity? applicationTeamData,
-    List<ExperienceEntity>? experienceData,
-    List<AccomplishmentEntity>? accomplishmentData,
     ActionTypes? actionTypes,
     ApplicantStatus? status,
     Failure? error,
@@ -54,7 +47,6 @@ class ApplicantCubit extends Cubit<ApplicantState> {
   ApplicantCubit(this._teamRepository) : super(const ApplicantState());
 
   final TeamRepository _teamRepository;
-  final supabase = Supabase.instance.client;
 
   getData(applicationID) async {
     try {
