@@ -39,7 +39,7 @@ void main() {
     mockCommonRepository = MockCommonRepository();
   });
 
-  group("OnboardingCubit Test:", () {
+  group("[Onboarding] OnboardingCubit Test:", () {
     // test data
     final user = UserEntity(
       id: "1",

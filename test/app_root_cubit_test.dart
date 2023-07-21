@@ -1,13 +1,10 @@
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:launchlab/src/data/authentication/repository/auth_repository.dart';
-import 'package:launchlab/src/data/user/user_repository.dart';
 import 'package:launchlab/src/domain/user/models/user_entity.dart';
 import 'package:launchlab/src/presentation/common/cubits/app_root_cubit.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-
-class MockUserRepository extends Mock implements UserRepository {}
 
 class MockStream extends Mock implements Stream<AuthState> {}
 
@@ -22,7 +19,7 @@ void main() {
     mockAuthRepository = MockAuthRepository();
   });
 
-  group("AppRootCubit Test:", () {
+  group("[Auth] AppRootCubit Test:", () {
     final UserEntity user = UserEntity(
       id: "1",
       firstName: "Test",
