@@ -1,17 +1,10 @@
-import 'dart:io';
-
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:launchlab/src/data/common/common_repository.dart';
 import 'package:launchlab/src/data/user/user_repository.dart';
 import 'package:launchlab/src/domain/common/models/skill_entity.dart';
-import 'package:launchlab/src/domain/user/models/degree_programme_entity.dart';
 import 'package:launchlab/src/domain/user/models/preference_entity.dart';
-import 'package:launchlab/src/domain/user/models/requests/update_user_request.dart';
 import 'package:launchlab/src/domain/user/models/requests/update_user_skills_request.dart';
-import 'package:launchlab/src/domain/user/models/user_entity.dart';
-import 'package:launchlab/src/presentation/common/widgets/form_fields/text_field.dart';
-import 'package:launchlab/src/presentation/user/cubits/about_form_cubit.dart';
 import 'package:launchlab/src/presentation/user/cubits/skills_form_cubit.dart';
 import 'package:launchlab/src/presentation/user/widgets/form_fields/user_skills_interests_field.dart';
 import 'package:launchlab/src/presentation/user/widgets/form_fields/username_field.dart';
