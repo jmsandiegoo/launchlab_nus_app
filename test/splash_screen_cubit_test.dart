@@ -20,7 +20,7 @@ void main() {
     mockAuthRepository = MockAuthRepository();
   });
 
-  group("SplashScreenCubit Test:", () {
+  group("[Auth] SplashScreenCubit Test:", () {
     final UserEntity user = UserEntity(
       id: "1",
       firstName: "Test",
