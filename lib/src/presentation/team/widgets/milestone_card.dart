@@ -47,12 +47,12 @@ class _MilestoneCardState extends State<MilestoneCard> {
               onChanged: (bool? value) {
                 widget.teamCubit
                     .saveMilestoneData(
-                        val: value, taskId: widget.milestoneData.id)
+                        val: value!, taskId: widget.milestoneData.id)
                     .then((_) {
                   widget.teamCubit.getData(widget.teamId);
                 });
                 setState(() {
-                  isChecked = value!;
+                  isChecked = value;
                 });
               },
               activeColor: yellowColor,

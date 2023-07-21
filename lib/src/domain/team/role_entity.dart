@@ -10,7 +10,6 @@ class RoleEntity extends Equatable {
   final String title;
   final String description;
 
-  //Factory Method
   RoleEntity.fromJson(Map<String, dynamic> json)
       : id = json['id'],
         title = json['title'],

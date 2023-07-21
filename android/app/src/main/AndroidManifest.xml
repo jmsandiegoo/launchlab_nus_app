@@ -3,7 +3,7 @@
     <!-- Required to fetch data from the internet. -->
     <uses-permission android:name="android.permission.INTERNET" />
    <application
-        android:label="launchlab_nus_main_2"
+        android:label="Launchlab"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

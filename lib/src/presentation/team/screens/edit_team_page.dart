@@ -52,9 +52,9 @@ class _EditTeamContentState extends State<EditTeamContent> {
   final _categories = [
     "School",
     "Personal",
+    "Competition",
     "Startup / Company",
-    "Startup",
-    "Volunteer",
+    "Volunteer Work",
     "Others"
   ];
   final _maxMemberFocusNode = FocusNode();
@@ -343,8 +343,10 @@ class _EditTeamContentState extends State<EditTeamContent> {
                                               maxMember:
                                                   _maxMemberController.text,
                                               interest:
-                                                  state.interestInput.value)
-                                          .then((val) {
+                                                  state.interestInput.value,
+                                              avatar: state
+                                                  .pictureUploadInput.value)
+                                          .then((_) {
                                           navigatePopWithData(context, true,
                                               ActionTypes.update);
                                         })

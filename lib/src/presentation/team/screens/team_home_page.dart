@@ -57,6 +57,31 @@ class _TeamHomeState extends State<TeamHomeContent> {
                       Stack(
                         children: <Widget>[
                           Image.asset("assets/images/yellow_curve_shape_3.png"),
+                          Padding(
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 20.0),
+                            child: AppBar(
+                              backgroundColor: yellowColor,
+                              leading:
+                                  teamHomeCubit.state.userData!.userAvatar ==
+                                          null
+                                      ? profilePicture(50, "", isUrl: true)
+                                      : profilePicture(
+                                          50,
+                                          teamHomeCubit.state.userData!
+                                              .userAvatar!.signedUrl!,
+                                          isUrl: true),
+                              actions: [
+                                IconButton(
+                                    onPressed: () =>
+                                        teamHomeCubit.handleSignOut(),
+                                    icon: const Icon(
+                                      Icons.logout_outlined,
+                                      color: blackColor,
+                                    ))
+                              ],
+                            ),
+                          ),
                           Positioned(
                             top: 100,
                             left: 20,
@@ -83,31 +108,6 @@ class _TeamHomeState extends State<TeamHomeContent> {
                                     child: SvgPicture.asset(
                                         'assets/images/skateboard_homepage.svg'),
                                   )),
-                            ),
-                          ),
-                          Padding(
-                            padding:
-                                const EdgeInsets.symmetric(horizontal: 20.0),
-                            child: AppBar(
-                              backgroundColor: yellowColor,
-                              leading:
-                                  teamHomeCubit.state.userData!.userAvatar ==
-                                          null
-                                      ? profilePicture(50, "", isUrl: true)
-                                      : profilePicture(
-                                          50,
-                                          teamHomeCubit.state.userData!
-                                              .userAvatar!.signedUrl!,
-                                          isUrl: true),
-                              actions: [
-                                IconButton(
-                                    onPressed: () =>
-                                        teamHomeCubit.handleSignOut(),
-                                    icon: const Icon(
-                                      Icons.logout_outlined,
-                                      color: blackColor,
-                                    ))
-                              ],
                             ),
                           ),
                         ],
