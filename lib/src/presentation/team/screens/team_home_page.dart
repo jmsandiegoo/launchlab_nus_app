@@ -56,7 +56,7 @@ class _TeamHomeState extends State<TeamHomeContent> {
                     Column(children: [
                       Stack(
                         children: <Widget>[
-                          Image.asset("assets/images/yellow_curve_shape_3.png"),
+                          Image.asset("assets/images/yellow_curve_shape.png"),
                           Padding(
                             padding:
                                 const EdgeInsets.symmetric(horizontal: 20.0),
@@ -83,7 +83,7 @@ class _TeamHomeState extends State<TeamHomeContent> {
                             ),
                           ),
                           Positioned(
-                            top: 100,
+                            top: 125,
                             left: 20,
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
