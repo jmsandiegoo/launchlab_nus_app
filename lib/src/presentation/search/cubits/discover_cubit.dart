@@ -89,7 +89,7 @@ class DiscoverCubit extends Cubit<DiscoverState> {
   final CommonRepository _commonRepository;
   final SearchRepository _searchRepository;
 
-  getData(String searchTerm, SearchFilterEntity filterData) async {
+  void getData(String searchTerm, SearchFilterEntity filterData) async {
     try {
       emit(state.copyWith(status: DiscoverStatus.loading));
       final GetSearchResult res =
@@ -105,7 +105,7 @@ class DiscoverCubit extends Cubit<DiscoverState> {
     }
   }
 
-  getRecomendationData(filterData) async {
+  void getRecomendationData(filterData) async {
     try {
       emit(state.copyWith(status: DiscoverStatus.loading));
       final GetRecomendationResult res =
@@ -149,14 +149,10 @@ class DiscoverCubit extends Cubit<DiscoverState> {
   }
 
   void clearAll() {
-    List<SkillEntity> interest = [];
-    final newInterestInputState =
-        UserSkillsInterestsFieldInput.validated(interest);
+    const newInputState = UserSkillsInterestsFieldInput.validated();
 
     final newState = state.copyWith(
-        commitmentInput: "",
-        categoryInput: "",
-        interestInput: newInterestInputState);
+        commitmentInput: "", categoryInput: "", interestInput: newInputState);
     emit(newState);
   }
 

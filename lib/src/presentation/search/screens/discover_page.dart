@@ -183,17 +183,37 @@ class _DiscoverPageContentState extends State<DiscoverPageContent> {
           ]),
           if (discoverCubit.state.status == DiscoverStatus.success) ...[
             Expanded(
-              child: Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 25, vertical: 20),
+                child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 20),
+              child: RefreshIndicator(
+                  onRefresh: () async {
+                    discoverCubit.state.searchTerm == ''
+                        ? discoverCubit.getRecomendationData(SearchFilterEntity(
+                            categoryInput: discoverCubit.state.categoryInput,
+                            commitmentInput:
+                                discoverCubit.state.commitmentInput,
+                            interestInput:
+                                discoverCubit.state.interestInput.value))
+                        : discoverCubit.getData(
+                            discoverCubit.state.searchTerm,
+                            SearchFilterEntity(
+                                categoryInput:
+                                    discoverCubit.state.categoryInput,
+                                commitmentInput:
+                                    discoverCubit.state.commitmentInput,
+                                interestInput:
+                                    discoverCubit.state.interestInput.value));
+                  },
                   child: SingleChildScrollView(
+                    physics: const AlwaysScrollableScrollPhysics(),
                     child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           discoverCubit.state.searchTerm == ''
                               ? Column(children: [
-                                  subHeaderText('Our Picks For You',
-                                      color: greyColor, size: 18.0),
+                                  Center(
+                                      child: subHeaderText('Our Picks For You',
+                                          color: greyColor, size: 18.0)),
                                   const SizedBox(height: 10),
                                 ])
                               : const SizedBox(),
@@ -217,7 +237,7 @@ class _DiscoverPageContentState extends State<DiscoverPageContent> {
                           ],
                         ]),
                   )),
-            )
+            ))
           ] else ...[
             const Center(child: CircularProgressIndicator())
           ]

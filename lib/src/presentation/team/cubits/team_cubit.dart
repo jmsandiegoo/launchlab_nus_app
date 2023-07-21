@@ -109,12 +109,17 @@ class TeamCubit extends Cubit<TeamState> {
     emit(state.copyWith(status: TeamStatus.loading));
   }
 
-  saveMilestoneData({val, taskId}) async {
+  saveMilestoneData({required bool val, required String taskId}) async {
     debugPrint('Milestone Saved');
     return _teamRepository.saveMilestoneData(val: val, taskId: taskId);
   }
 
-  void addMilestone({title, startDate, endDate, teamId, description}) {
+  void addMilestone(
+      {required String title,
+      required String startDate,
+      required String endDate,
+      required String teamId,
+      required String description}) {
     _teamRepository.addMilestone(
         title: title,
         startDate: startDate,
@@ -124,22 +129,27 @@ class TeamCubit extends Cubit<TeamState> {
     debugPrint('Milestone Added');
   }
 
-  void listTeam({teamId, isListed}) {
+  void listTeam({required String teamId, required bool isListed}) {
     _teamRepository.listTeam(teamId: teamId, isListed: isListed);
     debugPrint('Team Listed/Unlisted');
   }
 
-  disbandTeam({teamId}) {
+  disbandTeam({required String teamId}) {
     debugPrint('Team Disbanded');
     return _teamRepository.disbandTeam(teamId: teamId);
   }
 
-  leaveTeam({teamId, newCurrentMember}) {
+  leaveTeam({required String teamId}) {
     debugPrint('Left Team');
     return _teamRepository.leaveTeam(teamId: teamId);
   }
 
-  void editMilestone({taskId, startDate, endDate, title, description}) {
+  void editMilestone(
+      {required String taskId,
+      required String startDate,
+      required String endDate,
+      required String title,
+      required String description}) {
     _teamRepository.editMilestone(
         taskId: taskId,
         startDate: startDate,
@@ -149,12 +159,15 @@ class TeamCubit extends Cubit<TeamState> {
     debugPrint('Task Edited');
   }
 
-  void deleteMilestone({taskId}) {
+  void deleteMilestone({required String taskId}) {
     _teamRepository.deleteMilestone(taskId: taskId);
     debugPrint('Task Deleted');
   }
 
-  deleteMember({memberId, teamId, newCurrentMember}) {
+  deleteMember(
+      {required String memberId,
+      required String teamId,
+      required int newCurrentMember}) {
     debugPrint('Member Removed');
     return _teamRepository.deleteMember(
         memberId: memberId, teamId: teamId, newCurrentMember: newCurrentMember);

@@ -51,12 +51,14 @@ class DiscoverUserCubit extends Cubit<DiscoverUserState> {
   final SearchRepository _searchRepository;
   final UserRepository _userRepository;
 
-  getSearchUserData(searchUsername) async {
+  void getSearchUserData(String searchUsername) async {
     try {
       emit(state.copyWith(status: DiscoverUserStatus.loading));
 
       final GetSearchUserResult res =
           await _searchRepository.getUserSearch(searchUsername);
+
+
       final List<UserEntity> userData = res.getFullUserData();
       List<Future<UserAvatarEntity?>> asyncOperations = [];
 

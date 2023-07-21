@@ -46,7 +46,6 @@ class _ExternalTeamContentState extends State<ExternalTeamContent> {
   Widget build(BuildContext context) {
     final String teamId = widget.teamIdUserIdData[0];
     final String userId = widget.teamIdUserIdData[1];
-
     return BlocBuilder<ExternalTeamCubit, ExternalTeamState>(
         builder: (context, state) {
       if (externalTeamPageCubit.state.status == ExternalTeamStatus.success) {
@@ -120,7 +119,8 @@ class _ExternalTeamContentState extends State<ExternalTeamContent> {
                                     externalTeamPageCubit.state.ownerData!.user
                                                 .userAvatar ==
                                             null
-                                        ? const SizedBox()
+                                        ? profilePicture(
+                                            30.0, 'avatar_temp.png')
                                         : profilePicture(
                                             30.0,
                                             externalTeamPageCubit

@@ -15,7 +15,6 @@ import 'package:launchlab/src/presentation/user/widgets/form_fields/end_date_fie
 import 'package:launchlab/src/presentation/user/widgets/form_fields/start_date_field.dart';
 import 'package:launchlab/src/presentation/user/widgets/form_fields/user_skills_interests_field.dart';
 import 'package:launchlab/src/utils/failure.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 @immutable
 class EditCreateTeamState extends Equatable {
@@ -32,6 +31,7 @@ class EditCreateTeamState extends Equatable {
     this.interestInput = const UserSkillsInterestsFieldInput.unvalidated(),
     this.skillInterestOptions = const [],
     this.avatarURL = '',
+    this.onCreate = false,
     this.status = EditCreateStatus.loading,
     this.error,
   });
@@ -49,6 +49,7 @@ class EditCreateTeamState extends Equatable {
   final List<SkillEntity> skillInterestOptions;
   final String avatarURL;
   final EditCreateStatus status;
+  final bool onCreate;
   final Failure? error;
 
   EditCreateTeamState copyWith(
@@ -64,6 +65,7 @@ class EditCreateTeamState extends Equatable {
       UserSkillsInterestsFieldInput? interestInput,
       List<SkillEntity>? skillInterestOptions,
       String? avatarURL,
+      bool? onCreate,
       EditCreateStatus? status,
       Failure? error}) {
     return EditCreateTeamState(
@@ -79,6 +81,7 @@ class EditCreateTeamState extends Equatable {
       interestInput: interestInput ?? this.interestInput,
       skillInterestOptions: skillInterestOptions ?? this.skillInterestOptions,
       avatarURL: avatarURL ?? this.avatarURL,
+      onCreate: onCreate ?? this.onCreate,
       status: status ?? this.status,
       error: error,
     );
@@ -98,6 +101,7 @@ class EditCreateTeamState extends Equatable {
         interestInput,
         skillInterestOptions,
         avatarURL,
+        onCreate,
         status,
         error,
       ];
@@ -132,7 +136,6 @@ class EditCreateTeamCubit extends Cubit<EditCreateTeamState> {
 
     final newState =
         state.copyWith(pictureUploadInput: newPictureUploadInputState);
-
     emit(newState);
   }
 
@@ -196,14 +199,14 @@ class EditCreateTeamCubit extends Cubit<EditCreateTeamState> {
 
   void onIsCheckedChanged(bool val) {
     final prevState = state;
-    final newisCheckedInputState = CheckboxFieldInput.validated(val);
+    final newIsCheckedInputState = CheckboxFieldInput.validated(val);
     final prevEndDateInputState = prevState.endDateInput;
 
     final newEndDateInputState = EndDateFieldInput.unvalidated(
         isPresent: val, value: val ? null : prevEndDateInputState.value);
 
     final newState = state.copyWith(
-      isChecked: newisCheckedInputState,
+      isChecked: newIsCheckedInputState,
       endDateInput: newEndDateInputState,
     );
 
@@ -240,7 +243,7 @@ class EditCreateTeamCubit extends Cubit<EditCreateTeamState> {
           await _commonRepository.getSkillsInterestsFromEmsi(filter);
       emit(state.copyWith(skillInterestOptions: skillInterestOptions));
     } on Exception catch (error) {
-      print(error);
+      debugPrint(error.toString());
     }
   }
 
@@ -298,8 +301,7 @@ class EditCreateTeamCubit extends Cubit<EditCreateTeamState> {
   // Database calls
   // ====================================================================
 
-  final supabase = Supabase.instance.client;
-  getData(teamId) async {
+  getData(String teamId) async {
     try {
       final TeamEntity res =
           await _teamRepository.getEditCreateTeamData(teamId);
@@ -336,19 +338,25 @@ class EditCreateTeamCubit extends Cubit<EditCreateTeamState> {
     }
   }
 
+  void onCreate() {
+    emit(state.copyWith(onCreate: true));
+  }
+
   updateTeamData({
-    teamId,
-    teamName,
-    description,
-    startDate,
-    endDate,
-    category,
-    commitment,
-    maxMember,
-    interest,
-    avatar,
-  }) async {
-    _teamRepository.updateTeamData(
+    required String teamId,
+    required String teamName,
+    required String description,
+    required String startDate,
+    required String endDate,
+    required String category,
+    required String commitment,
+    required String maxMember,
+    required List<SkillEntity> interest,
+    required File? avatar,
+  }) {
+    emit(state.copyWith(status: EditCreateStatus.loading));
+    debugPrint("Edited Team Data Saved");
+    return _teamRepository.updateTeamData(
         teamId: teamId,
         teamName: teamName,
         description: description,
@@ -359,27 +367,27 @@ class EditCreateTeamCubit extends Cubit<EditCreateTeamState> {
         maxMember: maxMember,
         interest: interest,
         avatar: avatar);
-    debugPrint("Edited Team Data Saved");
   }
 
   //Create a save team data class next time
   createNewTeam(
-      {userId,
-      teamName,
-      description,
-      startDate,
-      endDate,
-      category,
-      commitment,
-      maxMember,
-      interest,
-      avatar}) async {
+      {required String userId,
+      required String teamName,
+      required String description,
+      required String startDate,
+      required String endDate,
+      required String category,
+      required String commitment,
+      required String maxMember,
+      required List<SkillEntity> interest,
+      required File? avatar}) async {
     List<String> interestName = [];
-    interest.forEach((value) {
+    for (var value in interest) {
       interestName.add(value.name);
-    });
-
-    _teamRepository.createNewTeam(
+    }
+    emit(state.copyWith(status: EditCreateStatus.loading));
+    debugPrint("New Team Created");
+    return _teamRepository.createNewTeam(
         userId: userId,
         teamName: teamName,
         description: description,
@@ -391,7 +399,5 @@ class EditCreateTeamCubit extends Cubit<EditCreateTeamState> {
         interest: interest,
         interestName: interestName,
         avatar: avatar);
-
-    debugPrint("New Team Created");
   }
 }
