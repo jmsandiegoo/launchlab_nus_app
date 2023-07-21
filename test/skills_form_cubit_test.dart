@@ -81,7 +81,7 @@ void main() {
     blocTest<SkillsFormCubit, SkillsFormState>(
         // description including a list of emitted states and the cubit method
         // called, as well as the exptected output
-        "emits [introFormStatus.success] when submit succesful",
+        "emits [skillsFormStatus.success] when submit succesful",
         // define mock behavior for this test case
         setUp: () {
           registerFallbackValue(
@@ -116,7 +116,7 @@ void main() {
     blocTest<SkillsFormCubit, SkillsFormState>(
         // description including a list of emitted states and the cubit method
         // called, as well as the exptected output
-        "emits [introFormStatus.success] when submit fails",
+        "emits [skillsFormStatus.error] when submit fails",
         // define mock behavior for this test case
         setUp: () {
           registerFallbackValue(
@@ -149,7 +149,7 @@ void main() {
     blocTest<SkillsFormCubit, SkillsFormState>(
       // description including a list of emitted states and the cubit method
       // called, as well as the exptected output
-      "emits [aboutInput] when form inputs are invalid",
+      "emits [userSkillsInterestsInput] when form inputs are invalid",
       // define mock behavior for this test case
       setUp: () {},
       // building the cubit including mock behaviors
