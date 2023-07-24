@@ -211,7 +211,7 @@ Widget subHeaderText(String label,
     alignment = TextAlign.left,
     color = blackColor,
     maxLines = 2,
-    weight: FontWeight.bold}) {
+    weight = FontWeight.bold}) {
   return Text(
     label,
     maxLines: maxLines,

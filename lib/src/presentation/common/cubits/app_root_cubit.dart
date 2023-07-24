@@ -64,7 +64,7 @@ class AppRootCubit extends Cubit<AppRootState> {
       (data) async {
         final profile = await _authRepository.getAuthUserProfile();
         if (data.event == AuthChangeEvent.signedIn) {
-          print("Signed in");
+          debugPrint("Signed in");
           emit(state.copyWith(
             isSignedIn: true,
             session: _authRepository.getCurrentAuthSession(),
@@ -73,7 +73,7 @@ class AppRootCubit extends Cubit<AppRootState> {
         }
 
         if (data.event == AuthChangeEvent.signedOut) {
-          print("Signed Out");
+          debugPrint("Signed Out");
           emit(state.copyWith(
             isSignedIn: false,
             session: _authRepository.getCurrentAuthSession(),
@@ -96,7 +96,7 @@ class AppRootCubit extends Cubit<AppRootState> {
         appRootStateStatus: AppRootStateStatus.success,
       ));
     } on Exception catch (error) {
-      print('fetch auth profile error: $error');
+      debugPrint('fetch auth profile error: $error');
       emit(state.copyWith(
         appRootStateStatus: AppRootStateStatus.error,
       ));

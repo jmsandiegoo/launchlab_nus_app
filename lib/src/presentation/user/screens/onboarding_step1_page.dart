@@ -141,7 +141,7 @@ class _OnboardingStep1ContentState extends State<OnboardingStep1Content> {
             );
           }(),
           onChangedHandler: (val) {
-            print('onchanged username');
+            debugPrint('onchanged username');
             _onboardingCubit.onUsernameChanged(val);
           },
           errorText: _onboardingCubit.state.usernameAsyncError?.text(),

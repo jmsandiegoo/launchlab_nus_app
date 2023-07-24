@@ -135,7 +135,7 @@ class _IntroFormState extends State<IntroForm> {
               );
             }(),
             onChangedHandler: (val) {
-              print('onchanged username');
+              debugPrint('onchanged username');
               _introFormCubit.onUsernameChanged(val);
             },
             errorText: state.usernameAsyncError?.text(),

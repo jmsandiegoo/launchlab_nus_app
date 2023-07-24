@@ -28,6 +28,77 @@ void main() {
       discoverCubit = DiscoverCubit(mockCommonRepository, mockSearchRepository);
     });
 
+    const SearchFilterEntity filter = SearchFilterEntity();
+
+    final Failure failure = Failure.request();
+
+    const GetSearchResult searchResult = GetSearchResult([], '');
+
+    blocTest<DiscoverCubit, DiscoverState>(
+      'emits [DiscoverStatus.loading, externalTeamData, userId, DiscoverStatus.success] when data is successfully loaded.',
+      setUp: () => when(() => mockSearchRepository.getSearchData('', filter))
+          .thenAnswer((_) async => searchResult),
+      build: () => discoverCubit,
+      act: (cubit) => cubit.getData('', filter),
+      expect: () => <DiscoverState>[
+        const DiscoverState(status: DiscoverStatus.loading),
+        DiscoverState(
+            externalTeamData: searchResult.uniqueSearchedTeams(),
+            userId: searchResult.userId,
+            status: DiscoverStatus.success),
+      ],
+      verify: (_) async {
+        verify(() => mockSearchRepository.getSearchData('', filter)).called(1);
+      },
+    );
+
+    blocTest<DiscoverCubit, DiscoverState>(
+      'emits [DiscoverStatus.loading, DiscoverStatus.error] when failure is caught during getData.',
+      setUp: () => when(() => mockSearchRepository.getSearchData('', filter))
+          .thenThrow(failure),
+      build: () => discoverCubit,
+      act: (cubit) => cubit.getData('', filter),
+      expect: () => <DiscoverState>[
+        const DiscoverState(status: DiscoverStatus.loading),
+        DiscoverState(status: DiscoverStatus.error, error: failure),
+      ],
+      verify: (_) async {
+        verify(() => mockSearchRepository.getSearchData('', filter)).called(1);
+      },
+    );
+
+    blocTest<DiscoverCubit, DiscoverState>(
+      'emits [DiscoverStatus.loading, DiscoverStatus.success] when recommendation data is successfully loaded.',
+      setUp: () => when(() => mockSearchRepository.getRecomendationData(filter))
+          .thenAnswer((_) async => const GetRecomendationResult([], '', {})),
+      build: () => discoverCubit,
+      act: (cubit) => cubit.getRecomendationData(filter),
+      expect: () => <DiscoverState>[
+        const DiscoverState(status: DiscoverStatus.loading),
+        const DiscoverState(status: DiscoverStatus.success),
+      ],
+      verify: (_) async {
+        verify(() => mockSearchRepository.getRecomendationData(filter))
+            .called(1);
+      },
+    );
+
+    blocTest<DiscoverCubit, DiscoverState>(
+      'emits [DiscoverStatus.loading, DiscoverStatus.error] when failure is caught during get Recommendation.',
+      setUp: () => when(() => mockSearchRepository.getRecomendationData(filter))
+          .thenThrow(failure),
+      build: () => discoverCubit,
+      act: (cubit) => cubit.getRecomendationData(filter),
+      expect: () => <DiscoverState>[
+        const DiscoverState(status: DiscoverStatus.loading),
+        DiscoverState(status: DiscoverStatus.error, error: failure),
+      ],
+      verify: (_) async {
+        verify(() => mockSearchRepository.getRecomendationData(filter))
+            .called(1);
+      },
+    );
+
     blocTest<DiscoverCubit, DiscoverState>(
       "emits [newOnCategoryChangedState] when project category changes",
       setUp: () {},
@@ -88,8 +159,6 @@ void main() {
       ],
     );
 
-    const SearchFilterEntity filter = SearchFilterEntity();
-
     blocTest<DiscoverCubit, DiscoverState>(
       "emits [newCategoryInputState, newCommitmentInputState, newInteresInputState] when filter changed",
       setUp: () {},
@@ -102,72 +171,6 @@ void main() {
             interestInput:
                 UserSkillsInterestsFieldInput.validated(filter.interestInput))
       ],
-    );
-
-    final Failure failure = Failure.request();
-
-    const GetSearchResult searchResult = GetSearchResult([], '');
-
-    blocTest<DiscoverCubit, DiscoverState>(
-      'emits [DiscoverStatus.loading, DiscoverStatus.success] when data is successfully loaded.',
-      setUp: () => when(() => mockSearchRepository.getSearchData('', filter))
-          .thenAnswer((_) async => searchResult),
-      build: () => discoverCubit,
-      act: (cubit) => cubit.getData('', filter),
-      expect: () => <DiscoverState>[
-        const DiscoverState(status: DiscoverStatus.loading),
-        const DiscoverState(status: DiscoverStatus.success),
-      ],
-      verify: (_) async {
-        verify(() => mockSearchRepository.getSearchData('', filter)).called(1);
-      },
-    );
-
-    blocTest<DiscoverCubit, DiscoverState>(
-      'emits [DiscoverStatus.loading, DiscoverStatus.success] when recommendation data is successfully loaded.',
-      setUp: () => when(() => mockSearchRepository.getRecomendationData(filter))
-          .thenAnswer((_) async => const GetRecomendationResult([], '', {})),
-      build: () => discoverCubit,
-      act: (cubit) => cubit.getRecomendationData(filter),
-      expect: () => <DiscoverState>[
-        const DiscoverState(status: DiscoverStatus.loading),
-        const DiscoverState(status: DiscoverStatus.success),
-      ],
-      verify: (_) async {
-        verify(() => mockSearchRepository.getRecomendationData(filter))
-            .called(1);
-      },
-    );
-
-    blocTest<DiscoverCubit, DiscoverState>(
-      'emits [DiscoverStatus.loading, DiscoverStatus.error] when failure is caught during getData.',
-      setUp: () => when(() => mockSearchRepository.getSearchData('', filter))
-          .thenThrow(failure),
-      build: () => discoverCubit,
-      act: (cubit) => cubit.getData('', filter),
-      expect: () => <DiscoverState>[
-        const DiscoverState(status: DiscoverStatus.loading),
-        DiscoverState(status: DiscoverStatus.error, error: failure),
-      ],
-      verify: (_) async {
-        verify(() => mockSearchRepository.getSearchData('', filter)).called(1);
-      },
-    );
-
-    blocTest<DiscoverCubit, DiscoverState>(
-      'emits [DiscoverStatus.loading, DiscoverStatus.error] when failure is caught during get Recommendation.',
-      setUp: () => when(() => mockSearchRepository.getRecomendationData(filter))
-          .thenThrow(failure),
-      build: () => discoverCubit,
-      act: (cubit) => cubit.getRecomendationData(filter),
-      expect: () => <DiscoverState>[
-        const DiscoverState(status: DiscoverStatus.loading),
-        DiscoverState(status: DiscoverStatus.error, error: failure),
-      ],
-      verify: (_) async {
-        verify(() => mockSearchRepository.getRecomendationData(filter))
-            .called(1);
-      },
     );
   });
 }

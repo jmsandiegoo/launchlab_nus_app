@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:launchlab/src/data/chat/chat_repository.dart';
 import 'package:launchlab/src/data/team/team_repository.dart';
@@ -111,7 +112,9 @@ class TeamChatsPageCubit extends Cubit<TeamChatsPageState> {
         teamChats: teamChats,
         teamChatsPageStatus: TeamChatsPageStatus.success,
       ));
-    } on Exception catch (error) {}
+    } on Exception catch (error) {
+      debugPrint(error.toString());
+    }
   }
 
   void handleSubscribeToTeamUsers(String teamId, String currUserId) {

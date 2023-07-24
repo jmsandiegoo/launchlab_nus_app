@@ -67,7 +67,6 @@ class UserRepository implements UserRepositoryImpl {
     }
   }
 
-  @override
   Future<bool> checkIfUsernameExists(
       CheckIfUsernameExistsRequest request) async {
     try {

@@ -4,6 +4,7 @@ import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:launchlab/src/data/common/common_repository.dart';
 import 'package:launchlab/src/domain/common/models/skill_entity.dart';
+import 'package:launchlab/src/domain/team/team_entity.dart';
 import 'package:launchlab/src/presentation/common/widgets/form_fields/checkbox_field.dart';
 import 'package:launchlab/src/presentation/common/widgets/form_fields/picture_upload_picker.dart';
 import 'package:launchlab/src/presentation/common/widgets/form_fields/text_field.dart';
@@ -35,6 +36,78 @@ void main() {
       editCreateTeamCubit =
           EditCreateTeamCubit(mockCommonRepository, mockTeamRepository);
     });
+
+    final Failure failure = Failure.request();
+    const String teamId = '2ebb33bb-0da1-450c-91c4-51f8befd57d1';
+
+    TeamEntity teamData = TeamEntity(
+        '',
+        '',
+        '',
+        1,
+        1,
+        DateTime.tryParse('2023-08-20')!,
+        DateTime.tryParse('2023-08-20'),
+        'Low',
+        'School',
+        const [],
+        null,
+        '',
+        false,
+        true,
+        const []);
+
+    blocTest<EditCreateTeamCubit, EditCreateTeamState>(
+      'emits [EditCreateStatus.loading, teamNameInput, descriptionInput, EditCreateStatus.success, etc..] when data is loaded.',
+      setUp: () => when(() => mockTeamRepository.getEditCreateTeamData(teamId))
+          .thenAnswer((_) async => teamData),
+      build: () => editCreateTeamCubit,
+      act: (cubit) => cubit.getData(teamId),
+      expect: () => <EditCreateTeamState>[
+        EditCreateTeamState(
+            endDateInput: EndDateFieldInput.validated(
+                isPresent: true,
+                startDateFieldVal: DateTime.now(),
+                value: DateTime.tryParse('2023-08-20')),
+            status: EditCreateStatus.loading),
+        EditCreateTeamState(
+            teamNameInput: TextFieldInput.validated(teamData.teamName),
+            descriptionInput: TextFieldInput.validated(teamData.description),
+            startDateInput:
+                StartDateFieldInput.validated(DateTime.tryParse('2023-08-20')),
+            categoryInput: teamData.category,
+            commitmentInput: teamData.commitment,
+            maxMemberInput:
+                TextFieldInput.validated(teamData.maxMembers.toString()),
+            interestInput: const UserSkillsInterestsFieldInput.validated(),
+            avatarURL: teamData.avatarURL,
+            endDateInput: EndDateFieldInput.validated(
+                isPresent: true,
+                startDateFieldVal: DateTime.tryParse('2023-08-20'),
+                value: DateTime.tryParse('2023-08-20')),
+            isChecked: const CheckboxFieldInput.unvalidated(),
+            status: EditCreateStatus.success),
+      ],
+      verify: (_) async {
+        verify(() => mockTeamRepository.getEditCreateTeamData(teamId))
+            .called(1);
+      },
+    );
+
+    blocTest<EditCreateTeamCubit, EditCreateTeamState>(
+      'emits [EditCreateStatus.error] when failure is caught.',
+      setUp: () => when(() => mockTeamRepository.getEditCreateTeamData(teamId))
+          .thenThrow(failure),
+      build: () => editCreateTeamCubit,
+      act: (cubit) => cubit.getData(teamId),
+      expect: () => <EditCreateTeamState>[
+        EditCreateTeamState(status: EditCreateStatus.error, error: failure),
+      ],
+      verify: (_) async {
+        verify(() => mockTeamRepository.getEditCreateTeamData(teamId))
+            .called(1);
+      },
+    );
 
     final File mockFile = MockFile();
 
@@ -78,12 +151,11 @@ void main() {
       "emits [newStartDateInputState] when start date changes",
       setUp: () {},
       build: () => editCreateTeamCubit,
-      act: (cubit) => cubit
-          .onStartDateChanged(DateTime.tryParse('2023-07-20 15:26:18.292700')),
+      act: (cubit) => cubit.onStartDateChanged(DateTime.tryParse('2023-08-20')),
       expect: () => [
         EditCreateTeamState(
-            startDateInput: StartDateFieldInput.validated(
-                DateTime.tryParse('2023-07-20 15:26:18.292700')),
+            startDateInput:
+                StartDateFieldInput.validated(DateTime.tryParse('2023-08-20')),
             endDateInput: EndDateFieldInput.validated(
                 isPresent: false,
                 startDateFieldVal: DateTime.now(),
@@ -95,14 +167,13 @@ void main() {
       "emits [newEndDateInputState] when end date changes",
       setUp: () {},
       build: () => editCreateTeamCubit,
-      act: (cubit) => cubit
-          .onEndDateChanged(DateTime.tryParse('2023-07-20 15:26:18.292700')),
+      act: (cubit) => cubit.onEndDateChanged(DateTime.tryParse('2023-08-20')),
       expect: () => [
         EditCreateTeamState(
             endDateInput: EndDateFieldInput.validated(
                 isPresent: false,
                 startDateFieldVal: DateTime.now(),
-                value: DateTime.tryParse('2023-07-20 15:26:18.292700')))
+                value: DateTime.tryParse('2023-08-20')))
       ],
     );
 
@@ -200,24 +271,6 @@ void main() {
             interestInput: UserSkillsInterestsFieldInput.validated(),
             skillInterestOptions: [])
       ],
-    );
-
-    final Failure failure = Failure.request();
-    const String teamId = '2ebb33bb-0da1-450c-91c4-51f8befd57d1';
-
-    blocTest<EditCreateTeamCubit, EditCreateTeamState>(
-      'emits [EditCreateStatus.error] when failure is caught.',
-      setUp: () => when(() => mockTeamRepository.getEditCreateTeamData(teamId))
-          .thenThrow(failure),
-      build: () => editCreateTeamCubit,
-      act: (cubit) => cubit.getData(teamId),
-      expect: () => <EditCreateTeamState>[
-        EditCreateTeamState(status: EditCreateStatus.error, error: failure),
-      ],
-      verify: (_) async {
-        verify(() => mockTeamRepository.getEditCreateTeamData(teamId))
-            .called(1);
-      },
     );
   });
 }

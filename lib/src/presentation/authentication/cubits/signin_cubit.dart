@@ -33,7 +33,7 @@ class SigninCubit extends Cubit<SigninState> {
     emit(const SigninLoading());
     try {
       await _authRepository.signinWithGoogle();
-      emit(SigninState());
+      emit(const SigninState());
     } on Failure catch (error) {
       emit(SigninState(error: error));
     }

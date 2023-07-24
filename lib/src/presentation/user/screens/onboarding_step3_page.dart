@@ -13,7 +13,7 @@ class OnboardingStep3Page extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print('rebuild parent');
+    debugPrint('rebuild parent');
     return BlocBuilder<OnboardingCubit, OnboardingState>(
       // ignore: prefer_const_constructors
       builder: (context, state) => OnboardingStep3Content(),

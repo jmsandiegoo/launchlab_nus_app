@@ -253,7 +253,6 @@ class _TeamHomeState extends State<TeamHomeContent> {
                                             refreshPage();
                                           }
                                         });
-                                        ;
                                       },
                                       child: TeamHomeCard(
                                           teamData: state.memberTeamData[i]))
