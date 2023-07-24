@@ -1,7 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:launchlab/src/domain/search/external_team_entity.dart';
 import 'package:launchlab/src/domain/team/team_user_entity.dart';
-import 'package:launchlab/src/domain/user/models/user_entity.dart';
 
 class GetExternalTeam extends Equatable {
   const GetExternalTeam(this.teamData, this.ownerData, this.applicantsData);

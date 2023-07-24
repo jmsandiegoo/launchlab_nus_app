@@ -27,10 +27,10 @@ class CommonRepository implements CommonRepositoryImpl {
 
       return categoryList;
     } on PostgrestException catch (error) {
-      debugPrint("get Categories postgre error: ${error}");
+      debugPrint("get Categories postgre error: $error");
       throw Failure.request(code: error.code);
     } on Exception catch (error) {
-      debugPrint("get Categories unexpected error: ${error}");
+      debugPrint("get Categories unexpected error: $error");
       throw Failure.unexpected();
     }
   }
