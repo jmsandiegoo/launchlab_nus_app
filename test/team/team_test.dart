@@ -23,21 +23,14 @@ void main() {
       teamCubit = TeamCubit(mockTeamRepository, MockUserRepository());
     });
 
-    blocTest<TeamCubit, TeamState>(
-      'Emits [TeamStatus.loading] when calling loading()',
-      build: () => teamCubit,
-      act: (cubit) => cubit.loading(),
-      expect: () => [const TeamState(status: TeamStatus.loading)],
-    );
-
     final Failure failure = Failure.request();
-    const String teamId = '2ebb33bb-0da1-450c-91c4-51f8befd57d1';
+    const String teamId = '';
     TeamEntity teamData = TeamEntity('', '', '', 1, 1, DateTime.now(), null, '',
         '', const [], null, '', true, true, const []);
-    GetTeamData getTeamData = GetTeamData([], teamData, []);
+    GetTeamData getTeamData = GetTeamData(const [], teamData, const []);
 
     blocTest<TeamCubit, TeamState>(
-      'emits [TeamStatus.success] when data is loaded successfully.',
+      'emits [teamData, TeamStatus.success] when data is loaded successfully.',
       build: () => teamCubit,
       setUp: () => when(() => mockTeamRepository.getTeamData(teamId))
           .thenAnswer((_) async => getTeamData),
@@ -62,6 +55,13 @@ void main() {
       verify: (_) async {
         verify(() => mockTeamRepository.getTeamData(teamId)).called(1);
       },
+    );
+
+    blocTest<TeamCubit, TeamState>(
+      'Emits [teamData, TeamStatus.loading] when calling loading()',
+      build: () => teamCubit,
+      act: (cubit) => cubit.loading(),
+      expect: () => [const TeamState(status: TeamStatus.loading)],
     );
   });
 }
