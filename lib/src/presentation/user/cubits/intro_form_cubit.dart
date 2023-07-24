@@ -166,7 +166,7 @@ class IntroFormCubit extends Cubit<IntroFormState> {
     final newUsernameInputState = shouldValidate
         ? UsernameFieldInput.validated(val)
         : UsernameFieldInput.unvalidated(val);
-    print(newUsernameInputState.displayError);
+
     final newState = state.copyWith(
       usernameInput: newUsernameInputState,
       introFormStatus: IntroFormStatus.idle,
@@ -185,8 +185,10 @@ class IntroFormCubit extends Cubit<IntroFormState> {
 
     emit(state.copyWith(introFormStatus: IntroFormStatus.usernameCheckLoading));
 
-    final error =
-        await prevUsernameInputState.validatorAsync(state.userProfile.username);
+    final error = await prevUsernameInputState.validatorAsync(
+      state.userProfile.username,
+      userRepository,
+    );
 
     final newUsernameInputState =
         UsernameFieldInput.validated(prevUsernameInputVal);
@@ -323,8 +325,10 @@ class IntroFormCubit extends Cubit<IntroFormState> {
     emit(state.copyWith(introFormStatus: IntroFormStatus.loading));
 
     // check username async validation again
-    final error =
-        await state.usernameInput.validatorAsync(state.userProfile.username);
+    final error = await state.usernameInput.validatorAsync(
+      state.userProfile.username,
+      userRepository,
+    );
 
     final isFormValid = Formz.validate([
       pictureUploadPickerInput,

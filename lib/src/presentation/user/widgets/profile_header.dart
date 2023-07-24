@@ -24,7 +24,7 @@ class ProfileHeader extends StatelessWidget {
     final NavigationData<Object?>? returnData =
         await navigatePushWithData<Object?>(
             context, "/profile/edit-intro", props);
-    print("pop");
+    debugPrint("pop");
     if (returnData == null || returnData.actionType == ActionTypes.update) {
       onUpdateHandler();
     }

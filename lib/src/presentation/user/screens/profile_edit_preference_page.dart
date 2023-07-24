@@ -25,7 +25,7 @@ class ProfileEditPreferencePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print("props: ${props.userPreference.categories}");
+    debugPrint("props: ${props.userPreference.categories}");
     return BlocProvider(
       create: (_) => PreferenceFormCubit(
           userRepository: UserRepository(Supabase.instance),

@@ -70,7 +70,7 @@ class ProfileEditExperiencePage extends StatelessWidget {
               child: ExperienceForm(
                 isEditMode: true,
                 onSubmitHandler: (context, state) {
-                  print('called');
+                  debugPrint('called');
                   BlocProvider.of<ExperienceFormCubit>(context)
                       .handleSubmit(isApiCalled: true, isEditMode: true);
                 },

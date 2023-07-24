@@ -45,7 +45,7 @@ class OnboardingFinishPage extends StatelessWidget {
                   child: primaryButton(
                     context,
                     () {
-                      print('great btn pressed');
+                      debugPrint('great btn pressed');
                       appRootCubit.handleGetAuthUserProfile();
                     },
                     "Great!",

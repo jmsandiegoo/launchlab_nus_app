@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:formz/formz.dart';
 import 'package:launchlab/src/data/user/user_repository.dart';
 import 'package:launchlab/src/domain/user/models/requests/check_if_username_exists_request.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 class UsernameFieldInput extends FormzInput<String, UsernameFieldError> {
   const UsernameFieldInput.unvalidated([String value = '']) : super.pure(value);
@@ -27,11 +26,17 @@ class UsernameFieldInput extends FormzInput<String, UsernameFieldError> {
     return null;
   }
 
-  Future<bool> isValidAsync(String? currUsername) async =>
-      await validatorAsync(currUsername) == null;
+  Future<bool> isValidAsync(
+          String? currUsername, UserRepository userRepository) async =>
+      await validatorAsync(
+        currUsername,
+        userRepository,
+      ) ==
+      null;
 
   // for unfocus event
-  Future<UsernameFieldError?> validatorAsync(String? currUsername) async {
+  Future<UsernameFieldError?> validatorAsync(
+      String? currUsername, UserRepository userRepository) async {
     if (value.trim().isEmpty) {
       return UsernameFieldError.empty;
     }
@@ -46,10 +51,10 @@ class UsernameFieldInput extends FormzInput<String, UsernameFieldError> {
 
     // network call
     try {
-      final isExists = await UserRepository(Supabase.instance)
-          .checkIfUsernameExists(CheckIfUsernameExistsRequest(
+      final isExists = await userRepository.checkIfUsernameExists(
+          CheckIfUsernameExistsRequest(
               username: value, currUsername: currUsername));
-      print("is username exists: $isExists");
+      debugPrint("is username exists: $isExists");
       if (isExists) {
         return UsernameFieldError.exist;
       }

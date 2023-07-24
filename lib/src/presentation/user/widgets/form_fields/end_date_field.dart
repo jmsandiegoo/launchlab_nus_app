@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:formz/formz.dart';
 
 class EndDateFieldInput extends FormzInput<DateTime?, EndDateFieldError> {
@@ -19,7 +20,7 @@ class EndDateFieldInput extends FormzInput<DateTime?, EndDateFieldError> {
       return EndDateFieldError.empty;
     }
     if (value != null && startDateFieldVal != null) {
-      print(value.compareTo(startDateFieldVal!));
+      debugPrint("${value.compareTo(startDateFieldVal!)}");
     }
 
     if (value != null &&
