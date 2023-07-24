@@ -22,14 +22,14 @@ void main() {
     });
 
     final Failure failure = Failure.request();
-    const String applicationId = 'f73ad65c-08cb-4975-b582-ad377d107183';
+    const String applicationId = '';
     TeamEntity teamData = TeamEntity('', '', '', 1, 1, DateTime.now(), null, '',
         '', const [], null, '', true, true, const []);
     GetApplicantData applicantData =
         GetApplicantData(teamData, const [], const []);
 
     blocTest<ApplicantCubit, ApplicantState>(
-      'emits [ApplicantStatus.success] when data is loaded successfully.',
+      'emits [applicationTeamData, ApplicantStatus.success] when data is loaded successfully.',
       build: () => applicantCubit,
       setUp: () =>
           when(() => mockTeamRepository.getApplicantData(applicationId))

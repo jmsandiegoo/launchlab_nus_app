@@ -28,7 +28,8 @@ void main() {
       discoverCubit = DiscoverCubit(mockCommonRepository, mockSearchRepository);
     });
 
-    const SearchFilterEntity filter = SearchFilterEntity();
+    const SearchFilterEntity filter = SearchFilterEntity(
+        categoryInput: "Competition", commitmentInput: "Medium");
 
     final Failure failure = Failure.request();
 
@@ -166,8 +167,8 @@ void main() {
       act: (cubit) => cubit.onFilterApply(filter),
       expect: () => [
         DiscoverState(
-            commitmentInput: filter.categoryInput,
-            categoryInput: filter.commitmentInput,
+            commitmentInput: filter.commitmentInput,
+            categoryInput: filter.categoryInput,
             interestInput:
                 UserSkillsInterestsFieldInput.validated(filter.interestInput))
       ],
