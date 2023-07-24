@@ -315,8 +315,9 @@ class EditCreateTeamCubit extends Cubit<EditCreateTeamState> {
         allInterest.add(
             SkillEntity(emsiId: interest['emsi_id'], name: interest['name']));
       }
-      final newInterestInput =
-          UserSkillsInterestsFieldInput.validated(allInterest);
+      final newInterestInput = allInterest.isEmpty
+          ? const UserSkillsInterestsFieldInput.validated()
+          : UserSkillsInterestsFieldInput.validated(allInterest);
 
       res.endDate == null
           ? onIsCheckedChanged(true)

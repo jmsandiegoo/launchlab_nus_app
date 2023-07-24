@@ -43,7 +43,7 @@ class _ChatsInitialContentState extends State<ChatsInitialContent> {
   Widget build(BuildContext context) {
     return BlocConsumer<ChatsInitialPageCubit, ChatsInitialPageState>(
       listener: (context, state) {
-        print("hereeee: ${state.chatsInitialPageStatus}");
+        debugPrint("hereeee: ${state.chatsInitialPageStatus}");
 
         if (state.chatsInitialPageStatus == ChatsInitialPageStatus.redirect) {
           navigateGo(context, '/team-chats/${state.teamId}/team');
@@ -56,7 +56,7 @@ class _ChatsInitialContentState extends State<ChatsInitialContent> {
                     ChatsInitialPageStatus.initial ||
                 state.chatsInitialPageStatus ==
                     ChatsInitialPageStatus.redirect) {
-              print("redirecting: ${state.chatsInitialPageStatus}");
+              debugPrint("redirecting: ${state.chatsInitialPageStatus}");
               return const Center(
                 child: CircularProgressIndicator(),
               );

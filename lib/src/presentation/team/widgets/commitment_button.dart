@@ -1,3 +1,5 @@
+// ignore_for_file: prefer_typing_uninitialized_variables
+
 import 'package:flutter/material.dart';
 import 'package:launchlab/src/config/app_theme.dart';
 import 'package:launchlab/src/presentation/common/widgets/useful.dart';

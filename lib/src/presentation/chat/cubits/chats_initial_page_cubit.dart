@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:launchlab/src/data/team/team_repository.dart';
 import 'package:launchlab/src/domain/team/team_entity.dart';
@@ -78,7 +79,7 @@ class ChatsInitialPageCubit extends Cubit<ChatsInitialPageState> {
       return;
     }
 
-    print("here");
+    debugPrint("here");
     emit(state.copyWith(
         chatsInitialPageStatus: ChatsInitialPageStatus.empty, teamId: null));
   }
