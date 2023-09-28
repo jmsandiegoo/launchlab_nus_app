@@ -2,7 +2,7 @@
 
 LaunchLab NUS
 
-![Project Poster](https://drive.google.com/file/d/12mxVoeDeMk0sG-38MjfDtO6bU5oz2m4W/view?usp=sharing)
+![Project Poster](https://imgur.com/a/KyNTUgH)
 
 [![Watch Video]](https://drive.google.com/file/d/1h3fFIEVxrHjdUUjW0dtdNTJfQEeFRple/view?usp=drive_link)
 
