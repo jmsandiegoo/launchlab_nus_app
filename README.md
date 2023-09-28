@@ -1,6 +1,8 @@
-# prototype
+# Project Title
 
-Orbital LaunchLab
+LaunchLab NUS
+
+[![Watch Video](https://drive.google.com/file/d/1h3fFIEVxrHjdUUjW0dtdNTJfQEeFRple/view?usp=drive_link)]
 
 ## Getting Started
 
