@@ -101,7 +101,7 @@ class SearchRepository implements SearchRepositoryImpl {
         .from('preferences')
         .select(
             '*, skills_preferences(selected_skills(name)), categories_preferences(categories(name))')
-        .eq('user_id', user?.id)
+        .eq('user_id', user?.id ?? '')
         .single();
 
     return GetRecomendationResult(searchedTeams, user!.id, preference);

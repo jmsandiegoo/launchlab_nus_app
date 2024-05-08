@@ -44,12 +44,12 @@ class UserRepository implements UserRepositoryImpl {
       if (filter != null || filter!.isNotEmpty) {
         res = await _supabase.client
             .from("degree_programmes")
-            .select<PostgrestList>('*')
+            .select('*')
             .filter("name", "ilike", "%$filter%");
       } else {
         res = await _supabase.client
             .from("degree_programmes")
-            .select<PostgrestList>('*');
+            .select('*');
       }
 
       List<DegreeProgrammeEntity> degreeProgrammeList = [];
@@ -188,7 +188,7 @@ class UserRepository implements UserRepositoryImpl {
     try {
       final res = await _supabase.client
           .from("user_avatars")
-          .select<PostgrestList>("*")
+          .select("*")
           .eq(
             "user_id",
             request.userId,
@@ -224,7 +224,7 @@ class UserRepository implements UserRepositoryImpl {
     try {
       final res = await _supabase.client
           .from("user_resumes")
-          .select<PostgrestList>("*")
+          .select("*")
           .eq(
             "user_id",
             request.userId,
@@ -262,7 +262,7 @@ class UserRepository implements UserRepositoryImpl {
     try {
       final userRes = await _supabase.client
           .from("users")
-          .select<PostgrestList>("*")
+          .select("*")
           .eq("id", request.userId);
 
       if (userRes.isEmpty) {
@@ -305,7 +305,7 @@ class UserRepository implements UserRepositoryImpl {
       // fetch the user profile
       final userRes = await _supabase.client
           .from("users")
-          .select<PostgrestList>(
+          .select(
               "*, accomplishments(*), experiences(*), degree_programme:degree_programmes(*), preference:preferences(*, skills_interests:skills_preferences(selected_skills(*)), categories:categories_preferences(categories(*)))")
           .eq("id", request.userId);
 
@@ -357,7 +357,7 @@ class UserRepository implements UserRepositoryImpl {
     try {
       final res = await _supabase.client
           .from("user_avatars")
-          .select<PostgrestList>("*")
+          .select("*")
           .eq("user_id", request.userId);
 
       if (res.isEmpty) {
@@ -401,7 +401,7 @@ class UserRepository implements UserRepositoryImpl {
     try {
       final res = await _supabase.client
           .from("user_resumes")
-          .select<PostgrestList>("*")
+          .select("*")
           .eq("user_id", request.userId);
       debugPrint(res.toString());
 
@@ -451,7 +451,8 @@ class UserRepository implements UserRepositoryImpl {
       await _supabase.client
           .from("users")
           .update(request.userProfile.toJson())
-          .eq('id', request.userProfile.id);
+          .eq('id', request.userProfile.id ?? '');
+          
     } on PostgrestException catch (error) {
       debugPrint("update user postgre error: $error");
       throw Failure.request(
@@ -472,7 +473,7 @@ class UserRepository implements UserRepositoryImpl {
       final List<Map<String, dynamic>> res = await _supabase.client
           .from("experiences")
           .insert(request.experience.toJson())
-          .select<PostgrestList>("*");
+          .select("*");
 
       if (res.isEmpty) {
         debugPrint("Created user exp was not found");
@@ -504,9 +505,9 @@ class UserRepository implements UserRepositoryImpl {
           )
           .eq(
             "id",
-            request.experience.id,
+            request.experience.id ?? '',
           )
-          .select<PostgrestList>("*");
+          .select("*");
 
       if (res.isEmpty) {
         debugPrint("Updated user exp was not found");
@@ -532,7 +533,7 @@ class UserRepository implements UserRepositoryImpl {
     try {
       await _supabase.client.from("experiences").delete().eq(
             'id',
-            request.experience.id,
+            request.experience.id ?? '',
           );
     } on PostgrestException catch (error) {
       debugPrint("delete user exp error: $error");
@@ -567,7 +568,7 @@ class UserRepository implements UserRepositoryImpl {
       final List<Map<String, dynamic>> res = await _supabase.client
           .from("accomplishments")
           .insert(request.accomplishment.toJson())
-          .select<PostgrestList>("*");
+          .select("*");
 
       if (res.isEmpty) {
         debugPrint("created accomplishment not found.");
@@ -599,9 +600,9 @@ class UserRepository implements UserRepositoryImpl {
           )
           .eq(
             "id",
-            request.accomplishment.id,
+            request.accomplishment.id ?? '',
           )
-          .select<PostgrestList>("*");
+          .select("*");
 
       if (res.isEmpty) {
         debugPrint("updated accomplishment not found.");
@@ -628,7 +629,7 @@ class UserRepository implements UserRepositoryImpl {
     try {
       await _supabase.client.from("accomplishments").delete().eq(
             'id',
-            request.accomplishment.id,
+            request.accomplishment.id ?? '',
           );
     } on PostgrestException catch (error) {
       debugPrint("delete user accomplishment error: $error");

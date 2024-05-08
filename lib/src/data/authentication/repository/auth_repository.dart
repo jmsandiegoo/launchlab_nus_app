@@ -17,14 +17,14 @@ class AuthRepository implements AuthRepositoryImpl {
   }
 
   void stopListenToAuth() {
-    _subscription?.cancel();
+    _subscription?.cancel(  );
   }
 
   @override
   Future<void> signinWithGoogle() async {
     try {
       var res = await _supabase.client.auth.signInWithOAuth(
-        Provider.google,
+        OAuthProvider.google,
         redirectTo:
             kIsWeb ? null : 'io.supabase.launchlabnus://login-callback/',
       );
@@ -62,7 +62,7 @@ class AuthRepository implements AuthRepositoryImpl {
     try {
       final res = await _supabase.client
           .from("users")
-          .select<PostgrestList>("*")
+          .select("*")
           .eq('id', _supabase.client.auth.currentSession!.user.id);
 
       if (res.isEmpty) {

@@ -18,7 +18,7 @@ class CommonRepository implements CommonRepositoryImpl {
   Future<List<CategoryEntity>> getCategories() async {
     try {
       final res =
-          await _supabase.client.from('categories').select<PostgrestList>('*');
+          await _supabase.client.from('categories').select('*');
       List<CategoryEntity> categoryList = [];
 
       for (int i = 0; i < res.length; i++) {

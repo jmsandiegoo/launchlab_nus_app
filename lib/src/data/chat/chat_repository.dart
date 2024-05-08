@@ -17,16 +17,13 @@ class ChatRepository implements ChatRepositoryImpl {
       {required FutureOr<void> Function(dynamic payload) streamHandler}) {
     RealtimeChannel channel = _supabase.client
         .channel("public:team_chat_messages_${DateTime.now()}")
-        .on(
-            RealtimeListenTypes.postgresChanges,
-            ChannelFilter(
-                event: "INSERT",
-                schema: "*",
-                table: "team_chat_messages"), ((payload, [ref]) {
-      debugPrint('Change received: ${payload.toString()} refs: $ref');
-      streamHandler(payload);
-    }));
-
+        .onPostgresChanges(
+          event: PostgresChangeEvent.insert, 
+          schema: "*", 
+          table: "team_chat_messages", 
+          callback: ((PostgresChangePayload payload) {
+            streamHandler(payload);
+          }));
     channel.subscribe();
 
     return channel;
@@ -42,11 +39,11 @@ class ChatRepository implements ChatRepositoryImpl {
     // fetch team chats
     final List<Map<String, dynamic>> res = await _supabase.client
         .from("team_chats")
-        .select<PostgrestList>(
+        .select(
             "*, messages:team_chat_messages(*, user:users(*)), chat_users:team_chat_users(*)")
         .eq("team_id", teamId)
-        .order('created_at', foreignTable: "team_chat_messages")
-        .limit(1, foreignTable: 'team_chat_messages');
+        .order('created_at', referencedTable: "team_chat_messages")
+        .limit(1, referencedTable: 'team_chat_messages');
 
     List<TeamChatEntity> teamChats =
         res.map((item) => TeamChatEntity.fromJson(item)).toList();
@@ -57,7 +54,7 @@ class ChatRepository implements ChatRepositoryImpl {
     try {
       final List<Map<String, dynamic>> res = await _supabase.client
           .from("team_chats")
-          .select<PostgrestList>("*, chat_users:team_chat_users(*)")
+          .select("*, chat_users:team_chat_users(*)")
           .eq('id', chatId);
 
       if (res.isEmpty) {
@@ -82,7 +79,7 @@ class ChatRepository implements ChatRepositoryImpl {
     try {
       final List<Map<String, dynamic>> res = await _supabase.client
           .from("team_chat_messages")
-          .select<PostgrestList>("*, seens:team_message_seens(*)")
+          .select("*, seens:team_message_seens(*)")
           .eq(
             "chat_id",
             chatId,

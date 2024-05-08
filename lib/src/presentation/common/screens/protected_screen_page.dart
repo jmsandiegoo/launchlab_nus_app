@@ -24,7 +24,7 @@ class ProtectedScreenPage extends StatelessWidget {
 
         if (state.authUserProfile != null &&
             !state.authUserProfile!.isOnboarded &&
-            GoRouter.of(context).location.startsWith("/onboard")) {
+            GoRouterState.of(context).uri.toString().startsWith("/onboard")) {
           navigateGo(context, "/onboard");
         }
       },

@@ -176,9 +176,8 @@ class _TeamChatsContentState extends State<TeamChatsContent> {
                       itemRatio: (1 / .3),
                       value: () {
                         final locationList =
-                            GoRouter.of(context).location.split('/');
-                        return locationList[locationList.length - 1]
-                            .toCapitalize();
+                            GoRouterState.of(context).uri.toString().split('/');
+                        return locationList[locationList.length - 1].toCapitalize();
                       }(),
                       options: const ["Team", "Requests", "Invites"],
                       colNo: 3,

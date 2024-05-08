@@ -24,19 +24,17 @@ class TeamRepository implements TeamRepositoryImpl {
       {required String teamId,
       required FutureOr<void> Function(dynamic payload) streamHandler}) {
     final RealtimeChannel channel =
-        supabase.channel('public:team_users_${DateTime.now()}').on(
-      RealtimeListenTypes.postgresChanges,
-      ChannelFilter(
-          event: '*',
-          schema: 'public',
-          table: 'team_users',
-          filter: 'team_id=eq.$teamId'),
-      (payload, [ref]) {
-        debugPrint('Change received: ${payload.toString()} refs: $ref');
-        streamHandler(payload);
-      },
-    );
-
+        supabase.channel('public:team_users_${DateTime.now()}')
+        .onPostgresChanges(
+          event: PostgresChangeEvent.all, 
+          schema: "*", 
+          table: "team_users", 
+          filter: PostgresChangeFilter(
+            type: PostgresChangeFilterType.eq, 
+            column: "team_id", value: teamId), 
+            callback: (PostgresChangePayload payload) {
+              streamHandler(payload);
+            });
     channel.subscribe();
 
     return channel;
@@ -52,7 +50,7 @@ class TeamRepository implements TeamRepositoryImpl {
     try {
       final List<Map<String, dynamic>> teamUsersData = await supabase
           .from('team_users')
-          .select<PostgrestList>('*, user:users(*)')
+          .select('*, user:users(*)')
           .eq('team_id', teamId);
 
       List<TeamUserEntity> teamUsers = [];
@@ -80,7 +78,7 @@ class TeamRepository implements TeamRepositoryImpl {
 
       final List<Map<String, dynamic>> leadingTeamsRes = await supabase
           .from('teams')
-          .select<PostgrestList>('*, team_users!inner(user_id, is_owner)')
+          .select('*, team_users!inner(user_id, is_owner)')
           .ilike('team_name', '%$searchName%')
           .eq('team_users.is_owner', true)
           .eq('team_users.user_id', user!.id)
@@ -120,7 +118,7 @@ class TeamRepository implements TeamRepositoryImpl {
 
       final List<Map<String, dynamic>> participatingTeamsRes = await supabase
           .from('teams')
-          .select<PostgrestList>('*, team_users!inner(user_id, is_owner)')
+          .select('*, team_users!inner(user_id, is_owner)')
           .ilike('team_name', '%$searchName%')
           .eq('team_users.is_owner', false)
           .eq('team_users.user_id', user!.id)
