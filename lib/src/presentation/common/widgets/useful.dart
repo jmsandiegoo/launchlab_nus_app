@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:launchlab/src/config/app_theme.dart';
 import 'package:launchlab/src/presentation/common/widgets/confirmation_box.dart';
+import 'package:launchlab/src/presentation/common/widgets/text/ll_body_text.dart';
 
 Widget userInput({
   required FocusNode focusNode,
@@ -130,11 +131,11 @@ Widget checkBox(String label, bool? value, bool tristate,
       value: value,
       onChanged: onChangedHandler,
       checkColor: blackColor,
-      fillColor: const MaterialStatePropertyAll(yellowColor),
+      fillColor: const WidgetStatePropertyAll(yellowColor),
       side: const BorderSide(width: 0.5),
       activeColor: whiteColor,
     ),
-    bodyText(label),
+    LLBodyText(label: label),
   ]);
 }
 
@@ -196,22 +197,34 @@ Widget searchBar() {
   );
 }
 
-Widget headerText(String label, {size = 25.0, alignment = TextAlign.left}) {
+Widget headerText(
+  String label, {
+  size = 25.0,
+  color = blackColor,
+  maxLines = 2,
+  weight = FontWeight.bold,
+  alignment = TextAlign.left,
+  overflow = TextOverflow.ellipsis,
+}) {
   return Text(
     label,
-    maxLines: 2,
+    maxLines: maxLines,
     textAlign: alignment,
+    overflow: overflow,
     style: TextStyle(
         fontSize: size, fontWeight: FontWeight.bold, color: blackColor),
   );
 }
 
-Widget subHeaderText(String label,
-    {size = 20.0,
-    alignment = TextAlign.left,
-    color = blackColor,
-    maxLines = 2,
-    weight = FontWeight.bold}) {
+Widget subHeaderText(
+  String label, {
+  size = 20.0,
+  color = blackColor,
+  maxLines = 2,
+  weight = FontWeight.bold,
+  alignment = TextAlign.left,
+  overflow = TextOverflow.ellipsis,
+}) {
   return Text(
     label,
     maxLines: maxLines,
@@ -222,26 +235,13 @@ Widget subHeaderText(String label,
   );
 }
 
-Widget bodyText(String label,
-    {size = 15.0,
-    color = blackColor,
-    weight = FontWeight.w400,
-    alignment = TextAlign.left}) {
-  return Text(
-    label,
-    textAlign: alignment,
-    style: TextStyle(
-      fontSize: size,
-      color: color,
-      fontWeight: weight,
-    ),
-  );
-}
+
 
 Widget smallText(String label,
     {size = 13.0,
     color = blackColor,
     int? maxLines,
+    fontStyle = FontStyle.normal,
     weight = FontWeight.w400,
     alignment = TextAlign.left,
     overflow = TextOverflow.ellipsis}) {
@@ -254,6 +254,7 @@ Widget smallText(String label,
       fontSize: size,
       color: color,
       fontWeight: weight,
+      fontStyle: fontStyle,
     ),
   );
 }
@@ -271,7 +272,6 @@ Widget primaryButton(
     style: ElevatedButton.styleFrom(
       elevation: elevation,
       backgroundColor: Theme.of(context).colorScheme.primary,
-      textStyle: TextStyle(color: Theme.of(context).colorScheme.onPrimary),
       padding: EdgeInsets.symmetric(
         vertical: verticalPadding,
         horizontal: horizontalPadding,
@@ -291,7 +291,10 @@ Widget primaryButton(
             child: CircularProgressIndicator(
                 strokeWidth: 1, color: Theme.of(context).colorScheme.onPrimary),
           )
-        : Text(label),
+        : Text(
+            label,
+            style: TextStyle(color: Theme.of(context).colorScheme.onPrimary),
+          ),
   );
 }
 
@@ -375,30 +378,6 @@ Widget secondaryIconButton(
         : childBuilder ??
             Icon(icon, color: Theme.of(context).colorScheme.onSecondary),
   );
-}
-
-Widget outlinedButton({
-  required String label,
-  required void Function() onPressedHandler,
-  required Color color,
-  bool isLoading = false,
-}) {
-  return OutlinedButton(
-      onPressed: () {
-        if (isLoading) {
-          return;
-        }
-
-        onPressedHandler();
-      },
-      style: OutlinedButton.styleFrom(side: BorderSide(color: color)),
-      child: isLoading
-          ? SizedBox(
-              height: 17,
-              width: 17,
-              child: CircularProgressIndicator(strokeWidth: 1, color: color),
-            )
-          : bodyText(label, color: color));
 }
 
 Widget overflowText(String label,
@@ -487,8 +466,8 @@ Widget circleProgressBar(current, total) {
                     "${total == 0 ? 0 : (current / total * 100).round()}%",
                     size: 20.0),
                 const SizedBox(height: 4),
-                bodyText('$current / $total', color: darkGreyColor, size: 12.0),
-                bodyText("Milestones", color: darkGreyColor, size: 12.0),
+                LLBodyText(label: '$current / $total', color: darkGreyColor, size: 12.0),
+                const LLBodyText(label: "Milestones", color: darkGreyColor, size: 12.0),
               ],
             ),
           ),
@@ -509,8 +488,8 @@ Widget memberProfile(imgDir, name, position,
       Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         isBold
             ? subHeaderText(name, size: textSize)
-            : bodyText(name, size: textSize),
-        bodyText(position, color: darkGreyColor, size: textSize)
+            : LLBodyText(label: name, size: textSize),
+        LLBodyText(label: position, color: darkGreyColor, size: textSize)
       ])
     ])
   ]);
@@ -575,9 +554,9 @@ Widget futureBuilderFail(onReload) {
       crossAxisAlignment: CrossAxisAlignment.center,
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Center(
-            child: bodyText('Please ensure that you have internet connection')),
-        ElevatedButton(onPressed: onReload, child: bodyText("Reload"))
+        const Center(
+            child: LLBodyText(label: 'Please ensure that you have internet connection')),
+        ElevatedButton(onPressed: onReload, child: const LLBodyText(label: "Reload"))
       ]);
 }
 

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:launchlab/src/data/team/team_repository.dart';
 import 'package:launchlab/src/data/user/user_repository.dart';
+import 'package:launchlab/src/presentation/common/widgets/text/ll_body_text.dart';
 import 'package:launchlab/src/presentation/common/widgets/useful.dart';
 import 'package:launchlab/src/presentation/team/cubits/team_cubit.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -34,7 +35,7 @@ class TeamConfirmationBox extends StatelessWidget {
           final teamCubit = BlocProvider.of<TeamCubit>(context);
           return AlertDialog(
             title: Text(title),
-            content: bodyText(message),
+            content: LLBodyText(label: message),
             actions: [
               TextButton(
                   onPressed: () async {
@@ -55,13 +56,13 @@ class TeamConfirmationBox extends StatelessWidget {
                     }
                   },
                   style: TextButton.styleFrom(textStyle: const TextStyle()),
-                  child: bodyText('Yes',
-                      weight: FontWeight.bold, color: Colors.blue)),
+                  child: const LLBodyText(label: 'Yes',
+                      fontWeight: FontWeight.bold, color: Colors.blue)),
               TextButton(
                   onPressed: onClose,
                   style: TextButton.styleFrom(textStyle: const TextStyle()),
-                  child: bodyText('No',
-                      weight: FontWeight.bold, color: Colors.blue)),
+                  child: const LLBodyText(label: 'No',
+                      fontWeight: FontWeight.bold, color: Colors.blue)),
             ],
           );
         }));

@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:launchlab/src/config/app_theme.dart';
 import 'package:launchlab/src/presentation/common/cubits/app_root_cubit.dart';
 import 'package:launchlab/src/presentation/common/widgets/feedback_toast.dart';
+import 'package:launchlab/src/presentation/common/widgets/text/ll_body_text.dart';
 import 'package:launchlab/src/presentation/common/widgets/useful.dart';
 import 'package:launchlab/src/presentation/user/cubits/onboarding_cubit.dart';
 import 'package:launchlab/src/utils/helper.dart';
@@ -50,8 +51,8 @@ class OnboardingWelcomePage extends StatelessWidget {
               const SizedBox(
                 height: 10.0,
               ),
-              bodyText("Let us first help you \n get onboarded!",
-                  alignment: TextAlign.center),
+              const LLBodyText(label: "Let us first help you \n get onboarded!",
+                  textAlign: TextAlign.center),
               const SizedBox(
                 height: 25.0,
               ),

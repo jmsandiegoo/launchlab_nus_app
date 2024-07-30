@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:launchlab/src/presentation/common/widgets/text/ll_body_text.dart';
 import 'package:launchlab/src/presentation/common/widgets/useful.dart';
 
 class ApplicationConfirmationBox extends StatelessWidget {
@@ -17,7 +18,7 @@ class ApplicationConfirmationBox extends StatelessWidget {
   Widget build(BuildContext context) {
     return AlertDialog(
       title: Text(title),
-      content: bodyText(message),
+      content: LLBodyText(label: message),
       actions: [
         TextButton(
             onPressed: () {
@@ -25,13 +26,13 @@ class ApplicationConfirmationBox extends StatelessWidget {
             },
             style: TextButton.styleFrom(textStyle: const TextStyle()),
             child:
-                bodyText('Yes', weight: FontWeight.bold, color: Colors.blue)),
+                const LLBodyText(label: "Yes", fontWeight: FontWeight.bold, color: Colors.blue)),
         TextButton(
             onPressed: () {
               Navigator.of(context).pop(false);
             },
             style: TextButton.styleFrom(textStyle: const TextStyle()),
-            child: bodyText('No', weight: FontWeight.bold, color: Colors.blue)),
+            child: const LLBodyText(label: 'No', fontWeight: FontWeight.bold, color: Colors.blue)),
       ],
     );
   }

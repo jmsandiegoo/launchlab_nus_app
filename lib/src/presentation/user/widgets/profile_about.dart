@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:launchlab/src/config/app_theme.dart';
 import 'package:launchlab/src/domain/user/models/user_entity.dart';
+import 'package:launchlab/src/presentation/common/widgets/text/ll_body_text.dart';
 import 'package:launchlab/src/presentation/common/widgets/useful.dart';
 import 'package:launchlab/src/presentation/user/screens/profile_edit_about_page.dart';
 import 'package:launchlab/src/utils/constants.dart';
@@ -61,7 +62,7 @@ class ProfileAbout extends StatelessWidget {
             }(),
           ],
         ),
-        bodyText(userProfile.about!),
+        LLBodyText(label: userProfile.about!),
       ],
     );
   }

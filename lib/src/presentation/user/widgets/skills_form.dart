@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:launchlab/src/domain/common/models/skill_entity.dart';
 import 'package:launchlab/src/presentation/common/widgets/feedback_toast.dart';
 import 'package:launchlab/src/presentation/common/widgets/form_fields/dropwdown_search_field.dart';
+import 'package:launchlab/src/presentation/common/widgets/text/ll_body_text.dart';
 import 'package:launchlab/src/presentation/common/widgets/useful.dart';
 import 'package:launchlab/src/presentation/user/cubits/skills_form_cubit.dart';
 import 'package:launchlab/src/presentation/user/widgets/form_fields/user_skills_interests_field.dart';
@@ -58,7 +59,7 @@ class _SkillsFormState extends State<SkillsForm> {
                       const SizedBox(
                         height: 15.0,
                       ),
-                      bodyText(
+                      const LLBodyText(label:
                           "Here you can showcase your skills that you \nhave learnt and also your interests."),
                     ],
                   ),

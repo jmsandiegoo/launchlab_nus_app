@@ -15,7 +15,7 @@ class TeamChatList extends StatelessWidget {
         return ListView(
           padding: EdgeInsets.zero,
           children: [
-            ...state.teamChats.map((chat) => ChatItem(chat: chat)).toList()
+            ...state.teamChats.map((chat) => ChatItem(chat: chat))
           ],
         );
       },

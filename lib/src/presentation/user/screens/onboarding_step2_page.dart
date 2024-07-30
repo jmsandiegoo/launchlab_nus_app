@@ -4,6 +4,7 @@ import 'package:launchlab/src/domain/common/models/category_entity.dart';
 import 'package:launchlab/src/domain/common/models/skill_entity.dart';
 import 'package:launchlab/src/presentation/common/widgets/form_fields/dropwdown_search_field.dart';
 import 'package:launchlab/src/presentation/common/widgets/form_fields/multi_button_select.dart';
+import 'package:launchlab/src/presentation/common/widgets/text/ll_body_text.dart';
 import 'package:launchlab/src/presentation/common/widgets/useful.dart';
 import 'package:launchlab/src/presentation/user/cubits/onboarding_cubit.dart';
 
@@ -43,7 +44,7 @@ class _OnboardingStep2ContentState extends State<OnboardingStep2Content> {
         const SizedBox(
           height: 10.0,
         ),
-        bodyText(
+        const LLBodyText(label:
             "You can showcase your skills that you have learnt and also your interests."),
         const SizedBox(
           height: 20.0,
@@ -69,7 +70,7 @@ class _OnboardingStep2ContentState extends State<OnboardingStep2Content> {
         const SizedBox(
           height: 10.0,
         ),
-        bodyText(
+        const LLBodyText(label:
             "Specify the kind of category you are interested to work in. You could select more than one."),
         const SizedBox(
           height: 20.0,

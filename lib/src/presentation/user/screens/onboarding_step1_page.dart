@@ -4,6 +4,7 @@ import 'package:launchlab/src/config/app_theme.dart';
 import 'package:launchlab/src/domain/user/models/degree_programme_entity.dart';
 import 'package:launchlab/src/presentation/common/widgets/form_fields/dropwdown_search_field.dart';
 import 'package:launchlab/src/presentation/common/widgets/form_fields/picture_upload_picker.dart';
+import 'package:launchlab/src/presentation/common/widgets/text/ll_body_text.dart';
 import 'package:launchlab/src/presentation/user/widgets/form_fields/degree_programme_field.dart';
 import 'package:launchlab/src/presentation/user/widgets/form_fields/username_field.dart';
 import 'package:launchlab/src/presentation/common/widgets/form_fields/text_field.dart';
@@ -194,7 +195,7 @@ class _OnboardingStep1ContentState extends State<OnboardingStep1Content> {
         const SizedBox(
           height: 10.0,
         ),
-        bodyText(
+        const LLBodyText(label:
             "Feel free to share your years of professional experience, industry knowledge, and skills. Additionally, you have the opportunity to share something interesting about yourself!"),
         const SizedBox(height: 10.0),
         TextFieldWidget(

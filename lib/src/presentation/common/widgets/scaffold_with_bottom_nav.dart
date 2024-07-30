@@ -48,7 +48,7 @@ class ScaffoldWithBottomNav extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: navigationShell,
+      body: SafeArea(top: false, bottom: true, child: navigationShell),
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
         items: _tabs(context),

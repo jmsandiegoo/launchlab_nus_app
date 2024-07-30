@@ -9,6 +9,7 @@ import 'package:launchlab/src/domain/common/models/skill_entity.dart';
 import 'package:launchlab/src/presentation/common/widgets/form_fields/date_picker.dart';
 import 'package:launchlab/src/presentation/common/widgets/form_fields/dropwdown_search_field.dart';
 import 'package:launchlab/src/presentation/common/widgets/form_fields/picture_upload_picker.dart';
+import 'package:launchlab/src/presentation/common/widgets/text/ll_body_text.dart';
 import 'package:launchlab/src/presentation/common/widgets/useful.dart';
 import 'package:launchlab/src/presentation/team/cubits/edit_create_team_cubit.dart';
 import 'package:launchlab/src/presentation/team/widgets/commitment_button.dart';
@@ -84,7 +85,7 @@ class _CreateTeamPageState extends State<CreateTeamPage> {
                                     children: [
                                       const SizedBox(height: 20),
                                       headerText("Create Team"),
-                                      bodyText("Let's create your new \nteam!"),
+                                      const LLBodyText(label: "Let's create your new \nteam!"),
                                       const SizedBox(height: 10),
                                       SizedBox(
                                         height: 50,
@@ -340,7 +341,7 @@ class _CreateTeamPageState extends State<CreateTeamPage> {
                                         });
                                       }
                                     },
-                                    child: bodyText("   Create   "))),
+                                    child: const LLBodyText(label: "   Create   "))),
                             const SizedBox(height: 50),
                           ]),
                     ),

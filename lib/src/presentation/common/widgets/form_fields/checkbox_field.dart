@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:formz/formz.dart';
 
 class CheckboxFieldInput extends FormzInput<bool, CheckboxFieldError> {

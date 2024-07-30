@@ -101,8 +101,9 @@ class _TeamChatsContentState extends State<TeamChatsContent> {
               );
             }
 
-            return Container(
-              padding: const EdgeInsets.all(20.0),
+            return SafeArea(
+                child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 20.0),
               child: Column(
                 children: [
                   AppBar(
@@ -177,7 +178,8 @@ class _TeamChatsContentState extends State<TeamChatsContent> {
                       value: () {
                         final locationList =
                             GoRouterState.of(context).uri.toString().split('/');
-                        return locationList[locationList.length - 1].toCapitalize();
+                        return locationList[locationList.length - 1]
+                            .toCapitalize();
                       }(),
                       options: const ["Team", "Requests", "Invites"],
                       colNo: 3,
@@ -193,7 +195,7 @@ class _TeamChatsContentState extends State<TeamChatsContent> {
                   ),
                 ],
               ),
-            );
+            ));
           }(),
         );
       },

@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:launchlab/src/data/team/team_repository.dart';
 import 'package:launchlab/src/presentation/chat/cubits/chats_container_cubit.dart';
 import 'package:launchlab/src/presentation/chat/cubits/chats_initial_page_cubit.dart';
+import 'package:launchlab/src/presentation/common/widgets/text/ll_body_text.dart';
 import 'package:launchlab/src/presentation/common/widgets/useful.dart';
 import 'package:launchlab/src/utils/helper.dart';
 
@@ -62,7 +63,9 @@ class _ChatsInitialContentState extends State<ChatsInitialContent> {
               );
             }
 
-            return Column(
+            return SafeArea(
+                top: true,
+                child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
@@ -74,11 +77,11 @@ class _ChatsInitialContentState extends State<ChatsInitialContent> {
                 const SizedBox(
                   height: 15.0,
                 ),
-                bodyText(
-                    state.chatsInitialPageStatus == ChatsInitialPageStatus.empty
+                LLBodyText(
+                    label: state.chatsInitialPageStatus == ChatsInitialPageStatus.empty
                         ? "Uh oh.... It seems that you don’t \n belong to any teams yet"
                         : "An error occured",
-                    alignment: TextAlign.center),
+                    textAlign: TextAlign.center),
                 const SizedBox(height: 15.0),
                 Center(
                   child: Container(
@@ -95,7 +98,7 @@ class _ChatsInitialContentState extends State<ChatsInitialContent> {
                   ),
                 ),
               ],
-            );
+            ));
           }(),
         );
       },

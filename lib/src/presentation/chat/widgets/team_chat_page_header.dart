@@ -27,10 +27,12 @@ class TeamChatPageHeader extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(
         horizontal: 20.0,
-        vertical: 10.0,
       ),
       decoration: const BoxDecoration(color: yellowColor),
-      child: Column(
+      child: SafeArea(
+        top: true,
+        bottom: false,
+        child: Column(
         children: [
           Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
             GestureDetector(
@@ -127,7 +129,7 @@ class TeamChatPageHeader extends StatelessWidget {
             height: 10.0,
           ),
         ],
-      ),
+      )),
     );
   }
 }

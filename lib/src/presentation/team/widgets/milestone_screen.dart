@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:launchlab/src/config/app_theme.dart';
 import 'package:launchlab/src/domain/team/milestone_entity.dart';
+import 'package:launchlab/src/presentation/common/widgets/text/ll_body_text.dart';
 import 'package:launchlab/src/presentation/common/widgets/useful.dart';
 
 class MilestoneScreen extends StatefulWidget {
@@ -42,7 +43,7 @@ class _MilestoneScreenState extends State<MilestoneScreen> {
                                   children: [
                                       subHeaderText('Description', size: 15.0),
                                       const SizedBox(height: 3),
-                                      bodyText(widget.milestone.description),
+                                      LLBodyText(label: widget.milestone.description),
                                       const SizedBox(height: 15)
                                     ]),
                           boldFirstText('Start Date: ',
@@ -57,7 +58,7 @@ class _MilestoneScreenState extends State<MilestoneScreen> {
                 ]),
                 OutlinedButton(
                     onPressed: () => Navigator.of(context).pop(),
-                    child: bodyText("Close")),
+                    child: const LLBodyText(label: "Close")),
                 const SizedBox(height: 20),
               ]),
         ),

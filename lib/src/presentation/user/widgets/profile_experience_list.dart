@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:launchlab/src/config/app_theme.dart';
 import 'package:launchlab/src/domain/user/models/experience_entity.dart';
+import 'package:launchlab/src/presentation/common/widgets/text/ll_body_text.dart';
 import 'package:launchlab/src/presentation/common/widgets/useful.dart';
 import 'package:launchlab/src/presentation/user/screens/profile_manage_experience_page.dart';
 import 'package:launchlab/src/utils/constants.dart';
@@ -105,7 +106,7 @@ class ProfileExperienceList extends StatelessWidget {
                   children: [
                     ...() {
                       if (sortedExperiences.isEmpty) {
-                        return [bodyText("No experiences stated.")];
+                        return [const LLBodyText(label: "No experiences stated.")];
                       }
                       return sortedExperiences
                           .map((item) => ExperienceWidget(experience: item))

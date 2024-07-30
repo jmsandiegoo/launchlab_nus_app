@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:launchlab/src/config/app_theme.dart';
 import 'package:launchlab/src/domain/user/models/accomplishment_entity.dart';
+import 'package:launchlab/src/presentation/common/widgets/text/ll_body_text.dart';
 import 'package:launchlab/src/presentation/common/widgets/useful.dart';
 import 'package:launchlab/src/utils/helper.dart';
 
@@ -61,7 +62,7 @@ class AccomplishmentList extends StatelessWidget {
                     onPressed: () {
                       onAddHandler();
                     },
-                    child: bodyText("Add", color: whiteColor)),
+                    child: const LLBodyText(label: "Add", color: whiteColor)),
               )
             ];
           }

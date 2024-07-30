@@ -4,6 +4,7 @@ import 'package:launchlab/src/config/app_theme.dart';
 import 'package:launchlab/src/data/search/search_repository.dart';
 import 'package:launchlab/src/data/user/user_repository.dart';
 import 'package:launchlab/src/domain/search/external_team_entity.dart';
+import 'package:launchlab/src/presentation/common/widgets/text/ll_body_text.dart';
 import 'package:launchlab/src/presentation/common/widgets/useful.dart';
 import 'package:launchlab/src/presentation/search/cubits/external_team_cubit.dart';
 import 'package:launchlab/src/utils/helper.dart';
@@ -102,7 +103,7 @@ class _ExternalTeamContentState extends State<ExternalTeamContent> {
                         const SizedBox(height: 20),
                         subHeaderText("Description"),
                         const SizedBox(height: 5),
-                        bodyText(teamData.description),
+                        LLBodyText(label: teamData.description),
                         const SizedBox(height: 20),
                         Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -128,8 +129,9 @@ class _ExternalTeamContentState extends State<ExternalTeamContent> {
                                                 .getAvatarURL()!,
                                             isUrl: true),
                                     const SizedBox(width: 5),
-                                    bodyText(
-                                        externalTeamPageCubit.state.ownerData!
+                                    LLBodyText(
+                                        label: externalTeamPageCubit
+                                            .state.ownerData!
                                             .getFullName(),
                                         size: 13.0)
                                   ]),
@@ -149,14 +151,15 @@ class _ExternalTeamContentState extends State<ExternalTeamContent> {
                                       subHeaderText(
                                           teamData.rolesOpen[i]['title'],
                                           size: 15.0),
-                                      bodyText(
-                                          teamData.rolesOpen[i]['description']),
+                                      LLBodyText(
+                                          label: teamData.rolesOpen[i]
+                                              ['description']),
                                     ]
                                   ]),
                         const SizedBox(height: 50),
                         Center(
                           child: ElevatedButton(
-                              child: bodyText("    Apply    "),
+                              child: const LLBodyText(label: "    Apply    "),
                               onPressed: () {
                                 if (externalTeamPageCubit.state.currentMembers
                                     .contains(userId)) {

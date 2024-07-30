@@ -4,8 +4,10 @@ import 'package:launchlab/src/config/app_theme.dart';
 import 'package:launchlab/src/data/team/team_repository.dart';
 import 'package:launchlab/src/domain/team/team_entity.dart';
 import 'package:launchlab/src/presentation/chat/cubits/chat_select_modal_cubit.dart';
+import 'package:launchlab/src/presentation/common/widgets/buttons/ll_outlined_button.dart';
 import 'package:launchlab/src/presentation/common/widgets/form_fields/multi_button_select.dart';
 import 'package:launchlab/src/presentation/common/widgets/form_fields/text_field.dart';
+import 'package:launchlab/src/presentation/common/widgets/text/ll_body_text.dart';
 import 'package:launchlab/src/presentation/common/widgets/useful.dart';
 
 class ChatSelectModal extends StatefulWidget {
@@ -145,9 +147,9 @@ class _ChatSelectModalState extends State<ChatSelectModal> {
                           if (state.chatSelectModalTab ==
                               ChatSelectModalTab.leading) {
                             if (state.leadingTeams.isEmpty) {
-                              return Center(
-                                child: bodyText(
-                                  "No leading teams found",
+                              return const Center(
+                                child: LLBodyText(
+                                  label: "No leading teams found",
                                   size: 15.0,
                                   color: blackColor,
                                 ),
@@ -169,9 +171,9 @@ class _ChatSelectModalState extends State<ChatSelectModal> {
                             );
                           } else {
                             if (state.participatingTeams.isEmpty) {
-                              return Center(
-                                child: bodyText(
-                                  "No participating teams found",
+                              return const Center(
+                                child: LLBodyText(
+                                  label: "No participating teams found",
                                   size: 15.0,
                                   color: blackColor,
                                 ),
@@ -196,10 +198,10 @@ class _ChatSelectModalState extends State<ChatSelectModal> {
                       ),
                       SizedBox(
                         width: 150,
-                        child: outlinedButton(
+                        child: LLOutlinedButton(
                             label: "Close",
                             onPressedHandler: widget.onClose,
-                            color: blackColor),
+                            color: blackColor, backgroundActiveColor: blackColor),
                       )
                     ],
                   ),

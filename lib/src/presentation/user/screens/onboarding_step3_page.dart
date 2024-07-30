@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:launchlab/src/domain/user/models/experience_entity.dart';
 import 'package:launchlab/src/presentation/common/widgets/form_fields/file_upload.dart';
+import 'package:launchlab/src/presentation/common/widgets/text/ll_body_text.dart';
 import 'package:launchlab/src/presentation/common/widgets/useful.dart';
 import 'package:launchlab/src/presentation/user/cubits/onboarding_cubit.dart';
 import 'package:launchlab/src/presentation/user/widgets/experience_list.dart';
@@ -42,7 +43,7 @@ class _OnboardingStep3ContentState extends State<OnboardingStep3Content> {
     return ListView(
       children: [
         headerText("Upload Resume"),
-        bodyText("Uploaded resume will be viewed publicly by other users *"),
+        const LLBodyText(label: "Uploaded resume will be viewed publicly by other users *"),
         const SizedBox(
           height: 20.0,
         ),
@@ -55,7 +56,7 @@ class _OnboardingStep3ContentState extends State<OnboardingStep3Content> {
           height: 20.0,
         ),
         headerText("Share your experience"),
-        bodyText(
+        const LLBodyText(label: 
             "You can choose to share some work experiences you have for other users to see."),
         const SizedBox(
           height: 20.0,

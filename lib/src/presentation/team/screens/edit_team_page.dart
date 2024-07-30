@@ -9,6 +9,7 @@ import 'package:launchlab/src/presentation/common/widgets/form_fields/date_picke
 import 'package:launchlab/src/presentation/common/widgets/form_fields/dropwdown_search_field.dart';
 import 'package:launchlab/src/presentation/common/widgets/form_fields/picture_upload_picker.dart';
 import 'package:launchlab/src/presentation/common/widgets/form_fields/text_field.dart';
+import 'package:launchlab/src/presentation/common/widgets/text/ll_body_text.dart';
 import 'package:launchlab/src/presentation/common/widgets/useful.dart';
 import 'package:launchlab/src/presentation/team/cubits/edit_create_team_cubit.dart';
 import 'package:launchlab/src/presentation/team/widgets/commitment_button.dart';
@@ -100,7 +101,7 @@ class _EditTeamContentState extends State<EditTeamContent> {
                                 children: [
                                   const SizedBox(height: 20),
                                   headerText("Edit Team"),
-                                  bodyText("Need Some Changes?"),
+                                  const LLBodyText(label: "Need Some Changes?"),
                                   const SizedBox(height: 10),
                                   SizedBox(
                                     height: 50,
@@ -352,7 +353,7 @@ class _EditTeamContentState extends State<EditTeamContent> {
                                         })
                                       : debugPrint("Not Validated");
                                 },
-                                child: bodyText("   Update   "))),
+                                child: const LLBodyText(label: "Update"))),
                         const SizedBox(height: 50),
                       ]),
                 ),

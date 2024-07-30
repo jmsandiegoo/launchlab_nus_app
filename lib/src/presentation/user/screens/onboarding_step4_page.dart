@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:launchlab/src/domain/user/models/accomplishment_entity.dart';
+import 'package:launchlab/src/presentation/common/widgets/text/ll_body_text.dart';
 import 'package:launchlab/src/presentation/common/widgets/useful.dart';
 import 'package:launchlab/src/presentation/user/cubits/onboarding_cubit.dart';
 import 'package:launchlab/src/presentation/user/widgets/accomplishment_list.dart';
@@ -40,7 +41,7 @@ class _OnboardingStep4ContentState extends State<OnboardingStep4Content> {
     return ListView(
       children: [
         headerText("Share your accomplishments"),
-        bodyText(
+        const LLBodyText(label:
             "Also, feel free to share some accomplishments you have made such as CCAs, awards etc."),
         const SizedBox(
           height: 20.0,

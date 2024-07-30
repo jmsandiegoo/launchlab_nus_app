@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:launchlab/src/presentation/common/widgets/text/ll_body_text.dart';
 import 'package:launchlab/src/presentation/common/widgets/useful.dart';
 import 'package:launchlab/src/utils/helper.dart';
 
@@ -35,8 +36,10 @@ class ManageRolesBox extends StatelessWidget {
             Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
               ElevatedButton(
                   child: _taskTitle.text == ''
-                      ? bodyText("  Add  ", weight: FontWeight.w500)
-                      : bodyText("  Update  ", weight: FontWeight.w500),
+                      ? const LLBodyText(
+                          label: "Add", fontWeight: FontWeight.w500)
+                      : const LLBodyText(
+                          label: "Update", fontWeight: FontWeight.w500),
                   onPressed: () {
                     if (_taskTitle.text == '') {
                       confirmationBox(context, "Try again",
@@ -49,7 +52,7 @@ class ManageRolesBox extends StatelessWidget {
                     }
                   }),
               OutlinedButton(
-                child: bodyText("  Close  ", weight: FontWeight.w500),
+                child: const LLBodyText(label: "Close", fontWeight: FontWeight.w500),
                 onPressed: () {
                   navigatePop(context);
                 },

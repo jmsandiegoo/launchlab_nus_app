@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:launchlab/src/config/app_theme.dart';
 import 'package:launchlab/src/domain/chat/models/chat_message_entity.dart';
 import 'package:launchlab/src/presentation/common/cubits/app_root_cubit.dart';
+import 'package:launchlab/src/presentation/common/widgets/text/ll_body_text.dart';
 import 'package:launchlab/src/presentation/common/widgets/useful.dart';
 import 'package:launchlab/src/utils/extensions.dart';
 import 'package:launchlab/src/utils/helper.dart';
@@ -107,7 +108,7 @@ class DateSeparator extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 10.0),
-      child: Center(child: bodyText(_generateDate())),
+      child: Center(child: LLBodyText(label: _generateDate())),
     );
   }
 }

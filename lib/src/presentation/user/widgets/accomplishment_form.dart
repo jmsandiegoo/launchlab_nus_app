@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:launchlab/src/config/app_theme.dart';
+import 'package:launchlab/src/presentation/common/widgets/buttons/ll_outlined_button.dart';
 import 'package:launchlab/src/presentation/common/widgets/feedback_toast.dart';
 import 'package:launchlab/src/presentation/common/widgets/form_fields/date_picker.dart';
 import 'package:launchlab/src/presentation/common/widgets/form_fields/text_field.dart';
+import 'package:launchlab/src/presentation/common/widgets/text/ll_body_text.dart';
 import 'package:launchlab/src/presentation/common/widgets/useful.dart';
 import 'package:launchlab/src/presentation/user/cubits/accomplishment_form_cubit.dart';
 import 'package:launchlab/src/presentation/user/widgets/form_fields/end_date_field.dart';
@@ -112,7 +114,7 @@ class _AccomplishmentFormState extends State<AccomplishmentForm> {
                     children: [
                       headerText(
                           "${widget.isEditMode ? "Edit" : "Add"} Accomplishment"),
-                      bodyText(widget.isEditMode
+                      LLBodyText(label: widget.isEditMode
                           ? "You can ammend your achievements or organisations you participated in below."
                           : "You can specify your achievements or organisations you participated in."),
                     ],
@@ -181,9 +183,9 @@ class _AccomplishmentFormState extends State<AccomplishmentForm> {
                 ),
                 Expanded(
                   child: state.isActiveFieldInput.value
-                      ? SizedBox(
+                      ? const SizedBox(
                           height: 30,
-                          child: bodyText(" Present", weight: FontWeight.w600),
+                          child: LLBodyText(label: " Present", fontWeight: FontWeight.w600),
                         )
                       : DatePickerWidget(
                           isEnabled: state.startDateFieldInput.value != null,
@@ -227,7 +229,7 @@ class _AccomplishmentFormState extends State<AccomplishmentForm> {
                 ...() {
                   return widget.isEditMode
                       ? [
-                          outlinedButton(
+                          LLOutlinedButton(
                             label: "Delete",
                             onPressedHandler: () =>
                                 widget.onDeleteHandler!(context, state),

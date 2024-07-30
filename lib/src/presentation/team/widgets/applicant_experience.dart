@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:launchlab/src/config/app_theme.dart';
 import 'package:launchlab/src/domain/user/models/experience_entity.dart';
+import 'package:launchlab/src/presentation/common/widgets/text/ll_body_text.dart';
 import 'package:launchlab/src/presentation/common/widgets/useful.dart';
 
 class ApplicantExperience extends StatelessWidget {
@@ -20,14 +21,14 @@ class ApplicantExperience extends StatelessWidget {
         Flexible(
           child:
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            bodyText(
+            LLBodyText(label:
                 "${dateToDateFormatter(experienceData.startDate, noDate: true)} - ${experienceData.isCurrent ? 'Present' : dateToDateFormatter(experienceData.endDate, noDate: true)}",
                 color: greyColor,
                 size: 15.0),
             subHeaderText(experienceData.title, size: 15.0),
-            bodyText(experienceData.companyName, size: 15.0),
+            LLBodyText(label: experienceData.companyName, size: 15.0),
             const SizedBox(height: 8),
-            bodyText(experienceData.description, size: 14.0),
+            LLBodyText(label: experienceData.description, size: 14.0),
             const SizedBox(height: 20),
           ]),
         )

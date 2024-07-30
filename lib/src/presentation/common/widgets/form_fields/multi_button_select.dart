@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:launchlab/src/config/app_theme.dart';
-import 'package:launchlab/src/presentation/common/widgets/useful.dart';
+import 'package:launchlab/src/presentation/common/widgets/text/ll_body_text.dart';
 
 class MultiButtonSingleSelectWidget<T> extends StatelessWidget {
   const MultiButtonSingleSelectWidget({
@@ -138,7 +138,10 @@ class SelectButton<T> extends StatelessWidget {
           side: const BorderSide(color: blackColor),
           backgroundColor: isSelected ? blackColor : whiteColor,
         ),
-        child: bodyText(label,
-            size: 10.0, color: isSelected ? whiteColor : blackColor));
+        child: LLBodyText(
+          label: label,
+          size: 10.0,
+          color: isSelected ? whiteColor : blackColor,
+        ));
   }
 }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:launchlab/src/presentation/common/widgets/form_fields/date_picker.dart';
+import 'package:launchlab/src/presentation/common/widgets/text/ll_body_text.dart';
 import 'package:launchlab/src/presentation/common/widgets/useful.dart';
 import 'package:launchlab/src/utils/constants.dart';
 import 'package:launchlab/src/utils/helper.dart';
@@ -118,11 +119,11 @@ class _AddTaskBoxState extends State<AddTaskBox> {
               size: 4),
           Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
             ElevatedButton(
-                child: bodyText(
-                    widget.actionType == ActionTypes.create
+                child: LLBodyText(
+                    label: widget.actionType == ActionTypes.create
                         ? "  Add  "
                         : "   Update   ",
-                    weight: FontWeight.w500),
+                    fontWeight: FontWeight.w500),
                 onPressed: () {
                   DateTime startDate =
                       DateTime.parse(_startDateController.text);
@@ -144,7 +145,7 @@ class _AddTaskBoxState extends State<AddTaskBox> {
                   }
                 }),
             OutlinedButton(
-              child: bodyText("  Close  ", weight: FontWeight.w500),
+              child: const LLBodyText(label: "Close", fontWeight: FontWeight.w500),
               onPressed: () {
                 navigatePop(context);
               },

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:launchlab/src/config/app_theme.dart';
 import 'package:launchlab/src/domain/user/models/accomplishment_entity.dart';
+import 'package:launchlab/src/presentation/common/widgets/text/ll_body_text.dart';
 import 'package:launchlab/src/presentation/common/widgets/useful.dart';
 
 class ApplicantAccomplishment extends StatelessWidget {
@@ -19,14 +20,14 @@ class ApplicantAccomplishment extends StatelessWidget {
       ),
       Flexible(
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          bodyText(
+          LLBodyText(label:
               "${dateToDateFormatter(accomplishmentData.startDate, noDate: true)} - ${accomplishmentData.isActive ? 'Present' : dateToDateFormatter(accomplishmentData.endDate, noDate: true)}",
               color: greyColor,
               size: 15.0),
           subHeaderText(accomplishmentData.title, size: 15.0),
-          bodyText(accomplishmentData.issuer, size: 15.0),
+          LLBodyText(label: accomplishmentData.issuer, size: 15.0),
           const SizedBox(height: 8),
-          bodyText(accomplishmentData.description!, size: 14.0),
+          LLBodyText(label: accomplishmentData.description!, size: 14.0),
           const SizedBox(height: 20)
         ]),
       ),

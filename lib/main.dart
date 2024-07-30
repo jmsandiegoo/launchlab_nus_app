@@ -58,8 +58,8 @@ class _RootAppContentState extends State<RootAppContent> {
     super.initState();
     _appRootCubit = BlocProvider.of<AppRootCubit>(context);
     _appRootCubit.handleAuthListener();
-    SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky,
-        overlays: [SystemUiOverlay.top]);
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
+        overlays: SystemUiOverlay.values);
   }
 
   @override

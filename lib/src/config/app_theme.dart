@@ -26,15 +26,15 @@ final ThemeData appThemeData = ThemeData(
   elevatedButtonTheme: const ElevatedButtonThemeData(
     style: ButtonStyle(
       textStyle:
-          MaterialStatePropertyAll(TextStyle(fontWeight: FontWeight.w400)),
-      padding: MaterialStatePropertyAll(
+          WidgetStatePropertyAll(TextStyle(fontWeight: FontWeight.w400)),
+      padding: WidgetStatePropertyAll(
         EdgeInsets.symmetric(vertical: 10.0),
       ),
     ),
   ),
   textButtonTheme: const TextButtonThemeData(
     style: ButtonStyle(
-      textStyle: MaterialStatePropertyAll(
+      textStyle: WidgetStatePropertyAll(
         TextStyle(
           decoration: TextDecoration.underline,
         ),

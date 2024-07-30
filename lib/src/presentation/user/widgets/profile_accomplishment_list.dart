@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:launchlab/src/config/app_theme.dart';
 import 'package:launchlab/src/domain/user/models/accomplishment_entity.dart';
+import 'package:launchlab/src/presentation/common/widgets/text/ll_body_text.dart';
 import 'package:launchlab/src/presentation/common/widgets/useful.dart';
 import 'package:launchlab/src/presentation/user/screens/profile_manage_accomplishment_page.dart';
 import 'package:launchlab/src/utils/constants.dart';
@@ -106,7 +107,7 @@ class ProfileAccomplishmentList extends StatelessWidget {
                   children: [
                     ...() {
                       if (sortedAccomplishments.isEmpty) {
-                        return [bodyText("No accomplishments stated.")];
+                        return [const LLBodyText(label: "No accomplishments stated.")];
                       }
                       return sortedAccomplishments
                           .map((item) =>

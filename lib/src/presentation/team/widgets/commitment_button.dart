@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:launchlab/src/config/app_theme.dart';
+import 'package:launchlab/src/presentation/common/widgets/text/ll_body_text.dart';
 import 'package:launchlab/src/presentation/common/widgets/useful.dart';
 
 class CommitmentButton extends StatelessWidget {
@@ -24,7 +25,7 @@ class CommitmentButton extends StatelessWidget {
         onPressed: () {
           cubit.onCommitmentChanged(newLevel);
         },
-        child: bodyText(text,
+        child: LLBodyText(label: text,
             size: 12.0,
             color: cubit.state.commitmentInput == newLevel
                 ? whiteColor

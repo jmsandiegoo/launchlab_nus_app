@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:launchlab/src/config/app_theme.dart';
 import 'package:launchlab/src/domain/user/models/user_entity.dart';
+import 'package:launchlab/src/presentation/common/widgets/text/ll_body_text.dart';
 import 'package:launchlab/src/presentation/common/widgets/useful.dart';
 
 class SearchUserCard extends StatelessWidget {
@@ -30,8 +31,8 @@ class SearchUserCard extends StatelessWidget {
                         '${userData.firstName!} ${userData.lastName!}',
                         ' (@${userData.username})',
                         size: 13.5),
-                    bodyText(userData.title!, size: 11.5),
-                    bodyText(userData.userDegreeProgramme.toString(),
+                    LLBodyText(label: userData.title!, size: 11.5),
+                    LLBodyText(label: userData.userDegreeProgramme.toString(),
                         size: 11.5) //Need to init at backend
                   ]),
             ),

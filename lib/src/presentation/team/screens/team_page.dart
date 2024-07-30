@@ -4,6 +4,7 @@ import 'package:launchlab/src/config/app_theme.dart';
 import 'package:launchlab/src/data/team/team_repository.dart';
 import 'package:launchlab/src/data/user/user_repository.dart';
 import 'package:launchlab/src/domain/team/team_entity.dart';
+import 'package:launchlab/src/presentation/common/widgets/text/ll_body_text.dart';
 import 'package:launchlab/src/presentation/common/widgets/useful.dart';
 import 'package:launchlab/src/presentation/team/cubits/team_cubit.dart';
 import 'package:launchlab/src/presentation/team/widgets/manage_member_form.dart';
@@ -167,7 +168,7 @@ class _TeamState extends State<TeamContent> {
                                   const SizedBox(height: 30),
                                   subHeaderText("Description"),
                                   const SizedBox(height: 10),
-                                  bodyText(teamData.description, size: 13.0),
+                                  LLBodyText(label: teamData.description, size: 13.0),
                                   const SizedBox(height: 40),
                                   Row(
                                     mainAxisAlignment:
@@ -209,8 +210,8 @@ class _TeamState extends State<TeamContent> {
                                               Row(children: [
                                                 subHeaderText("Members"),
                                                 const SizedBox(width: 5),
-                                                bodyText(
-                                                    "${teamData.currentMembers} / ${teamData.maxMembers}",
+                                                LLBodyText(
+                                                    label: "${teamData.currentMembers} / ${teamData.maxMembers}",
                                                     size: 13.0),
                                                 const SizedBox(width: 10),
                                                 const Icon(Icons

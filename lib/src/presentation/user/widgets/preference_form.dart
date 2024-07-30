@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:launchlab/src/domain/common/models/category_entity.dart';
 import 'package:launchlab/src/presentation/common/widgets/feedback_toast.dart';
 import 'package:launchlab/src/presentation/common/widgets/form_fields/multi_button_select.dart';
+import 'package:launchlab/src/presentation/common/widgets/text/ll_body_text.dart';
 import 'package:launchlab/src/presentation/common/widgets/useful.dart';
 import 'package:launchlab/src/presentation/user/cubits/preference_form_cubit.dart';
 import 'package:launchlab/src/utils/toast_manager.dart';
@@ -51,7 +52,7 @@ class _PreferenceFormState extends State<PreferenceForm> {
           const SizedBox(
             height: 15.0,
           ),
-          bodyText(
+          const LLBodyText(label:
               "Below are the categories you currently have interests in. You can change accordingly."),
           const SizedBox(
             height: 20.0,

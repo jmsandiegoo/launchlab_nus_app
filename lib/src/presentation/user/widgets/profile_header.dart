@@ -2,6 +2,7 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:launchlab/src/config/app_theme.dart';
 import 'package:launchlab/src/domain/user/models/user_entity.dart';
+import 'package:launchlab/src/presentation/common/widgets/text/ll_body_text.dart';
 import 'package:launchlab/src/presentation/common/widgets/useful.dart';
 import 'package:launchlab/src/presentation/user/screens/profile_edit_intro_page.dart';
 import 'package:launchlab/src/utils/constants.dart';
@@ -92,9 +93,9 @@ class ProfileHeader extends StatelessWidget {
                     alignment: TextAlign.center),
                 smallText("@${userProfile.username}"),
                 const SizedBox(height: 5),
-                bodyText(userProfile.title!, alignment: TextAlign.center),
-                bodyText(userProfile.userDegreeProgramme!.name,
-                    color: darkGreyColor, alignment: TextAlign.center),
+                LLBodyText(label: userProfile.title!, textAlign: TextAlign.center),
+                LLBodyText(label: userProfile.userDegreeProgramme!.name,
+                    color: darkGreyColor, textAlign: TextAlign.center),
                 const SizedBox(height: 35),
               ],
             ),

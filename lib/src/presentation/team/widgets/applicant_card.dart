@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:launchlab/src/config/app_theme.dart';
 import 'package:launchlab/src/domain/user/models/user_entity.dart';
+import 'package:launchlab/src/presentation/common/widgets/text/ll_body_text.dart';
 import 'package:launchlab/src/presentation/common/widgets/useful.dart';
 
 class ApplicantCard extends StatelessWidget {
@@ -37,7 +38,7 @@ class ApplicantCard extends StatelessWidget {
                 subHeaderText(
                     "${applicantData.firstName} ${applicantData.lastName}",
                     size: 16.0),
-                bodyText(applicantData.title!, size: 13.0)
+                LLBodyText(label: applicantData.title!, size: 13.0)
               ],
             )
           ]),

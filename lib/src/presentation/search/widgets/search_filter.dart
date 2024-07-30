@@ -5,6 +5,7 @@ import 'package:launchlab/src/data/common/common_repository.dart';
 import 'package:launchlab/src/data/search/search_repository.dart';
 import 'package:launchlab/src/domain/common/models/skill_entity.dart';
 import 'package:launchlab/src/domain/search/search_filter_entity.dart';
+import 'package:launchlab/src/presentation/common/widgets/text/ll_body_text.dart';
 import 'package:launchlab/src/presentation/common/widgets/useful.dart';
 import 'package:launchlab/src/presentation/search/cubits/discover_cubit.dart';
 import 'package:launchlab/src/presentation/team/widgets/commitment_button.dart';
@@ -154,7 +155,7 @@ class _SearchFilterContentState extends State<SearchFilterContent> {
               const SizedBox(height: 15),
               Center(
                 child: ElevatedButton(
-                  child: bodyText("  Apply  "),
+                  child: const LLBodyText(label: "  Apply  "),
                   onPressed: () {
                     Navigator.of(context).pop(SearchFilterEntity(
                         categoryInput: discoverCubit.state.categoryInput,

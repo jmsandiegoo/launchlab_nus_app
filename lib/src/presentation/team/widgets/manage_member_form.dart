@@ -3,6 +3,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:launchlab/src/config/app_theme.dart';
 import 'package:launchlab/src/domain/team/team_user_entity.dart';
+import 'package:launchlab/src/presentation/common/widgets/text/ll_body_text.dart';
 import 'package:launchlab/src/presentation/common/widgets/useful.dart';
 import 'package:launchlab/src/utils/constants.dart';
 import 'package:launchlab/src/utils/helper.dart';
@@ -66,7 +67,7 @@ class ManageMemberBox extends StatelessWidget {
                     ]),
                   ),
                 ]),
-                OutlinedButton(onPressed: onClose, child: bodyText("Close")),
+                OutlinedButton(onPressed: onClose, child: const LLBodyText(label: "Close")),
                 const SizedBox(height: 20),
               ]),
         ),

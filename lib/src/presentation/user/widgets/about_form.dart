@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:launchlab/src/presentation/common/widgets/feedback_toast.dart';
 import 'package:launchlab/src/presentation/common/widgets/form_fields/text_field.dart';
+import 'package:launchlab/src/presentation/common/widgets/text/ll_body_text.dart';
 import 'package:launchlab/src/presentation/common/widgets/useful.dart';
 import 'package:launchlab/src/presentation/user/cubits/about_form_cubit.dart';
 import 'package:launchlab/src/utils/toast_manager.dart';
@@ -68,7 +69,7 @@ class _AboutFormState extends State<AboutForm> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       headerText("Edit About"),
-                      bodyText(
+                      const LLBodyText(label:
                           "Feel free to share your years of professional experience, industry knowledge, and skills."),
                     ],
                   ),

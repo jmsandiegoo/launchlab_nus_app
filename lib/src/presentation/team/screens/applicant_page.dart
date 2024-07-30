@@ -4,6 +4,7 @@ import 'package:launchlab/src/config/app_theme.dart';
 import 'package:launchlab/src/data/team/team_repository.dart';
 import 'package:launchlab/src/domain/team/team_applicant_entity.dart';
 import 'package:launchlab/src/domain/team/team_entity.dart';
+import 'package:launchlab/src/presentation/common/widgets/text/ll_body_text.dart';
 import 'package:launchlab/src/presentation/common/widgets/useful.dart';
 import 'package:launchlab/src/presentation/team/cubits/applicant_cubit.dart';
 import 'package:launchlab/src/presentation/team/widgets/applicant_accomplishment.dart';
@@ -110,10 +111,10 @@ class _ApplicantPageContentState extends State<ApplicantPageContent> {
                                                   widget.applicantData
                                                       .getFullName(),
                                                   size: 27.0),
-                                              bodyText(widget
+                                              LLBodyText(label: widget
                                                   .applicantData.user.title!),
-                                              bodyText(
-                                                  widget
+                                              LLBodyText(
+                                                  label: widget
                                                       .applicantData
                                                       .user
                                                       .userDegreeProgramme!
@@ -125,7 +126,7 @@ class _ApplicantPageContentState extends State<ApplicantPageContent> {
                               ),
                               const SizedBox(height: 40),
                               subHeaderText('About Me'),
-                              bodyText(widget.applicantData.user.about!),
+                              LLBodyText(label: widget.applicantData.user.about!),
                               const SizedBox(height: 40),
                               widget.applicantData.user.userResume == null
                                   ? const SizedBox()
