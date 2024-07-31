@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:launchlab/src/config/app_theme.dart';
 import 'package:launchlab/src/presentation/common/cubits/app_root_cubit.dart';
+import 'package:launchlab/src/presentation/common/widgets/buttons/ll_outlined_button.dart';
 import 'package:launchlab/src/presentation/common/widgets/text/ll_body_text.dart';
 import 'package:launchlab/src/presentation/common/widgets/useful.dart';
 import 'package:launchlab/src/presentation/team/cubits/team_home_cubit.dart';
@@ -25,8 +26,8 @@ class TeamHomeHeader extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  profilePicture(
-                      40, teamHomeCubit.state.userData?.userAvatar?.signedUrl ?? "",
+                  profilePicture(40,
+                      teamHomeCubit.state.userData?.userAvatar?.signedUrl ?? "",
                       isUrl: true),
                   IconButton(
                       onPressed: () => appRootCubit.handleSignOut(),
@@ -44,8 +45,10 @@ class TeamHomeHeader extends StatelessWidget {
                 child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      headerText("Hey, ${teamHomeCubit.state.userData?.firstName}"),
-                      const LLBodyText(label: "Check out your awesome \nteams!"),
+                      headerText(
+                          "Hey, ${teamHomeCubit.state.userData?.firstName}"),
+                      const LLBodyText(
+                          label: "Check out your awesome \nteams!"),
                     ]),
               ),
               Padding(
@@ -71,52 +74,35 @@ class TeamHomeHeader extends StatelessWidget {
                   children: [
                     Row(children: [
                       const SizedBox(width: 25),
-                      OutlinedButton(
-                        style: OutlinedButton.styleFrom(
-                            backgroundColor: teamHomeCubit.state.isLeading
-                                ? blackColor
-                                : whiteColor,
-                            side:
-                                const BorderSide(width: 1, color: blackColor)),
-                        onPressed: () {
+                      LLOutlinedButton(
+                        label: "Leading",
+                        onPressedHandler: () {
                           teamHomeCubit.setIsLeadingState(true);
                         },
-                        child: Text(
-                          "Leading",
-                          style: TextStyle(
-                            color: teamHomeCubit.state.isLeading
-                                ? whiteColor
-                                : blackColor,
-                            fontSize: 10,
-                          ),
-                        ),
+                        color: blackColor,
+                        activeColor: whiteColor,
+                        backgroundActiveColor: blackColor,
+                        isActive: teamHomeCubit.state.isLeading,
                       ),
                       const SizedBox(width: 10),
-                      OutlinedButton(
-                        style: OutlinedButton.styleFrom(
-                            backgroundColor: teamHomeCubit.state.isLeading
-                                ? whiteColor
-                                : blackColor,
-                            side:
-                                const BorderSide(width: 0.5, color: blackColor)),
-                        onPressed: () {
+                      LLOutlinedButton(
+                        label: "Participating",
+                        onPressedHandler: () {
                           teamHomeCubit.setIsLeadingState(false);
                         },
-                        child: Text(
-                          "Participating",
-                          style: TextStyle(
-                              color: teamHomeCubit.state.isLeading
-                                  ? blackColor
-                                  : whiteColor,
-                              fontSize: 10),
-                        ),
+                        color: blackColor,
+                        activeColor: whiteColor,
+                        backgroundActiveColor: blackColor,
+                        isActive: !teamHomeCubit.state.isLeading,
                       ),
                     ]),
                     Row(children: [
-                      OutlinedButton(
-                        style: OutlinedButton.styleFrom(
-                            backgroundColor: yellowColor),
-                        onPressed: () {
+                      LLOutlinedButton(
+                        label: "Create",
+                        fontSize: 12,
+                        color: blackColor,
+                        backgroundColor: yellowColor,
+                        onPressedHandler: () {
                           navigatePushWithData(
                                   context,
                                   "/team-home/create_teams",
@@ -128,10 +114,6 @@ class TeamHomeHeader extends StatelessWidget {
                             }
                           });
                         },
-                        child: const Text(
-                          "Create",
-                          style: TextStyle(color: blackColor, fontSize: 10),
-                        ),
                       ),
                       const SizedBox(width: 15.0),
                     ]),

@@ -98,7 +98,7 @@ class TeamCubit extends Cubit<TeamState> {
           incompleteMilestone: res.getIncompleteMilestone(),
           teamData: res.team,
           status: TeamStatus.success);
-      debugPrint('Team state emitted');
+          
       emit(newState);
     } on Failure catch (error) {
       emit(state.copyWith(status: TeamStatus.error, error: error));
