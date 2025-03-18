@@ -4,6 +4,7 @@ LaunchLab NUS
 
 ![Project Poster](https://i.imgur.com/8z5nbSB.jpg)
 
+## Demo Video
 [![Watch Video](https://i.imgur.com/PYaulFL.png)](https://drive.google.com/file/d/1h3fFIEVxrHjdUUjW0dtdNTJfQEeFRple/view?usp=drive_link)
 
 ## Getting Started
